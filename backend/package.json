@@ -1,0 +1,21 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev src/server.ts",
+    "lint": "eslint src/**/*.{js,jsx,ts,tsx} --ignore-pattern build --ignore-pattern dist",
+    "start": "node build/src/server.js",
+    "test": "cross-env NODE_ENV=test jest --coverage --testTimeout=50000 --runInBand"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "typescript": "^5.9.2"
+  }
+}
