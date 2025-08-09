@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import swaggerSpec from './swagger/swagger';
+import swaggerSpec from './utils/swagger.js';
 import swaggerUi from 'swagger-ui-express';
 import todoRoutes from './routes/todo.routes';
 
@@ -9,11 +9,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// app.use((req, _res, next) => {
-//   console.log("Request reached Express!");
-//   console.log(`Incoming request: ${req.method} ${req.path}`);
-//   next();
-// });
+app.use((req, _res, next) => {
+  console.log("Request reached Express!");
+  console.log(`Incoming request: ${req.method} ${req.path}`);
+  next();
+});
 
 app.get('/api/ping', (_req, res) => {
   console.log('someone pinged here');
