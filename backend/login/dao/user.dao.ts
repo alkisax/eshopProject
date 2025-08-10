@@ -44,6 +44,18 @@ const readById = async (userId: string): Promise<UserView> => {
   return toUserDAO(user as IUser);
 };
 
+const readByUsername = async (username: string,): Promise<UserView> => {
+  const user = await User.findOne({ username: username })
+  if (!user) throw new Error(`User with username ${username} not found`);
+  return toUserDAO(user as IUser);
+}
+
+const toServerbyUsername = async (username: string,): Promise<IUser> => {
+  const user = await User.findOne({ username: username })
+  if (!user) throw new Error(`User with username ${username} not found`);
+  return user as IUser;
+}
+
 const update = async (userId: string, userData: UpdateUser): Promise<UserView> => {
   const response = await User.findByIdAndUpdate(userId, userData, { new: true})
   if (!response) {
@@ -64,7 +76,9 @@ export const userDAO = {
   toUserDAO,
   create,
   readAll,
-  update,
   readById,
+  readByUsername,
+  toServerbyUsername,
+  update,
   deleteById
 };

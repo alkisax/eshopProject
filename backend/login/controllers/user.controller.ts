@@ -122,6 +122,33 @@ export const readById = async (req: Request, res: Response) => {
   }
 }
 
+export const readByUsername = async (req: Request, res: Response) => {
+
+  // TODO auth headers? or just exist?
+  if (!req.headers.authorization) {
+    return res.status(401).json({ status: false, error: 'No token provided' });
+  }
+
+  try {
+    const username: string | undefined = req.params.username
+    if (!username) {
+      res.status(400).json({ status: false, error: 'no username provided'})
+      return
+    }
+
+    const user = await userDAO.readByUsername(username)
+    res.status(200).json({ status: true, data: user })
+
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+    console.error(error);
+      res.status(500).json({ status: false, error: error.message });
+    } else {
+      res.status(500).json({ status: false, error: 'Unknown error' });
+    }
+  }
+}
+
 // update
 export const updateById = async (req: Request, res: Response) => {
 

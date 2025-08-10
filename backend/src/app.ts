@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import swaggerSpec from './utils/swagger.js';
 import swaggerUi from 'swagger-ui-express';
-import todoRoutes from './routes/todo.routes';
+// import todoRoutes from './routes/todo.routes';
 
 const app = express();
 
@@ -24,7 +24,7 @@ app.get('/health', (_req, res) => {
   res.send('ok');
 });
 
-app.use('/api/todo', todoRoutes);
+// app.use('/api/todo', todoRoutes);
 
 app.use(express.static('dist')); 
 

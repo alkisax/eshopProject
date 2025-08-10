@@ -80,7 +80,6 @@ const googleAuth = async (code: string) => {
   try {
     // Exchange code for tokens
     const { tokens } = await oauth2Client.getToken(code)
-    // console.log("Step 1", tokens)
     oauth2Client.setCredentials(tokens)
 
     if (!tokens.id_token) {
@@ -102,7 +101,7 @@ const googleAuth = async (code: string) => {
   }
 }
 
-module.exports = {
+export const authService = {
   generateAccessToken,
   verifyPassword,
   verifyAccessToken,
