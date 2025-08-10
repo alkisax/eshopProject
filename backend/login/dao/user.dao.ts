@@ -2,7 +2,7 @@ import type { IUser, UserView, CreateUserHash, UpdateUser } from "../types/user.
 import User from '../models/users.models.js'
 
 // Response DAO (safe to send to client no hashed pass)
-const toUserDAO = (user: IUser): UserView => {
+export const toUserDAO = (user: IUser): UserView => {
   return {
     id: user._id.toString(),
     username: user.username,
@@ -30,12 +30,6 @@ const create = async (userData: CreateUserHash): Promise<UserView> => {
   return toUserDAO(response as IUser); 
 }
 
-const readById = async (userId: string): Promise<UserView> => {
-  const user = await User.findById(userId);
-  if (!user) throw new Error('User not found');
-  return toUserDAO(user as IUser);
-};
-
 const readAll = async (): Promise<UserView[]> => {
   const response = await User.find()
   if (response.length === 0) {
@@ -43,6 +37,12 @@ const readAll = async (): Promise<UserView[]> => {
   }
   return response.map((user) => toUserDAO(user as IUser))
 }
+
+const readById = async (userId: string): Promise<UserView> => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+  return toUserDAO(user as IUser);
+};
 
 const update = async (userId: string, userData: UpdateUser): Promise<UserView> => {
   const response = await User.findByIdAndUpdate(userId, userData, { new: true})
@@ -55,15 +55,16 @@ const update = async (userId: string, userData: UpdateUser): Promise<UserView> =
 const deleteById = async (userId: string): Promise<UserView> => {
   const response = await User.findByIdAndDelete(userId)
   if (!response) {
-    throw new Error('User does not exist or error deleting');
+    throw new Error('User does not exist');
   }
   return toUserDAO(response as IUser)
 }
 
-module.exports = {
+export const userDAO = {
   toUserDAO,
   create,
   readAll,
   update,
+  readById,
   deleteById
 };

@@ -23,6 +23,15 @@ export interface UserView {
   updatedAt: Date;
 }
 
+// for creating a user with plain password (controller -> service)
+export interface CreateUser {
+  username: string;
+  name?: string;
+  email?: string;
+  password: string;
+  roles?: string[];
+}
+
 // for creating a user with a hashed pass
 export interface CreateUserHash {
   username: string;
@@ -34,8 +43,9 @@ export interface CreateUserHash {
 
 // for updating a user
 export interface UpdateUser {
+  username?: string
   name?: string;
-  email?: string;
   roles?: string[];
   password?: string; // optional, will be hashed if present
+  hashedPassword?: string;
 }
