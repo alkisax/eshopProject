@@ -77,29 +77,35 @@ export const googleLogin = async(req: Request, res: Response) => {
     console.log('Auth code is missing during Google login attempt');
     return res.status(400).json({ status: false, data: 'auth code is missing' });
   }
-  if (!code) {
-    console.log('Auth code is missing during Google login attempt');
-    res.status(400).json({status: false, data: "auth code is missing"})
-  }
 
   // 2 – Authenticate with Google calls service which:
-  // a. Uses Google’s OAuth2 client to exchange the code for tokens (access_token, id_token, etc.).
-  // b. Verifies the id_token to ensure it’s really from Google.
-  // c. Extracts user profile info (email, name, etc.) from Google’s payload.
+    // a. Uses Google’s OAuth2 client to exchange the code for tokens (access_token, id_token, etc.).
+    // b. Verifies the id_token to ensure it’s really from Google.
+    // c. Extracts user profile info (email, name, etc.) from Google’s payload.
 
-  const { user, tokens } = await authService.googleAuth(code);
+  const { user, tokens, error } = await authService.googleAuth(code);
 
-  if (!user || !user.email) {
+  if (error || !user || !user.email) {
     console.log('Google login failed or incomplete');
     return res.status(401).json({ status: false, data: "Google login failed" });
   }
 
-  // 3 - If user exists → returns them. If not → creates them with default roles: ['user']
-  const dbUser = await User.findOneAndUpdate(
-    { email: user.email },
-    { $setOnInsert: { email: user.email, name: user.name, roles: ['user'] } },
-    { upsert: true, new: true }
-  );
+  // 3 - If user does not exist → redirect to frontend signup
+
+  // Check if user exists
+  const dbUser = await User.findOne({ email: user.email });
+
+  if (!dbUser) {
+    const frontendUrl = process.env.FRONTEND_URL;
+    // Redirect to signup page 
+    return res.redirect(`${frontendUrl}/signup`);
+  }
+
+  // const dbUser = await User.findOneAndUpdate(
+  //   { email: user.email },
+  //   { $setOnInsert: { email: user.email, name: user.name, roles: ['user'] } },
+  //   { upsert: true, new: true }
+  // );
 
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -107,6 +113,63 @@ export const googleLogin = async(req: Request, res: Response) => {
   }
 
   // 4. Generate your app’s JWT
+  const payload = { id: dbUser._id, roles: dbUser.roles };
+  const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+
+  // 5. Redirect to front if sign in
+  const frontendUrl = process.env.FRONTEND_URL
+  return res.redirect(`${frontendUrl}/google-success?token=${token}&email=${dbUser.email}`);
+}
+
+export const googleSignup  = async(req: Request, res: Response) => {
+  // 1. Controller receives the Google code from Google
+  const code = req.query.code
+
+  if (typeof code !== 'string') {
+    console.log('Auth code is missing during Google login attempt');
+    return res.status(400).json({ status: false, data: 'auth code is missing' });
+  }
+
+  // 2 – Authenticate with Google calls service which:
+  const { user, tokens, error } = await authService.googleAuth(code);
+
+  if (error || !user || !user.email) {
+    console.log('Google login failed or incomplete');
+    return res.status(401).json({ status: false, data: "Google login failed" });
+  }
+
+  // 3 - If user exists signs them in else create user
+  // Check if user exists
+  let  dbUser = await User.findOne({ email: user.email });
+
+  if (!dbUser) {
+    try {
+      dbUser = await User.findOneAndUpdate(
+        { email: user.email },
+        { $setOnInsert: { email: user.email, name: user.name, roles: ['user'] } },
+        { upsert: true, new: true }
+      )
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+      console.error(error);
+        res.status(500).json({ status: false, error: error.message });
+      } else {
+        res.status(500).json({ status: false, error: 'Unknown error' });
+      }
+    }
+  }
+
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT secret is not defined in environment variables");
+  }
+
+  // 4. Generate your app’s JWT
+
+  if (!dbUser) {
+    return res.status(500).json({ status: false, error: "User not found or failed to create" });
+  }
+
   const payload = { id: dbUser._id, roles: dbUser.roles };
   const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
