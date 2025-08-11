@@ -2,6 +2,8 @@ import express from 'express'
 const router = express.Router()
 import { authController } from '../controllers/auth.controller'
 
+//>     "username": "alkisax",
+//>     "password": "AdminPass1!
 router.post('/', authController.login)
 router.get('/google/callback', authController.googleLogin)
 router.get('/google/signup', authController.googleSignup)

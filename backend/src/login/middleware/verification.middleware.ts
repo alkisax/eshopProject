@@ -1,16 +1,13 @@
 // middleware/verification.middleware.js
-import type { Request, Response, NextFunction  } from 'express';
+import type { Response, NextFunction  } from 'express';
 import { authService } from '../services/auth.service';
-import type { Roles, UserView } from "../types/user.types";
+import type { Roles, AuthRequest  } from "../types/user.types";
 
 /**
  * Middleware to verify JWT token.
  * Attaches decoded user data to `req.user` if valid.
  */
-// εδώ δεν μας επε΄τρεπε να είχαμε απλός req: Request μαλλον γιατι είναι middleware
-interface AuthRequest extends Request {
-  user?: UserView;
-}
+// εδώ δεν μας επετρεπε να είχαμε απλός req: Request μαλλον γιατι είναι middleware
 
 const verifyToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const token = authService.getTokenFrom(req);
@@ -33,7 +30,7 @@ const verifyToken = async (req: AuthRequest, res: Response, next: NextFunction) 
   }
 
   req.user = result.user;
-  next();
+  return next();
 };
 
 /**
@@ -49,11 +46,12 @@ const checkRole = (requiredRole: Roles) => {
       return res.status(403).json({ status: false, error: 'Forbidden' });
     }
 
-    next();
+    return next();
   };
 };
 
-module.exports = {
+export const middleware = {
+
   verifyToken,
   checkRole
-};
+}

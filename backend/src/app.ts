@@ -3,6 +3,7 @@ import cors from 'cors';
 import swaggerSpec from './utils/swagger';
 import swaggerUi from 'swagger-ui-express';
 import authRoutes from './login/routes/auth.routes';
+import userRoutes from './login/routes/user.routes'
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 app.use(express.static('dist')); 
 

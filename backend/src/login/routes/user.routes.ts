@@ -1,0 +1,22 @@
+import express from 'express';
+const router = express.Router()
+import { userController } from '../controllers/user.controller';
+import { middleware } from '../middleware/verification.middleware';
+
+// create
+router.post('/', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.create)
+
+//read
+router.get ('/', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.findAll)
+
+router.get('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.readById);
+
+router.get('/username/:username', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.readByUsername);
+
+// update
+router.put('/:id', middleware.verifyToken, userController.updateById);
+
+// delete
+router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.deleteById)
+
+export default router;

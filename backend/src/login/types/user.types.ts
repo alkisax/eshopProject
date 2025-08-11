@@ -1,4 +1,5 @@
 import { Document, Types } from "mongoose";
+import type { Request } from 'express';
 
 // full mongose obj
 export interface IUser extends Document {
@@ -50,4 +51,9 @@ export interface UpdateUser {
   roles?: string[];
   password?: string; // optional, will be hashed if present
   hashedPassword?: string;
+}
+
+// φτιαχτηκε γιατί το middleware δεν επέτρεπε req: Request
+export interface AuthRequest extends Request {
+  user?: UserView;
 }

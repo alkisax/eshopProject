@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { userDAO } from '../dao/user.dao'
 
 import type { Request, Response } from 'express';
-import type { CreateUser, UpdateUser } from '../types/user.types'
+import type { CreateUser, UpdateUser, AuthRequest } from '../types/user.types'
 
 const createZodUserSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -153,11 +153,26 @@ export const readByUsername = async (req: Request, res: Response) => {
 }
 
 // update
-export const updateById = async (req: Request, res: Response) => {
+export const updateById = async (req: AuthRequest, res: Response) => {
 
   // TODO auth headers? or just exist?
   if (!req.headers.authorization) {
     return res.status(401).json({ status: false, error: 'No token provided' });
+  }
+
+  const userIdToUpdate = req.params.id;
+  const requestingUser = req.user; // <-- This should be set by verifyToken middleware
+
+  if (!requestingUser) {
+    return res.status(401).json({ status: false, error: 'Unauthorized' });
+  }
+
+  // Allow if admin OR user updating own profile
+  if (
+    !requestingUser.roles.includes('ADMIN') &&
+    requestingUser.id !== userIdToUpdate
+  ) {
+    return res.status(403).json({ status: false, error: 'Forbidden: Cannot update other users' });
   }
 
   // Validate request body
@@ -239,4 +254,13 @@ export const deleteById = async (req: Request, res: Response) => {
       return res.status(500).json({ status: false, error: 'Unknown error' });
     }
   }
+}
+
+export const userController = {
+  create,
+  findAll,
+  readById,
+  readByUsername,
+  updateById,
+  deleteById
 }
