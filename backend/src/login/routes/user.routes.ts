@@ -4,7 +4,10 @@ import { userController } from '../controllers/user.controller';
 import { middleware } from '../middleware/verification.middleware';
 
 // create
-router.post('/', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.create)
+//signup
+router.post('/signup/user', userController.createUser);
+//create admin
+router.post('/signup/admin', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.createAdmin)
 
 //read
 router.get ('/', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.findAll)

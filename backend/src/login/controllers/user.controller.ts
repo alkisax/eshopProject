@@ -23,7 +23,47 @@ export const updateZodUserSchema = createZodUserSchema.partial();
 
 // δεν χρειάζετε return type γιατι το κάνει το dao
 // create
-export const create = async (req: Request, res: Response) => {
+// signup
+export const createUser = async (req: Request, res: Response) => {
+  let data = createZodUserSchema.omit({ roles: true }).parse(req.body);
+
+  const hashedPassword = await bcrypt.hash(data.password, 10);
+
+  try {
+    const existingUser = await User.findOne({ username: data.username });
+    if (existingUser) {
+      return res.status(409).json({ status: false, error: 'Username already taken' });
+    }
+
+    if (data.email) {
+      const existingEmail = await User.findOne({ email: data.email });
+      if (existingEmail) {
+        return res.status(409).json({ status: false, error: 'Email already taken' });
+      }
+    }
+
+    const newUser = await userDAO.create({
+      username: data.username,
+      name: data.name ?? '',
+      email: data.email ?? '',
+      roles: ['user'], // always user
+      hashedPassword
+    });
+
+    return res.status(201).json({ status: true, data: newUser });
+
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+    console.error(error);
+      return res.status(500).json({ status: false, error: error.message });
+    } else {
+      return res.status(500).json({ status: false, error: 'Unknown error' });
+    }
+  }
+};
+
+//create admin
+export const createAdmin = async (req: Request, res: Response) => {
 
   let data = createZodUserSchema.parse(req.body) as CreateUser // Εδώ γίνεται το validation
   
@@ -257,7 +297,8 @@ export const deleteById = async (req: Request, res: Response) => {
 }
 
 export const userController = {
-  create,
+  createUser,
+  createAdmin,
   findAll,
   readById,
   readByUsername,
