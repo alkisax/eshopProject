@@ -1,19 +1,20 @@
 import express from 'express';
 import cors from 'cors';
-import swaggerSpec from './swagger/swagger';
+import swaggerSpec from './utils/swagger';
 import swaggerUi from 'swagger-ui-express';
-import todoRoutes from './routes/todo.routes';
+import authRoutes from './login/routes/auth.routes';
+import userRoutes from './login/routes/user.routes'
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// app.use((req, _res, next) => {
-//   console.log("Request reached Express!");
-//   console.log(`Incoming request: ${req.method} ${req.path}`);
-//   next();
-// });
+app.use((req, _res, next) => {
+  console.log("Request reached Express!");
+  console.log(`Incoming request: ${req.method} ${req.path}`);
+  next();
+});
 
 app.get('/api/ping', (_req, res) => {
   console.log('someone pinged here');
@@ -24,7 +25,8 @@ app.get('/health', (_req, res) => {
   res.send('ok');
 });
 
-app.use('/api/todo', todoRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 app.use(express.static('dist')); 
 

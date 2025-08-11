@@ -1,7 +1,8 @@
-import mongoose from 'mongoose';
-import app from './app'; 
 import dotenv from 'dotenv';
 dotenv.config();
+
+import mongoose from 'mongoose';
+import app from './app'; 
 
 const PORT = process.env.BACK_END_PORT || 3001;
 
