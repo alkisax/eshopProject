@@ -3,11 +3,11 @@
 
 import jwt from 'jsonwebtoken';
 import User from '../models/users.models';
+import { account } from '../../utils/appwrite'
+import { OAuthProvider } from 'appwrite';
 import { authService } from '../services/auth.service';
 import { userDAO } from '../dao/user.dao';
 import type { Request, Response } from 'express';
-import type { CreateUser, UpdateUser } from '../types/user.types'
-import { strict } from 'assert';
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -121,6 +121,7 @@ export const googleLogin = async(req: Request, res: Response) => {
   return res.redirect(`${frontendUrl}/google-success?token=${token}&email=${dbUser.email}`);
 }
 
+// DRY problem
 export const googleSignup  = async(req: Request, res: Response) => {
   // 1. Controller receives the Google code from Google
   const code = req.query.code
@@ -151,20 +152,19 @@ export const googleSignup  = async(req: Request, res: Response) => {
       )
     } catch (error: unknown) {
       if (error instanceof Error) {
-      console.error(error);
-        res.status(500).json({ status: false, error: error.message });
+        return res.status(500).json({ status: false, error: error.message });
       } else {
-        res.status(500).json({ status: false, error: 'Unknown error' });
+        return res.status(500).json({ status: false, error: 'Unknown error' });
       }
     }
   }
+
+  // 4. Generate your app’s JWT
 
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error("JWT secret is not defined in environment variables");
   }
-
-  // 4. Generate your app’s JWT
 
   if (!dbUser) {
     return res.status(500).json({ status: false, error: "User not found or failed to create" });
@@ -178,3 +178,72 @@ export const googleSignup  = async(req: Request, res: Response) => {
   return res.redirect(`${frontendUrl}/google-success?token=${token}&email=${dbUser.email}`);
 }
 
+export const githubLogin = async (req: Request, res: Response) => {
+  
+  const frontendUrl = process.env.FRONTEND_URL
+
+
+  try {
+    const session =  await account.createOAuth2Session(
+      OAuthProvider.Github,
+      `${frontendUrl}/github-success`,
+      `${frontendUrl}/signup`
+    )
+    //When GitHub login is successful, Appwrite redirects to your github-success page.
+    // At this point, the browser already has a session cookie, so you can call: const user = await account.get() If you’re doing this from the frontend, you can call it directly with the Appwrite Web SDK. If you want to do it from the backend, you’ll need to pass the Appwrite session cookie from the browser to your backend.
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return res.status(500).json({ status: false, error: error.message });
+    } else {
+      return res.status(500).json({ status: false, error: 'Unknown error' });
+    }
+  }
+}
+
+// Create a route in your backend (for example, /auth/github/callback) 
+export const githubCallback = async (req: Request, res: Response) => {
+  try {
+    // IMPORTANT: The browser must send Appwrite session cookie here,
+    const appwriteUser = await account.get();  // gets logged-in user from Appwrite session
+
+    if (!appwriteUser || !appwriteUser.email) {
+      return res.redirect(`${process.env.FRONTEND_URL}/signup`);
+    }
+
+    // Check if user exists in your DB
+    const dbUser = await User.findOne({ email: appwriteUser.email });
+
+    if (!dbUser) {
+      // Redirect to frontend signup page if user not found in your DB
+      return res.redirect(`${process.env.FRONTEND_URL}/signup`);
+    }
+
+    // Generate your JWT for your app
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error('JWT secret is missing');
+    }
+
+    const token = jwt.sign(
+      { id: dbUser._id, roles: dbUser.roles },
+      secret,
+      { expiresIn: '1d' }
+    );
+
+    // Redirect frontend with token & email
+    res.redirect(
+      `${process.env.FRONTEND_URL}/github-success?token=${token}&email=${dbUser.email}`
+    );
+  } catch (error) {
+    console.error('GitHub OAuth callback error:', error);
+    res.status(500).json({ status: false, error: 'GitHub OAuth callback failed' });
+  }
+};
+
+export const authController = {
+  login,
+  googleLogin,
+  googleSignup,
+  githubLogin,
+  githubCallback
+}

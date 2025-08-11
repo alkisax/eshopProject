@@ -6,6 +6,8 @@ import { OAuth2Client } from 'google-auth-library'
 import type { Request } from 'express';
 import type { IUser, UserView, CreateUser, CreateUserHash, UpdateUser } from "../types/user.types.js"
 
+import { userDAO } from '../dao/user.dao.js';
+
 const generateAccessToken = (user: IUser): string => {
   const payload = {
     id: user._id,
@@ -53,6 +55,21 @@ const verifyAccessToken = (token: string): VerifyAccessTokenResult => {
     } else {
       return { verified: false, data: 'unknown error' }
     }
+  }
+}
+
+const verifyAndFetchUser = async (token: string) => {
+  const verification = verifyAccessToken(token)
+  if (!verification.verified) {
+    return { verified: false, reason: verification.data };
+  }
+
+  const payload = verification.data as { id: string }
+  try {
+    const user = await userDAO.readById(payload.id);
+    return { verified: true, user };
+  } catch {
+    return { verified: false, reason: 'User not found' };
   }
 }
 
@@ -105,6 +122,7 @@ export const authService = {
   generateAccessToken,
   verifyPassword,
   verifyAccessToken,
+  verifyAndFetchUser,
   getTokenFrom,
   googleAuth
 }

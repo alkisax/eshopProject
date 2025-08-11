@@ -12,6 +12,8 @@ export interface IUser extends Document {
   updatedAt: Date;
 }
 
+export type Roles = 'USER' | 'ADMIN'
+
 // no hashed pass so as user can view
 export interface UserView {
   id: string;

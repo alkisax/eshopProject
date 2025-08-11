@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node-dev src/server.ts",
+    "dev": "ts-node-dev src/server.ts ",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx} --ignore-pattern build --ignore-pattern dist",
     "start": "node build/src/server.js",
     "test": "cross-env NODE_ENV=test jest --coverage --testTimeout=50000 --runInBand"
@@ -22,10 +21,12 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "appwrite": "^18.2.0",
     "bcrypt": "^6.0.0",
     "google-auth-library": "^10.2.1",
     "jsonwebtoken": "^9.0.2",
     "swagger-ui-express": "^5.0.1",
+    "ts-node-dev": "^2.0.0",
     "zod": "^4.0.17"
   }
 }

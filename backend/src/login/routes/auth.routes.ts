@@ -1,11 +1,14 @@
-const express = require('express')
+import express from 'express'
 const router = express.Router()
-const authController = require('../controllers/auth.controller')
+import { authController } from '../controllers/auth.controller'
 
 router.post('/', authController.login)
 router.get('/google/callback', authController.googleLogin)
+router.get('/google/signup', authController.googleSignup)
+router.get('/github/login', authController.githubLogin)
+router.get('/github/callback', authController.githubCallback);
 
-module.exports = router
+export default router;
 
 
 // https://accounts.google.com/o/oauth2/auth?client_id={apo_to_google}&redirect_uri={apo_to_google}&response_type={apo_to_auth.service}&scope=email%20profile&access_type=offline

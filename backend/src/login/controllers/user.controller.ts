@@ -18,6 +18,9 @@ const createZodUserSchema = z.object({
   roles: z.array(z.string()).optional(),
 });
 
+// Make all fields optional for update
+export const updateZodUserSchema = createZodUserSchema.partial();
+
 // δεν χρειάζετε return type γιατι το κάνει το dao
 // create
 export const create = async (req: Request, res: Response) => {
@@ -157,7 +160,13 @@ export const updateById = async (req: Request, res: Response) => {
     return res.status(401).json({ status: false, error: 'No token provided' });
   }
 
-  let data = { ...req.body } as UpdateUser // clone to avoid mutation
+  // Validate request body
+  const parseResult = updateZodUserSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({ status: false, errors: parseResult.error.issues.map(issue => issue.message) });
+  }
+
+  let data = { ...parseResult.data } as UpdateUser // clone to avoid mutation
 
   const password = data.password
   if (password) {
