@@ -2,17 +2,17 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node-dev src/server.ts ",
+    "dev": "ts-node-dev src/server.ts",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx} --ignore-pattern build --ignore-pattern dist",
     "start": "node build/src/server.js",
     "test": "cross-env NODE_ENV=test jest --coverage --testTimeout=50000 --runInBand"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.10",

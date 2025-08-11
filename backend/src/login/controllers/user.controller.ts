@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt'
-import User from '../models/users.models.js'
+import User from '../models/users.models'
 import { z } from 'zod'
 // import authService from '../services/auth.service.js'
-import { userDAO } from '../dao/user.dao.js'
+import { userDAO } from '../dao/user.dao'
 
 import type { Request, Response } from 'express';
 import type { CreateUser, UpdateUser } from '../types/user.types'
@@ -64,14 +64,14 @@ export const create = async (req: Request, res: Response) => {
     });
 
     console.log(`Created new user: ${username}`);
-    res.status(201).json({ status: true, data: newUser })
+    return res.status(201).json({ status: true, data: newUser })
     
   } catch (error: unknown) {
     if (error instanceof Error) {
     console.error(error);
-      res.status(500).json({ status: false, error: error.message });
+      return res.status(500).json({ status: false, error: error.message });
     } else {
-      res.status(500).json({ status: false, error: 'Unknown error' });
+      return res.status(500).json({ status: false, error: 'Unknown error' });
     }
   }
 }
@@ -86,14 +86,14 @@ export const findAll = async (req: Request, res: Response) => {
     }
 
     const users = await userDAO.readAll();
-    res.status(200).json({ status: true, data: users });
+    return res.status(200).json({ status: true, data: users });
 
   } catch (error: unknown) {
     if (error instanceof Error) {
     console.error(error);
-      res.status(500).json({ status: false, error: error.message });
+      return res.status(500).json({ status: false, error: error.message });
     } else {
-      res.status(500).json({ status: false, error: 'Unknown error' });
+      return res.status(500).json({ status: false, error: 'Unknown error' });
     }
   }
 }
@@ -108,19 +108,19 @@ export const readById = async (req: Request, res: Response) => {
   try {
     const userId: string | undefined = req.params.id
     if (!userId) {
-      res.status(400).json({ status: false, error: 'no Id provided'})
+      return res.status(400).json({ status: false, error: 'no Id provided'})
       return
     }
 
     const user = await userDAO.readById(userId)
-    res.status(200).json({ status: true, data: user })
+    return res.status(200).json({ status: true, data: user })
 
   } catch (error: unknown) {
     if (error instanceof Error) {
     console.error(error);
-      res.status(500).json({ status: false, error: error.message });
+      return res.status(500).json({ status: false, error: error.message });
     } else {
-      res.status(500).json({ status: false, error: 'Unknown error' });
+      return res.status(500).json({ status: false, error: 'Unknown error' });
     }
   }
 }
@@ -135,19 +135,19 @@ export const readByUsername = async (req: Request, res: Response) => {
   try {
     const username: string | undefined = req.params.username
     if (!username) {
-      res.status(400).json({ status: false, error: 'no username provided'})
+      return res.status(400).json({ status: false, error: 'no username provided'})
       return
     }
 
     const user = await userDAO.readByUsername(username)
-    res.status(200).json({ status: true, data: user })
+    return res.status(200).json({ status: true, data: user })
 
   } catch (error: unknown) {
     if (error instanceof Error) {
     console.error(error);
-      res.status(500).json({ status: false, error: error.message });
+      return res.status(500).json({ status: false, error: error.message });
     } else {
-      res.status(500).json({ status: false, error: 'Unknown error' });
+      return res.status(500).json({ status: false, error: 'Unknown error' });
     }
   }
 }
@@ -178,7 +178,7 @@ export const updateById = async (req: Request, res: Response) => {
 
   const userId: string | undefined = req.params.id
   if (!userId) {
-    res.status(400).json({ status: false, error: 'no Id provided'})
+    return res.status(400).json({ status: false, error: 'no Id provided'})
     return
   }
 
@@ -193,18 +193,18 @@ export const updateById = async (req: Request, res: Response) => {
     }
 
     const user = await userDAO.update(userId, data)
-    res.status(200).json({ status: true, data: user })
+    return res.status(200).json({ status: true, data: user })
 
   } catch (error: unknown) {
     if (error instanceof Error) {
       if (error.message === 'User does not exist') {
-        res.status(404).json({ status: false, error: error.message });
+        return res.status(404).json({ status: false, error: error.message });
       } else {
         console.error(error);
-        res.status(500).json({ status: false, error: error.message });
+        return res.status(500).json({ status: false, error: error.message });
       }
     } else {
-      res.status(500).json({ status: false, error: 'Unknown error' });
+      return res.status(500).json({ status: false, error: 'Unknown error' });
     }
   }
 }
@@ -225,18 +225,18 @@ export const deleteById = async (req: Request, res: Response) => {
 
   try {
     const deleteUser = await userDAO.deleteById(userId)
-    res.status(200).json({ status: true, message: `User ${deleteUser.username} deleted successfully` })
+    return res.status(200).json({ status: true, message: `User ${deleteUser.username} deleted successfully` })
     
   } catch (error: unknown) {
     if (error instanceof Error) {
       if (error.message === 'User does not exist') {
-        res.status(404).json({ status: false, error: error.message });
+        return res.status(404).json({ status: false, error: error.message });
       } else {
         console.error(error);
-        res.status(500).json({ status: false, error: error.message });
+        return res.status(500).json({ status: false, error: error.message });
       }
     } else {
-      res.status(500).json({ status: false, error: 'Unknown error' });
+      return res.status(500).json({ status: false, error: 'Unknown error' });
     }
   }
 }

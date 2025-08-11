@@ -1,5 +1,5 @@
-import type { IUser, UserView, CreateUserHash, UpdateUser } from "../types/user.types.js"
-import User from '../models/users.models.js'
+import type { IUser, UserView, CreateUserHash, UpdateUser } from "../types/user.types"
+import User from '../models/users.models'
 
 // Response DAO (safe to send to client no hashed pass)
 export const toUserDAO = (user: IUser): UserView => {

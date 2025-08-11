@@ -4,9 +4,9 @@ import type { SignOptions } from "jsonwebtoken";
 import bcrypt from 'bcrypt'
 import { OAuth2Client } from 'google-auth-library'
 import type { Request } from 'express';
-import type { IUser, UserView, CreateUser, CreateUserHash, UpdateUser } from "../types/user.types.js"
+import type { IUser } from "../types/user.types"
 
-import { userDAO } from '../dao/user.dao.js';
+import { userDAO } from '../dao/user.dao';
 
 const generateAccessToken = (user: IUser): string => {
   const payload = {

@@ -1,5 +1,5 @@
 import m2s from 'mongoose-to-swagger';
-// import User from './models/users.models';
+import User from '../login/models/users.models';
 import swaggerJsdoc from 'swagger-jsdoc';
 
 const options = {
@@ -12,7 +12,7 @@ const options = {
     },
     components: {
       schemas: {
-        // User: m2s(User)
+        User: m2s(User)
       },
       securitySchemes: {
         bearerAuth: {

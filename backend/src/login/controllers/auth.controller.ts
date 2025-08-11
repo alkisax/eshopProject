@@ -48,7 +48,7 @@ export const login = async (req: Request, res: Response) => {
     console.log(`User ${user.username} logged in successfully`);
 
     // Step 4: Return the token and user info
-    res.status(200).json({ status: true, data: {
+    return res.status(200).json({ status: true, data: {
         token: token,
         user: {
           username: user.username,
@@ -62,9 +62,9 @@ export const login = async (req: Request, res: Response) => {
   } catch (error: unknown) {
     if (error instanceof Error) {
     console.error(error);
-      res.status(500).json({ status: false, error: error.message });
+      return res.status(500).json({ status: false, error: error.message });
     } else {
-      res.status(500).json({ status: false, error: 'Unknown error' });
+      return res.status(500).json({ status: false, error: 'Unknown error' });
     }
   }
 }
@@ -83,7 +83,7 @@ export const googleLogin = async(req: Request, res: Response) => {
     // b. Verifies the id_token to ensure it’s really from Google.
     // c. Extracts user profile info (email, name, etc.) from Google’s payload.
 
-  const { user, tokens, error } = await authService.googleAuth(code);
+  const { user, error } = await authService.googleAuth(code);
 
   if (error || !user || !user.email) {
     console.log('Google login failed or incomplete');
@@ -132,7 +132,7 @@ export const googleSignup  = async(req: Request, res: Response) => {
   }
 
   // 2 – Authenticate with Google calls service which:
-  const { user, tokens, error } = await authService.googleAuth(code);
+  const { user, error } = await authService.googleAuth(code);
 
   if (error || !user || !user.email) {
     console.log('Google login failed or incomplete');
@@ -178,17 +178,18 @@ export const googleSignup  = async(req: Request, res: Response) => {
   return res.redirect(`${frontendUrl}/google-success?token=${token}&email=${dbUser.email}`);
 }
 
-export const githubLogin = async (req: Request, res: Response) => {
+export const githubLogin = async (_req: Request, res: Response) => {
   
   const frontendUrl = process.env.FRONTEND_URL
 
 
   try {
-    const session =  await account.createOAuth2Session(
+    await account.createOAuth2Session(
       OAuthProvider.Github,
       `${frontendUrl}/github-success`,
       `${frontendUrl}/signup`
     )
+    return res.status(200).json({ status: true, message: 'githublogin' })
     //When GitHub login is successful, Appwrite redirects to your github-success page.
     // At this point, the browser already has a session cookie, so you can call: const user = await account.get() If you’re doing this from the frontend, you can call it directly with the Appwrite Web SDK. If you want to do it from the backend, you’ll need to pass the Appwrite session cookie from the browser to your backend.
   } catch (error: unknown) {
@@ -201,7 +202,7 @@ export const githubLogin = async (req: Request, res: Response) => {
 }
 
 // Create a route in your backend (for example, /auth/github/callback) 
-export const githubCallback = async (req: Request, res: Response) => {
+export const githubCallback = async (_req: Request, res: Response) => {
   try {
     // IMPORTANT: The browser must send Appwrite session cookie here,
     const appwriteUser = await account.get();  // gets logged-in user from Appwrite session
