@@ -46,7 +46,7 @@ export const createUser = async (req: Request, res: Response) => {
       username: data.username,
       name: data.name ?? '',
       email: data.email ?? '',
-      roles: ['user'], // always user
+      roles: ['USER'], // always user
       hashedPassword
     });
 

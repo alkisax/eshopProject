@@ -1,5 +1,5 @@
 // middleware/verification.middleware.js
-import type { Response, NextFunction  } from 'express';
+import type { Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service';
 import type { Roles, AuthRequest  } from "../types/user.types";
 

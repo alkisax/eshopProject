@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/users.models';
 import { account } from '../../utils/appwrite'
 import { OAuthProvider } from 'appwrite';
+import querystring from 'querystring';
 import { authService } from '../services/auth.service';
 import { userDAO } from '../dao/user.dao';
 import type { Request, Response } from 'express';
@@ -69,6 +70,30 @@ export const login = async (req: Request, res: Response) => {
   }
 }
 
+// αυτο είναι ένα endpoint που απλώς κατασκευάζει και επιστρέφει το url για το goole login ωστε να μην υπάρχει hardcoded στο front
+export const getGoogleOAuthUrl = (_req: Request, res: Response) => {
+  const rootUrl = 'https://accounts.google.com/o/oauth2/auth';
+
+  const options = {
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+    response_type: 'code',
+    scope: ['email', 'profile'].join(' '),
+    access_type: 'offline',
+    prompt: 'consent'
+  };
+
+  const qs = querystring.stringify(options);
+  const url = `${rootUrl}?${qs}`;
+
+  
+  console.log('Using redirect_uri:', process.env.GOOGLE_REDIRECT_URI);
+  console.log('OAuth URL:', url);
+
+
+  return res.status(200).json({ url });
+};
+
 export const googleLogin = async(req: Request, res: Response) => {
   // 1. Controller receives the Google code from Google
   const code = req.query.code
@@ -77,11 +102,6 @@ export const googleLogin = async(req: Request, res: Response) => {
     console.log('Auth code is missing during Google login attempt');
     return res.status(400).json({ status: false, data: 'auth code is missing' });
   }
-
-  // 2 – Authenticate with Google calls service which:
-    // a. Uses Google’s OAuth2 client to exchange the code for tokens (access_token, id_token, etc.).
-    // b. Verifies the id_token to ensure it’s really from Google.
-    // c. Extracts user profile info (email, name, etc.) from Google’s payload.
 
   const { user, error } = await authService.googleAuth(code);
 
@@ -101,12 +121,6 @@ export const googleLogin = async(req: Request, res: Response) => {
     return res.redirect(`${frontendUrl}/signup`);
   }
 
-  // const dbUser = await User.findOneAndUpdate(
-  //   { email: user.email },
-  //   { $setOnInsert: { email: user.email, name: user.name, roles: ['user'] } },
-  //   { upsert: true, new: true }
-  // );
-
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error("JWT secret is not defined in environment variables");
@@ -123,6 +137,8 @@ export const googleLogin = async(req: Request, res: Response) => {
 
 // DRY problem
 export const googleSignup  = async(req: Request, res: Response) => {
+  console.log('reached google signup');
+  
   // 1. Controller receives the Google code from Google
   const code = req.query.code
 
@@ -132,6 +148,9 @@ export const googleSignup  = async(req: Request, res: Response) => {
   }
 
   // 2 – Authenticate with Google calls service which:
+    // a. Uses Google’s OAuth2 client to exchange the code for tokens (access_token, id_token, etc.).
+    // b. Verifies the id_token to ensure it’s really from Google.
+    // c. Extracts user profile info (email, name, etc.) from Google’s payload.
   const { user, error } = await authService.googleAuth(code);
 
   if (error || !user || !user.email) {
@@ -243,6 +262,7 @@ export const githubCallback = async (_req: Request, res: Response) => {
 
 export const authController = {
   login,
+  getGoogleOAuthUrl,
   googleLogin,
   googleSignup,
   githubLogin,

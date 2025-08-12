@@ -86,7 +86,7 @@ const googleAuth = async (code: string) => {
   // google cloude -> conosole -> Api&Services -> credentials
   const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
   const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-  const REDIRECT_URI = process.env.REDIRECT_URI;
+  const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
   if (!CLIENT_ID) {
     throw new Error("Google Client ID is missing from environment variables");

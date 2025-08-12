@@ -12,9 +12,9 @@ router.post('/signup/admin', middleware.verifyToken, middleware.checkRole('ADMIN
 //read
 router.get ('/', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.findAll)
 
-router.get('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.readById);
-
 router.get('/username/:username', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.readByUsername);
+
+router.get('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.readById);
 
 // update
 router.put('/:id', middleware.verifyToken, userController.updateById);
