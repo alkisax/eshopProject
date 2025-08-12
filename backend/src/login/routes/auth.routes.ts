@@ -5,7 +5,9 @@ import { authController } from '../controllers/auth.controller'
 //>     "username": "alkisax",
 //>     "password": "AdminPass1!"
 router.post('/', authController.login)
-router.get('/google/url', authController.getGoogleOAuthUrl)
+router.get('/google/url/login', authController.getGoogleOAuthUrlLogin)
+router.get('/google/url/signup', authController.getGoogleOAuthUrlSignup)
+
 router.get('/google/login', authController.googleLogin)
 router.get('/google/signup', authController.googleSignup)
 router.get('/github/login', authController.githubLogin)

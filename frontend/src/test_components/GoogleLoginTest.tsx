@@ -6,29 +6,32 @@ interface Params {
 }
 
 const GoogleLoginTest = ({ url }: Params) => {
-  const [googleUrl, setGoogleUrl] = useState<string | null>(null);
+  const [googleUrl, setGoogleUrl] = useState<string | null>(null); //login
+  const [signupUrl, setSignupUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchGoogleUrl = async () => {
+    const fetchUrls = async () => {
       try {
-        const response = await axios.get(`${url}/api/auth/google/url`); // adjust path if needed
+        const response = await axios.get(`${url}/api/auth/google/url/login`); // adjust path if needed
+        const signupResponse = await axios.get(`${url}/api/auth/google/url/signup`);
         setGoogleUrl(response.data.url);
+        setSignupUrl(signupResponse.data.url);
       } catch (err) {
         setError('Failed to fetch Google login URL');
         console.error(err);
       }
     };
 
-    fetchGoogleUrl();
+    fetchUrls();
   }, [url]);
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
-  if (!googleUrl) {
-    return <div>Loading Google login URL...</div>;
+  if (!googleUrl || !signupUrl) {
+    return <div>Loading Google URLs...</div>;
   }
 
   return (
@@ -37,7 +40,7 @@ const GoogleLoginTest = ({ url }: Params) => {
     <a href={googleUrl}>
       <button>Login with Google</button>
     </a>
-    <a href={`${url}/api/auth/google/signup`}>
+    <a href={signupUrl}>
       <button>Signup with Google</button>
     </a>
       {googleUrl ? <p>{googleUrl}</p> : <p>loading...</p>}

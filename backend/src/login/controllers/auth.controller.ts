@@ -71,12 +71,12 @@ export const login = async (req: Request, res: Response) => {
 }
 
 // αυτο είναι ένα endpoint που απλώς κατασκευάζει και επιστρέφει το url για το goole login ωστε να μην υπάρχει hardcoded στο front
-export const getGoogleOAuthUrl = (_req: Request, res: Response) => {
+export const getGoogleOAuthUrlLogin = (_req: Request, res: Response) => {
   const rootUrl = 'https://accounts.google.com/o/oauth2/auth';
 
   const options = {
     client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+    redirect_uri: process.env.GOOGLE_REDIRECT_URI_LOGIN,
     response_type: 'code',
     scope: ['email', 'profile'].join(' '),
     access_type: 'offline',
@@ -86,15 +86,29 @@ export const getGoogleOAuthUrl = (_req: Request, res: Response) => {
   const qs = querystring.stringify(options);
   const url = `${rootUrl}?${qs}`;
 
-  
-  console.log('Using redirect_uri:', process.env.GOOGLE_REDIRECT_URI);
-  console.log('OAuth URL:', url);
+  return res.status(200).json({ url });
+};
 
+export const getGoogleOAuthUrlSignup = (_req: Request, res: Response) => {
+  const rootUrl = 'https://accounts.google.com/o/oauth2/auth';
+
+  const options = {
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    redirect_uri: process.env.GOOGLE_REDIRECT_URI_SIGNUP,
+    response_type: 'code',
+    scope: ['email', 'profile'].join(' '),
+    access_type: 'offline',
+    prompt: 'consent'
+  };
+
+  const qs = querystring.stringify(options);
+  const url = `${rootUrl}?${qs}`;
 
   return res.status(200).json({ url });
 };
 
 export const googleLogin = async(req: Request, res: Response) => {
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI_LOGIN as string;
   // 1. Controller receives the Google code from Google
   const code = req.query.code
 
@@ -103,7 +117,7 @@ export const googleLogin = async(req: Request, res: Response) => {
     return res.status(400).json({ status: false, data: 'auth code is missing' });
   }
 
-  const { user, error } = await authService.googleAuth(code);
+  const { user, error } = await authService.googleAuth(code, redirectUri);
 
   if (error || !user || !user.email) {
     console.log('Google login failed or incomplete');
@@ -137,6 +151,7 @@ export const googleLogin = async(req: Request, res: Response) => {
 
 // DRY problem
 export const googleSignup  = async(req: Request, res: Response) => {
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI_SIGNUP as string;
   console.log('reached google signup');
   
   // 1. Controller receives the Google code from Google
@@ -151,7 +166,7 @@ export const googleSignup  = async(req: Request, res: Response) => {
     // a. Uses Google’s OAuth2 client to exchange the code for tokens (access_token, id_token, etc.).
     // b. Verifies the id_token to ensure it’s really from Google.
     // c. Extracts user profile info (email, name, etc.) from Google’s payload.
-  const { user, error } = await authService.googleAuth(code);
+  const { user, error } = await authService.googleAuth(code, redirectUri);
 
   if (error || !user || !user.email) {
     console.log('Google login failed or incomplete');
@@ -262,7 +277,8 @@ export const githubCallback = async (_req: Request, res: Response) => {
 
 export const authController = {
   login,
-  getGoogleOAuthUrl,
+  getGoogleOAuthUrlLogin,
+  getGoogleOAuthUrlSignup,
   googleLogin,
   googleSignup,
   githubLogin,
