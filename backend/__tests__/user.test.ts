@@ -1,9 +1,8 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import request from "supertest";
 import dotenv from "dotenv";
 import app from "../src/app";
-import type { Response, NextFunction } from 'express';
-import type { AuthRequest, UserView, IUser } from "../src/login/types/user.types";
+import bcrypt from 'bcrypt'
 import User from "../src/login/models/users.models";
 
 jest.mock("../src/utils/appwrite", () => ({
@@ -12,18 +11,46 @@ jest.mock("../src/utils/appwrite", () => ({
 
 dotenv.config();
 
+interface AdminUser {
+    _id: Types.ObjectId;
+    username: string,
+    hashedPassword: string,
+    roles: string[],
+    email: string,
+    name: string,
+    passwordPlain?: string
+}
+
+let seededAdmin: AdminUser;
+
 beforeAll(async () => {
   if (!process.env.MONGODB_TEST_URI) {
     throw new Error("MONGODB_TEST_URI environment variable is required");
   }
   await mongoose.connect(process.env.MONGODB_TEST_URI);
+  await mongoose.connection.collection("users").deleteMany({});
+
+  // υπήρχε το εξής προβλημα. Για να φτιάξεις έναν admin επρεπε να ήταν ήδη logedin κάποιος admin, προσπάθησα να κάνω mock το middleware αλλα δεν έβγενε ακρη και για αυτο ξεκινάμε με μια βάση δεδομένον που δεν έιναι κενή αλλά έχει ήδη έναν αντμιν μεσα
+  // seed initial db with admin user
+  const plainPassword = "Passw0rd!";
+  const hashedPassword = await bcrypt.hash(plainPassword, 10);
+  seededAdmin = await User.create({
+    username: "admin1",
+    hashedPassword,
+    roles: ["ADMIN"],
+    email: "admin@example.com",
+    name: "Admin User",
+  }) as AdminUser;
+
+  seededAdmin.passwordPlain = plainPassword; // store plain pw for login later
 });
 
-beforeEach(async () => {
-  await mongoose.connection.collection("users").deleteMany({});
-});
+// beforeEach(async () => {
+//   await mongoose.connection.collection("users").deleteMany({});
+// });
 
 afterAll(async () => {
+  await mongoose.connection.collection("users").deleteMany({});
   await mongoose.disconnect();
 });
 
@@ -73,7 +100,7 @@ describe("POST /api/users/signup/user", () => {
       username: "user1",
       hashedPassword: "hashedpass",
       name: "Existing",
-      email: "exist@example.com",
+      email: "usermail@example.com",
       roles: ["USER"],
     });
 
@@ -103,50 +130,45 @@ describe("POST /api/users/signup/user", () => {
   });
 });
 
-let createdAdmin: IUser;
-
-jest.mock('../src/login/middleware/verification.middleware', () => ({
-  middleware: {
-    verifyToken: (req: AuthRequest, _res: Response, next: NextFunction) => {
-      req.user = {
-        id: '123',
-        username: 'adminUser',
-        roles: ['ADMIN'],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      } as UserView;
-      next();
-    },
-    checkRole: () => (_req: AuthRequest, _res: Response, next: NextFunction) => {
-      next();
-    }
-  }
-}));
 
 describe("POST /api/users/signup/admin", () => {
-  it("should create a new admin with valid data", async () => {
-    const res = await request(app)
-      .post("/api/users/signup/admin")
+  let adminToken: string;
+    beforeAll(async () => {
+    // Login with seeded admin to get token
+    const loginRes = await request(app)
+      .post("/api/auth")
       .send({
         username: "admin1",
         password: "Passw0rd!",
-        name: "Super Admin",
-        email: "admin1@example.com",
-        roles: ["ADMIN"]
+      });
+
+    expect(loginRes.status).toBe(200);
+    adminToken = loginRes.body.data.token;
+  });
+
+
+  it("should create a new admin when authorized", async () => {
+    const res = await request(app)
+      .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`) 
+      .send({
+        username: "admin2",
+        password: "StrongPass1!",
+        name: "Second Admin",
+        email: "admin2@example.com",
+        roles: ["ADMIN"],
       });
 
     expect(res.status).toBe(201);
     expect(res.body.data.roles).toContain("ADMIN");
 
-    // Save for later tests
-    createdAdmin = res.body.data;
-
-    const dbUser = await User.findOne({ username: "admin1" });
+    const dbUser = await User.findOne({ username: "admin2" });
     expect(dbUser).not.toBeNull();
-    expect(dbUser?.hashedPassword).not.toBe("Passw0rd!");
+    expect(dbUser?.hashedPassword).not.toBe("StrongPass1!");
   });
 
   it("should fail if username already exists", async () => {
+    // Δημιουργία χρήστη με username "existingAdmin"
     await User.create({
       username: "existingAdmin",
       hashedPassword: "hashedpass",
@@ -155,8 +177,21 @@ describe("POST /api/users/signup/admin", () => {
       roles: ["ADMIN"],
     });
 
+    // Login με seeded admin για να πάρεις token
+    const loginRes = await request(app)
+      .post("/api/auth")
+      .send({
+        username: "admin1",       // seeded admin username
+        password: "Passw0rd!",    // seeded admin plain password
+      });
+
+    expect(loginRes.status).toBe(200);
+    const adminToken = loginRes.body.data.token;
+
+    // Κλήση για δημιουργία admin με ήδη υπάρχον username, στέλνοντας το token
     const res = await request(app)
       .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`)   // Βάλε το token στο header
       .send({
         username: "existingAdmin",
         password: "Passw0rd!",
@@ -168,6 +203,7 @@ describe("POST /api/users/signup/admin", () => {
   });
 
   it("should fail if email already exists", async () => {
+    // Δημιουργούμε admin με το email που θα δοκιμάσουμε να επαναλάβουμε
     await User.create({
       username: "otheradmin",
       hashedPassword: "hashedpass",
@@ -176,8 +212,21 @@ describe("POST /api/users/signup/admin", () => {
       roles: ["ADMIN"],
     });
 
+    // Κάνουμε login με τον seeded admin για να πάρουμε token
+    const loginRes = await request(app)
+      .post("/api/auth")
+      .send({
+        username: "admin1",       // seeded admin username
+        password: "Passw0rd!",    // seeded admin plain password
+      });
+
+    expect(loginRes.status).toBe(200);
+    const adminToken = loginRes.body.data.token;
+
+    // Στέλνουμε το request με το token και email που ήδη υπάρχει
     const res = await request(app)
       .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`)
       .send({
         username: "newadmin",
         password: "Passw0rd!",
@@ -190,8 +239,18 @@ describe("POST /api/users/signup/admin", () => {
   });
 
   it("should fail if password is too weak", async () => {
+    // login admin για token
+    const loginRes = await request(app)
+      .post("/api/auth")
+      .send({ username: "admin1", password: "Passw0rd!" });
+    
+    expect(loginRes.status).toBe(200);
+    const adminToken = loginRes.body.data.token;
+
+    // στέλνουμε το token στο request
     const res = await request(app)
       .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`)
       .send({
         username: "weakadmin",
         password: "abc",
@@ -203,8 +262,18 @@ describe("POST /api/users/signup/admin", () => {
   });
 
   it("should fail if required fields are missing", async () => {
+    // login admin για token
+    const loginRes = await request(app)
+      .post("/api/auth")
+      .send({ username: "admin1", password: "Passw0rd!" });
+    
+    expect(loginRes.status).toBe(200);
+    const adminToken = loginRes.body.data.token;
+
+    // στέλνουμε το token στο request
     const res = await request(app)
       .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`)
       .send({
         username: "",
         password: "",
@@ -213,16 +282,209 @@ describe("POST /api/users/signup/admin", () => {
     expect(res.status).toBe(400);
     expect(res.body.status).toBe(false);
   });
+});
 
-  afterAll( async () => {
-    // Restore original middleware for future tests
-    jest.unmock("../src/login/middleware/verification.middleware.ts");
-    jest.resetModules();
-    const realMiddleware = await import("../src/login/middleware/verification.middleware")
+
+describe("Protected User API routes with real middleware and login", () => {
+  let adminToken: string;
+  let userToken: string;
+  let normalUserId: string;
+
+    beforeAll(async () => {
+    // Login with seeded admin to get token
+    const loginRes = await request(app)
+      .post("/api/auth")
+      .send({
+        username: "admin1",
+        password: "Passw0rd!",
+      });
+
+    expect(loginRes.status).toBe(200);
+    adminToken = loginRes.body.data.token;
+
+        // Create and login a normal user to test update own profile
+    const userRes = await request(app)
+      .post("/api/users/signup/user")
+      .send({
+        username: "normaluser",
+        password: "Passw0rd!",
+        email: "normaluser@example.com",
+      });
+    expect(userRes.status).toBe(201);
+    normalUserId = userRes.body.data.id || userRes.body.data._id; // check your actual response
+
+    const loginUserRes = await request(app)
+      .post("/api/auth")
+      .send({ username: "normaluser", password: "Passw0rd!" });
+    expect(loginUserRes.status).toBe(200);
+    userToken = loginUserRes.body.data.token;
   });
 
-  afterAll(async () => {
-    // Optionally store admin somewhere accessible globally
-    console.log("Created admin for later tests:", createdAdmin);
+  it("GET /api/users should require auth and return all users", async () => {
+    const res = await request(app)
+      .get("/api/users")
+      .set("Authorization", `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it("GET /api/users/:id should return user by ID", async () => {
+    const res = await request(app)
+      .get(`/api/users/${seededAdmin._id}`)
+      .set("Authorization", `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.username).toBe(seededAdmin.username);
+  });
+
+  it("GET /api/users/username/:username should return user by username", async () => {
+    const res = await request(app)
+      .get(`/api/users/username/${seededAdmin.username}`)
+      .set("Authorization", `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(String(seededAdmin._id));
+  });
+
+  it("should return 401 if no token is provided", async () => {
+    const res = await request(app).get("/api/users");
+    expect(res.status).toBe(401);
+  });
+
+  it("should return 403 if user does not have ADMIN role", async () => {
+    // Create a user without ADMIN role and get token for it
+    const userRes = await request(app)
+      .post("/api/users/signup/user")
+      .send({
+        username: "normaluser2",
+        password: "Passw0rd!",
+        email: "normaluser2@example.com"
+      });
+    
+    expect(userRes.status).toBe(201);
+
+    const loginRes = await request(app)
+      .post("/api/auth")
+      .send({
+        username: "normaluser",
+        password: "Passw0rd!",
+      });
+    expect(loginRes.status).toBe(200);
+    const userToken = loginRes.body.data.token;
+
+    const res = await request(app)
+      .get("/api/users")
+      .set("Authorization", `Bearer ${userToken}`);
+
+    expect(res.status).toBe(403);
+  });
+
+  describe("PUT /api/users/:id - update user", () => {
+    it("should allow admin to update any user", async () => {
+      const res = await request(app)
+        .put(`/api/users/${normalUserId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({ name: "Updated Name by Admin" });
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe(true);
+      expect(res.body.data.name).toBe("Updated Name by Admin");
+    });
+
+    it("should allow user to update own profile", async () => {
+      const res = await request(app)
+        .put(`/api/users/${normalUserId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({ name: "Updated Name by User" });
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe(true);
+      expect(res.body.data.name).toBe("Updated Name by User");
+    });
+
+    it("should forbid user to update another user's profile", async () => {
+      // normaluser tries to update admin's profile
+      const res = await request(app)
+        .put(`/api/users/${seededAdmin._id}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({ name: "Hacker Name" });
+
+      expect(res.status).toBe(403);
+      expect(res.body.status).toBe(false);
+      expect(res.body.error).toMatch(/forbidden/i);
+    });
+
+    it("should return 400 if invalid data sent", async () => {
+      const res = await request(app)
+        .put(`/api/users/${normalUserId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({ username: "" }); // invalid username
+
+      expect(res.status).toBe(400);
+      expect(res.body.status).toBe(false);
+      expect(Array.isArray(res.body.errors)).toBe(true);
+    });
+
+    it("should return 401 if no token provided", async () => {
+      const res = await request(app)
+        .put(`/api/users/${normalUserId}`)
+        .send({ name: "No Token" });
+
+      expect(res.status).toBe(401);
+      expect(res.body.status).toBe(false);
+    });
+  });
+
+  describe("DELETE /api/users/:id - delete user", () => {
+    let userToDeleteId: string;
+
+    beforeAll(async () => {
+      // Create a user to delete
+      const res = await request(app)
+        .post("/api/users/signup/user")
+        .send({
+          username: "tobedeleted",
+          password: "Passw0rd!",
+          email: "delete@example.com",
+        });
+      userToDeleteId = res.body.data.id || res.body.data._id;
+    });
+
+    it("should forbid delete without token", async () => {
+      const res = await request(app).delete(`/api/users/${userToDeleteId}`);
+      expect(res.status).toBe(401);
+      expect(res.body.status).toBe(false);
+    });
+
+    it("should forbid delete if user is not admin", async () => {
+      const res = await request(app)
+        .delete(`/api/users/${userToDeleteId}`)
+        .set("Authorization", `Bearer ${userToken}`);
+
+      expect(res.status).toBe(403); // your middleware returns 403 on checkRole failure
+    });
+
+    it("should allow admin to delete a user", async () => {
+      const res = await request(app)
+        .delete(`/api/users/${userToDeleteId}`)
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe(true);
+      expect(res.body.message).toMatch(/deleted successfully/i);
+    });
+
+    it("should return 404 when deleting non-existent user", async () => {
+      const fakeId = new mongoose.Types.ObjectId().toString();
+
+      const res = await request(app)
+        .delete(`/api/users/${fakeId}`)
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body.status).toBe(false);
+      expect(res.body.error).toMatch(/does not exist/i);
+    });
   });
 });

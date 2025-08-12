@@ -44,14 +44,12 @@ const checkRole = (requiredRole: Roles) => {
 
     if (!user || !user.roles.includes(requiredRole)) {
       return res.status(403).json({ status: false, error: 'Forbidden' });
-    }
-
+    }  
     return next();
   };
 };
 
 export const middleware = {
-
   verifyToken,
   checkRole
 }
