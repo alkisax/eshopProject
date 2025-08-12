@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import User from '../models/users.models'
 import { z } from 'zod'
+import { ZodError } from "zod";
 // import authService from '../services/auth.service.js'
 import { userDAO } from '../dao/user.dao'
 
@@ -25,11 +26,9 @@ export const updateZodUserSchema = createZodUserSchema.partial();
 // create
 // signup
 export const createUser = async (req: Request, res: Response) => {
-  let data = createZodUserSchema.omit({ roles: true }).parse(req.body);
-
-  const hashedPassword = await bcrypt.hash(data.password, 10);
-
   try {
+    let data = createZodUserSchema.omit({ roles: true }).parse(req.body);
+    const hashedPassword = await bcrypt.hash(data.password, 10);
     const existingUser = await User.findOne({ username: data.username });
     if (existingUser) {
       return res.status(409).json({ status: false, error: 'Username already taken' });
@@ -53,6 +52,9 @@ export const createUser = async (req: Request, res: Response) => {
     return res.status(201).json({ status: true, data: newUser });
 
   } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({ status: false, errors: error.issues });
+    }
     if (error instanceof Error) {
     console.error(error);
       return res.status(500).json({ status: false, error: error.message });
@@ -65,22 +67,21 @@ export const createUser = async (req: Request, res: Response) => {
 //create admin
 export const createAdmin = async (req: Request, res: Response) => {
 
-  let data = createZodUserSchema.parse(req.body) as CreateUser // Εδώ γίνεται το validation
-  
-  if (!data.username || !data.password){
-    return res.status(400).json({ status: false, error: 'Missing required fields' });
-  }
-
-  const username = data.username
-  const name = data.name
-  const password = data.password
-  const email = data.email
-  const roles = data.roles
-
-  const SaltOrRounds = 10
-  const hashedPassword = await bcrypt.hash(password, SaltOrRounds)
-
   try {
+    let data = createZodUserSchema.parse(req.body) as CreateUser // Εδώ γίνεται το validation
+    
+    if (!data.username || !data.password){
+      return res.status(400).json({ status: false, error: 'Missing required fields' });
+    }
+
+    const username = data.username
+    const name = data.name
+    const password = data.password
+    const email = data.email
+    const roles = data.roles
+
+    const SaltOrRounds = 10
+    const hashedPassword = await bcrypt.hash(password, SaltOrRounds)    
 
     const existingUser = await User.findOne({ username: data.username });
     if (existingUser) {
@@ -107,6 +108,9 @@ export const createAdmin = async (req: Request, res: Response) => {
     return res.status(201).json({ status: true, data: newUser })
     
   } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({ status: false, errors: error.issues });
+    }
     if (error instanceof Error) {
     console.error(error);
       return res.status(500).json({ status: false, error: error.message });

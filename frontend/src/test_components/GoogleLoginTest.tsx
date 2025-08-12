@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 
 interface Params {
@@ -6,9 +7,13 @@ interface Params {
 }
 
 const GoogleLoginTest = ({ url }: Params) => {
+  const [searchParams] = useSearchParams();
+
   const [googleUrl, setGoogleUrl] = useState<string | null>(null); //login
   const [signupUrl, setSignupUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const message = searchParams.get('message');
 
   useEffect(() => {
     const fetchUrls = async () => {
@@ -35,16 +40,22 @@ const GoogleLoginTest = ({ url }: Params) => {
   }
 
   return (
-    <div>
-    <h2>Google Login Test</h2>
-    <a href={googleUrl}>
-      <button>Login with Google</button>
-    </a>
-    <a href={signupUrl}>
-      <button>Signup with Google</button>
-    </a>
-      {googleUrl ? <p>{googleUrl}</p> : <p>loading...</p>}
-    </div>
+    <>
+      <div>
+        {message && <p>{message}</p>}
+      </div>
+      <div>
+        <h2>Google Login Test</h2>
+        <a href={googleUrl}>
+          <button>Login with Google</button>
+        </a>
+        <a href={signupUrl}>
+          <button>Signup with Google</button>
+        </a>
+          {googleUrl ? <p>{googleUrl}</p> : <p>loading...</p>}
+      </div>    
+    </>
+
   );
 };
 

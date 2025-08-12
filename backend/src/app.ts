@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response } from 'express';
+// import type { NextFunction } from 'express';
 import path from 'path';
 import swaggerSpec from './utils/swagger';
 import swaggerUi from 'swagger-ui-express';
@@ -12,11 +13,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use((req: Request, _res: Response, next: NextFunction) => {
-  console.log("Request reached Express!");
-  console.log(`Incoming request: ${req.method} ${req.path}`);
-  next();
-});
+// app.use((req: Request, _res: Response, next: NextFunction) => {
+//   console.log("Request reached Express!");
+//   console.log(`Incoming request: ${req.method} ${req.path}`);
+//   next();
+// });
 
 app.get('/api/ping', (_req: Request, res: Response) => {
   console.log('someone pinged here');
