@@ -220,7 +220,6 @@ export const githubLogin = async (_req: Request, res: Response) => {
   
   const frontendUrl = process.env.FRONTEND_URL
 
-
   try {
     await account.createOAuth2Session(
       OAuthProvider.Github,

@@ -1,7 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 
-import GoogleLoginTest from "./test_components/GoogleLoginTest"
-import GoogleSuccess from "./test_components/GoogleSuccess"
+import GoogleLoginTest from "./test_components/LoginGoogle/GoogleLoginTest"
+import GoogleSuccess from "./test_components/LoginGoogle/GoogleSuccess"
+import LoginAppwriteLogin from "./test_components/LoginAppwrite/ComponentsAppwriteLogin/LoginAppwriteLogin";
+import RegisterPageAppwriteLogin from "./test_components/LoginAppwrite/ComponentsAppwriteLogin/RegisterPageAppwrite";
+import HomeAppwriteLogin from "./test_components/LoginAppwrite/ComponentsAppwriteLogin/HomeAppwriteLogin";
+import PrivateRoute from './test_components/LoginAppwrite/service/PrivateRoute'
+import LayoutWithNavbar from './test_components/LoginAppwrite/AppwriteLayout/LayoutWithNavbar'
 
 function App() {
 
@@ -10,14 +15,20 @@ function App() {
 
   return (
     <>
-      <GoogleLoginTest url={url}/>
+    <Routes>
+      <Route element={<LayoutWithNavbar />}>
+        <Route path="/" element={<GoogleLoginTest url={url} />} />
+        <Route path="/signup" element={<GoogleLoginTest url={url} />} />
+        <Route path="/google-success" element={<GoogleSuccess />} />
 
-      <Routes> 
-        <Route 
-            path="/google-success"
-            element={<GoogleSuccess />}
-          />
-      </Routes>  
+        <Route element={<PrivateRoute />}>
+          <Route path="/git-home" element={<HomeAppwriteLogin />} />        
+        </Route>
+
+        <Route path="/github-login" element={<LoginAppwriteLogin url={url} />} />
+        <Route path="/register" element={<RegisterPageAppwriteLogin />} />
+      </Route>
+    </Routes>
     </>
   )
 }
