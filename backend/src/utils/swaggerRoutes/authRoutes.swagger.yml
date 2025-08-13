@@ -1,0 +1,60 @@
+paths:
+  /api/auth:
+    post:
+      summary: Log in a user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: alkisax
+                password:
+                  type: string
+                  example: AdminPass1!
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI...
+                      user:
+                        type: object
+                        properties:
+                          username:
+                            type: string
+                            example: alkisax
+                          email:
+                            type: string
+                            example: alkisax@example.com
+                          roles:
+                            type: array
+                            items:
+                              type: string
+                            example: ["admin"]
+                          id:
+                            type: string
+                            example: 64f1b8a97c05f9a4d9d12345
+        '400':
+          description: Missing username or password
+        '401':
+          description: Invalid username or password

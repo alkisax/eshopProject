@@ -1,5 +1,5 @@
 // middleware/verification.middleware.js
-import type { Response, NextFunction  } from 'express';
+import type { Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service';
 import type { Roles, AuthRequest  } from "../types/user.types";
 
@@ -44,14 +44,12 @@ const checkRole = (requiredRole: Roles) => {
 
     if (!user || !user.roles.includes(requiredRole)) {
       return res.status(403).json({ status: false, error: 'Forbidden' });
-    }
-
+    }  
     return next();
   };
 };
 
 export const middleware = {
-
   verifyToken,
   checkRole
 }

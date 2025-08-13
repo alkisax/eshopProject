@@ -50,10 +50,10 @@ const readByUsername = async (username: string,): Promise<UserView> => {
   return toUserDAO(user as IUser);
 }
 
-const toServerbyUsername = async (username: string,): Promise<IUser> => {
+const toServerbyUsername = async (username: string,): Promise<IUser | null> => {
   const user = await User.findOne({ username: username })
-  if (!user) throw new Error(`User with username ${username} not found`);
-  return user as IUser;
+  // if (!user) throw new Error(`User with username ${username} not found`);
+  return user ? (user as IUser) : null;
 }
 
 const update = async (userId: string, userData: UpdateUser): Promise<UserView> => {
@@ -67,7 +67,9 @@ const update = async (userId: string, userData: UpdateUser): Promise<UserView> =
 const deleteById = async (userId: string): Promise<UserView> => {
   const response = await User.findByIdAndDelete(userId)
   if (!response) {
-    throw new Error('User does not exist');
+    const error: any = new Error('User does not exist');
+    error.status = 404
+    throw error;
   }
   return toUserDAO(response as IUser)
 }

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import User from '../models/users.models'
 import { z } from 'zod'
-// import authService from '../services/auth.service.js'
+import { handleControllerError } from '../services/errorHnadler'
 import { userDAO } from '../dao/user.dao'
 
 import type { Request, Response } from 'express';
@@ -25,11 +25,9 @@ export const updateZodUserSchema = createZodUserSchema.partial();
 // create
 // signup
 export const createUser = async (req: Request, res: Response) => {
-  let data = createZodUserSchema.omit({ roles: true }).parse(req.body);
-
-  const hashedPassword = await bcrypt.hash(data.password, 10);
-
   try {
+    let data = createZodUserSchema.omit({ roles: true }).parse(req.body);
+    const hashedPassword = await bcrypt.hash(data.password, 10);
     const existingUser = await User.findOne({ username: data.username });
     if (existingUser) {
       return res.status(409).json({ status: false, error: 'Username already taken' });
@@ -46,41 +44,35 @@ export const createUser = async (req: Request, res: Response) => {
       username: data.username,
       name: data.name ?? '',
       email: data.email ?? '',
-      roles: ['user'], // always user
+      roles: ['USER'], // always user
       hashedPassword
     });
 
     return res.status(201).json({ status: true, data: newUser });
 
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-    console.error(error);
-      return res.status(500).json({ status: false, error: error.message });
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
+  } catch (error) {
+    return handleControllerError(res, error);
   }
 };
 
 //create admin
 export const createAdmin = async (req: Request, res: Response) => {
 
-  let data = createZodUserSchema.parse(req.body) as CreateUser // Εδώ γίνεται το validation
-  
-  if (!data.username || !data.password){
-    return res.status(400).json({ status: false, error: 'Missing required fields' });
-  }
-
-  const username = data.username
-  const name = data.name
-  const password = data.password
-  const email = data.email
-  const roles = data.roles
-
-  const SaltOrRounds = 10
-  const hashedPassword = await bcrypt.hash(password, SaltOrRounds)
-
   try {
+    let data = createZodUserSchema.parse(req.body) as CreateUser // Εδώ γίνεται το validation
+    
+    if (!data.username || !data.password){
+      return res.status(400).json({ status: false, error: 'Missing required fields' });
+    }
+
+    const username = data.username
+    const name = data.name
+    const password = data.password
+    const email = data.email
+    const roles = data.roles
+
+    const SaltOrRounds = 10
+    const hashedPassword = await bcrypt.hash(password, SaltOrRounds)    
 
     const existingUser = await User.findOne({ username: data.username });
     if (existingUser) {
@@ -106,99 +98,56 @@ export const createAdmin = async (req: Request, res: Response) => {
     console.log(`Created new user: ${username}`);
     return res.status(201).json({ status: true, data: newUser })
     
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-    console.error(error);
-      return res.status(500).json({ status: false, error: error.message });
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
+  } catch (error) {
+    return handleControllerError(res, error);
   }
 }
 
 // read
-export const findAll = async (req: Request, res: Response) => {
+export const findAll = async (_req: Request, res: Response) => {
   try {
-
-    // TODO auth headers? or just exist?
-    if (!req.headers.authorization) {
-      return res.status(401).json({ status: false, error: 'No token provided' });
-    }
-
     const users = await userDAO.readAll();
     return res.status(200).json({ status: true, data: users });
 
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-    console.error(error);
-      return res.status(500).json({ status: false, error: error.message });
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
+  } catch (error) {
+    return handleControllerError(res, error);
   }
 }
 
 export const readById = async (req: Request, res: Response) => {
 
-  // TODO auth headers? or just exist?
-  if (!req.headers.authorization) {
-    return res.status(401).json({ status: false, error: 'No token provided' });
-  }
-
   try {
     const userId: string | undefined = req.params.id
     if (!userId) {
       return res.status(400).json({ status: false, error: 'no Id provided'})
-      return
     }
 
     const user = await userDAO.readById(userId)
     return res.status(200).json({ status: true, data: user })
 
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-    console.error(error);
-      return res.status(500).json({ status: false, error: error.message });
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
+  } catch (error) {
+    return handleControllerError(res, error);
   }
 }
 
 export const readByUsername = async (req: Request, res: Response) => {
 
-  // TODO auth headers? or just exist?
-  if (!req.headers.authorization) {
-    return res.status(401).json({ status: false, error: 'No token provided' });
-  }
-
   try {
     const username: string | undefined = req.params.username
     if (!username) {
       return res.status(400).json({ status: false, error: 'no username provided'})
-      return
     }
 
     const user = await userDAO.readByUsername(username)
     return res.status(200).json({ status: true, data: user })
 
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-    console.error(error);
-      return res.status(500).json({ status: false, error: error.message });
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
+  } catch (error) {
+    return handleControllerError(res, error);
   }
 }
 
 // update
 export const updateById = async (req: AuthRequest, res: Response) => {
-
-  // TODO auth headers? or just exist?
-  if (!req.headers.authorization) {
-    return res.status(401).json({ status: false, error: 'No token provided' });
-  }
 
   const userIdToUpdate = req.params.id;
   const requestingUser = req.user; // <-- This should be set by verifyToken middleware
@@ -234,7 +183,6 @@ export const updateById = async (req: AuthRequest, res: Response) => {
   const userId: string | undefined = req.params.id
   if (!userId) {
     return res.status(400).json({ status: false, error: 'no Id provided'})
-    return
   }
 
   try {
@@ -250,28 +198,13 @@ export const updateById = async (req: AuthRequest, res: Response) => {
     const user = await userDAO.update(userId, data)
     return res.status(200).json({ status: true, data: user })
 
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      if (error.message === 'User does not exist') {
-        return res.status(404).json({ status: false, error: error.message });
-      } else {
-        console.error(error);
-        return res.status(500).json({ status: false, error: error.message });
-      }
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
+  } catch (error) {
+    return handleControllerError(res, error);
   }
 }
 
-
 // delete
 export const deleteById = async (req: Request, res: Response) => {
-
-  // TODO auth headers? or just exist?
-  if (!req.headers.authorization) {
-    return res.status(401).json({ status: false, error: 'No token provided' });
-  }
 
   const userId = req.params.id
   if (!userId){
@@ -281,18 +214,8 @@ export const deleteById = async (req: Request, res: Response) => {
   try {
     const deleteUser = await userDAO.deleteById(userId)
     return res.status(200).json({ status: true, message: `User ${deleteUser.username} deleted successfully` })
-    
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      if (error.message === 'User does not exist') {
-        return res.status(404).json({ status: false, error: error.message });
-      } else {
-        console.error(error);
-        return res.status(500).json({ status: false, error: error.message });
-      }
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
+  } catch (error) {
+    return handleControllerError(res, error);
   }
 }
 

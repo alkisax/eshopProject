@@ -82,17 +82,16 @@ const getTokenFrom = (req: Request): string | null => {
   return null
 }
 
-const googleAuth = async (code: string) => {
+const googleAuth = async (code: string, redirectUri: string) => {
   // google cloude -> conosole -> Api&Services -> credentials
   const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
   const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-  const REDIRECT_URI = process.env.REDIRECT_URI;
 
   if (!CLIENT_ID) {
     throw new Error("Google Client ID is missing from environment variables");
   }
 
-  const oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+  const oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, redirectUri);
 
   try {
     // Exchange code for tokens

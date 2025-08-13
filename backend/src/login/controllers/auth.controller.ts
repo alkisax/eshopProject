@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/users.models';
 import { account } from '../../utils/appwrite'
 import { OAuthProvider } from 'appwrite';
+import querystring from 'querystring';
 import { authService } from '../services/auth.service';
 import { userDAO } from '../dao/user.dao';
 import type { Request, Response } from 'express';
@@ -69,7 +70,45 @@ export const login = async (req: Request, res: Response) => {
   }
 }
 
+// αυτο είναι ένα endpoint που απλώς κατασκευάζει και επιστρέφει το url για το goole login ωστε να μην υπάρχει hardcoded στο front
+export const getGoogleOAuthUrlLogin = (_req: Request, res: Response) => {
+  const rootUrl = 'https://accounts.google.com/o/oauth2/auth';
+
+  const options = {
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    redirect_uri: process.env.GOOGLE_REDIRECT_URI_LOGIN,
+    response_type: 'code',
+    scope: ['email', 'profile'].join(' '),
+    access_type: 'offline',
+    prompt: 'consent'
+  };
+
+  const qs = querystring.stringify(options);
+  const url = `${rootUrl}?${qs}`;
+
+  return res.status(200).json({ url });
+};
+
+export const getGoogleOAuthUrlSignup = (_req: Request, res: Response) => {
+  const rootUrl = 'https://accounts.google.com/o/oauth2/auth';
+
+  const options = {
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    redirect_uri: process.env.GOOGLE_REDIRECT_URI_SIGNUP,
+    response_type: 'code',
+    scope: ['email', 'profile'].join(' '),
+    access_type: 'offline',
+    prompt: 'consent'
+  };
+
+  const qs = querystring.stringify(options);
+  const url = `${rootUrl}?${qs}`;
+
+  return res.status(200).json({ url });
+};
+
 export const googleLogin = async(req: Request, res: Response) => {
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI_LOGIN as string;
   // 1. Controller receives the Google code from Google
   const code = req.query.code
 
@@ -78,12 +117,7 @@ export const googleLogin = async(req: Request, res: Response) => {
     return res.status(400).json({ status: false, data: 'auth code is missing' });
   }
 
-  // 2 – Authenticate with Google calls service which:
-    // a. Uses Google’s OAuth2 client to exchange the code for tokens (access_token, id_token, etc.).
-    // b. Verifies the id_token to ensure it’s really from Google.
-    // c. Extracts user profile info (email, name, etc.) from Google’s payload.
-
-  const { user, error } = await authService.googleAuth(code);
+  const { user, error } = await authService.googleAuth(code, redirectUri);
 
   if (error || !user || !user.email) {
     console.log('Google login failed or incomplete');
@@ -97,15 +131,10 @@ export const googleLogin = async(req: Request, res: Response) => {
 
   if (!dbUser) {
     const frontendUrl = process.env.FRONTEND_URL;
-    // Redirect to signup page 
-    return res.redirect(`${frontendUrl}/signup`);
+    // Redirect to signup page
+    const message = `user ${user.email} doesn’t exist please sign up`;
+    return res.redirect(`${frontendUrl}/signup?message=${encodeURIComponent(message)}`);
   }
-
-  // const dbUser = await User.findOneAndUpdate(
-  //   { email: user.email },
-  //   { $setOnInsert: { email: user.email, name: user.name, roles: ['user'] } },
-  //   { upsert: true, new: true }
-  // );
 
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -118,11 +147,19 @@ export const googleLogin = async(req: Request, res: Response) => {
 
   // 5. Redirect to front if sign in
   const frontendUrl = process.env.FRONTEND_URL
-  return res.redirect(`${frontendUrl}/google-success?token=${token}&email=${dbUser.email}`);
+  const message = `user ${dbUser.name} signed in`;
+  return res.redirect(`${frontendUrl}/google-success?token=${token}&email=${dbUser.email}&message=${encodeURIComponent(message)}`);
 }
 
 // DRY problem
 export const googleSignup  = async(req: Request, res: Response) => {
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI_SIGNUP as string;
+  const frontendUrl = process.env.FRONTEND_URL;
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT secret is not defined in environment variables");
+  }
+  
   // 1. Controller receives the Google code from Google
   const code = req.query.code
 
@@ -132,7 +169,10 @@ export const googleSignup  = async(req: Request, res: Response) => {
   }
 
   // 2 – Authenticate with Google calls service which:
-  const { user, error } = await authService.googleAuth(code);
+    // a. Uses Google’s OAuth2 client to exchange the code for tokens (access_token, id_token, etc.).
+    // b. Verifies the id_token to ensure it’s really from Google.
+    // c. Extracts user profile info (email, name, etc.) from Google’s payload.
+  const { user, error } = await authService.googleAuth(code, redirectUri);
 
   if (error || !user || !user.email) {
     console.log('Google login failed or incomplete');
@@ -142,6 +182,7 @@ export const googleSignup  = async(req: Request, res: Response) => {
   // 3 - If user exists signs them in else create user
   // Check if user exists
   let  dbUser = await User.findOne({ email: user.email });
+  let message: string;
 
   if (!dbUser) {
     try {
@@ -150,6 +191,7 @@ export const googleSignup  = async(req: Request, res: Response) => {
         { $setOnInsert: { email: user.email, name: user.name, roles: ['user'] } },
         { upsert: true, new: true }
       )
+      message = `user ${user.email} created and signed in`;
     } catch (error: unknown) {
       if (error instanceof Error) {
         return res.status(500).json({ status: false, error: error.message });
@@ -157,14 +199,11 @@ export const googleSignup  = async(req: Request, res: Response) => {
         return res.status(500).json({ status: false, error: 'Unknown error' });
       }
     }
+  } else {
+    message = `user ${dbUser.name} already exists. ${dbUser.name} is signed in`;
   }
 
   // 4. Generate your app’s JWT
-
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error("JWT secret is not defined in environment variables");
-  }
 
   if (!dbUser) {
     return res.status(500).json({ status: false, error: "User not found or failed to create" });
@@ -174,8 +213,7 @@ export const googleSignup  = async(req: Request, res: Response) => {
   const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
   // 5. Redirect to front if sign in
-  const frontendUrl = process.env.FRONTEND_URL
-  return res.redirect(`${frontendUrl}/google-success?token=${token}&email=${dbUser.email}`);
+  return res.redirect(`${frontendUrl}/google-success?token=${token}&email=${dbUser.email}&message=${encodeURIComponent(message)}`);
 }
 
 export const githubLogin = async (_req: Request, res: Response) => {
@@ -243,6 +281,8 @@ export const githubCallback = async (_req: Request, res: Response) => {
 
 export const authController = {
   login,
+  getGoogleOAuthUrlLogin,
+  getGoogleOAuthUrlSignup,
   googleLogin,
   googleSignup,
   githubLogin,
