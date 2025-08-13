@@ -1,11 +1,12 @@
 import mongoose, { Types } from "mongoose";
 import request from "supertest";
 import dotenv from "dotenv";
-import app from "../src/app";
+import app from "../../app";
 import bcrypt from 'bcrypt'
-import User from "../src/login/models/users.models";
+import User from "../models/users.models";
+import { userDAO } from '../dao/user.dao'
 
-jest.mock("../src/utils/appwrite", () => ({
+jest.mock("../../utils/appwrite.ts", () => ({
   client: {},
 }));
 
@@ -127,6 +128,54 @@ describe("POST /api/users/signup/user", () => {
 
     expect(res.status).toBe(400); // zod validation error
     expect(res.body).toHaveProperty("status", false);
+  });
+
+  it("should return 500 if DAO.create throws unexpected error", async () => {
+    jest.spyOn(userDAO, "create").mockImplementationOnce(() => {
+      throw new Error("Simulated DAO failure");
+    });
+
+    const res = await request(app)
+      .post("/api/users/signup/user")
+      .send({
+        username: "anotheruser",
+        password: "Passw0rd!",
+        name: "Another User",
+        email: "another@example.com",
+      });
+
+    expect(res.status).toBe(500);
+    expect(res.body.status).toBe(false);
+    expect(res.body.error).toMatch(/Simulated DAO failure/i);
+  });
+
+  it("should return 500 if bcrypt.hash throws unexpected error", async () => {
+    jest.spyOn(bcrypt, "hash").mockImplementationOnce(() => {
+      throw new Error("Hashing failed");
+    });
+
+    const res = await request(app)
+      .post("/api/users/signup/user")
+      .send({
+        username: "userhashfail",
+        password: "Passw0rd!",
+        name: "User Fail",
+        email: "userfail@example.com",
+      });
+
+    expect(res.status).toBe(500);
+    expect(res.body.status).toBe(false);
+    expect(res.body.error).toMatch(/Hashing failed/i);
+  });
+
+  it("should return 400 if request body is totally malformed", async () => {
+    const res = await request(app)
+      .post("/api/users/signup/user")
+      .send({ foo: "bar" }); // missing required fields
+
+    expect(res.status).toBe(400);
+    expect(res.body.status).toBe(false);
+    expect(res.body.errors).toBeDefined();
   });
 });
 
@@ -282,6 +331,37 @@ describe("POST /api/users/signup/admin", () => {
     expect(res.status).toBe(400);
     expect(res.body.status).toBe(false);
   });
+
+  it("should create a new admin when no email is provided (covers `if(email)` false)", async () => {
+    const res = await request(app)
+      .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        username: "adminNoEmail",
+        password: "StrongPass1!",
+        name: "No Email Admin",
+        roles: ["ADMIN"],
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.username).toBe("adminNoEmail");
+    expect(res.body.data.email).toBe(""); // default empty string
+
+    const dbUser = await User.findOne({ username: "adminNoEmail" });
+    expect(dbUser).not.toBeNull();
+    expect(dbUser?.email).toBe("");
+  });
+
+  it("should hit catch block if request body is totally malformed", async () => {
+    const res = await request(app)
+      .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({ foo: "bar" }); // missing required fields, will throw in Zod parse
+
+    expect(res.status).toBe(400);
+    expect(res.body.status).toBe(false);
+    expect(res.body.errors).toBeDefined();
+  });
 });
 
 
@@ -434,6 +514,67 @@ describe("Protected User API routes with real middleware and login", () => {
       expect(res.status).toBe(401);
       expect(res.body.status).toBe(false);
     });
+
+    //added tests
+    it("should hash password if provided", async () => {
+      const newPassword = "NewPass123!";
+      const res = await request(app)
+        .put(`/api/users/${normalUserId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({ password: newPassword });
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe(true);
+      expect(res.body.data.hashedPassword).not.toBe(newPassword);
+
+      // Ensure user can login with new password
+      const loginRes = await request(app)
+        .post("/api/auth")
+        .send({ username: "normaluser", password: newPassword });
+      expect(loginRes.status).toBe(200);
+      expect(loginRes.body.data.token).toBeDefined();
+    });
+
+
+    it("should return 409 if username already exists for another user", async () => {
+      // Create a second user to conflict with
+      const conflictRes = await request(app)
+        .post("/api/users/signup/user")
+        .send({
+          username: "conflictuser",
+          password: "Passw0rd!",
+          email: "conflict@example.com"
+        });
+      expect(conflictRes.status).toBe(201);
+
+      // Attempt to update normaluser's username to "conflictuser"
+      const res = await request(app)
+        .put(`/api/users/${normalUserId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({ username: "conflictuser" });
+
+      expect(res.status).toBe(409);
+      expect(res.body.status).toBe(false);
+      expect(res.body.error).toMatch(/username already taken/i);
+    });
+
+    it("should hit catch block if DAO throws unexpected error", async () => {
+      // Temporarily replace DAO.update with a failing version
+      const originalUpdate = userDAO.update;
+      userDAO.update = async () => { throw new Error("Simulated DAO failure"); };
+
+      const res = await request(app)
+        .put(`/api/users/${normalUserId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .send({ name: "Trigger Error" });
+
+      expect(res.status).toBe(500);
+      expect(res.body.status).toBe(false);
+      expect(res.body.error).toMatch(/Simulated DAO failure/i);
+
+      // Restore original DAO.update
+      userDAO.update = originalUpdate;
+    });
   });
 
   describe("DELETE /api/users/:id - delete user", () => {
@@ -462,7 +603,7 @@ describe("Protected User API routes with real middleware and login", () => {
         .delete(`/api/users/${userToDeleteId}`)
         .set("Authorization", `Bearer ${userToken}`);
 
-      expect(res.status).toBe(403); // your middleware returns 403 on checkRole failure
+      expect(res.status).toBe(403); 
     });
 
     it("should allow admin to delete a user", async () => {
@@ -486,5 +627,119 @@ describe("Protected User API routes with real middleware and login", () => {
       expect(res.body.status).toBe(false);
       expect(res.body.error).toMatch(/does not exist/i);
     });
+    
+    // additional tests
+    it("should return 500 if DAO.deleteById throws an error", async () => {
+      // Temporarily replace DAO with one that throws
+      const originalDelete = userDAO.deleteById;
+      userDAO.deleteById = jest.fn().mockImplementationOnce(() => {
+        throw new Error("Simulated DAO error");
+      });
+
+      const res = await request(app)
+        .delete(`/api/users/${userToDeleteId}`)
+        .set("Authorization", `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(500);
+      expect(res.body.status).toBe(false);
+      expect(res.body.error).toMatch(/Simulated DAO error/i);
+
+      // restore DAO
+      userDAO.deleteById = originalDelete;
+    });
+  });
+});
+
+
+//cover uncoverd
+describe("GET /api/users error handling", () => {
+  let adminToken: string;
+
+  beforeAll(async () => {
+    // Login admin and get token (reuse your existing code)
+    const loginRes = await request(app)
+      .post("/api/auth")
+      .send({ username: "admin1", password: "Passw0rd!" });
+    adminToken = loginRes.body.data.token;
+  });
+
+  it("should return 500 if userDAO.readAll throws an error", async () => {
+    // Mock readAll to throw
+    jest.spyOn(userDAO, "readAll").mockImplementationOnce(() => {
+      throw new Error("Simulated DAO failure");
+    });
+
+    const res = await request(app)
+      .get("/api/users")
+      .set("Authorization", `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.status).toBe(false);
+    expect(res.body.error).toBe("Simulated DAO failure");
+
+    // Restore original implementation after test (optional if test isolated)
+    (userDAO.readAll as jest.Mock).mockRestore();
+  });
+
+  it("should return 401 if no auth header", async () => {
+    const res = await request(app).get("/api/users");
+    expect(res.status).toBe(401);
+    expect(res.body.status).toBe(false);
+  });
+
+  it("should return 409 if username already exists when creating admin", async () => {
+    // First, create an admin
+    await request(app)
+      .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        username: "existingadmin",
+        password: "Passw0rd!",
+        email: "existingadmin@example.com",
+        roles: ["ADMIN"],
+      });
+
+    // Try to create again with same username
+    const res = await request(app)
+      .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        username: "existingadmin",
+        password: "Passw0rd!",
+        email: "another@example.com",
+        roles: ["ADMIN"],
+      });
+
+    expect(res.status).toBe(409);
+    expect(res.body.status).toBe(false);
+    expect(res.body.error).toMatch(/username already taken/i);
+  });
+
+  it("should return 409 if email already exists when creating admin", async () => {
+    // First, create an admin
+    await request(app)
+      .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        username: "adminemail",
+        password: "Passw0rd!",
+        email: "adminemail@example.com",
+        roles: ["ADMIN"],
+      });
+
+    // Try to create again with same email
+    const res = await request(app)
+      .post("/api/users/signup/admin")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        username: "anotherusername",
+        password: "Passw0rd!",
+        email: "adminemail@example.com",
+        roles: ["ADMIN"],
+      });
+
+    expect(res.status).toBe(409);
+    expect(res.body.status).toBe(false);
+    expect(res.body.error).toMatch(/email already taken/i);
   });
 });
