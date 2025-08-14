@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Box, Button, Typography } from "@mui/material";
+import GoogleIcon from "@mui/icons-material/Google";
 import axios from 'axios';
 
 interface Params {
@@ -40,22 +42,49 @@ const GoogleLoginTest = ({ url }: Params) => {
   }
 
   return (
-    <>
-      <div>
-        {message && <p>{message}</p>}
-      </div>
-      <div>
-        <h2>Google Login Test</h2>
-        <a href={googleUrl}>
-          <button>Login with Google</button>
-        </a>
-        <a href={signupUrl}>
-          <button>Signup with Google</button>
-        </a>
-          {/* {googleUrl ? <p>{googleUrl}</p> : <p>loading...</p>} */}
-      </div>    
-    </>
+    <Box
+      sx={{
+        maxWidth: 400,
+        margin: "auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        mt: 5,
+        textAlign: "center",
+      }}
+    >
+      {message && (
+        <Typography variant="body1" color="error">
+          {message}
+        </Typography>
+      )}
 
+      <Typography variant="h5">Google Login</Typography>
+
+      <Button
+        component="a"
+        href={googleUrl}
+        variant="contained"
+        color="primary"
+        startIcon={<GoogleIcon />}
+        fullWidth
+      >
+        Login with Google
+      </Button>
+
+      <Button
+        component="a"
+        href={signupUrl}
+        variant="outlined"
+        color="primary"
+        startIcon={<GoogleIcon />}
+        fullWidth
+      >
+        Signup with Google
+      </Button>
+
+      {/* {googleUrl ? <p>{googleUrl}</p> : <p>loading...</p>} */}
+    </Box>
   );
 };
 

@@ -1,12 +1,23 @@
-import { Routes, Route } from "react-router-dom";
 
-import GoogleLoginTest from "./test_components/LoginGoogle/GoogleLoginTest"
-import GoogleSuccess from "./test_components/LoginGoogle/GoogleSuccess"
-import LoginAppwriteLogin from "./test_components/LoginAppwrite/ComponentsAppwriteLogin/LoginAppwriteLogin";
-import RegisterPageAppwriteLogin from "./test_components/LoginAppwrite/ComponentsAppwriteLogin/RegisterPageAppwrite";
-import HomeAppwriteLogin from "./test_components/LoginAppwrite/ComponentsAppwriteLogin/HomeAppwriteLogin";
-import PrivateRoute from './test_components/LoginAppwrite/service/PrivateRoute'
-import LayoutWithNavbar from './test_components/LoginAppwrite/AppwriteLayout/LayoutWithNavbar'
+// tutorial
+// https://dev.to/devyoma/authentication-in-react-with-appwrite-4jaj
+
+
+import { Routes, Route } from "react-router-dom"
+import Home from './pages/Home'
+import Login from './authLogin/Login'
+import GoogleLogin from './authLogin/loginGoogle/GoogleLogin'
+import AdminPanel from "./pages/AdminPanel"
+import AdminPrivateRoute from "./authLogin/service/AdminPrivateRoute"
+import RegisterPageBackend from "./authLogin/loginBackend/RegisterPageBackend"
+// import LoginBackend from "./authLogin/loginBackend/LoginBackend"
+
+import GoogleSuccess from "./authLogin/loginGoogle/GoogleSuccess"
+import LoginAppwriteLogin from "./authLogin/loginAppwrite/LoginAppwrite";
+import RegisterPageAppwriteLogin from "./authLogin/loginAppwrite/RegisterPageAppwrite";
+import HomeAppwriteLogin from "./authLogin/service/Protected";
+import PrivateRoute from './authLogin/service/PrivateRoute'
+import LayoutWithNavbar from './Layouts/LayoutWithNavbar'
 
 function App() {
 
@@ -17,16 +28,25 @@ function App() {
     <>
     <Routes>
       <Route element={<LayoutWithNavbar />}>
-        <Route path="/" element={<GoogleLoginTest url={url} />} />
-        <Route path="/signup" element={<GoogleLoginTest url={url} />} />
+
+        <Route path="/login" element={<Login url={url} />} />
+        <Route path="/" element={<Home url={url} />} />
+
+        <Route path="/signup" element={<GoogleLogin url={url} />} />
         <Route path="/google-success" element={<GoogleSuccess />} />
 
         <Route element={<PrivateRoute />}>
-          <Route path="/appwrite-home" element={<HomeAppwriteLogin />} />        
+          <Route path="/protected" element={<HomeAppwriteLogin />} />
+        </Route>
+        <Route element={<AdminPrivateRoute />}>
+          <Route path="/admin-panel" element={<AdminPanel />} />       
         </Route>
 
+        {/* <Route path="/login-backend" element={<LoginBackend url={url} />} /> */}
+        <Route path="/register-backend" element={<RegisterPageBackend url={url} />} />
+
         <Route path="/appwrite-login" element={<LoginAppwriteLogin url={url} />} />
-        <Route path="/register" element={<RegisterPageAppwriteLogin />} />
+        <Route path="/register-appwrite" element={<RegisterPageAppwriteLogin />} />
       </Route>
     </Routes>
     </>

@@ -1,4 +1,4 @@
-import { account } from "../test_components/LoginAppwrite/appwriteConfig";
+import { account } from "./loginAppwrite/appwriteConfig";
 import type { AppwriteUser } from "../types/types"
 
 type SetUser = (user: AppwriteUser | null) => void;

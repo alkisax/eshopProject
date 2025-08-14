@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { account } from "../appwriteConfig";
+import { account } from "./appwriteConfig";
 import { ID } from "appwrite";
 
 const RegisterPageAppwrite = () => {

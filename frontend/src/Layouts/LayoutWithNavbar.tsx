@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
-import GithubNavbarTest from "../ComponentsAppwriteLogin/NavbarAppwrite";
+import Navbar from "../components/Navbar";
 
 const LayoutWithNavbar = () => {
   return (
     <>
-      <GithubNavbarTest />
+      <Navbar />
       <Outlet /> {/* This renders the nested route */}
     </>
   );

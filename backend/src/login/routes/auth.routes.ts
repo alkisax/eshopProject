@@ -1,16 +1,21 @@
 import express from 'express'
 const router = express.Router()
 import { authController } from '../controllers/auth.controller'
+import { authAppwriteController } from '../controllers/auth.appwrite.controller'
 
 //>     "username": "alkisax",
 //>     "password": "AdminPass1!"
 router.post('/', authController.login)
+
 router.get('/google/url/login', authController.getGoogleOAuthUrlLogin)
 router.get('/google/url/signup', authController.getGoogleOAuthUrlSignup)
 router.get('/google/callback', authController.githubCallback) // creates and res jwt with user info
 
 router.get('/google/login', authController.googleLogin)
 router.get('/google/signup', authController.googleSignup)
+
+router.post('/appwrite/sync', authAppwriteController.syncUser)
+
 router.get('/github/login', authController.githubLogin)
 router.get('/github/callback', authController.githubCallback);
 

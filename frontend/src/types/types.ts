@@ -5,7 +5,8 @@ export interface AppwriteUser {
   $id: string;
   email: string;
   name?: string;
-  provider?: "appwrite" | "google";
+  roles?: string[];
+  provider?: "appwrite" | "google" | "backend";
 }
 
 export interface GoogleJwtPayload extends JwtPayload {
@@ -13,6 +14,15 @@ export interface GoogleJwtPayload extends JwtPayload {
   email: string;
   name: string;
   roles: string[];
+  provider?: "google"; 
+}
+
+export interface BackendJwtPayload extends JwtPayload {
+  id: string;
+  email: string;
+  username: string;
+  roles: string[];
+  provider?: "backend";
 }
 
 export interface UserAuthContextType {
