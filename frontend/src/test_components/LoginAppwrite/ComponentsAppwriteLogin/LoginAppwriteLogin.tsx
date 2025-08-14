@@ -1,13 +1,13 @@
 import { useState, useContext, useEffect  } from "react";
 import { Link, useNavigate  } from "react-router-dom";
 import { account } from "../appwriteConfig";
-import { UserAuthContext } from "../UserAuthContext";
+import { UserAuthContext } from "../../../context/UserAuthContext";
 
 interface params {
   url: string
 }
 
-const GithubLoginTest = ({ url }: params) => {
+const LoginAppwriteLogin = ({ url }: params) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [buttonLoading, setButtonLoading] = useState(false);
@@ -97,4 +97,4 @@ const GithubLoginTest = ({ url }: params) => {
   )
 }
 
-export default GithubLoginTest
+export default LoginAppwriteLogin

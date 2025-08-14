@@ -7,6 +7,7 @@ import { authController } from '../controllers/auth.controller'
 router.post('/', authController.login)
 router.get('/google/url/login', authController.getGoogleOAuthUrlLogin)
 router.get('/google/url/signup', authController.getGoogleOAuthUrlSignup)
+router.get('/google/callback', authController.githubCallback) // creates and res jwt with user info
 
 router.get('/google/login', authController.googleLogin)
 router.get('/google/signup', authController.googleSignup)

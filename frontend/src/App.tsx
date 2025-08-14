@@ -22,10 +22,10 @@ function App() {
         <Route path="/google-success" element={<GoogleSuccess />} />
 
         <Route element={<PrivateRoute />}>
-          <Route path="/git-home" element={<HomeAppwriteLogin />} />        
+          <Route path="/appwrite-home" element={<HomeAppwriteLogin />} />        
         </Route>
 
-        <Route path="/github-login" element={<LoginAppwriteLogin url={url} />} />
+        <Route path="/appwrite-login" element={<LoginAppwriteLogin url={url} />} />
         <Route path="/register" element={<RegisterPageAppwriteLogin />} />
       </Route>
     </Routes>

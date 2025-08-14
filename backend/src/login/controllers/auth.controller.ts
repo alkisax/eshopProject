@@ -9,6 +9,8 @@ import querystring from 'querystring';
 import { authService } from '../services/auth.service';
 import { userDAO } from '../dao/user.dao';
 import type { Request, Response } from 'express';
+import { AuthRequest } from '../types/user.types';
+import { handleControllerError } from '../services/errorHnadler'
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -60,13 +62,8 @@ export const login = async (req: Request, res: Response) => {
       }
     })
 
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-    console.error(error);
-      return res.status(500).json({ status: false, error: error.message });
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
+  } catch (error) {
+    return handleControllerError(res, error);
   }
 }
 
@@ -107,6 +104,48 @@ export const getGoogleOAuthUrlSignup = (_req: Request, res: Response) => {
   return res.status(200).json({ url });
 };
 
+export const googleCallback = async (req: AuthRequest, res: Response) => {
+  try{
+    const googleUser = req.user
+
+    if (!googleUser?.email) {
+      return res.status(404).json({ status: false, message: 'Cant find email in googleCallback' })
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(404).json({status: false, message:'JWT_SECRET is not defined'});
+    }
+
+    const user = await userDAO.toServerByEmail(googleUser.email)
+
+    if (!user) {
+      return res.status(404).json({ status: false, message: 'User does not exist (googleCallback)' })
+    }
+
+      // Generate JWT
+      const token = jwt.sign(
+        { id: user._id, role: user.roles },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+      );
+
+      // Send *all* user data to frontend
+      return res.status(200).json({
+        status: true,
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.roles,
+          createdAt: user.createdAt
+        }
+      });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+}
+
 export const googleLogin = async(req: Request, res: Response) => {
   const redirectUri = process.env.GOOGLE_REDIRECT_URI_LOGIN as string;
   // 1. Controller receives the Google code from Google
@@ -142,7 +181,7 @@ export const googleLogin = async(req: Request, res: Response) => {
   }
 
   // 4. Generate your app’s JWT
-  const payload = { id: dbUser._id, roles: dbUser.roles };
+  const payload = { id: dbUser._id, name: dbUser.name, email: dbUser.email, roles: dbUser.roles };
   const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
   // 5. Redirect to front if sign in
@@ -209,7 +248,7 @@ export const googleSignup  = async(req: Request, res: Response) => {
     return res.status(500).json({ status: false, error: "User not found or failed to create" });
   }
 
-  const payload = { id: dbUser._id, roles: dbUser.roles };
+  const payload = { id: dbUser._id, name: dbUser.name, email: dbUser.email, roles: dbUser.roles };
   const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
   // 5. Redirect to front if sign in

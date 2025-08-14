@@ -2,7 +2,7 @@
 // https://dev.to/devyoma/authentication-in-react-with-appwrite-4jaj
 
 
-const GithubHomeTest = () => {
+const HomeAppwriteLogin = () => {
   return (
     <div>
       <h1>Home Page</h1>
@@ -11,4 +11,4 @@ const GithubHomeTest = () => {
   );
 };
 
-export default GithubHomeTest;
+export default HomeAppwriteLogin;

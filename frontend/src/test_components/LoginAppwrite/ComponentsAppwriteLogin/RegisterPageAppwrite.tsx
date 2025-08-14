@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { account } from "../appwriteConfig";
 import { ID } from "appwrite";
 
-const GithubRegisterPageTest = () => {
+const RegisterPageAppwrite = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,7 +48,7 @@ const GithubRegisterPageTest = () => {
         function (response) {
           console.log(response); // Success
           alert("Account Created Successfully 🚀");
-          navigate("/github-login");
+          navigate("/appwrite-login");
         },
         function (error) {
           console.log(error); // Failure
@@ -115,11 +115,11 @@ const GithubRegisterPageTest = () => {
 }</button>
 
         <div>
-          Have an account? <Link to="/github-login">Login</Link>
+          Have an account? <Link to="/appwrite-login">Login</Link>
         </div>
       </form>
     </div>
   );
 };
 
-export default GithubRegisterPageTest;
+export default RegisterPageAppwrite;

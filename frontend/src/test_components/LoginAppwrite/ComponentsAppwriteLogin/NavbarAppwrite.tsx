@@ -1,24 +1,30 @@
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext  } from "react";
-import { UserAuthContext } from "../UserAuthContext";
+import { UserAuthContext } from "../../../context/UserAuthContext";
 import { account } from "../appwriteConfig";
 
-const GithubNavbarTest = () => {
+const NavbarAppwrite = () => {
   const { user, setUser } = useContext(UserAuthContext);
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    navigate("/github-login");
+    navigate("/appwrite-login");
   };
 
   const handleLogout = async () => {
     try {
-      await account.deleteSession("current");
+      localStorage.removeItem("token")
+      sessionStorage.removeItem("token")
+      try {
+        await account.deleteSession("current");
+      } catch (error: unknown) {
+        console.log("no appwrite sessinon", error);
+      }
       setUser(null);
-      navigate("/github-login");
+      navigate("/");
     } catch (error) {
-      console.error(error);
+      console.error("Error during universal logout:", error);
     }
   };
 
@@ -29,21 +35,21 @@ const GithubNavbarTest = () => {
         <Typography
           variant="h6"
           component={Link}
-          to="/git-home"
+          to="/appwrite-home"
           sx={{ flexGrow: 1, textDecoration: "none", color: "inherit" }}
         >
-          GitHome
+          APWHome
         </Typography>
 
         {/* Buttons */}
         <Box>
           {user ? (
             <Button color="inherit" onClick={handleLogout}>
-              Git-Logout
+              Logout
             </Button>
           ) : (
             <Button color="inherit" onClick={handleLogin}>
-              Git-Login
+              AW-Login
             </Button>
           )}      
         </Box>
@@ -52,4 +58,4 @@ const GithubNavbarTest = () => {
   );
 };
 
-export default GithubNavbarTest;
+export default NavbarAppwrite;

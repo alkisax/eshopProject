@@ -52,7 +52,7 @@ const GoogleLoginTest = ({ url }: Params) => {
         <a href={signupUrl}>
           <button>Signup with Google</button>
         </a>
-          {googleUrl ? <p>{googleUrl}</p> : <p>loading...</p>}
+          {/* {googleUrl ? <p>{googleUrl}</p> : <p>loading...</p>} */}
       </div>    
     </>
 
