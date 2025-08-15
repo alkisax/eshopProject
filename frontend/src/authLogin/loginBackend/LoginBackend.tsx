@@ -65,16 +65,13 @@ const LoginBackend = ({ url }: Props) => {
         mt: 5,
       }}
     >
-      <Typography variant="h5" align="center">
-        Backend Login
-      </Typography>
-
       <TextField
         label="Username"
         variant="outlined"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         fullWidth
+        autoComplete="email"
       />
 
       <TextField
@@ -84,6 +81,7 @@ const LoginBackend = ({ url }: Props) => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         fullWidth
+        autoComplete="current-password"
       />
 
       <Button type="submit" variant="contained" color="primary">
@@ -92,6 +90,9 @@ const LoginBackend = ({ url }: Props) => {
 
       <Typography variant="body2" align="center">
         Don’t have an account? <Link to="/register-backend">Register</Link>
+      </Typography>
+      <Typography variant="caption" align="center">
+        Powered by MongoDB
       </Typography>
     </Box>
   );

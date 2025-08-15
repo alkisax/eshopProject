@@ -4,7 +4,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/users.models';
 import { account } from '../../utils/appwrite'
-import { OAuthProvider } from 'appwrite';
+// import { OAuthProvider } from 'appwrite';
 import querystring from 'querystring';
 import { authService } from '../services/auth.service';
 import { userDAO } from '../dao/user.dao';
@@ -172,7 +172,7 @@ export const googleLogin = async(req: Request, res: Response) => {
     const frontendUrl = process.env.FRONTEND_URL;
     // Redirect to signup page
     const message = `user ${user.email} doesn’t exist please sign up`;
-    return res.redirect(`${frontendUrl}/signup?message=${encodeURIComponent(message)}`);
+    return res.redirect(`${frontendUrl}/login?message=${encodeURIComponent(message)}`);
   }
 
   const secret = process.env.JWT_SECRET;
@@ -255,27 +255,27 @@ export const googleSignup  = async(req: Request, res: Response) => {
   return res.redirect(`${frontendUrl}/google-success?token=${token}&email=${dbUser.email}&message=${encodeURIComponent(message)}`);
 }
 
-export const githubLogin = async (_req: Request, res: Response) => {
+// export const githubLogin = async (_req: Request, res: Response) => {
   
-  const frontendUrl = process.env.FRONTEND_URL
+//   const frontendUrl = process.env.FRONTEND_URL
 
-  try {
-    await account.createOAuth2Session(
-      OAuthProvider.Github,
-      `${frontendUrl}/github-success`,
-      `${frontendUrl}/signup`
-    )
-    return res.status(200).json({ status: true, message: 'githublogin' })
-    //When GitHub login is successful, Appwrite redirects to your github-success page.
-    // At this point, the browser already has a session cookie, so you can call: const user = await account.get() If you’re doing this from the frontend, you can call it directly with the Appwrite Web SDK. If you want to do it from the backend, you’ll need to pass the Appwrite session cookie from the browser to your backend.
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return res.status(500).json({ status: false, error: error.message });
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
-  }
-}
+//   try {
+//     await account.createOAuth2Session(
+//       OAuthProvider.Github,
+//       `${frontendUrl}/github-success`,
+//       `${frontendUrl}/signup`
+//     )
+//     return res.status(200).json({ status: true, message: 'githublogin' })
+//     //When GitHub login is successful, Appwrite redirects to your github-success page.
+//     // At this point, the browser already has a session cookie, so you can call: const user = await account.get() If you’re doing this from the frontend, you can call it directly with the Appwrite Web SDK. If you want to do it from the backend, you’ll need to pass the Appwrite session cookie from the browser to your backend.
+//   } catch (error: unknown) {
+//     if (error instanceof Error) {
+//       return res.status(500).json({ status: false, error: error.message });
+//     } else {
+//       return res.status(500).json({ status: false, error: 'Unknown error' });
+//     }
+//   }
+// }
 
 // Create a route in your backend (for example, /auth/github/callback) 
 export const githubCallback = async (_req: Request, res: Response) => {
@@ -323,6 +323,6 @@ export const authController = {
   getGoogleOAuthUrlSignup,
   googleLogin,
   googleSignup,
-  githubLogin,
+  // githubLogin,
   githubCallback
 }

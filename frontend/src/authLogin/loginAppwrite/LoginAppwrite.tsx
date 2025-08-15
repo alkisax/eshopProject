@@ -1,8 +1,10 @@
+//https://dev.to/devyoma/authentication-in-react-with-appwrite-4jaj
+
 import { useState, useContext, useEffect  } from "react";
 import { Link, useNavigate  } from "react-router-dom";
 import axios from "axios";
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { account } from "./appwriteConfig";
+import { account } from "../appwriteConfig";
 import { UserAuthContext } from "../../context/UserAuthContext";
 
 interface params {
@@ -97,6 +99,7 @@ const LoginAppwriteLogin = ({ url }: params) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           fullWidth
+          autoComplete="email"
         />
 
         <TextField
@@ -106,6 +109,7 @@ const LoginAppwriteLogin = ({ url }: params) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           fullWidth
+          autoComplete="current-password"
         />
 
         <Button type="submit" variant="contained" color="primary">
@@ -114,6 +118,9 @@ const LoginAppwriteLogin = ({ url }: params) => {
 
         <Typography variant="body2" align="center">
           Don’t have an account? <Link to="/register-appwrite">Register</Link>
+        </Typography>
+        <Typography variant="caption" align="center">
+          Powered by Appwrite
         </Typography>
       </Box>
     </>

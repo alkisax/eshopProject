@@ -10,6 +10,7 @@ import GoogleLogin from './authLogin/loginGoogle/GoogleLogin'
 import AdminPanel from "./pages/AdminPanel"
 import AdminPrivateRoute from "./authLogin/service/AdminPrivateRoute"
 import RegisterPageBackend from "./authLogin/loginBackend/RegisterPageBackend"
+import GithubSuccess from './authLogin/loginGithub/GithubSuccess'
 // import LoginBackend from "./authLogin/loginBackend/LoginBackend"
 
 import GoogleSuccess from "./authLogin/loginGoogle/GoogleSuccess"
@@ -47,6 +48,8 @@ function App() {
 
         <Route path="/appwrite-login" element={<LoginAppwriteLogin url={url} />} />
         <Route path="/register-appwrite" element={<RegisterPageAppwriteLogin />} />
+
+        <Route path="/github-success" element={<GithubSuccess />} />
       </Route>
     </Routes>
     </>

@@ -59,29 +59,30 @@ const GoogleLoginTest = ({ url }: Params) => {
         </Typography>
       )}
 
-      <Typography variant="h5">Google Login</Typography>
+      <Box sx={{ display: "flex", gap: 1 }}>
+        <Button
+          component="a"
+          href={googleUrl}
+          variant="contained"
+          color="primary"
+          startIcon={<GoogleIcon />}
+          fullWidth
+        >
+          Login with Google
+        </Button>
 
-      <Button
-        component="a"
-        href={googleUrl}
-        variant="contained"
-        color="primary"
-        startIcon={<GoogleIcon />}
-        fullWidth
-      >
-        Login with Google
-      </Button>
+        <Button
+          component="a"
+          href={signupUrl}
+          variant="outlined"
+          color="primary"
+          startIcon={<GoogleIcon />}
+          fullWidth
+        >
+          Signup with Google
+        </Button>       
+      </Box>
 
-      <Button
-        component="a"
-        href={signupUrl}
-        variant="outlined"
-        color="primary"
-        startIcon={<GoogleIcon />}
-        fullWidth
-      >
-        Signup with Google
-      </Button>
 
       {/* {googleUrl ? <p>{googleUrl}</p> : <p>loading...</p>} */}
     </Box>

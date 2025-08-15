@@ -16,7 +16,7 @@ router.get('/google/signup', authController.googleSignup)
 
 router.post('/appwrite/sync', authAppwriteController.syncUser)
 
-router.get('/github/login', authController.githubLogin)
+// router.get('/github/login', authController.githubLogin)
 router.get('/github/callback', authController.githubCallback);
 
 export default router;

@@ -1,4 +1,4 @@
-import { account } from "./loginAppwrite/appwriteConfig";
+import { account } from "./appwriteConfig";
 import type { AppwriteUser } from "../types/types"
 
 type SetUser = (user: AppwriteUser | null) => void;

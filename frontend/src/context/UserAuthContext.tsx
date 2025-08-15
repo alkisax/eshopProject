@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState  } from "react";
 import { jwtDecode } from "jwt-decode";
-import { account } from "../authLogin/loginAppwrite/appwriteConfig"; 
+import axios from 'axios';
+import { account } from "../authLogin/appwriteConfig"; 
 import type { AppwriteUser, GoogleJwtPayload, UserAuthContextType, UserProviderProps, BackendJwtPayload } from "../types/types";
 
 // Provide a default value for createContext
@@ -52,9 +53,28 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       // 2️⃣ Switch on provider
       switch (provider) {
         case "appwrite":
-          setUser(appwriteUser);
-          break;
+          if (!appwriteUser) {
+            console.error("No Appwrite user found");
+            return;
+          }
+          try {
+            // 🔄 Sync roles from backend
+            const syncRes = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/appwrite/sync`, {
+              email: appwriteUser.email,
+            });
 
+            if (syncRes.data.status) {
+              const { user: dbUser, token } = syncRes.data.data;
+              localStorage.setItem("token", token);
+              setUser(dbUser); // backend user has roles
+            } else {
+              setUser(appwriteUser); // fallback without roles
+            }
+          } catch (err) {
+            console.error("Backend sync failed:", err);
+            setUser(appwriteUser); // fallback
+          }
+          break;
         case "google": {
           const googleUser = decodedToken as GoogleJwtPayload;
           setUser({

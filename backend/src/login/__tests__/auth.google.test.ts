@@ -56,7 +56,7 @@ describe("Google OAuth controllers", () => {
       expect(res.body.data).toMatch(/google login failed/i);
     });
 
-    it("should redirect to signup if user not in DB", async () => {
+    it("should redirect to login if user not in DB", async () => {
       (authService.googleAuth as jest.Mock).mockResolvedValueOnce({
         user: { email: "newuser@example.com", name: "New User" }
       });
@@ -67,7 +67,7 @@ describe("Google OAuth controllers", () => {
         .get("/api/auth/google/login?code=fakecode")
         .expect(302);
 
-      expect(res.header.location).toContain("/signup");
+      expect(res.header.location).toContain("/login");
     });
 
     it("should redirect to google-success if user exists", async () => {
