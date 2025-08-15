@@ -38,7 +38,7 @@ type VerifyAccessTokenResult =
   | { verified: false; data: string };
 
 const verifyAccessToken = (token: string): VerifyAccessTokenResult => {
-  const secret = process.env.SECRET
+  const secret = process.env.JWT_SECRET
 
   if (!secret) {
     throw new Error("JWT secret is not defined in environment variables");

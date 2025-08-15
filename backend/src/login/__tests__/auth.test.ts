@@ -148,3 +148,49 @@ describe("Auth controller tests", () => {
     });
   });
 });
+
+describe("POST /api/auth/appwrite/sync", () => {
+
+  it("should fail if email is missing", async () => {
+    const res = await request(app).post("/api/auth/appwrite/sync").send({ name: "New User" });
+    expect(res.status).toBe(400);
+    expect(res.body.status).toBe(false);
+    expect(res.body.data).toMatch(/error fetching user from appwrite/i);
+  });
+
+  it("should create a new user and return token", async () => {
+    const res = await request(app)
+      .post("/api/auth/appwrite/sync")
+      .send({ email: "appwriteuser@example.com" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe(true);
+    expect(res.body.data).toHaveProperty("token");
+    expect(res.body.data.user).toMatchObject({
+      username: "appwriteuser",
+      name: "appwriteuser",
+      email: "appwriteuser@example.com",
+      roles: ["USER"],
+    });
+
+    // Optional: verify user was actually created in DB
+    const dbUser = await User.findOne({ email: "appwriteuser@example.com" });
+    expect(dbUser).not.toBeNull();
+  });
+
+  it("should sync an existing user without creating duplicate", async () => {
+    // First call to create
+    await request(app).post("/api/auth/appwrite/sync").send({ name: "Appwrite User 2", email: "appwriteuser2@example.com" });
+
+    // Second call should find existing user
+    const res = await request(app).post("/api/auth/appwrite/sync").send({ name: "Appwrite User 2", email: "appwriteuser2@example.com" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe(true);
+    expect(res.body.data.user.email).toBe("appwriteuser2@example.com");
+
+    // Check DB: still only 1 user with that email
+    const count = await User.countDocuments({ email: "appwriteuser2@example.com" });
+    expect(count).toBe(1);
+  });
+});

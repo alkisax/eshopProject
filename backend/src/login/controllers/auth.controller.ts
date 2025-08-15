@@ -4,11 +4,13 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/users.models';
 import { account } from '../../utils/appwrite'
-import { OAuthProvider } from 'appwrite';
+// import { OAuthProvider } from 'appwrite';
 import querystring from 'querystring';
 import { authService } from '../services/auth.service';
 import { userDAO } from '../dao/user.dao';
 import type { Request, Response } from 'express';
+import { AuthRequest } from '../types/user.types';
+import { handleControllerError } from '../services/errorHnadler'
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -60,13 +62,8 @@ export const login = async (req: Request, res: Response) => {
       }
     })
 
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-    console.error(error);
-      return res.status(500).json({ status: false, error: error.message });
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
+  } catch (error) {
+    return handleControllerError(res, error);
   }
 }
 
@@ -107,6 +104,48 @@ export const getGoogleOAuthUrlSignup = (_req: Request, res: Response) => {
   return res.status(200).json({ url });
 };
 
+export const googleCallback = async (req: AuthRequest, res: Response) => {
+  try{
+    const googleUser = req.user
+
+    if (!googleUser?.email) {
+      return res.status(404).json({ status: false, message: 'Cant find email in googleCallback' })
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(404).json({status: false, message:'JWT_SECRET is not defined'});
+    }
+
+    const user = await userDAO.toServerByEmail(googleUser.email)
+
+    if (!user) {
+      return res.status(404).json({ status: false, message: 'User does not exist (googleCallback)' })
+    }
+
+      // Generate JWT
+      const token = jwt.sign(
+        { id: user._id, role: user.roles },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+      );
+
+      // Send *all* user data to frontend
+      return res.status(200).json({
+        status: true,
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.roles,
+          createdAt: user.createdAt
+        }
+      });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+}
+
 export const googleLogin = async(req: Request, res: Response) => {
   const redirectUri = process.env.GOOGLE_REDIRECT_URI_LOGIN as string;
   // 1. Controller receives the Google code from Google
@@ -133,7 +172,7 @@ export const googleLogin = async(req: Request, res: Response) => {
     const frontendUrl = process.env.FRONTEND_URL;
     // Redirect to signup page
     const message = `user ${user.email} doesn’t exist please sign up`;
-    return res.redirect(`${frontendUrl}/signup?message=${encodeURIComponent(message)}`);
+    return res.redirect(`${frontendUrl}/login?message=${encodeURIComponent(message)}`);
   }
 
   const secret = process.env.JWT_SECRET;
@@ -142,7 +181,7 @@ export const googleLogin = async(req: Request, res: Response) => {
   }
 
   // 4. Generate your app’s JWT
-  const payload = { id: dbUser._id, roles: dbUser.roles };
+  const payload = { id: dbUser._id, name: dbUser.name, email: dbUser.email, roles: dbUser.roles };
   const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
   // 5. Redirect to front if sign in
@@ -209,35 +248,34 @@ export const googleSignup  = async(req: Request, res: Response) => {
     return res.status(500).json({ status: false, error: "User not found or failed to create" });
   }
 
-  const payload = { id: dbUser._id, roles: dbUser.roles };
+  const payload = { id: dbUser._id, name: dbUser.name, email: dbUser.email, roles: dbUser.roles };
   const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
   // 5. Redirect to front if sign in
   return res.redirect(`${frontendUrl}/google-success?token=${token}&email=${dbUser.email}&message=${encodeURIComponent(message)}`);
 }
 
-export const githubLogin = async (_req: Request, res: Response) => {
+// export const githubLogin = async (_req: Request, res: Response) => {
   
-  const frontendUrl = process.env.FRONTEND_URL
+//   const frontendUrl = process.env.FRONTEND_URL
 
-
-  try {
-    await account.createOAuth2Session(
-      OAuthProvider.Github,
-      `${frontendUrl}/github-success`,
-      `${frontendUrl}/signup`
-    )
-    return res.status(200).json({ status: true, message: 'githublogin' })
-    //When GitHub login is successful, Appwrite redirects to your github-success page.
-    // At this point, the browser already has a session cookie, so you can call: const user = await account.get() If you’re doing this from the frontend, you can call it directly with the Appwrite Web SDK. If you want to do it from the backend, you’ll need to pass the Appwrite session cookie from the browser to your backend.
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return res.status(500).json({ status: false, error: error.message });
-    } else {
-      return res.status(500).json({ status: false, error: 'Unknown error' });
-    }
-  }
-}
+//   try {
+//     await account.createOAuth2Session(
+//       OAuthProvider.Github,
+//       `${frontendUrl}/github-success`,
+//       `${frontendUrl}/signup`
+//     )
+//     return res.status(200).json({ status: true, message: 'githublogin' })
+//     //When GitHub login is successful, Appwrite redirects to your github-success page.
+//     // At this point, the browser already has a session cookie, so you can call: const user = await account.get() If you’re doing this from the frontend, you can call it directly with the Appwrite Web SDK. If you want to do it from the backend, you’ll need to pass the Appwrite session cookie from the browser to your backend.
+//   } catch (error: unknown) {
+//     if (error instanceof Error) {
+//       return res.status(500).json({ status: false, error: error.message });
+//     } else {
+//       return res.status(500).json({ status: false, error: 'Unknown error' });
+//     }
+//   }
+// }
 
 // Create a route in your backend (for example, /auth/github/callback) 
 export const githubCallback = async (_req: Request, res: Response) => {
@@ -285,6 +323,6 @@ export const authController = {
   getGoogleOAuthUrlSignup,
   googleLogin,
   googleSignup,
-  githubLogin,
+  // githubLogin,
   githubCallback
 }
