@@ -4,24 +4,71 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { account } from "../appwriteConfig";
 import { ID } from "appwrite";
+import { Box, Button, TextField, Typography, Paper, Stack } from "@mui/material";
 
 const RegisterPageAppwrite = () => {
   const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [loadingStatus, setLoadingStatus] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate()
 
+  const validatePassword = (password: string) => {
+    const minLength = 6;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    if (password.length < minLength) return "Password must be at least 6 characters";
+    if (!hasUppercase) return "Password must contain at least one uppercase letter";
+    if (!hasSpecialChar) return "Password must contain at least one special character";
+    return ""; // valid
+  };
+
+  // Email validation regex
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) return "Email is required";
+    if (!emailRegex.test(email)) return "Invalid email address";
+    return ""; // valid
+  };
+
+
   const handleRegister = async (event: { preventDefault: () => void; }) => {
-    setLoadingStatus(true)
+    setLoading(true)
     event.preventDefault();
+    setErrorMessage(""); // reset previous error
+
+    const passError = validatePassword(password);
+    if (passError) {
+      setErrorMessage(passError);
+      setLoading(false);
+      return;
+    }
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setErrorMessage(emailError);
+      setLoading(false);
+      return;
+    }
+    if (!username || !name || !email || !password || !confirmPassword) {
+      setErrorMessage("Please fill in all fields");
+      setLoading(false);
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
     try {
       // Call Appwrite function to handle user registration
       if (password !== confirmPassword) {
         alert("Passwords do not match");
-        setLoadingStatus(false)
+        setLoading(false)
         return;
       }
       if (
@@ -31,14 +78,14 @@ const RegisterPageAppwrite = () => {
         confirmPassword === ""
       ) {
         alert("Please fill in all fields");
-        setLoadingStatus(false);
+        setLoading(false);
         return;
       }
 
       // appwrite Register functionality 👇
       if (password.length < 8) {
         alert("Password must contain 8 characters");
-        setLoadingStatus(false);
+        setLoading(false);
         return;
       }
 
@@ -48,7 +95,7 @@ const RegisterPageAppwrite = () => {
         function (response) {
           console.log(response); // Success
           alert("Account Created Successfully 🚀");
-          navigate("/appwrite-login");
+          navigate("/");
         },
         function (error) {
           console.log(error); // Failure
@@ -65,60 +112,78 @@ const RegisterPageAppwrite = () => {
   };
 
   return (
-    <div className="registerPage">
-      <h2>Register</h2>
-      <form onSubmit={handleRegister}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            required
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
+    <>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
+        <Paper sx={{ p: 4, width: 400 }}>
+          <Typography variant="h5" align="center" gutterBottom>
+            Register
+          </Typography>
 
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            required
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+          <Box component="form" onSubmit={handleRegister} noValidate>
+            <Stack spacing={2}>
+              <TextField
+                label="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                fullWidth
+              />
+              <TextField
+                label="Full Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                fullWidth
+              />
+              <TextField
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                fullWidth
+              />
+              <TextField
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                fullWidth
+              />
+              <TextField
+                label="Confirm Password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                fullWidth
+              />
 
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            required
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+              {errorMessage && (
+                <Typography variant="body2" color="error" align="center">
+                  {errorMessage}
+                </Typography>
+              )}
 
-        <div>
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input
-            type="password"
-            required
-            id="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">{<button type="submit">{loadingStatus ? "Loading..." : "Register"}</button>
-}</button>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={loading}
+                fullWidth
+              >
+                {loading ? "Loading..." : "Register"}
+              </Button>
 
-        <div>
-          Have an account? <Link to="/appwrite-login">Login</Link>
-        </div>
-      </form>
-    </div>
+              <Typography variant="body2" align="center">
+                Already have an account? <Link to="/login-backend">Login</Link>
+              </Typography>
+            </Stack>
+          </Box>
+        </Paper>
+      </Box>      
+    </>
   );
 };
 
