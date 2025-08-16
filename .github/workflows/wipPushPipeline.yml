@@ -13,6 +13,11 @@ jobs:
       MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GOOGLE_REDIRECT_URI_LOGIN: ${{ secrets.GOOGLE_REDIRECT_URI_LOGIN }}
+      GOOGLE_REDIRECT_URI_SIGNUP: ${{ secrets.GOOGLE_REDIRECT_URI_SIGNUP }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
