@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import mongoose, { Types } from 'mongoose';
 import request from 'supertest';
-// import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import app from '../../app';
 import bcrypt from 'bcrypt';
 import User from '../models/users.models';
@@ -10,7 +10,7 @@ jest.mock('../../utils/appwrite.ts', () => ({
   client: {},
 }));
 
-// dotenv.config({ override: false });
+dotenv.config({ override: false });
 
 console.log('MONGODB_TEST_URI exists?', !!process.env.MONGODB_TEST_URI);
 console.log('JWT_SECRET exists?', !!process.env.JWT_SECRET);

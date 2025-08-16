@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import jwt from 'jsonwebtoken';
 import type { JwtPayload } from 'jsonwebtoken';
 import type { SignOptions } from 'jsonwebtoken';
@@ -16,7 +17,7 @@ const generateAccessToken = (user: IUser): string => {
     roles: user.roles,
   };
 
-  const secret = process.env.SECRET;
+  const secret = process.env.JWT_SECRET;
  
   if (!secret) {
     throw new Error('JWT secret is not defined in environment variables');
