@@ -11,7 +11,7 @@
     "dev": "ts-node-dev src/server.ts",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx} --ignore-pattern build --ignore-pattern dist",
     "start": "node build/src/server.js",
-    "test": "cross-env NODE_ENV=test jest --coverage --testTimeout=50000 --runInBand --verbose  --silent"
+    "test": "cross-env NODE_ENV=test jest --coverage --testTimeout=50000 --runInBand --verbose  "
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

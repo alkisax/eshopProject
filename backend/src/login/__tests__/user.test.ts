@@ -13,6 +13,9 @@ jest.mock('../../utils/appwrite.ts', () => ({
 
 dotenv.config();
 
+console.log('MONGODB_TEST_URI exists?', !!process.env.MONGODB_TEST_URI);
+console.log('JWT_SECRET exists?', !!process.env.JWT_SECRET);
+
 interface AdminUser {
     _id: Types.ObjectId;
     username: string,
@@ -29,7 +32,12 @@ beforeAll(async () => {
   if (!process.env.MONGODB_TEST_URI) {
     throw new Error('MONGODB_TEST_URI environment variable is required');
   }
-  await mongoose.connect(process.env.MONGODB_TEST_URI);
+  try {
+    await mongoose.connect(process.env.MONGODB_TEST_URI!);
+    console.log('MongoDB connected');
+  } catch (err) {
+    console.error('MongoDB connection failed:', err);
+  }
   await mongoose.connection.collection('users').deleteMany({});
 
   // υπήρχε το εξής προβλημα. Για να φτιάξεις έναν admin επρεπε να ήταν ήδη logedin κάποιος admin, προσπάθησα να κάνω mock το middleware αλλα δεν έβγενε ακρη και για αυτο ξεκινάμε με μια βάση δεδομένον που δεν έιναι κενή αλλά έχει ήδη έναν αντμιν μεσα
