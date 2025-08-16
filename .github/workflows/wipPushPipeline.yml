@@ -50,6 +50,11 @@ jobs:
         run: npm run build
         working-directory: ./backend
 
+      - name: Check env
+        run: |
+          echo "JWT_SECRET: $JWT_SECRET"
+          echo "MONGODB_TEST_URI: $MONGODB_TEST_URI"
+
       - name: Run backend tests
         run: npm run test
-        working-directory: ./backend          
+        working-directory: ./backend
