@@ -25,27 +25,27 @@ jobs:
         with:
           node-version: '20'
 
-      # # === FRONTEND ===
-      # - name: Install frontend dependencies
-      #   run: npm install
-      #   working-directory: ./frontend
+      # === FRONTEND ===
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./frontend
 
-      # - name: Lint frontend
-      #   run: npm run lint
-      #   working-directory: ./frontend
+      - name: Lint frontend
+        run: npm run lint
+        working-directory: ./frontend
 
-      # - name: Build frontend
-      #   run: npm run build
-      #   working-directory: ./frontend
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend
 
       # === BACKEND ===
       - name: Install backend dependencies
         run: npm install
         working-directory: ./backend
 
-      # - name: Lint backend
-      #   run: npm run lint
-      #   working-directory: ./backend
+      - name: Lint backend
+        run: npm run lint
+        working-directory: ./backend
 
       - name: Build backend
         run: npm run build
