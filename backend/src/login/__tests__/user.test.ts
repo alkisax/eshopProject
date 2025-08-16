@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import mongoose, { Types } from 'mongoose';
 import request from 'supertest';
 import dotenv from 'dotenv';
@@ -44,6 +45,8 @@ beforeAll(async () => {
   }) as AdminUser;
 
   seededAdmin.passwordPlain = plainPassword; // store plain pw for login later
+  console.log('MongoDB connected:', mongoose.connection.readyState);
+  console.log('Seeded admin:', seededAdmin.username, seededAdmin.hashedPassword);
 });
 
 // beforeEach(async () => {
