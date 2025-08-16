@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
  
 // https://github.com/mkarampatsis/coding-factory7-nodejs/blob/main/usersApp/controllers/auth.controller.js
 // https://fullstackopen.com/en/part4/token_authentication
