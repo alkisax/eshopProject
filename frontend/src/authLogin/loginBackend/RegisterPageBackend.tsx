@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Box, Button, TextField, Typography, Paper, Stack } from "@mui/material";
+import { frontendValidatePassword } from "../../utils/registerBackend";
+import { frontEndValidateEmail } from "../../utils/registerBackend";
 
 interface Props {
   url: string;
@@ -18,36 +20,18 @@ const RegisterPageBackend = ({ url }: Props) => {
 
   const navigate = useNavigate();
 
-  const validatePassword = (password: string) => {
-    const minLength = 6;
-    const hasUppercase = /[A-Z]/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    if (password.length < minLength) return "Password must be at least 6 characters";
-    if (!hasUppercase) return "Password must contain at least one uppercase letter";
-    if (!hasSpecialChar) return "Password must contain at least one special character";
-    return ""; // valid
-  };
-
-  // Email validation regex
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) return "Email is required";
-    if (!emailRegex.test(email)) return "Invalid email address";
-    return ""; // valid
-  };
-
   const handleRegisterBackend = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setErrorMessage(""); // reset previous error
 
-    const passError = validatePassword(password);
+    const passError = frontendValidatePassword(password);
     if (passError) {
       setErrorMessage(passError);
       setLoading(false);
       return;
     }
-    const emailError = validateEmail(email);
+    const emailError = frontEndValidateEmail(email);
     if (emailError) {
       setErrorMessage(emailError);
       setLoading(false);

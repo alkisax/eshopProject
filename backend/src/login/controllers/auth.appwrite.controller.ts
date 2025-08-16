@@ -33,6 +33,7 @@ export const syncUser = async (req: Request, res: Response) => {
     
     const payload = {
       id: dbUser._id,
+      username: dbUser.username,
       name: dbUser.name,
       email: dbUser.email,
       roles: dbUser.roles

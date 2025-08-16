@@ -3,6 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import axios from 'axios';
 import { account } from "../authLogin/appwriteConfig"; 
 import type { AppwriteUser, GoogleJwtPayload, UserAuthContextType, UserProviderProps, BackendJwtPayload } from "../types/types";
+import type { IUser } from "../types/types"
 
 // Provide a default value for createContext
 // eslint-disable-next-line react-refresh/only-export-components
@@ -10,10 +11,11 @@ export const UserAuthContext = createContext<UserAuthContextType>({
   user: null,
   setUser: () => {},
   isLoading: true,
+  setIsLoading: () => {},
 });
 
 export const UserProvider = ({ children }: UserProviderProps) => {
-  const [user, setUser] = useState<AppwriteUser | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -63,24 +65,50 @@ export const UserProvider = ({ children }: UserProviderProps) => {
               email: appwriteUser.email,
             });
 
+            let normalizedUser: IUser;
+
             if (syncRes.data.status) {
               const { user: dbUser, token } = syncRes.data.data;
               localStorage.setItem("token", token);
-              setUser(dbUser); // backend user has roles
+              normalizedUser = {
+                _id: dbUser._id,
+                username: dbUser.username,
+                name: dbUser.name,
+                email: dbUser.email,
+                roles: dbUser.roles,
+                provider: "appwrite",
+              };
             } else {
-              setUser(appwriteUser); // fallback without roles
+              normalizedUser = {
+                _id: appwriteUser.$id,
+                username: appwriteUser.name || appwriteUser.email.split("@")[0],
+                name: appwriteUser.name || "",
+                email: appwriteUser.email,
+                roles: ["USER"],
+                provider: "appwrite",
+              };
             }
+            setUser(normalizedUser);
           } catch (err) {
             console.error("Backend sync failed:", err);
-            setUser(appwriteUser); // fallback
+            setUser({
+              _id: appwriteUser.$id,
+              username: appwriteUser.name || appwriteUser.email.split("@")[0],
+              name: appwriteUser.name || "",
+              email: appwriteUser.email,
+              roles: ["USER"],
+              provider: "appwrite",
+            });
           }
           break;
+
         case "google": {
           const googleUser = decodedToken as GoogleJwtPayload;
           setUser({
-            $id: googleUser.id,
-            email: googleUser.email,
+            _id: googleUser.id,
+            username: googleUser.name || googleUser.email.split("@")[0],
             name: googleUser.name,
+            email: googleUser.email,
             roles: googleUser.roles,
             provider: "google",
           });
@@ -90,9 +118,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         case "backend": {
           const backendUser = decodedToken as BackendJwtPayload;
           setUser({
-            $id: backendUser.id,
-            email: backendUser.email,
+            _id: backendUser.id,
+            username: backendUser.username,
             name: backendUser.username,
+            email: backendUser.email,
             roles: backendUser.roles,
             provider: "backend",
           });
@@ -111,43 +140,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   }, []);
 
 
-    // const fetchUser = async () => {
-    //   try {
-    //     // 1️⃣ Try Appwrite session first
-    //     const sessionUser = await account.get();
-    //     setUser({
-    //       $id: sessionUser.$id,
-    //       email: sessionUser.email,
-    //       name: sessionUser.name || "",
-    //       provider: "appwrite",
-    //     });
-    //   } catch {
-    //     // 2️⃣ If no Appwrite session, try Google
-    //     const token = localStorage.getItem("token");
-    //     console.log("LocalStorage token on startup:", token);
-    //     if (token) {
-    //       try {
-    //         const decoded = jwtDecode<GoogleJwtPayload>(token);
-    //         console.log("Decoded Google token on startup:", decoded);
-    //         setUser({
-    //           $id: decoded.id,
-    //           email: decoded.email,
-    //           name: decoded.name,
-    //           roles: decoded.roles,
-    //           provider: "google",
-    //         });
-    //       } catch (err) {
-    //         console.error("Invalid token", err);
-    //         localStorage.removeItem("token");
-    //       }
-    //     }
-    //   } finally {
-    //     setIsLoading(false);
-    //   }
-    // };
-
   return (
-    <UserAuthContext.Provider value={{ user, setUser, isLoading }}>
+    <UserAuthContext.Provider value={{ user, setUser, isLoading, setIsLoading }}>
       {children}
     </UserAuthContext.Provider>
   );

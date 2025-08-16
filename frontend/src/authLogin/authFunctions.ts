@@ -1,7 +1,7 @@
 import { account } from "./appwriteConfig";
-import type { AppwriteUser } from "../types/types"
+import type { IUser } from "../types/types"
 
-type SetUser = (user: AppwriteUser | null) => void;
+type SetUser = (user: IUser | null) => void;
 
 export const handleLogout = async (
   setUser: SetUser,

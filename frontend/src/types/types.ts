@@ -26,12 +26,33 @@ export interface BackendJwtPayload extends JwtPayload {
 }
 
 export interface UserAuthContextType {
-  user: AppwriteUser | null;
-  setUser: (user: AppwriteUser | null) => void;
-  isLoading: boolean;
+  user: IUser | null
+  setUser: (user: IUser | null) => void
+  isLoading: boolean
+  setIsLoading: (loading: boolean) => void
 }
 
 // Props type for the provider
 export interface UserProviderProps {
   children: ReactNode;
+}
+
+export interface IUser {
+  _id?: string
+  username: string
+  name: string
+  email: string
+  hashedPassword?: string
+  password?: string
+  roles: string[]
+  provider?: "appwrite" | "google" | "backend"
+}
+
+// for updating a user
+export interface UpdateUser {
+  username?: string
+  name?: string;
+  roles?: string[];
+  password?: string; // optional, will be hashed if present
+  hashedPassword?: string;
 }
