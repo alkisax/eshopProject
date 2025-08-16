@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import { Response } from 'express';
 import { handleControllerError } from '../services/errorHnadler';
 import { ZodError, ZodIssue } from 'zod';

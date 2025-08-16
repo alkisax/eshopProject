@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import express from 'express';
 import cors from 'cors';
 import type { Request, Response } from 'express';

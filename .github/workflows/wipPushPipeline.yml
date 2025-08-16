@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
-      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      # MONGODB_URI: ${{ secrets.MONGODB_URI }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          
+
       # === FRONTEND ===
       - name: Install frontend dependencies
         run: npm install
