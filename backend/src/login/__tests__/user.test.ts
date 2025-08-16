@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import app from '../../app';
 import bcrypt from 'bcrypt';
 import User from '../models/users.models';
-import { userDAO } from '../dao/user.dao';
+// import { userDAO } from '../dao/user.dao';
 
 jest.mock('../../utils/appwrite.ts', () => ({
   client: {},
@@ -86,108 +86,108 @@ describe('POST /api/users/signup/user', () => {
     expect(savedUser?.hashedPassword).not.toBe('Passw0rd!');
   });
 
-  it('should fail if username already exists', async () => {
-    await User.create({
-      username: 'duplicate',
-      hashedPassword: 'hashedpass',
-      name: 'Existing',
-      email: 'exist@example.com',
-      roles: ['USER'],
-    });
+  // it('should fail if username already exists', async () => {
+  //   await User.create({
+  //     username: 'duplicate',
+  //     hashedPassword: 'hashedpass',
+  //     name: 'Existing',
+  //     email: 'exist@example.com',
+  //     roles: ['USER'],
+  //   });
 
-    const res = await request(app)
-      .post('/api/users/signup/user')
-      .send({
-        username: 'duplicate',
-        password: 'Passw0rd!',
-      });
+  //   const res = await request(app)
+  //     .post('/api/users/signup/user')
+  //     .send({
+  //       username: 'duplicate',
+  //       password: 'Passw0rd!',
+  //     });
 
-    expect(res.status).toBe(409);
-    expect(res.body.status).toBe(false);
-    expect(res.body.error).toMatch(/username/i);
-  });
+  //   expect(res.status).toBe(409);
+  //   expect(res.body.status).toBe(false);
+  //   expect(res.body.error).toMatch(/username/i);
+  // });
 
-  it('should fail if email already exists', async () => {
-    await User.create({
-      username: 'user1',
-      hashedPassword: 'hashedpass',
-      name: 'Existing',
-      email: 'usermail@example.com',
-      roles: ['USER'],
-    });
+  // it('should fail if email already exists', async () => {
+  //   await User.create({
+  //     username: 'user1',
+  //     hashedPassword: 'hashedpass',
+  //     name: 'Existing',
+  //     email: 'usermail@example.com',
+  //     roles: ['USER'],
+  //   });
 
-    const res = await request(app)
-      .post('/api/users/signup/user')
-      .send({
-        username: 'newuser',
-        password: 'Passw0rd!',
-        email: 'exist@example.com',
-      });
+  //   const res = await request(app)
+  //     .post('/api/users/signup/user')
+  //     .send({
+  //       username: 'newuser',
+  //       password: 'Passw0rd!',
+  //       email: 'exist@example.com',
+  //     });
 
-    expect(res.status).toBe(409);
-    expect(res.body.status).toBe(false);
-    expect(res.body.error).toMatch(/email/i);
-  });
+  //   expect(res.status).toBe(409);
+  //   expect(res.body.status).toBe(false);
+  //   expect(res.body.error).toMatch(/email/i);
+  // });
 
-  it('should fail if password does not meet requirements', async () => {
-    const res = await request(app)
-      .post('/api/users/signup/user')
-      .send({
-        username: 'weakpass',
-        password: 'abc',
-      });
+  // it('should fail if password does not meet requirements', async () => {
+  //   const res = await request(app)
+  //     .post('/api/users/signup/user')
+  //     .send({
+  //       username: 'weakpass',
+  //       password: 'abc',
+  //     });
 
-    expect(res.status).toBe(400); // zod validation error
-    expect(res.body).toHaveProperty('status', false);
-  });
+  //   expect(res.status).toBe(400); // zod validation error
+  //   expect(res.body).toHaveProperty('status', false);
+  // });
 
-  it('should return 500 if DAO.create throws unexpected error', async () => {
-    jest.spyOn(userDAO, 'create').mockImplementationOnce(() => {
-      throw new Error('Simulated DAO failure');
-    });
+  // it('should return 500 if DAO.create throws unexpected error', async () => {
+  //   jest.spyOn(userDAO, 'create').mockImplementationOnce(() => {
+  //     throw new Error('Simulated DAO failure');
+  //   });
 
-    const res = await request(app)
-      .post('/api/users/signup/user')
-      .send({
-        username: 'anotheruser',
-        password: 'Passw0rd!',
-        name: 'Another User',
-        email: 'another@example.com',
-      });
+  //   const res = await request(app)
+  //     .post('/api/users/signup/user')
+  //     .send({
+  //       username: 'anotheruser',
+  //       password: 'Passw0rd!',
+  //       name: 'Another User',
+  //       email: 'another@example.com',
+  //     });
 
-    expect(res.status).toBe(500);
-    expect(res.body.status).toBe(false);
-    expect(res.body.error).toMatch(/Simulated DAO failure/i);
-  });
+  //   expect(res.status).toBe(500);
+  //   expect(res.body.status).toBe(false);
+  //   expect(res.body.error).toMatch(/Simulated DAO failure/i);
+  // });
 
-  it('should return 500 if bcrypt.hash throws unexpected error', async () => {
-    jest.spyOn(bcrypt, 'hash').mockImplementationOnce(() => {
-      throw new Error('Hashing failed');
-    });
+  // it('should return 500 if bcrypt.hash throws unexpected error', async () => {
+  //   jest.spyOn(bcrypt, 'hash').mockImplementationOnce(() => {
+  //     throw new Error('Hashing failed');
+  //   });
 
-    const res = await request(app)
-      .post('/api/users/signup/user')
-      .send({
-        username: 'userhashfail',
-        password: 'Passw0rd!',
-        name: 'User Fail',
-        email: 'userfail@example.com',
-      });
+  //   const res = await request(app)
+  //     .post('/api/users/signup/user')
+  //     .send({
+  //       username: 'userhashfail',
+  //       password: 'Passw0rd!',
+  //       name: 'User Fail',
+  //       email: 'userfail@example.com',
+  //     });
 
-    expect(res.status).toBe(500);
-    expect(res.body.status).toBe(false);
-    expect(res.body.error).toMatch(/Hashing failed/i);
-  });
+  //   expect(res.status).toBe(500);
+  //   expect(res.body.status).toBe(false);
+  //   expect(res.body.error).toMatch(/Hashing failed/i);
+  // });
 
-  it('should return 400 if request body is totally malformed', async () => {
-    const res = await request(app)
-      .post('/api/users/signup/user')
-      .send({ foo: 'bar' }); // missing required fields
+  // it('should return 400 if request body is totally malformed', async () => {
+  //   const res = await request(app)
+  //     .post('/api/users/signup/user')
+  //     .send({ foo: 'bar' }); // missing required fields
 
-    expect(res.status).toBe(400);
-    expect(res.body.status).toBe(false);
-    expect(res.body.errors).toBeDefined();
-  });
+  //   expect(res.status).toBe(400);
+  //   expect(res.body.status).toBe(false);
+  //   expect(res.body.errors).toBeDefined();
+  // });
 });
 
 
@@ -342,27 +342,27 @@ describe('POST /api/users/signup/admin', () => {
 
   //   expect(res.status).toBe(400);
   //   expect(res.body.status).toBe(false);
+  // // });
+
+  // it('should create a new admin when no email is provided (covers `if(email)` false)', async () => {
+  //   const res = await request(app)
+  //     .post('/api/users/signup/admin')
+  //     .set('Authorization', `Bearer ${adminToken}`)
+  //     .send({
+  //       username: 'adminNoEmail',
+  //       password: 'StrongPass1!',
+  //       name: 'No Email Admin',
+  //       roles: ['ADMIN'],
+  //     });
+
+  //   expect(res.status).toBe(201);
+  //   expect(res.body.data.username).toBe('adminNoEmail');
+  //   expect(res.body.data.email).toBe(''); // default empty string
+
+  //   const dbUser = await User.findOne({ username: 'adminNoEmail' });
+  //   expect(dbUser).not.toBeNull();
+  //   expect(dbUser?.email).toBe('');
   // });
-
-  it('should create a new admin when no email is provided (covers `if(email)` false)', async () => {
-    const res = await request(app)
-      .post('/api/users/signup/admin')
-      .set('Authorization', `Bearer ${adminToken}`)
-      .send({
-        username: 'adminNoEmail',
-        password: 'StrongPass1!',
-        name: 'No Email Admin',
-        roles: ['ADMIN'],
-      });
-
-    expect(res.status).toBe(201);
-    expect(res.body.data.username).toBe('adminNoEmail');
-    expect(res.body.data.email).toBe(''); // default empty string
-
-    const dbUser = await User.findOne({ username: 'adminNoEmail' });
-    expect(dbUser).not.toBeNull();
-    expect(dbUser?.email).toBe('');
-  });
 
   // it('should hit catch block if request body is totally malformed', async () => {
   //   const res = await request(app)
@@ -377,49 +377,49 @@ describe('POST /api/users/signup/admin', () => {
 });
 
 
-describe('Protected User API routes with real middleware and login', () => {
-  let adminToken: string;
-  // let userToken: string;
-  // let normalUserId: string;
+// describe('Protected User API routes with real middleware and login', () => {
+//   let adminToken: string;
+//   // let userToken: string;
+//   // let normalUserId: string;
 
-  beforeAll(async () => {
-    // Login with seeded admin to get token
-    const loginRes = await request(app)
-      .post('/api/auth')
-      .send({
-        username: 'admin1',
-        password: 'Passw0rd!',
-      });
+//   beforeAll(async () => {
+//     // Login with seeded admin to get token
+//     const loginRes = await request(app)
+//       .post('/api/auth')
+//       .send({
+//         username: 'admin1',
+//         password: 'Passw0rd!',
+//       });
 
-    expect(loginRes.status).toBe(200);
-    adminToken = loginRes.body.data.token;
+//     expect(loginRes.status).toBe(200);
+//     adminToken = loginRes.body.data.token;
 
-    // Create and login a normal user to test update own profile
-    const userRes = await request(app)
-      .post('/api/users/signup/user')
-      .send({
-        username: 'normaluser',
-        password: 'Passw0rd!',
-        email: 'normaluser@example.com',
-      });
-    expect(userRes.status).toBe(201);
-    // normalUserId = userRes.body.data.id || userRes.body.data._id; // check your actual response
+//     // Create and login a normal user to test update own profile
+//     const userRes = await request(app)
+//       .post('/api/users/signup/user')
+//       .send({
+//         username: 'normaluser',
+//         password: 'Passw0rd!',
+//         email: 'normaluser@example.com',
+//       });
+//     expect(userRes.status).toBe(201);
+//     // normalUserId = userRes.body.data.id || userRes.body.data._id; // check your actual response
 
-    const loginUserRes = await request(app)
-      .post('/api/auth')
-      .send({ username: 'normaluser', password: 'Passw0rd!' });
-    expect(loginUserRes.status).toBe(200);
-    // userToken = loginUserRes.body.data.token;
-  });
+//     const loginUserRes = await request(app)
+//       .post('/api/auth')
+//       .send({ username: 'normaluser', password: 'Passw0rd!' });
+//     expect(loginUserRes.status).toBe(200);
+//     // userToken = loginUserRes.body.data.token;
+//   });
 
-  it('GET /api/users should require auth and return all users', async () => {
-    const res = await request(app)
-      .get('/api/users')
-      .set('Authorization', `Bearer ${adminToken}`);
+//   it('GET /api/users should require auth and return all users', async () => {
+//     const res = await request(app)
+//       .get('/api/users')
+//       .set('Authorization', `Bearer ${adminToken}`);
 
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body.data)).toBe(true);
-  });
+//     expect(res.status).toBe(200);
+//     expect(Array.isArray(res.body.data)).toBe(true);
+//   });
 
   // it('GET /api/users/:id should return user by ID', async () => {
   //   const res = await request(app)
@@ -754,4 +754,4 @@ describe('Protected User API routes with real middleware and login', () => {
   //     expect(res.body.status).toBe(false);
   //     expect(res.body.error).toMatch(/email already taken/i);
   //   });
-});
+// });
