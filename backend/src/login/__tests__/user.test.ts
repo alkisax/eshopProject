@@ -204,7 +204,7 @@ describe('POST /api/users/signup/admin', () => {
 
     expect(loginRes.status).toBe(200);
     adminToken = loginRes.body.data.token;
-    console.log('Admin token:', adminToken);
+    console.log('\x1b[31m%s\x1b[0m', '***Admin token***:', adminToken);
   });
 
 
