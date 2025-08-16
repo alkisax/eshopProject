@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import express from 'express';
 import cors from 'cors';
 import type { Request, Response } from 'express';
@@ -6,7 +7,7 @@ import path from 'path';
 import swaggerSpec from './utils/swagger';
 import swaggerUi from 'swagger-ui-express';
 import authRoutes from './login/routes/auth.routes';
-import userRoutes from './login/routes/user.routes'
+import userRoutes from './login/routes/user.routes';
 
 const app = express();
 
@@ -34,13 +35,13 @@ app.use('/api/users', userRoutes);
 app.use(express.static('dist')); 
 
 // swagger test page
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ✅ SERVE UPLOADS BEFORE DIST
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // για να σερβίρει τον φακελο dist του front μετα το npm run build
-app.use(express.static('dist'))
+app.use(express.static('dist'));
 
 //αυτο είναι για να σερβίρει το index.html του front όταν ο χρήστης επισκέπτεται το root path ή οποιοδήποτε άλλο path που δεν είναι api ή api-docs
 app.get(/^\/(?!api|api-docs).*/, (_req, res) => {

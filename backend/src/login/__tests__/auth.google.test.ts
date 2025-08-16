@@ -8,69 +8,69 @@ jest.mock('../../utils/appwrite.ts', () => ({
   OAuthProvider: { Google: 'google' },
 }));
 
-import request from "supertest";
-import mongoose from "mongoose";
-import app from "../../app";
-import { authService } from "../services/auth.service";
-import User from "../models/users.models";
+import request from 'supertest';
+import mongoose from 'mongoose';
+import app from '../../app';
+import { authService } from '../services/auth.service';
+import User from '../models/users.models';
 import dotenv from 'dotenv';
 dotenv.config();
 
-jest.mock("../services/auth.service", () => ({
+jest.mock('../services/auth.service', () => ({
   authService: {
-    ...jest.requireActual("../services/auth.service").authService,
+    ...jest.requireActual('../services/auth.service').authService,
     googleAuth: jest.fn(),
   },
 }));
 
 beforeAll(async () => {
   if (!process.env.MONGODB_TEST_URI) {
-    throw new Error("MONGODB_TEST_URI environment variable is required");
+    throw new Error('MONGODB_TEST_URI environment variable is required');
   }
   await mongoose.connect(process.env.MONGODB_TEST_URI);
-  await mongoose.connection.collection("users").deleteMany({});
+  await mongoose.connection.collection('users').deleteMany({});
 });
 
 afterAll(async () => {
-  await mongoose.connection.collection("users").deleteMany({});
+  await mongoose.connection.collection('users').deleteMany({});
   await mongoose.disconnect();
 });
 
-describe("Google OAuth controllers", () => {
+describe('Google OAuth controllers', () => {
 
-  describe("GET /api/auth/google/login", () => {
-    it("should return 400 if code is missing", async () => {
-      const res = await request(app).get("/api/auth/google/login");
+  describe('GET /api/auth/google/login', () => {
+    it('should return 400 if code is missing', async () => {
+      const res = await request(app).get('/api/auth/google/login');
       expect(res.status).toBe(400);
       expect(res.body.status).toBe(false);
       expect(res.body.data).toMatch(/auth code is missing/i);
     });
 
-    it("should return 401 if googleAuth fails", async () => {
-      (authService.googleAuth as jest.Mock).mockResolvedValueOnce({ error: "Failed" });
+    it('should return 401 if googleAuth fails', async () => {
+      (authService.googleAuth as jest.Mock).mockResolvedValueOnce({ error: 'Failed' });
 
       const res = await request(app)
-        .get("/api/auth/google/login?code=fakecode");
+        .get('/api/auth/google/login?code=fakecode');
       expect(res.status).toBe(401);
       expect(res.body.status).toBe(false);
       expect(res.body.data).toMatch(/google login failed/i);
     });
 
-    it("should redirect to login if user not in DB", async () => {
+    it('should redirect to login if user not in DB', async () => {
       (authService.googleAuth as jest.Mock).mockResolvedValueOnce({
-        user: { email: "newuser@example.com", name: "New User" }
+        user: { email: 'newuser@example.com', name: 'New User' }
       });
 
       jest.spyOn(User, 'findOne').mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .get("/api/auth/google/login?code=fakecode")
+        .get('/api/auth/google/login?code=fakecode')
         .expect(302);
 
-      expect(res.header.location).toContain("/login");
+      expect(res.header.location).toContain('/login');
     });
 
-    it("should redirect to google-success if user exists", async () => {
+    it('should redirect to google-success if user exists', async () => {
       const fakeUser = {
         _id: new mongoose.Types.ObjectId(),
         roles: ['USER'],
@@ -82,38 +82,38 @@ describe("Google OAuth controllers", () => {
         user: { email: fakeUser.email, name: fakeUser.name }
       });
 
-      jest.spyOn(User, 'findOne').mockResolvedValueOnce(fakeUser as any);
+      jest.spyOn(User, 'findOne').mockResolvedValueOnce(fakeUser as InstanceType<typeof User>);
 
       const res = await request(app)
-        .get("/api/auth/google/login?code=fakecode")
+        .get('/api/auth/google/login?code=fakecode')
         .expect(302);
 
-      expect(res.header.location).toContain("/google-success");
+      expect(res.header.location).toContain('/google-success');
       expect(res.header.location).toContain(fakeUser.email);
     });
   });
 
-  describe("GET /api/auth/google/signup", () => {
+  describe('GET /api/auth/google/signup', () => {
 
-    it("should return 400 if code is missing", async () => {
-      const res = await request(app).get("/api/auth/google/signup");
+    it('should return 400 if code is missing', async () => {
+      const res = await request(app).get('/api/auth/google/signup');
       expect(res.status).toBe(400);
       expect(res.body.status).toBe(false);
       expect(res.body.data).toMatch(/auth code is missing/i);
     });
 
-    it("should return 401 if googleAuth fails", async () => {
-      (authService.googleAuth as jest.Mock).mockResolvedValueOnce({ error: "Failed" });
+    it('should return 401 if googleAuth fails', async () => {
+      (authService.googleAuth as jest.Mock).mockResolvedValueOnce({ error: 'Failed' });
 
       const res = await request(app)
-        .get("/api/auth/google/signup?code=fakecode");
+        .get('/api/auth/google/signup?code=fakecode');
       expect(res.status).toBe(401);
       expect(res.body.status).toBe(false);
       expect(res.body.data).toMatch(/google login failed/i);
     });
 
-    it("should create a new user if not exists and redirect", async () => {
-      const newUserData = { email: "signupuser@example.com", name: "Signup User" };
+    it('should create a new user if not exists and redirect', async () => {
+      const newUserData = { email: 'signupuser@example.com', name: 'Signup User' };
 
       (authService.googleAuth as jest.Mock).mockResolvedValueOnce({ user: newUserData });
 
@@ -123,35 +123,35 @@ describe("Google OAuth controllers", () => {
         email: newUserData.email,
         name: newUserData.name,
         roles: ['user']
-      } as any);
+      } as InstanceType<typeof User>);
 
       const res = await request(app)
-        .get("/api/auth/google/signup?code=fakecode")
+        .get('/api/auth/google/signup?code=fakecode')
         .expect(302);
 
-      expect(res.header.location).toContain("/google-success");
+      expect(res.header.location).toContain('/google-success');
       expect(res.header.location).toContain(newUserData.email);
     });
 
-    it("should redirect existing user with token", async () => {
+    it('should redirect existing user with token', async () => {
       const existingUser = {
         _id: new mongoose.Types.ObjectId(),
         roles: ['USER'],
-        email: "existingsignup@example.com",
-        name: "Existing Signup"
+        email: 'existingsignup@example.com',
+        name: 'Existing Signup'
       };
 
       (authService.googleAuth as jest.Mock).mockResolvedValueOnce({
         user: { email: existingUser.email, name: existingUser.name }
       });
 
-      jest.spyOn(User, 'findOne').mockResolvedValueOnce(existingUser as any);
+      jest.spyOn(User, 'findOne').mockResolvedValueOnce(existingUser as InstanceType<typeof User>);
 
       const res = await request(app)
-        .get("/api/auth/google/signup?code=fakecode")
+        .get('/api/auth/google/signup?code=fakecode')
         .expect(302);
 
-      expect(res.header.location).toContain("/google-success");
+      expect(res.header.location).toContain('/google-success');
       expect(res.header.location).toContain(existingUser.email);
     });
   });

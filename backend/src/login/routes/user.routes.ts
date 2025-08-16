@@ -1,5 +1,5 @@
 import express from 'express';
-const router = express.Router()
+const router = express.Router();
 import { userController } from '../controllers/user.controller';
 import { middleware } from '../middleware/verification.middleware';
 
@@ -7,10 +7,10 @@ import { middleware } from '../middleware/verification.middleware';
 //signup
 router.post('/signup/user', userController.createUser);
 //create admin
-router.post('/signup/admin', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.createAdmin)
+router.post('/signup/admin', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.createAdmin);
 
 //read
-router.get ('/', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.findAll)
+router.get ('/', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.findAll);
 
 router.get('/username/:username', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.readByUsername);
 
@@ -20,6 +20,6 @@ router.get('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userCo
 router.put('/:id', middleware.verifyToken, userController.updateById);
 
 // delete
-router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.deleteById)
+router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.deleteById);
 
 export default router;

@@ -1,17 +1,17 @@
-import { userDAO } from "../dao/user.dao";
-import { handleControllerError } from '../services/errorHnadler'
+import { userDAO } from '../dao/user.dao';
+import { handleControllerError } from '../services/errorHnadler';
 import type { Request, Response } from 'express';
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import { IUser } from "../types/user.types";
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { IUser } from '../types/user.types';
 
-const secret = process.env.JWT_SECRET || "secret";
+const secret = process.env.JWT_SECRET || 'secret';
 
 export const syncUser = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({ status: false, data: "error fetching user from appwrite"})
+      return res.status(400).json({ status: false, data: 'error fetching user from appwrite' });
     }
 
     let dbUser = await userDAO.toServerByEmail(email);
@@ -21,10 +21,10 @@ export const syncUser = async (req: Request, res: Response) => {
       const mockedHashedPassword = await bcrypt.hash(Math.random().toString(36), 10);
 
       await userDAO.create({
-        username: email.split("@")[0],
-        name: email.split("@")[0],
+        username: email.split('@')[0],
+        name: email.split('@')[0],
         email: email,
-        roles: ["USER"],
+        roles: ['USER'],
         hashedPassword: mockedHashedPassword
       });
 
@@ -38,9 +38,9 @@ export const syncUser = async (req: Request, res: Response) => {
       roles: dbUser.roles
     };
 
-    const token = jwt.sign(payload, secret, { expiresIn: "1d" });
+    const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
-    return res.status(200).json({ status: true, data: { user: dbUser, token } })
+    return res.status(200).json({ status: true, data: { user: dbUser, token } });
   } catch (error) {
     return handleControllerError(res, error);
   }
@@ -49,4 +49,4 @@ export const syncUser = async (req: Request, res: Response) => {
 
 export const authAppwriteController = {
   syncUser
-}
+};

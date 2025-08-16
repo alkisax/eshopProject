@@ -1,7 +1,7 @@
 // middleware/verification.middleware.js
 import type { Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service';
-import type { Roles, AuthRequest  } from "../types/user.types";
+import type { Roles, AuthRequest  } from '../types/user.types';
 
 /**
  * Middleware to verify JWT token.
@@ -12,7 +12,7 @@ import type { Roles, AuthRequest  } from "../types/user.types";
 const verifyToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const token = authService.getTokenFrom(req);
   if (!token) {
-    return res.status(401).json({ status: false, message: 'No token found'})
+    return res.status(401).json({ status: false, message: 'No token found' });
   }
   const verificationResult = authService.verifyAccessToken(token);
 
@@ -52,4 +52,4 @@ const checkRole = (requiredRole: Roles) => {
 export const middleware = {
   verifyToken,
   checkRole
-}
+};
