@@ -421,337 +421,337 @@ describe('POST /api/users/signup/admin', () => {
 //     expect(Array.isArray(res.body.data)).toBe(true);
 //   });
 
-  // it('GET /api/users/:id should return user by ID', async () => {
-  //   const res = await request(app)
-  //     .get(`/api/users/${seededAdmin._id}`)
-  //     .set('Authorization', `Bearer ${adminToken}`);
+// it('GET /api/users/:id should return user by ID', async () => {
+//   const res = await request(app)
+//     .get(`/api/users/${seededAdmin._id}`)
+//     .set('Authorization', `Bearer ${adminToken}`);
 
-  //   expect(res.status).toBe(200);
-  //   expect(res.body.data.username).toBe(seededAdmin.username);
-  // });
+//   expect(res.status).toBe(200);
+//   expect(res.body.data.username).toBe(seededAdmin.username);
+// });
 
-  // it('GET /api/users/username/:username should return user by username', async () => {
-  //   const res = await request(app)
-  //     .get(`/api/users/username/${seededAdmin.username}`)
-  //     .set('Authorization', `Bearer ${adminToken}`);
+// it('GET /api/users/username/:username should return user by username', async () => {
+//   const res = await request(app)
+//     .get(`/api/users/username/${seededAdmin.username}`)
+//     .set('Authorization', `Bearer ${adminToken}`);
 
-  //   expect(res.status).toBe(200);
-  //   expect(res.body.data.id).toBe(String(seededAdmin._id));
-  // });
+//   expect(res.status).toBe(200);
+//   expect(res.body.data.id).toBe(String(seededAdmin._id));
+// });
 
-  // it('should return 401 if no token is provided', async () => {
-  //   const res = await request(app).get('/api/users');
-  //   expect(res.status).toBe(401);
-  // });
+// it('should return 401 if no token is provided', async () => {
+//   const res = await request(app).get('/api/users');
+//   expect(res.status).toBe(401);
+// });
 
-  // it('should return 403 if user does not have ADMIN role', async () => {
-  //   // Create a user without ADMIN role and get token for it
-  //   const userRes = await request(app)
-  //     .post('/api/users/signup/user')
-  //     .send({
-  //       username: 'normaluser2',
-  //       password: 'Passw0rd!',
-  //       email: 'normaluser2@example.com'
-  //     });
+// it('should return 403 if user does not have ADMIN role', async () => {
+//   // Create a user without ADMIN role and get token for it
+//   const userRes = await request(app)
+//     .post('/api/users/signup/user')
+//     .send({
+//       username: 'normaluser2',
+//       password: 'Passw0rd!',
+//       email: 'normaluser2@example.com'
+//     });
+  
+//   expect(userRes.status).toBe(201);
+
+//   const loginRes = await request(app)
+//     .post('/api/auth')
+//     .send({
+//       username: 'normaluser',
+//       password: 'Passw0rd!',
+//     });
+//   expect(loginRes.status).toBe(200);
+//   const userToken = loginRes.body.data.token;
+
+//   const res = await request(app)
+//     .get('/api/users')
+//     .set('Authorization', `Bearer ${userToken}`);
+
+//   expect(res.status).toBe(403);
+// });
+
+//   describe('PUT /api/users/:id - update user', () => {
+//     it('should allow admin to update any user', async () => {
+//       const res = await request(app)
+//         .put(`/api/users/${normalUserId}`)
+//         .set('Authorization', `Bearer ${adminToken}`)
+//         .send({ name: 'Updated Name by Admin' });
+
+//       expect(res.status).toBe(200);
+//       expect(res.body.status).toBe(true);
+//       expect(res.body.data.name).toBe('Updated Name by Admin');
+//     });
+
+//     it('should allow user to update own profile', async () => {
+//       const res = await request(app)
+//         .put(`/api/users/${normalUserId}`)
+//         .set('Authorization', `Bearer ${userToken}`)
+//         .send({ name: 'Updated Name by User' });
+
+//       expect(res.status).toBe(200);
+//       expect(res.body.status).toBe(true);
+//       expect(res.body.data.name).toBe('Updated Name by User');
+//     });
+
+//     it('should forbid user to update another user\'s profile', async () => {
+//       // normaluser tries to update admin's profile
+//       const res = await request(app)
+//         .put(`/api/users/${seededAdmin._id}`)
+//         .set('Authorization', `Bearer ${userToken}`)
+//         .send({ name: 'Hacker Name' });
+
+//       expect(res.status).toBe(403);
+//       expect(res.body.status).toBe(false);
+//       expect(res.body.error).toMatch(/forbidden/i);
+//     });
+
+//     it('should return 400 if invalid data sent', async () => {
+//       const res = await request(app)
+//         .put(`/api/users/${normalUserId}`)
+//         .set('Authorization', `Bearer ${userToken}`)
+//         .send({ username: '' }); // invalid username
+
+//       expect(res.status).toBe(400);
+//       expect(res.body.status).toBe(false);
+//       expect(Array.isArray(res.body.errors)).toBe(true);
+//     });
+
+//     it('should return 401 if no token provided', async () => {
+//       const res = await request(app)
+//         .put(`/api/users/${normalUserId}`)
+//         .send({ name: 'No Token' });
+
+//       expect(res.status).toBe(401);
+//       expect(res.body.status).toBe(false);
+//     });
+
+//     //added tests
+//     it('should hash password if provided', async () => {
+//       const newPassword = 'NewPass123!';
+//       const res = await request(app)
+//         .put(`/api/users/${normalUserId}`)
+//         .set('Authorization', `Bearer ${userToken}`)
+//         .send({ password: newPassword });
+
+//       expect(res.status).toBe(200);
+//       expect(res.body.status).toBe(true);
+//       expect(res.body.data.hashedPassword).not.toBe(newPassword);
+
+//       // Ensure user can login with new password
+//       const loginRes = await request(app)
+//         .post('/api/auth')
+//         .send({ username: 'normaluser', password: newPassword });
+//       expect(loginRes.status).toBe(200);
+//       expect(loginRes.body.data.token).toBeDefined();
+//     });
+
+
+//     it('should return 409 if username already exists for another user', async () => {
+//       // Create a second user to conflict with
+//       const conflictRes = await request(app)
+//         .post('/api/users/signup/user')
+//         .send({
+//           username: 'conflictuser',
+//           password: 'Passw0rd!',
+//           email: 'conflict@example.com'
+//         });
+//       expect(conflictRes.status).toBe(201);
+
+//       // Attempt to update normaluser's username to "conflictuser"
+//       const res = await request(app)
+//         .put(`/api/users/${normalUserId}`)
+//         .set('Authorization', `Bearer ${userToken}`)
+//         .send({ username: 'conflictuser' });
+
+//       expect(res.status).toBe(409);
+//       expect(res.body.status).toBe(false);
+//       expect(res.body.error).toMatch(/username already taken/i);
+//     });
+
+//     it('should hit catch block if DAO throws unexpected error', async () => {
+//       // Temporarily replace DAO.update with a failing version
+//       const originalUpdate = userDAO.update;
+//       userDAO.update = async () => { throw new Error('Simulated DAO failure'); };
+
+//       const res = await request(app)
+//         .put(`/api/users/${normalUserId}`)
+//         .set('Authorization', `Bearer ${userToken}`)
+//         .send({ name: 'Trigger Error' });
+
+//       expect(res.status).toBe(500);
+//       expect(res.body.status).toBe(false);
+//       expect(res.body.error).toMatch(/Simulated DAO failure/i);
+
+//       // Restore original DAO.update
+//       userDAO.update = originalUpdate;
+//     });
+//   });
+
+//   describe('DELETE /api/users/:id - delete user', () => {
+//     let userToDeleteId: string;
+
+//     beforeAll(async () => {
+//       // Create a user to delete
+//       const res = await request(app)
+//         .post('/api/users/signup/user')
+//         .send({
+//           username: 'tobedeleted',
+//           password: 'Passw0rd!',
+//           email: 'delete@example.com',
+//         });
+//       userToDeleteId = res.body.data.id || res.body.data._id;
+//     });
+
+//     it('should forbid delete without token', async () => {
+//       const res = await request(app).delete(`/api/users/${userToDeleteId}`);
+//       expect(res.status).toBe(401);
+//       expect(res.body.status).toBe(false);
+//     });
+
+//     it('should forbid delete if user is not admin', async () => {
+//       const res = await request(app)
+//         .delete(`/api/users/${userToDeleteId}`)
+//         .set('Authorization', `Bearer ${userToken}`);
+
+//       expect(res.status).toBe(403); 
+//     });
+
+//     it('should allow admin to delete a user', async () => {
+//       const res = await request(app)
+//         .delete(`/api/users/${userToDeleteId}`)
+//         .set('Authorization', `Bearer ${adminToken}`);
+
+//       expect(res.status).toBe(200);
+//       expect(res.body.status).toBe(true);
+//       expect(res.body.message).toMatch(/deleted successfully/i);
+//     });
+
+//     it('should return 404 when deleting non-existent user', async () => {
+//       const fakeId = new mongoose.Types.ObjectId().toString();
+
+//       const res = await request(app)
+//         .delete(`/api/users/${fakeId}`)
+//         .set('Authorization', `Bearer ${adminToken}`);
+
+//       expect(res.status).toBe(404);
+//       expect(res.body.status).toBe(false);
+//       expect(res.body.error).toMatch(/does not exist/i);
+//     });
     
-  //   expect(userRes.status).toBe(201);
+//     // additional tests
+//     it('should return 500 if DAO.deleteById throws an error', async () => {
+//       // Temporarily replace DAO with one that throws
+//       const originalDelete = userDAO.deleteById;
+//       userDAO.deleteById = jest.fn().mockImplementationOnce(() => {
+//         throw new Error('Simulated DAO error');
+//       });
 
-  //   const loginRes = await request(app)
-  //     .post('/api/auth')
-  //     .send({
-  //       username: 'normaluser',
-  //       password: 'Passw0rd!',
-  //     });
-  //   expect(loginRes.status).toBe(200);
-  //   const userToken = loginRes.body.data.token;
+//       const res = await request(app)
+//         .delete(`/api/users/${userToDeleteId}`)
+//         .set('Authorization', `Bearer ${adminToken}`);
 
-  //   const res = await request(app)
-  //     .get('/api/users')
-  //     .set('Authorization', `Bearer ${userToken}`);
+//       expect(res.status).toBe(500);
+//       expect(res.body.status).toBe(false);
+//       expect(res.body.error).toMatch(/Simulated DAO error/i);
 
-  //   expect(res.status).toBe(403);
-  // });
-
-  //   describe('PUT /api/users/:id - update user', () => {
-  //     it('should allow admin to update any user', async () => {
-  //       const res = await request(app)
-  //         .put(`/api/users/${normalUserId}`)
-  //         .set('Authorization', `Bearer ${adminToken}`)
-  //         .send({ name: 'Updated Name by Admin' });
-
-  //       expect(res.status).toBe(200);
-  //       expect(res.body.status).toBe(true);
-  //       expect(res.body.data.name).toBe('Updated Name by Admin');
-  //     });
-
-  //     it('should allow user to update own profile', async () => {
-  //       const res = await request(app)
-  //         .put(`/api/users/${normalUserId}`)
-  //         .set('Authorization', `Bearer ${userToken}`)
-  //         .send({ name: 'Updated Name by User' });
-
-  //       expect(res.status).toBe(200);
-  //       expect(res.body.status).toBe(true);
-  //       expect(res.body.data.name).toBe('Updated Name by User');
-  //     });
-
-  //     it('should forbid user to update another user\'s profile', async () => {
-  //       // normaluser tries to update admin's profile
-  //       const res = await request(app)
-  //         .put(`/api/users/${seededAdmin._id}`)
-  //         .set('Authorization', `Bearer ${userToken}`)
-  //         .send({ name: 'Hacker Name' });
-
-  //       expect(res.status).toBe(403);
-  //       expect(res.body.status).toBe(false);
-  //       expect(res.body.error).toMatch(/forbidden/i);
-  //     });
-
-  //     it('should return 400 if invalid data sent', async () => {
-  //       const res = await request(app)
-  //         .put(`/api/users/${normalUserId}`)
-  //         .set('Authorization', `Bearer ${userToken}`)
-  //         .send({ username: '' }); // invalid username
-
-  //       expect(res.status).toBe(400);
-  //       expect(res.body.status).toBe(false);
-  //       expect(Array.isArray(res.body.errors)).toBe(true);
-  //     });
-
-  //     it('should return 401 if no token provided', async () => {
-  //       const res = await request(app)
-  //         .put(`/api/users/${normalUserId}`)
-  //         .send({ name: 'No Token' });
-
-  //       expect(res.status).toBe(401);
-  //       expect(res.body.status).toBe(false);
-  //     });
-
-  //     //added tests
-  //     it('should hash password if provided', async () => {
-  //       const newPassword = 'NewPass123!';
-  //       const res = await request(app)
-  //         .put(`/api/users/${normalUserId}`)
-  //         .set('Authorization', `Bearer ${userToken}`)
-  //         .send({ password: newPassword });
-
-  //       expect(res.status).toBe(200);
-  //       expect(res.body.status).toBe(true);
-  //       expect(res.body.data.hashedPassword).not.toBe(newPassword);
-
-  //       // Ensure user can login with new password
-  //       const loginRes = await request(app)
-  //         .post('/api/auth')
-  //         .send({ username: 'normaluser', password: newPassword });
-  //       expect(loginRes.status).toBe(200);
-  //       expect(loginRes.body.data.token).toBeDefined();
-  //     });
+//       // restore DAO
+//       userDAO.deleteById = originalDelete;
+//     });
+//   });
+// });
 
 
-  //     it('should return 409 if username already exists for another user', async () => {
-  //       // Create a second user to conflict with
-  //       const conflictRes = await request(app)
-  //         .post('/api/users/signup/user')
-  //         .send({
-  //           username: 'conflictuser',
-  //           password: 'Passw0rd!',
-  //           email: 'conflict@example.com'
-  //         });
-  //       expect(conflictRes.status).toBe(201);
+// //cover uncoverd
+// describe('GET /api/users error handling', () => {
+//   let adminToken: string;
 
-  //       // Attempt to update normaluser's username to "conflictuser"
-  //       const res = await request(app)
-  //         .put(`/api/users/${normalUserId}`)
-  //         .set('Authorization', `Bearer ${userToken}`)
-  //         .send({ username: 'conflictuser' });
+//   beforeAll(async () => {
+//     // Login admin and get token (reuse your existing code)
+//     const loginRes = await request(app)
+//       .post('/api/auth')
+//       .send({ username: 'admin1', password: 'Passw0rd!' });
+//     adminToken = loginRes.body.data.token;
+//   });
 
-  //       expect(res.status).toBe(409);
-  //       expect(res.body.status).toBe(false);
-  //       expect(res.body.error).toMatch(/username already taken/i);
-  //     });
+//   it('should return 500 if userDAO.readAll throws an error', async () => {
+//     // Mock readAll to throw
+//     jest.spyOn(userDAO, 'readAll').mockImplementationOnce(() => {
+//       throw new Error('Simulated DAO failure');
+//     });
 
-  //     it('should hit catch block if DAO throws unexpected error', async () => {
-  //       // Temporarily replace DAO.update with a failing version
-  //       const originalUpdate = userDAO.update;
-  //       userDAO.update = async () => { throw new Error('Simulated DAO failure'); };
+//     const res = await request(app)
+//       .get('/api/users')
+//       .set('Authorization', `Bearer ${adminToken}`);
 
-  //       const res = await request(app)
-  //         .put(`/api/users/${normalUserId}`)
-  //         .set('Authorization', `Bearer ${userToken}`)
-  //         .send({ name: 'Trigger Error' });
+//     expect(res.status).toBe(500);
+//     expect(res.body.status).toBe(false);
+//     expect(res.body.error).toBe('Simulated DAO failure');
 
-  //       expect(res.status).toBe(500);
-  //       expect(res.body.status).toBe(false);
-  //       expect(res.body.error).toMatch(/Simulated DAO failure/i);
+//     // Restore original implementation after test (optional if test isolated)
+//     (userDAO.readAll as jest.Mock).mockRestore();
+//   });
 
-  //       // Restore original DAO.update
-  //       userDAO.update = originalUpdate;
-  //     });
-  //   });
+//   it('should return 401 if no auth header', async () => {
+//     const res = await request(app).get('/api/users');
+//     expect(res.status).toBe(401);
+//     expect(res.body.status).toBe(false);
+//   });
 
-  //   describe('DELETE /api/users/:id - delete user', () => {
-  //     let userToDeleteId: string;
+//   it('should return 409 if username already exists when creating admin', async () => {
+//     // First, create an admin
+//     await request(app)
+//       .post('/api/users/signup/admin')
+//       .set('Authorization', `Bearer ${adminToken}`)
+//       .send({
+//         username: 'existingadmin',
+//         password: 'Passw0rd!',
+//         email: 'existingadmin@example.com',
+//         roles: ['ADMIN'],
+//       });
 
-  //     beforeAll(async () => {
-  //       // Create a user to delete
-  //       const res = await request(app)
-  //         .post('/api/users/signup/user')
-  //         .send({
-  //           username: 'tobedeleted',
-  //           password: 'Passw0rd!',
-  //           email: 'delete@example.com',
-  //         });
-  //       userToDeleteId = res.body.data.id || res.body.data._id;
-  //     });
+//     // Try to create again with same username
+//     const res = await request(app)
+//       .post('/api/users/signup/admin')
+//       .set('Authorization', `Bearer ${adminToken}`)
+//       .send({
+//         username: 'existingadmin',
+//         password: 'Passw0rd!',
+//         email: 'another@example.com',
+//         roles: ['ADMIN'],
+//       });
 
-  //     it('should forbid delete without token', async () => {
-  //       const res = await request(app).delete(`/api/users/${userToDeleteId}`);
-  //       expect(res.status).toBe(401);
-  //       expect(res.body.status).toBe(false);
-  //     });
+//     expect(res.status).toBe(409);
+//     expect(res.body.status).toBe(false);
+//     expect(res.body.error).toMatch(/username already taken/i);
+//   });
 
-  //     it('should forbid delete if user is not admin', async () => {
-  //       const res = await request(app)
-  //         .delete(`/api/users/${userToDeleteId}`)
-  //         .set('Authorization', `Bearer ${userToken}`);
+//   it('should return 409 if email already exists when creating admin', async () => {
+//     // First, create an admin
+//     await request(app)
+//       .post('/api/users/signup/admin')
+//       .set('Authorization', `Bearer ${adminToken}`)
+//       .send({
+//         username: 'adminemail',
+//         password: 'Passw0rd!',
+//         email: 'adminemail@example.com',
+//         roles: ['ADMIN'],
+//       });
 
-  //       expect(res.status).toBe(403); 
-  //     });
+//     // Try to create again with same email
+//     const res = await request(app)
+//       .post('/api/users/signup/admin')
+//       .set('Authorization', `Bearer ${adminToken}`)
+//       .send({
+//         username: 'anotherusername',
+//         password: 'Passw0rd!',
+//         email: 'adminemail@example.com',
+//         roles: ['ADMIN'],
+//       });
 
-  //     it('should allow admin to delete a user', async () => {
-  //       const res = await request(app)
-  //         .delete(`/api/users/${userToDeleteId}`)
-  //         .set('Authorization', `Bearer ${adminToken}`);
-
-  //       expect(res.status).toBe(200);
-  //       expect(res.body.status).toBe(true);
-  //       expect(res.body.message).toMatch(/deleted successfully/i);
-  //     });
-
-  //     it('should return 404 when deleting non-existent user', async () => {
-  //       const fakeId = new mongoose.Types.ObjectId().toString();
-
-  //       const res = await request(app)
-  //         .delete(`/api/users/${fakeId}`)
-  //         .set('Authorization', `Bearer ${adminToken}`);
-
-  //       expect(res.status).toBe(404);
-  //       expect(res.body.status).toBe(false);
-  //       expect(res.body.error).toMatch(/does not exist/i);
-  //     });
-      
-  //     // additional tests
-  //     it('should return 500 if DAO.deleteById throws an error', async () => {
-  //       // Temporarily replace DAO with one that throws
-  //       const originalDelete = userDAO.deleteById;
-  //       userDAO.deleteById = jest.fn().mockImplementationOnce(() => {
-  //         throw new Error('Simulated DAO error');
-  //       });
-
-  //       const res = await request(app)
-  //         .delete(`/api/users/${userToDeleteId}`)
-  //         .set('Authorization', `Bearer ${adminToken}`);
-
-  //       expect(res.status).toBe(500);
-  //       expect(res.body.status).toBe(false);
-  //       expect(res.body.error).toMatch(/Simulated DAO error/i);
-
-  //       // restore DAO
-  //       userDAO.deleteById = originalDelete;
-  //     });
-  //   });
-  // });
-
-
-  // //cover uncoverd
-  // describe('GET /api/users error handling', () => {
-  //   let adminToken: string;
-
-  //   beforeAll(async () => {
-  //     // Login admin and get token (reuse your existing code)
-  //     const loginRes = await request(app)
-  //       .post('/api/auth')
-  //       .send({ username: 'admin1', password: 'Passw0rd!' });
-  //     adminToken = loginRes.body.data.token;
-  //   });
-
-  //   it('should return 500 if userDAO.readAll throws an error', async () => {
-  //     // Mock readAll to throw
-  //     jest.spyOn(userDAO, 'readAll').mockImplementationOnce(() => {
-  //       throw new Error('Simulated DAO failure');
-  //     });
-
-  //     const res = await request(app)
-  //       .get('/api/users')
-  //       .set('Authorization', `Bearer ${adminToken}`);
-
-  //     expect(res.status).toBe(500);
-  //     expect(res.body.status).toBe(false);
-  //     expect(res.body.error).toBe('Simulated DAO failure');
-
-  //     // Restore original implementation after test (optional if test isolated)
-  //     (userDAO.readAll as jest.Mock).mockRestore();
-  //   });
-
-  //   it('should return 401 if no auth header', async () => {
-  //     const res = await request(app).get('/api/users');
-  //     expect(res.status).toBe(401);
-  //     expect(res.body.status).toBe(false);
-  //   });
-
-  //   it('should return 409 if username already exists when creating admin', async () => {
-  //     // First, create an admin
-  //     await request(app)
-  //       .post('/api/users/signup/admin')
-  //       .set('Authorization', `Bearer ${adminToken}`)
-  //       .send({
-  //         username: 'existingadmin',
-  //         password: 'Passw0rd!',
-  //         email: 'existingadmin@example.com',
-  //         roles: ['ADMIN'],
-  //       });
-
-  //     // Try to create again with same username
-  //     const res = await request(app)
-  //       .post('/api/users/signup/admin')
-  //       .set('Authorization', `Bearer ${adminToken}`)
-  //       .send({
-  //         username: 'existingadmin',
-  //         password: 'Passw0rd!',
-  //         email: 'another@example.com',
-  //         roles: ['ADMIN'],
-  //       });
-
-  //     expect(res.status).toBe(409);
-  //     expect(res.body.status).toBe(false);
-  //     expect(res.body.error).toMatch(/username already taken/i);
-  //   });
-
-  //   it('should return 409 if email already exists when creating admin', async () => {
-  //     // First, create an admin
-  //     await request(app)
-  //       .post('/api/users/signup/admin')
-  //       .set('Authorization', `Bearer ${adminToken}`)
-  //       .send({
-  //         username: 'adminemail',
-  //         password: 'Passw0rd!',
-  //         email: 'adminemail@example.com',
-  //         roles: ['ADMIN'],
-  //       });
-
-  //     // Try to create again with same email
-  //     const res = await request(app)
-  //       .post('/api/users/signup/admin')
-  //       .set('Authorization', `Bearer ${adminToken}`)
-  //       .send({
-  //         username: 'anotherusername',
-  //         password: 'Passw0rd!',
-  //         email: 'adminemail@example.com',
-  //         roles: ['ADMIN'],
-  //       });
-
-  //     expect(res.status).toBe(409);
-  //     expect(res.body.status).toBe(false);
-  //     expect(res.body.error).toMatch(/email already taken/i);
-  //   });
+//     expect(res.status).toBe(409);
+//     expect(res.body.status).toBe(false);
+//     expect(res.body.error).toMatch(/email already taken/i);
+//   });
 // });
