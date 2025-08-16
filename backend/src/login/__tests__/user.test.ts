@@ -10,7 +10,7 @@ jest.mock('../../utils/appwrite.ts', () => ({
   client: {},
 }));
 
-dotenv.config();
+dotenv.config({ override: false });
 
 console.log('MONGODB_TEST_URI exists?', !!process.env.MONGODB_TEST_URI);
 console.log('JWT_SECRET exists?', !!process.env.JWT_SECRET);
