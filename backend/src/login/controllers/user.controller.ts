@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import bcrypt from 'bcrypt';
 import User from '../models/users.models';
 import { z } from 'zod';
