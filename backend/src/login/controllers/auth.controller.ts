@@ -56,10 +56,16 @@ export const login = async (req: Request, res: Response) => {
     return res.status(200).json({ status: true, data: {
       token: token,
       user: {
+        _id: user._id,
+        id: user._id,
         username: user.username,
+        name: user.name, 
         email: user.email,
         roles: user.roles,
-        id: user._id
+        hasPassword: !!user.hashedPassword,
+        provider: 'backend',
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       }
     }
     });
@@ -126,7 +132,14 @@ export const googleCallback = async (req: AuthRequest, res: Response) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user._id, role: user.roles },
+      {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        roles: user.roles,
+        hasPassword: !!user.hashedPassword,
+        provider: 'google',
+      },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
@@ -136,10 +149,13 @@ export const googleCallback = async (req: AuthRequest, res: Response) => {
       status: true,
       token,
       user: {
-        id: user._id,
+        _id: user._id,
+        username: user.username,
         name: user.name,
         email: user.email,
-        role: user.roles,
+        roles: user.roles,
+        hasPassword: !!user.hashedPassword,
+        provider: 'google',
         createdAt: user.createdAt
       }
     });
@@ -183,7 +199,7 @@ export const googleLogin = async(req: Request, res: Response) => {
   }
 
   // 4. Generate your app’s JWT
-  const payload = { id: dbUser._id, name: dbUser.name, email: dbUser.email, roles: dbUser.roles };
+  const payload = { id: dbUser._id, name: dbUser.name, email: dbUser.email, roles: dbUser.roles, provider: 'google' };
   const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
   // 5. Redirect to front if sign in
@@ -250,7 +266,7 @@ export const googleSignup  = async(req: Request, res: Response) => {
     return res.status(500).json({ status: false, error: 'User not found or failed to create' });
   }
 
-  const payload = { id: dbUser._id, name: dbUser.name, email: dbUser.email, roles: dbUser.roles };
+  const payload = { id: dbUser._id, name: dbUser.name, email: dbUser.email, roles: dbUser.roles, provider: 'google' };
   const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
   // 5. Redirect to front if sign in

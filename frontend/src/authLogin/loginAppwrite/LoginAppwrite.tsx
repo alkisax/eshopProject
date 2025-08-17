@@ -62,8 +62,13 @@ const LoginAppwriteLogin = ({ url }: params) => {
         // ✅ Store token (optional: localStorage / sessionStorage)
         localStorage.setItem("token", token);
 
+        // ✅ normalize dbUser before setting context
         // ✅ Update React context with synced user
-        setUser(dbUser);
+        setUser({
+          ...dbUser,
+          hasPassword: true,
+          provider: "appwrite",
+        });
 
         navigate("/"); // redirect after successful login
       } else {

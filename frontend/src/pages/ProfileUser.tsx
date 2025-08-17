@@ -21,14 +21,25 @@ const ProfileUser = ({ url }: Props) => {
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [lastProvider, setLastProvider] = useState<string>('none')
+
+  const [userId, setUserId] = useState<string>(user?._id || "");
+  const [hasPassword, setHasPassword] = useState<boolean>(!!user?.hasPassword);
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLastProvider(user?.provider ?? 'none');
+  }, [user]);
+
+  useEffect(() => {
     if (user) {
-      setUsername(user.username);
-      setName(user.name);
-      setEmail(user.email);
+      setUsername(user.username || "");
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setLastProvider(user.provider || "none");
+      setUserId(user._id || "");
+      setHasPassword(!!user.hasPassword);
     }
   }, [user]);
 
@@ -129,7 +140,15 @@ const ProfileUser = ({ url }: Props) => {
               {/* ID (read-only) */}
               <TextField
                 label="User ID"
-                value={user?._id || ""}
+                value={userId || ""}
+                fullWidth
+                disabled
+              />
+
+              {/* password? (read-only) */}
+              <TextField
+                label="password"
+                value={hasPassword  ? "Yes" : "No"}
                 fullWidth
                 disabled
               />
@@ -139,24 +158,14 @@ const ProfileUser = ({ url }: Props) => {
                 label="Email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 fullWidth
                 disabled
               />
-
-              {/* Hashed password (read-only, only show if exists) */}
-              {user?.hashedPassword && (
-                <TextField
-                  label="Hashed Password"
-                  value={user.hashedPassword}
-                  fullWidth
-                  disabled
-                />
-              )}
               <TextField
                 label="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
                 required
                 fullWidth
               />
@@ -167,29 +176,35 @@ const ProfileUser = ({ url }: Props) => {
                 required
                 fullWidth
               />
+
+              {(lastProvider !== 'appwrite') && 
+                <>
+                  <TextField
+                    label="Password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
+                    required
+                    fullWidth
+                  />
+                  <TextField
+                    label="Confirm Password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
+                    required
+                    fullWidth
+                  />                  
+                </>
+              }
+
               <TextField
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                label="last provider"
+                value={lastProvider}
                 fullWidth
-              />
-              <TextField
-                label="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                fullWidth
-              />
-              <TextField
-                label="Confirm Password"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                fullWidth
+                disabled
               />
 
               {errorMessage && (

@@ -9,6 +9,7 @@ export interface IUser extends Document {
   email?: string;
   roles: string[];
   hashedPassword: string;
+  hasPassword?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

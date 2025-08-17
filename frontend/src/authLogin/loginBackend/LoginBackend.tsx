@@ -49,6 +49,7 @@ const LoginBackend = ({ url }: Props) => {
         email: decoded.email,
         name: decoded.username,
         roles: decoded.roles,
+        hasPassword: decoded.hasPassword,
         provider: "backend",
       });
 

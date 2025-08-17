@@ -6,6 +6,7 @@ export interface AppwriteUser {
   email: string;
   name?: string;
   roles?: string[];
+  hasPassword: true
   provider?: "appwrite" | "google" | "backend";
 }
 
@@ -14,6 +15,7 @@ export interface GoogleJwtPayload extends JwtPayload {
   email: string;
   name: string;
   roles: string[];
+  hasPassword: boolean
   provider?: "google"; 
 }
 
@@ -22,6 +24,7 @@ export interface BackendJwtPayload extends JwtPayload {
   email: string;
   username: string;
   roles: string[];
+  hasPassword: boolean
   provider?: "backend";
 }
 
@@ -44,6 +47,7 @@ export interface IUser {
   email: string
   hashedPassword?: string
   password?: string
+  hasPassword: boolean
   roles: string[]
   provider?: "appwrite" | "google" | "backend"
 }

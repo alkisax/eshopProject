@@ -36,7 +36,8 @@ export const syncUser = async (req: Request, res: Response) => {
       username: dbUser.username,
       name: dbUser.name,
       email: dbUser.email,
-      roles: dbUser.roles
+      roles: dbUser.roles,
+      hasPassword: !!dbUser.hashedPassword  // ✅ boolean flag
     };
 
     const token = jwt.sign(payload, secret, { expiresIn: '1d' });

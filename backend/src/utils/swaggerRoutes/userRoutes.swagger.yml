@@ -290,3 +290,39 @@ paths:
           description: User not found
         '500':
           description: Internal server error
+  /api/users/email/{email}:
+    get:
+      summary: Get user by email
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            format: email
+          description: Email of the user to fetch
+      responses:
+        '200':
+          description: User data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request - missing email
+        '401':
+          description: Unauthorized - no token or invalid token
+        '404':
+          description: User not found
+        '500':
+          description: Internal Server Error

@@ -44,8 +44,8 @@ const Login = ({ url }: Params) => {
 
         {/* Tabs */}
         <Tabs value={tab} onChange={handleTabChange} centered>
-          <Tab label="Username" />
-          <Tab label="Email" />
+          <Tab label="Login" />
+          <Tab label="Appwrite alt" />
         </Tabs>
 
         <Divider />

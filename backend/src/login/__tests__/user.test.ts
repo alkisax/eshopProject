@@ -472,6 +472,29 @@ describe('Protected User API routes with real middleware and login', () => {
     expect(res.status).toBe(403);
   });
 
+  it('GET /api/users/email/:email should return user by email', async () => {
+    // Using seeded admin's email
+    const res = await request(app)
+      .get(`/api/users/email/${seededAdmin.email}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe(true);
+    expect(res.body.data._id).toBe(String(seededAdmin._id));
+    expect(res.body.data.username).toBe(seededAdmin.username);
+    expect(res.body.data.email).toBe(seededAdmin.email);
+  });
+
+  it('GET /api/users/email/:email should return 404 if user not found', async () => {
+    const res = await request(app)
+      .get('/api/users/email/nonexistent@example.com')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.status).toBe(false);
+    expect(res.body.message).toBe('User not found');
+  });
+
   describe('PUT /api/users/:id - update user', () => {
     it('should allow admin to update any user', async () => {
       const res = await request(app)

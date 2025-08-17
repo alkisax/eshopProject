@@ -147,6 +147,24 @@ export const readByUsername = async (req: Request, res: Response) => {
   }
 };
 
+export const readByEmail = async (req: Request, res: Response) => {
+  try {
+    const email = req.params.email;
+    if (!email) {
+      return res.status(400).json({ status: false, message: 'Email is required' });
+    }
+
+    const user = await userDAO.toServerByEmail(email);
+    if (!user) {
+      return res.status(404).json({ status: false, message: 'User not found' });
+    } 
+
+    return res.status(200).json({ status: true, data: user });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 // update
 export const updateById = async (req: AuthRequest, res: Response) => {
 
@@ -226,6 +244,7 @@ export const userController = {
   findAll,
   readById,
   readByUsername,
+  readByEmail,
   updateById,
   deleteById
 };

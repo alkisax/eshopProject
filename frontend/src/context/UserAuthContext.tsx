@@ -36,6 +36,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           $id: sessionUser.$id,
           email: sessionUser.email,
           name: sessionUser.name || "",
+          hasPassword: true,
           provider: "appwrite",
         };
       } catch {
@@ -51,7 +52,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           }
         }
       }
-
+      
+      console.log("Current provider:", provider);
       // 2️⃣ Switch on provider
       switch (provider) {
         case "appwrite":
@@ -76,6 +78,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
                 name: dbUser.name,
                 email: dbUser.email,
                 roles: dbUser.roles,
+                hasPassword: true,
                 provider: "appwrite",
               };
             } else {
@@ -85,6 +88,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
                 name: appwriteUser.name || "",
                 email: appwriteUser.email,
                 roles: ["USER"],
+                hasPassword: true,
                 provider: "appwrite",
               };
             }
@@ -97,6 +101,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
               name: appwriteUser.name || "",
               email: appwriteUser.email,
               roles: ["USER"],
+              hasPassword: appwriteUser.hasPassword,
               provider: "appwrite",
             });
           }
@@ -104,14 +109,38 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
         case "google": {
           const googleUser = decodedToken as GoogleJwtPayload;
-          setUser({
-            _id: googleUser.id,
-            username: googleUser.name || googleUser.email.split("@")[0],
-            name: googleUser.name,
-            email: googleUser.email,
-            roles: googleUser.roles,
-            provider: "google",
-          });
+          try {
+            const response = await axios.get(
+              `${import.meta.env.VITE_BACKEND_URL}/api/users/email/${googleUser.email}`,
+              { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }}
+            );
+            const res = response.data.data
+            console.log("Full response:", response);
+            console.log("response after googlelogin test:", res);
+            
+
+            setUser({
+              _id: res._id,
+              username: res.username,
+              name: res.name,
+              email: res.email,
+              roles: res.roles,
+              hasPassword: !!res.hashedPassword,
+              provider: "google",
+            });
+          } catch (error) {
+            console.error("Failed to fetch user from backend:", error);
+            // fallback if backend fetch fails
+            setUser({
+              _id: googleUser.id,
+              username: googleUser.name || googleUser.email.split("@")[0],
+              name: googleUser.name,
+              email: googleUser.email,
+              roles: googleUser.roles,
+              hasPassword: false,
+              provider: "google",
+            });
+          }
           break;
         }
 
@@ -123,6 +152,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             name: backendUser.username,
             email: backendUser.email,
             roles: backendUser.roles,
+            hasPassword: backendUser.hasPassword,
             provider: "backend",
           });
           break;

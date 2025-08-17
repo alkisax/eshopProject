@@ -16,6 +16,8 @@ router.get('/username/:username', middleware.verifyToken, middleware.checkRole('
 
 router.get('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.readById);
 
+router.get('/email/:email', middleware.verifyToken, userController.readByEmail);
+
 // update
 router.put('/:id', middleware.verifyToken, userController.updateById);
 

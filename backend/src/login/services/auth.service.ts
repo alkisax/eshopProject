@@ -15,6 +15,7 @@ const generateAccessToken = (user: IUser): string => {
     username: user.username,
     email: user.email,
     roles: user.roles,
+    hasPassword: !!user.hashedPassword,
   };
 
   const secret = process.env.JWT_SECRET;
