@@ -12,6 +12,7 @@ export const UserAuthContext = createContext<UserAuthContextType>({
   setUser: () => {},
   isLoading: true,
   setIsLoading: () => {},
+  refreshUser: async () => {}, 
 });
 
 export const UserProvider = ({ children }: UserProviderProps) => {
@@ -22,13 +23,23 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     console.log("User updated:", user);
   }, [user]);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      let provider: "appwrite" | "google" | "backend" | "none" = "none";
-      let decodedToken: GoogleJwtPayload | BackendJwtPayload | null = null;
-      let appwriteUser: AppwriteUser | null = null;
 
-      // 1️⃣ Check Appwrite session
+  const fetchUser = async () => {
+    let provider: "appwrite" | "google" | "backend" | "none" = "none";
+    let decodedToken: GoogleJwtPayload | BackendJwtPayload | null = null;
+    let appwriteUser: AppwriteUser | null = null;
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        decodedToken = jwtDecode<GoogleJwtPayload | BackendJwtPayload>(token);
+        provider = decodedToken.provider || "backend";
+      } catch {
+        localStorage.removeItem("token");
+        provider = "none";
+      }
+    } else {
+      // 2️⃣ No token, check Appwrite session
       try {
         const sessionUser = await account.get();
         provider = "appwrite";
@@ -40,140 +51,158 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           provider: "appwrite",
         };
       } catch {
-        // No Appwrite session, check localStorage
-        const token = localStorage.getItem("token");
-        if (token) {
-          try {
-            decodedToken = jwtDecode<GoogleJwtPayload | BackendJwtPayload>(token);
-            console.log("decoded token from context: ", decodedToken);
-            
-            provider = decodedToken.provider || "backend";
-          } catch {
-            localStorage.removeItem("token");
-            provider = "none";
-          }
-        }
+        provider = "none";
       }
-      
-      console.log("Current provider:", provider);
-      // 2️⃣ Switch on provider
-      switch (provider) {
-        case "appwrite":
-          if (!appwriteUser) {
-            console.error("No Appwrite user found");
-            return;
-          }
-          try {
-            // 🔄 Sync roles from backend
-            const syncRes = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/appwrite/sync`, {
-              email: appwriteUser.email,
-            });
+    }
+    
+    console.log("Current provider:", provider);
+    // 2️⃣ Switch on provider
+    switch (provider) {
+      case "appwrite":
+        if (!appwriteUser) {
+          console.error("No Appwrite user found");
+          return;
+        }
+        try {
+          // 🔄 Sync roles from backend
+          const syncRes = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/appwrite/sync`, {
+            email: appwriteUser.email,
+          });
 
-            let normalizedUser: IUser;
+          let normalizedUser: IUser;
 
-            if (syncRes.data.status) {
-              const { user: dbUser, token } = syncRes.data.data;
-              localStorage.setItem("token", token);
-              normalizedUser = {
-                _id: dbUser._id,
-                username: dbUser.username,
-                name: dbUser.name,
-                email: dbUser.email,
-                roles: dbUser.roles,
-                hasPassword: true,
-                provider: "appwrite",
-              };
-            } else {
-              normalizedUser = {
-                _id: appwriteUser.$id,
-                username: appwriteUser.username || appwriteUser.email.split("@")[0],
-                name: appwriteUser.name || "",
-                email: appwriteUser.email,
-                roles: ["USER"],
-                hasPassword: true,
-                provider: "appwrite",
-              };
-            }
-            setUser(normalizedUser);
-          } catch (err) {
-            console.error("Backend sync failed:", err);
-            setUser({
+          if (syncRes.data.status) {
+            const { user: dbUser, token } = syncRes.data.data;
+            localStorage.setItem("token", token);
+            normalizedUser = {
+              _id: dbUser._id,
+              username: dbUser.username,
+              name: dbUser.name,
+              email: dbUser.email,
+              roles: dbUser.roles,
+              hasPassword: true,
+              provider: "appwrite",
+            };
+          } else {
+            normalizedUser = {
               _id: appwriteUser.$id,
               username: appwriteUser.username || appwriteUser.email.split("@")[0],
               name: appwriteUser.name || "",
               email: appwriteUser.email,
               roles: ["USER"],
-              hasPassword: appwriteUser.hasPassword,
+              hasPassword: true,
               provider: "appwrite",
-            });
+            };
           }
-          break;
-
-        case "google": {
-          const googleUser = decodedToken as GoogleJwtPayload;
-          try {
-            const response = await axios.get(
-              `${import.meta.env.VITE_BACKEND_URL}/api/users/email/${googleUser.email}`,
-              { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }}
-            );
-            const res = response.data.data
-            console.log("Full response:", response);
-            console.log("response after googlelogin test:", res);
-            
-
-            setUser({
-              _id: res._id,
-              username: res.username,
-              name: res.name,
-              email: res.email,
-              roles: res.roles,
-              hasPassword: !!res.hashedPassword,
-              provider: "google",
-            });
-          } catch (error) {
-            console.error("Failed to fetch user from backend:", error);
-            // fallback if backend fetch fails
-            setUser({
-              _id: googleUser.id,
-              username: googleUser.username || googleUser.email.split("@")[0],
-              name: googleUser.name,
-              email: googleUser.email,
-              roles: googleUser.roles,
-              hasPassword: false,
-              provider: "google",
-            });
-          }
-          break;
-        }
-
-        case "backend": {
-          const backendUser = decodedToken as BackendJwtPayload;
+          setUser(normalizedUser);
+        } catch (err) {
+          console.error("Backend sync failed:", err);
           setUser({
-            _id: backendUser.id,
-            username: backendUser.username,
-            name: backendUser.name,
-            email: backendUser.email,
-            roles: backendUser.roles,
-            hasPassword: backendUser.hasPassword,
-            provider: "backend",
+            _id: appwriteUser.$id,
+            username: appwriteUser.username || appwriteUser.email.split("@")[0],
+            name: appwriteUser.name || "",
+            email: appwriteUser.email,
+            roles: ["USER"],
+            hasPassword: appwriteUser.hasPassword,
+            provider: "appwrite",
           });
-          break;
         }
+        break;
 
-        default:
-          setUser(null);
-          break;
+      case "google": {
+        const googleUser = decodedToken as GoogleJwtPayload;
+        try {
+          const response = await axios.get(
+            `${import.meta.env.VITE_BACKEND_URL}/api/users/email/${googleUser.email}`,
+            { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }}
+          );
+          const res = response.data.data
+          console.log("Full response:", response);
+          console.log("response after googlelogin test:", res);
+          
+
+          setUser({
+            _id: res._id,
+            username: res.username,
+            name: res.name,
+            email: res.email,
+            roles: res.roles,
+            hasPassword: !!res.hashedPassword,
+            provider: "google",
+          });
+        } catch (error) {
+          console.error("Failed to fetch user from backend:", error);
+          // fallback if backend fetch fails
+          setUser({
+            _id: googleUser.id,
+            username: googleUser.username || googleUser.email.split("@")[0],
+            name: googleUser.name,
+            email: googleUser.email,
+            roles: googleUser.roles,
+            hasPassword: false,
+            provider: "google",
+          });
+        }
+        break;
       }
 
+      case "backend": {
+        const backendUser = decodedToken as BackendJwtPayload;
+        setUser({
+          _id: backendUser.id,
+          username: backendUser.username,
+          name: backendUser.name,
+          email: backendUser.email,
+          roles: backendUser.roles,
+          hasPassword: backendUser.hasPassword,
+          provider: "backend",
+        });
+        break;
+      }
+      default:
+        setUser(null);
+        break;
+    }
       setIsLoading(false);
     };
 
+  const refreshUser = async () => {
+    setIsLoading(true);
+    try {
+      const currentToken = localStorage.getItem("token");
+
+      // Request a refreshed token from backend      
+      if (currentToken) {
+
+        const tokenRes = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/api/auth/refresh`,
+          {},
+          { headers: { Authorization: `Bearer ${currentToken}` } }
+        );
+
+        if (tokenRes.data.status) {
+          const newToken = tokenRes.data.data.token;
+          localStorage.setItem("token", newToken);
+          console.log("Refreshed token:", newToken);
+        }
+      }
+
+      // Fetch the latest user info using the new token
+      await fetchUser();
+
+    } catch (err) {
+      console.error("Failed to refresh user:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
     fetchUser();
   }, []);
 
-
   return (
-    <UserAuthContext.Provider value={{ user, setUser, isLoading, setIsLoading }}>
+    <UserAuthContext.Provider value={{ user, setUser, isLoading, setIsLoading, refreshUser }}>
       {children}
     </UserAuthContext.Provider>
   );

@@ -11,6 +11,7 @@ import querystring from 'querystring';
 import { authService } from '../services/auth.service';
 import { userDAO } from '../dao/user.dao';
 import type { Request, Response } from 'express';
+import type { IUser } from '../types/user.types';
 import { AuthRequest } from '../types/user.types';
 import { handleControllerError } from '../services/errorHnadler';
 
@@ -69,6 +70,45 @@ export const login = async (req: Request, res: Response) => {
       }
     }
     });
+
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+//αυτο είναι για ένα endpoind που θα μας κάνει refresh το τοκεν (χρειαστικε για να έχει νεο payload σε διαφορ refresh τoυ front)
+export const refreshToken = async (req: Request, res: Response) => {
+  try {
+    const token = req.get('authorization')?.replace('Bearer ', '');
+    if (!token) {
+      return res.status(401).json({ status: false, error: 'No token provided' });      
+    }
+
+    const verification = authService.verifyAccessToken(token);
+    if (!verification.verified) {
+      return res.status(401).json({ status: false, error: 'Invalid token' });
+    }
+    // Extract the payload from the verified token
+    const payload = verification.data as { id: string };
+
+    const refreshedDbUser = await userDAO.toServerById(payload.id);
+    if (!refreshedDbUser) {
+      return res.status(404).json({ status: false, error: 'User not found' });
+    } 
+
+    // create a minimal object compatible with IUser
+    const userForToken = {
+      _id: refreshedDbUser.id,
+      id: refreshedDbUser.id,
+      username: refreshedDbUser.username,
+      name: refreshedDbUser.name || '',
+      email: refreshedDbUser.email || '',
+      roles: refreshedDbUser.roles,
+      hasPassword: !!(refreshedDbUser as IUser).hashedPassword, 
+    };
+
+    const newToken = authService.generateAccessToken(userForToken as IUser);
+    return res.status(200).json({ status: true, data: { token: newToken } });
 
   } catch (error) {
     return handleControllerError(res, error);
@@ -337,6 +377,7 @@ export const githubCallback = async (_req: Request, res: Response) => {
 
 export const authController = {
   login,
+  refreshToken,
   getGoogleOAuthUrlLogin,
   getGoogleOAuthUrlSignup,
   googleLogin,

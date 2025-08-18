@@ -36,6 +36,7 @@ export interface UserAuthContextType {
   setUser: (user: IUser | null) => void
   isLoading: boolean
   setIsLoading: (loading: boolean) => void
+  refreshUser?: () => Promise<void>;
 }
 
 // Props type for the provider

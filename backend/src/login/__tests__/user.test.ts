@@ -412,6 +412,39 @@ describe('Protected User API routes with real middleware and login', () => {
     userToken = loginUserRes.body.data.token;
   });
 
+  describe('POST /api/auth/refresh', () => {
+    it('should refresh token for valid user', async () => {
+      const res = await request(app)
+        .post('/api/auth/refresh')
+        .set('Authorization', `Bearer ${userToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe(true);
+      expect(res.body.data.token).toBeDefined();
+      expect(res.body.data.token).not.toBe(userToken); // should return a new token
+    });
+
+    it('should return 401 if no token is provided', async () => {
+      const res = await request(app)
+        .post('/api/auth/refresh');
+
+      expect(res.status).toBe(401);
+      expect(res.body.status).toBe(false);
+      expect(res.body.error).toBe('No token provided');
+    });
+
+    it('should return 401 if token is invalid', async () => {
+      const res = await request(app)
+        .post('/api/auth/refresh')
+        .set('Authorization', 'Bearer invalidtoken123');
+
+      expect(res.status).toBe(401);
+      expect(res.body.status).toBe(false);
+      expect(res.body.error).toBe('Invalid token');
+    });
+  });
+
+
   it('GET /api/users should require auth and return all users', async () => {
     const res = await request(app)
       .get('/api/users')

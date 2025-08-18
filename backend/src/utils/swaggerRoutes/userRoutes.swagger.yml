@@ -326,3 +326,58 @@ paths:
           description: User not found
         '500':
           description: Internal Server Error
+  /api/auth/refresh:
+    post:
+      summary: Refresh JWT token
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      description: |
+        Returns a new JWT token for the currently logged-in user.
+        Useful when user information has changed (e.g., profile update) so the token payload is up-to-date.
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        description: New JWT token
+        '401':
+          description: Unauthorized - missing or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Invalid token"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "User not found"
+        '500':
+          description: Internal Server Error

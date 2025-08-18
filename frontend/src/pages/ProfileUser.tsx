@@ -1,5 +1,5 @@
 import axios from "axios"
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { useState, useContext, useEffect } from "react"
 import { CircularProgress } from '@mui/material';
 import { Box, Button, TextField, Typography, Paper, Stack } from "@mui/material"
@@ -14,7 +14,8 @@ interface Props {
 }
 
 const ProfileUser = ({ url }: Props) => {
-  const { user, setUser, isLoading, setIsLoading } = useContext(UserAuthContext);
+  const { user, setUser, isLoading, setIsLoading, refreshUser } = useContext(UserAuthContext);
+
   const [username, setUsername] = useState<string>(user?.username || "");
   const [name, setName] = useState<string>(user?.name || "");
   const [email, setEmail] = useState<string>(user?.email || "");
@@ -26,7 +27,7 @@ const ProfileUser = ({ url }: Props) => {
   const [userId, setUserId] = useState<string>(user?._id || "");
   const [hasPassword, setHasPassword] = useState<boolean>(!!user?.hasPassword);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     setLastProvider(user?.provider ?? 'none');
@@ -104,8 +105,20 @@ const ProfileUser = ({ url }: Props) => {
       if (res.data.status) {
         const updatedUser = res.data.data;
         setUser(updatedUser);
+
+        // Immediately update local state
+        setUserId(updatedUser._id || "");
+        setUsername(updatedUser.username || "");
+        setName(updatedUser.name || "");
+        setEmail(updatedUser.email || "");
+        setHasPassword(!!updatedUser.hasPassword);
+        setLastProvider(updatedUser.provider || lastProvider);
+
         alert("Profile updated successfully 🚀");
-        navigate("/");
+        if (refreshUser) { // ts null check
+          await refreshUser();// refresh the context
+        } 
+        // navigate("/");
       } else {
         setErrorMessage(res.data.error || res.data.data || "Update failed");
       }

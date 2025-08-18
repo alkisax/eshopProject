@@ -50,6 +50,12 @@ const readByUsername = async (username: string): Promise<UserView> => {
   return toUserDAO(user as IUser);
 };
 
+const toServerById = async (userId: string): Promise<IUser> => {
+  const user = await User.findById(userId);
+  if (!user) {throw new Error('User not found');}
+  return user as IUser;
+};
+
 const toServerByEmail = async (email: string): Promise<IUser | null> => {
   const user = await User.findOne({ email: email });
   return user ? user as IUser : null;
@@ -85,6 +91,7 @@ export const userDAO = {
   readAll,
   readById,
   readByUsername,
+  toServerById,
   toServerByEmail,
   toServerbyUsername,
   update,
