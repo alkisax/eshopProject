@@ -30,6 +30,8 @@ export const syncUser = async (req: Request, res: Response) => {
 
       dbUser = await userDAO.toServerByEmail(email) as IUser; // now dbUser is IUser
     }
+
+    const provider = req.body.provider || 'appwrite';
     
     const payload = {
       id: dbUser._id,
@@ -37,16 +39,16 @@ export const syncUser = async (req: Request, res: Response) => {
       name: dbUser.name,
       email: dbUser.email,
       roles: dbUser.roles,
-      hasPassword: !!dbUser.hashedPassword  // ✅ boolean flag
+      hasPassword: !!dbUser.hashedPassword,  // ✅ boolean flag
+      provider 
     };
 
     const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
-    return res.status(200).json({ status: true, data: { user: dbUser, token } });
+    return res.status(200).json({ status: true, data: { user: { ...dbUser.toObject(), provider }, token } });
   } catch (error) {
     return handleControllerError(res, error);
   }
-
 };
 
 export const authAppwriteController = {

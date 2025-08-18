@@ -1,6 +1,18 @@
 import type { ReactNode } from "react"
 import type { JwtPayload } from "jwt-decode";
 
+export interface IUser {
+  _id?: string
+  username: string
+  name: string
+  email: string
+  hashedPassword?: string
+  password?: string
+  hasPassword: boolean
+  roles: string[]
+  provider?: "appwrite" | "google" | "backend" | "github"
+}
+
 export interface AppwriteUser {
   $id: string;
   email: string;
@@ -8,7 +20,7 @@ export interface AppwriteUser {
   username?: string
   roles?: string[];
   hasPassword: true
-  provider?: "appwrite" | "google" | "backend";
+  provider?: "appwrite" | "google" | "backend" | "github";
 }
 
 export interface GoogleJwtPayload extends JwtPayload {
@@ -31,6 +43,16 @@ export interface BackendJwtPayload extends JwtPayload {
   provider?: "backend";
 }
 
+export interface GithubJwtPayload extends JwtPayload {
+  id: string;
+  email: string;
+  name: string;
+  username?: string;
+  roles: string[];
+  hasPassword: boolean;
+  provider?: "github";
+}
+
 export interface UserAuthContextType {
   user: IUser | null
   setUser: (user: IUser | null) => void
@@ -42,18 +64,6 @@ export interface UserAuthContextType {
 // Props type for the provider
 export interface UserProviderProps {
   children: ReactNode;
-}
-
-export interface IUser {
-  _id?: string
-  username: string
-  name: string
-  email: string
-  hashedPassword?: string
-  password?: string
-  hasPassword: boolean
-  roles: string[]
-  provider?: "appwrite" | "google" | "backend"
 }
 
 // for updating a user

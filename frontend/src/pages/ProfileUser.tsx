@@ -192,24 +192,38 @@ const ProfileUser = ({ url }: Props) => {
 
               {(lastProvider !== 'appwrite') && 
                 <>
-                  <TextField
-                    label="Password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="new-password"
-                    required
-                    fullWidth
-                  />
-                  <TextField
-                    label="Confirm Password"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    autoComplete="new-password"
-                    required
-                    fullWidth
-                  />                  
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: 2,
+                      border: '1px solid rgba(188, 229, 251, 1)',
+                      borderRadius: 2,
+                      mt: 2
+                    }}
+                  >
+                    <Stack spacing={2}>
+                      <p>Add or change password</p>
+                      <TextField
+                        label="Password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        autoComplete="new-password"
+                        required
+                        fullWidth
+                      />
+                      <TextField
+                        label="Confirm Password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        autoComplete="new-password"
+                        required
+                        fullWidth
+                      />                         
+                    </Stack>
+                    
+                  </Paper>
                 </>
               }
 

@@ -2,7 +2,7 @@ import { createContext, useEffect, useState  } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from 'axios';
 import { account } from "../authLogin/appwriteConfig"; 
-import type { AppwriteUser, GoogleJwtPayload, UserAuthContextType, UserProviderProps, BackendJwtPayload } from "../types/types";
+import type { AppwriteUser, GoogleJwtPayload, UserAuthContextType, UserProviderProps, BackendJwtPayload, GithubJwtPayload } from "../types/types";
 import type { IUser } from "../types/types"
 
 // Provide a default value for createContext
@@ -25,20 +25,24 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
 
   const fetchUser = async () => {
-    let provider: "appwrite" | "google" | "backend" | "none" = "none";
-    let decodedToken: GoogleJwtPayload | BackendJwtPayload | null = null;
+    let provider: "appwrite" | "google" | "backend" | "github" | "none" = "none";
+    let decodedToken: GoogleJwtPayload | BackendJwtPayload | GithubJwtPayload  |null = null;
     let appwriteUser: AppwriteUser | null = null;
 
     const token = localStorage.getItem("token");
     if (token) {
+      console.log('found token:', token);
+      
       try {
-        decodedToken = jwtDecode<GoogleJwtPayload | BackendJwtPayload>(token);
+        decodedToken = jwtDecode<GoogleJwtPayload | BackendJwtPayload | GithubJwtPayload>(token);
         provider = decodedToken.provider || "backend";
       } catch {
         localStorage.removeItem("token");
         provider = "none";
       }
     } else {
+      console.log('did not found token');
+      
       // 2️⃣ No token, check Appwrite session
       try {
         const sessionUser = await account.get();
@@ -81,7 +85,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
               email: dbUser.email,
               roles: dbUser.roles,
               hasPassword: true,
-              provider: "appwrite",
+              provider: dbUser.provider || "appwrite",
             };
           } else {
             normalizedUser = {
@@ -156,6 +160,20 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           roles: backendUser.roles,
           hasPassword: backendUser.hasPassword,
           provider: "backend",
+        });
+        break;
+      }
+
+      case "github": {
+        const githubUser = decodedToken as BackendJwtPayload; // same shape
+        setUser({
+          _id: githubUser.id,
+          username: githubUser.username,
+          name: githubUser.name,
+          email: githubUser.email,
+          roles: githubUser.roles,
+          hasPassword: githubUser.hasPassword,
+          provider: "github",
         });
         break;
       }
