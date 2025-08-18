@@ -5,6 +5,7 @@ export interface AppwriteUser {
   $id: string;
   email: string;
   name?: string;
+  username?: string
   roles?: string[];
   hasPassword: true
   provider?: "appwrite" | "google" | "backend";
@@ -14,6 +15,7 @@ export interface GoogleJwtPayload extends JwtPayload {
   id: string;
   email: string;
   name: string;
+  username?: string
   roles: string[];
   hasPassword: boolean
   provider?: "google"; 
@@ -22,6 +24,7 @@ export interface GoogleJwtPayload extends JwtPayload {
 export interface BackendJwtPayload extends JwtPayload {
   id: string;
   email: string;
+  name: string
   username: string;
   roles: string[];
   hasPassword: boolean

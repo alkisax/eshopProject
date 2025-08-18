@@ -45,6 +45,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         if (token) {
           try {
             decodedToken = jwtDecode<GoogleJwtPayload | BackendJwtPayload>(token);
+            console.log("decoded token from context: ", decodedToken);
+            
             provider = decodedToken.provider || "backend";
           } catch {
             localStorage.removeItem("token");
@@ -84,7 +86,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             } else {
               normalizedUser = {
                 _id: appwriteUser.$id,
-                username: appwriteUser.name || appwriteUser.email.split("@")[0],
+                username: appwriteUser.username || appwriteUser.email.split("@")[0],
                 name: appwriteUser.name || "",
                 email: appwriteUser.email,
                 roles: ["USER"],
@@ -97,7 +99,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             console.error("Backend sync failed:", err);
             setUser({
               _id: appwriteUser.$id,
-              username: appwriteUser.name || appwriteUser.email.split("@")[0],
+              username: appwriteUser.username || appwriteUser.email.split("@")[0],
               name: appwriteUser.name || "",
               email: appwriteUser.email,
               roles: ["USER"],
@@ -133,7 +135,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             // fallback if backend fetch fails
             setUser({
               _id: googleUser.id,
-              username: googleUser.name || googleUser.email.split("@")[0],
+              username: googleUser.username || googleUser.email.split("@")[0],
               name: googleUser.name,
               email: googleUser.email,
               roles: googleUser.roles,
@@ -149,7 +151,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           setUser({
             _id: backendUser.id,
             username: backendUser.username,
-            name: backendUser.username,
+            name: backendUser.name,
             email: backendUser.email,
             roles: backendUser.roles,
             hasPassword: backendUser.hasPassword,

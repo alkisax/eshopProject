@@ -13,6 +13,7 @@ const generateAccessToken = (user: IUser): string => {
   const payload = {
     id: user._id,
     username: user.username,
+    name: user.name,
     email: user.email,
     roles: user.roles,
     hasPassword: !!user.hashedPassword,
