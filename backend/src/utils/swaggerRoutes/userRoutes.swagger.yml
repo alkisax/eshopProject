@@ -155,6 +155,44 @@ paths:
         '500':
           description: Internal Server Error
 
+  /api/users/toggle-admin/{id}:
+    put:
+      summary: Toggle admin privileges for a user (admin only)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User ID to toggle admin role
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User role toggled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request (e.g., trying to remove own admin role)
+        '401':
+          description: Unauthorized (no token or invalid token)
+        '403':
+          description: Forbidden (only admins can toggle roles)
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
   /api/users/{id}:
     get:
       summary: Get user by ID
@@ -290,3 +328,96 @@ paths:
           description: User not found
         '500':
           description: Internal server error
+
+  /api/users/email/{email}:
+    get:
+      summary: Get user by email
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            format: email
+          description: Email of the user to fetch
+      responses:
+        '200':
+          description: User data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request - missing email
+        '401':
+          description: Unauthorized - no token or invalid token
+        '404':
+          description: User not found
+        '500':
+          description: Internal Server Error
+
+  /api/auth/refresh:
+    post:
+      summary: Refresh JWT token
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      description: |
+        Returns a new JWT token for the currently logged-in user.
+        Useful when user information has changed (e.g., profile update) so the token payload is up-to-date.
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        description: New JWT token
+        '401':
+          description: Unauthorized - missing or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Invalid token"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "User not found"
+        '500':
+          description: Internal Server Error

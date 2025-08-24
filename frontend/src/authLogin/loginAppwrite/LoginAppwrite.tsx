@@ -3,7 +3,8 @@
 import { useState, useContext, useEffect  } from "react";
 import { Link, useNavigate  } from "react-router-dom";
 import axios from "axios";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { account } from "../appwriteConfig";
 import { UserAuthContext } from "../../context/UserAuthContext";
 
@@ -14,12 +15,14 @@ interface params {
 const LoginAppwriteLogin = ({ url }: params) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const [buttonLoading, setButtonLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  console.log(url);
+  const handleTogglePassword = () => {
+    setShowPassword(prev => !prev);
+  };
 
   const navigate = useNavigate()
-  const { setUser, user  } = useContext(UserAuthContext);
+  const { setUser, user, setIsLoading } = useContext(UserAuthContext);
 
   useEffect(() => {
     if(user !== null){
@@ -59,8 +62,13 @@ const LoginAppwriteLogin = ({ url }: params) => {
         // ✅ Store token (optional: localStorage / sessionStorage)
         localStorage.setItem("token", token);
 
+        // ✅ normalize dbUser before setting context
         // ✅ Update React context with synced user
-        setUser(dbUser);
+        setUser({
+          ...dbUser,
+          hasPassword: true,
+          provider: "appwrite",
+        });
 
         navigate("/"); // redirect after successful login
       } else {
@@ -70,7 +78,7 @@ const LoginAppwriteLogin = ({ url }: params) => {
       console.log(error); // Failure
       alert(error || "Login failed");
     } finally {
-      // setButtonLoading(false);
+      setIsLoading(false)
     }
   }
 
@@ -88,9 +96,6 @@ const LoginAppwriteLogin = ({ url }: params) => {
           mt: 5,
         }}
       >
-        <Typography variant="h5" align="center">
-          Appwrite Login
-        </Typography>
 
         <TextField
           label="Email"
@@ -104,12 +109,23 @@ const LoginAppwriteLogin = ({ url }: params) => {
 
         <TextField
           label="Password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           variant="outlined"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           fullWidth
           autoComplete="current-password"
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleTogglePassword} edge="end">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
         />
 
         <Button type="submit" variant="contained" color="primary">

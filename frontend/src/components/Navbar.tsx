@@ -53,9 +53,15 @@ const NavbarAppwrite = () => {
             )}
 
             {user ? (
+              <>
+              <Button color="inherit" component={Link} to='/profile'>
+                Profile
+              </Button>
               <Button color="inherit" onClick={() => handleLogout(setUser, navigate)}>
                 Logout {user.name}
-              </Button>
+              </Button>              
+              </>
+
             ) : (
               <Button color="inherit" onClick={handleLogin}>
                 Login

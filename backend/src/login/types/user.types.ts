@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { Document, Types } from 'mongoose';
 import type { Request } from 'express';
 
 // full mongose obj
@@ -9,6 +9,7 @@ export interface IUser extends Document {
   email?: string;
   roles: string[];
   hashedPassword: string;
+  hasPassword?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

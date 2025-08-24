@@ -3,11 +3,11 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import type { BackendJwtPayload } from '../../types/types'
 import { UserAuthContext } from "../../context/UserAuthContext";
-
 
 interface Props {
   url: string;
@@ -16,9 +16,14 @@ interface Props {
 const LoginBackend = ({ url }: Props) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const { setUser } = useContext(UserAuthContext);
+  const { setUser, setIsLoading } = useContext(UserAuthContext);
+
+  const handleTogglePassword = () => {
+    setShowPassword(prev => !prev);
+  };
 
   const handleSubmitBackend = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -39,16 +44,20 @@ const LoginBackend = ({ url }: Props) => {
       // decode and update context
       const decoded = jwtDecode<BackendJwtPayload>(token);
       setUser({
-        $id: decoded.id,
+        _id: decoded.id,
+        username: decoded.username,
         email: decoded.email,
-        name: decoded.username,
+        name: decoded.name,
         roles: decoded.roles,
+        hasPassword: decoded.hasPassword,
         provider: "backend",
       });
 
       navigate("/");
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -76,12 +85,23 @@ const LoginBackend = ({ url }: Props) => {
 
       <TextField
         label="Password"
-        type="password"
+        type={showPassword ? "text" : "password"}
         variant="outlined"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         fullWidth
         autoComplete="current-password"
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={handleTogglePassword} edge="end">
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
+        }}
       />
 
       <Button type="submit" variant="contained" color="primary">

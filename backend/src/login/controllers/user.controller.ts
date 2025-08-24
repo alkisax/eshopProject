@@ -1,20 +1,21 @@
-import bcrypt from 'bcrypt'
-import User from '../models/users.models'
-import { z } from 'zod'
-import { handleControllerError } from '../services/errorHnadler'
-import { userDAO } from '../dao/user.dao'
+/* eslint-disable no-console */
+import bcrypt from 'bcrypt';
+import User from '../models/users.models';
+import { z } from 'zod';
+import { handleControllerError } from '../services/errorHnadler';
+import { userDAO } from '../dao/user.dao';
 
 import type { Request, Response } from 'express';
-import type { CreateUser, UpdateUser, AuthRequest } from '../types/user.types'
+import type { CreateUser, UpdateUser, AuthRequest } from '../types/user.types';
 
 const createZodUserSchema = z.object({
-  username: z.string().min(1, "Username is required"),
+  username: z.string().min(1, 'Username is required'),
   password: z.string()
-    .min(6, "Password must be at least 6 characters")
-    .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
-    .regex(/[!@#$%^&*(),.?":{}|<>]/, { message: "Password must contain at least one special character" }),
+    .min(6, 'Password must be at least 6 characters')
+    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+    .regex(/[!@#$%^&*(),.?":{}|<>]/, { message: 'Password must contain at least one special character' }),
   name: z.string().optional(),
-  email: z.email({ message: "Invalid email address" }).optional(),
+  email: z.email({ message: 'Invalid email address' }).optional(),
   roles: z.array(z.string()).optional(),
 });
 
@@ -26,7 +27,7 @@ export const updateZodUserSchema = createZodUserSchema.partial();
 // signup
 export const createUser = async (req: Request, res: Response) => {
   try {
-    let data = createZodUserSchema.omit({ roles: true }).parse(req.body);
+    const data = createZodUserSchema.omit({ roles: true }).parse(req.body);
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const existingUser = await User.findOne({ username: data.username });
     if (existingUser) {
@@ -59,20 +60,20 @@ export const createUser = async (req: Request, res: Response) => {
 export const createAdmin = async (req: Request, res: Response) => {
 
   try {
-    let data = createZodUserSchema.parse(req.body) as CreateUser // Εδώ γίνεται το validation
+    const data = createZodUserSchema.parse(req.body) as CreateUser; // Εδώ γίνεται το validation
     
     if (!data.username || !data.password){
       return res.status(400).json({ status: false, error: 'Missing required fields' });
     }
 
-    const username = data.username
-    const name = data.name
-    const password = data.password
-    const email = data.email
-    const roles = data.roles
+    const username = data.username;
+    const name = data.name;
+    const password = data.password;
+    const email = data.email;
+    const roles = data.roles;
 
-    const SaltOrRounds = 10
-    const hashedPassword = await bcrypt.hash(password, SaltOrRounds)    
+    const SaltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, SaltOrRounds);    
 
     const existingUser = await User.findOne({ username: data.username });
     if (existingUser) {
@@ -96,12 +97,12 @@ export const createAdmin = async (req: Request, res: Response) => {
     });
 
     console.log(`Created new user: ${username}`);
-    return res.status(201).json({ status: true, data: newUser })
+    return res.status(201).json({ status: true, data: newUser });
     
   } catch (error) {
     return handleControllerError(res, error);
   }
-}
+};
 
 // read
 export const findAll = async (_req: Request, res: Response) => {
@@ -112,41 +113,80 @@ export const findAll = async (_req: Request, res: Response) => {
   } catch (error) {
     return handleControllerError(res, error);
   }
-}
+};
 
 export const readById = async (req: Request, res: Response) => {
 
   try {
-    const userId: string | undefined = req.params.id
+    const userId: string | undefined = req.params.id;
     if (!userId) {
-      return res.status(400).json({ status: false, error: 'no Id provided'})
+      return res.status(400).json({ status: false, error: 'no Id provided' });
     }
 
-    const user = await userDAO.readById(userId)
-    return res.status(200).json({ status: true, data: user })
+    const user = await userDAO.readById(userId);
+    return res.status(200).json({ status: true, data: user });
 
   } catch (error) {
     return handleControllerError(res, error);
   }
-}
+};
 
 export const readByUsername = async (req: Request, res: Response) => {
 
   try {
-    const username: string | undefined = req.params.username
+    const username: string | undefined = req.params.username;
     if (!username) {
-      return res.status(400).json({ status: false, error: 'no username provided'})
+      return res.status(400).json({ status: false, error: 'no username provided' });
     }
 
-    const user = await userDAO.readByUsername(username)
-    return res.status(200).json({ status: true, data: user })
+    const user = await userDAO.readByUsername(username);
+    return res.status(200).json({ status: true, data: user });
 
   } catch (error) {
     return handleControllerError(res, error);
   }
-}
+};
+
+export const readByEmail = async (req: Request, res: Response) => {
+  try {
+    const email = req.params.email;
+    if (!email) {
+      return res.status(400).json({ status: false, message: 'Email is required' });
+    }
+
+    const user = await userDAO.toServerByEmail(email);
+    if (!user) {
+      return res.status(404).json({ status: false, message: 'User not found' });
+    } 
+
+    return res.status(200).json({ status: true, data: user });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
 
 // update
+export const toggleRoleById = async (req: AuthRequest, res: Response) => {
+  const userIdToUpdate = req.params.id;
+  const requestingUser = req.user;
+  if (!requestingUser) {
+    return res.status(401).json({ status: false, error: 'Unauthorized' });
+  }
+  if (requestingUser.id === userIdToUpdate) {
+    return res.status(400).json({ status: false, error: 'You cannot remove your own admin role' });
+  }
+
+  try {
+    const updatedUser = await userDAO.toggleRoleById(userIdToUpdate);
+    if (!updatedUser) {
+      return res.status(404).json({ status: false, error: 'User not found' });
+    }
+    return res.status(200).json({ status: true, data: updatedUser });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 export const updateById = async (req: AuthRequest, res: Response) => {
 
   const userIdToUpdate = req.params.id;
@@ -170,9 +210,9 @@ export const updateById = async (req: AuthRequest, res: Response) => {
     return res.status(400).json({ status: false, errors: parseResult.error.issues.map(issue => issue.message) });
   }
 
-  let data = { ...parseResult.data } as UpdateUser // clone to avoid mutation
+  const data = { ...parseResult.data } as UpdateUser; // clone to avoid mutation
 
-  const password = data.password
+  const password = data.password;
   if (password) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -180,9 +220,9 @@ export const updateById = async (req: AuthRequest, res: Response) => {
     delete data.password;
   }
 
-  const userId: string | undefined = req.params.id
+  const userId: string | undefined = req.params.id;
   if (!userId) {
-    return res.status(400).json({ status: false, error: 'no Id provided'})
+    return res.status(400).json({ status: false, error: 'no Id provided' });
   }
 
   try {
@@ -195,29 +235,29 @@ export const updateById = async (req: AuthRequest, res: Response) => {
       }
     }
 
-    const user = await userDAO.update(userId, data)
-    return res.status(200).json({ status: true, data: user })
+    const user = await userDAO.update(userId, data);
+    return res.status(200).json({ status: true, data: user });
 
   } catch (error) {
     return handleControllerError(res, error);
   }
-}
+};
 
 // delete
 export const deleteById = async (req: Request, res: Response) => {
 
-  const userId = req.params.id
+  const userId = req.params.id;
   if (!userId){
-    return res.status(400).json({ status: false, error: 'User ID is required OR not found' })
+    return res.status(400).json({ status: false, error: 'User ID is required OR not found' });
   }
 
   try {
-    const deleteUser = await userDAO.deleteById(userId)
-    return res.status(200).json({ status: true, message: `User ${deleteUser.username} deleted successfully` })
+    const deleteUser = await userDAO.deleteById(userId);
+    return res.status(200).json({ status: true, message: `User ${deleteUser.username} deleted successfully` });
   } catch (error) {
     return handleControllerError(res, error);
   }
-}
+};
 
 export const userController = {
   createUser,
@@ -225,6 +265,8 @@ export const userController = {
   findAll,
   readById,
   readByUsername,
+  readByEmail,
+  toggleRoleById,
   updateById,
   deleteById
-}
+};

@@ -1,9 +1,8 @@
-
-const AdminPanel = async () => {
+const AdminPanel = () => {
 
   return (
     <>
-      <h1>Admin Pannel</h1>
+
     </>
   )
 }
