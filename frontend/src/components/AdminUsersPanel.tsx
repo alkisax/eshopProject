@@ -23,23 +23,25 @@ const AdminPanel = () => {
     const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
     const [viewUser, setViewUser] = useState<IUser | null>(null);
 
-    const fetchAllUsers = async () => {
-      try {
-      const token = localStorage.getItem("token");
-      const users = await axios.get(`${url}/api/users/`, {
-        headers: { Authorization: `Bearer ${token}`},
-      })
-      console.log(users);
-      
-      setUsers(users.data.data)
-      } catch {
-        console.log('error fetching all users');        
-      }
-    }
+
 
     useEffect(() => {
+      const fetchAllUsers = async () => {
+        try {
+        const token = localStorage.getItem("token");
+        const users = await axios.get(`${url}/api/users/`, {
+          headers: { Authorization: `Bearer ${token}`},
+        })
+        console.log(users);
+        
+        setUsers(users.data.data)
+        } catch {
+          console.log('error fetching all users');        
+        }
+      }
+
       fetchAllUsers()
-    }, [])
+    }, [url])
 
     
     const handleDelete = async (user: IUser) => {
