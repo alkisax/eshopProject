@@ -75,6 +75,20 @@ const update = async (userId: string, userData: UpdateUser): Promise<UserView> =
   return toUserDAO(response as IUser);
 };
 
+const toggleRoleById = async (userId: string): Promise<UserView | null> => {
+  const user = await User.findById(userId);
+  if (!user) {
+    return null;
+  }
+  user.roles = user.roles.includes('ADMIN') ? ['USER'] : ['ADMIN'];
+
+  // save only roles, skip validation on other required fields
+  user.markModified('roles');
+  await user.save({ validateBeforeSave: false });
+
+  return toUserDAO(user as IUser);
+};
+
 const deleteById = async (userId: string): Promise<UserView> => {
   const response = await User.findByIdAndDelete(userId);
   if (!response) {
@@ -95,5 +109,6 @@ export const userDAO = {
   toServerByEmail,
   toServerbyUsername,
   update,
+  toggleRoleById,
   deleteById
 };

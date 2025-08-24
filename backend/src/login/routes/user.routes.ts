@@ -20,6 +20,7 @@ router.get('/email/:email', middleware.verifyToken, userController.readByEmail);
 
 // update
 router.put('/:id', middleware.verifyToken, userController.updateById);
+router.put('/toggle-admin/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.toggleRoleById);
 
 // delete
 router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.deleteById);

@@ -1,59 +1,57 @@
 import axios from "axios"
 // import { useNavigate } from "react-router-dom";
 import { useState, useContext, useEffect } from "react"
-import { CircularProgress } from '@mui/material';
 import { Box, Button, TextField, Typography, Paper, Stack } from "@mui/material"
 import { UserAuthContext } from "../context/UserAuthContext";
+import { VariablesContext } from "../context/VariablesContext";
 import { frontendValidatePassword } from "../utils/registerBackend";
-// import { frontEndValidateEmail } from "../utils/registerBackend";
-import type { UpdateUser } from "../types/types";
-
+import Loading from '../components/Loading'
+import type { UpdateUser, IUser } from "../types/types";
 
 interface Props {
-  url: string;
+  userToEdit?: IUser;
 }
 
-const ProfileUser = ({ url }: Props) => {
+const ProfileUser = ({ userToEdit }: Props) => {
   const { user, setUser, isLoading, setIsLoading, refreshUser } = useContext(UserAuthContext);
+  const { url } = useContext(VariablesContext)
 
-  const [username, setUsername] = useState<string>(user?.username || "");
-  const [name, setName] = useState<string>(user?.name || "");
-  const [email, setEmail] = useState<string>(user?.email || "");
+  // αυτο το component καλείτε και απο το adminpanel στο edit. εκει θα πρέπει να μπορούμε να αλλάξουμε και έναν άλλο χρίστη περα απο αυτό που είναι logedin
+  const targetUser = userToEdit ?? user;
+
+  const [username, setUsername] = useState<string>(targetUser?.username || "");
+  const [name, setName] = useState<string>(targetUser?.name || "");
+  const [email, setEmail] = useState<string>(targetUser?.email || "");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [lastProvider, setLastProvider] = useState<string>('none')
 
-  const [userId, setUserId] = useState<string>(user?._id || "");
-  const [hasPassword, setHasPassword] = useState<boolean>(!!user?.hasPassword);
+  const [userId, setUserId] = useState<string>(targetUser?._id || "");
+  const [hasPassword, setHasPassword] = useState<boolean>(!!targetUser?.hasPassword);
 
   // const navigate = useNavigate();
+  // Decide whether we're editing current user or admin target
+
 
   useEffect(() => {
     setLastProvider(user?.provider ?? 'none');
   }, [user]);
 
   useEffect(() => {
-    if (user) {
-      setUsername(user.username || "");
-      setName(user.name || "");
-      setEmail(user.email || "");
-      setLastProvider(user.provider || "none");
-      setUserId(user._id || "");
-      setHasPassword(!!user.hasPassword);
+    if (targetUser) {
+      setUsername(targetUser.username || "");
+      setName(targetUser.name || "");
+      setEmail(targetUser.email || "");
+      setLastProvider(targetUser.provider || "none");
+      setUserId(targetUser._id || "");
+      setHasPassword(!!targetUser.hasPassword);
     }
-  }, [user]);
+  }, [targetUser]);
 
-  if (!user || isLoading) {
+  if (!targetUser || isLoading) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh' 
-      }}>
-        <CircularProgress />
-      </div>
+      <Loading />
     )
   };
 
@@ -88,7 +86,7 @@ const ProfileUser = ({ url }: Props) => {
       return;
     }
 
-    const userId = user._id;
+    const userId = targetUser._id || targetUser.id;
     if (!userId) {
       setErrorMessage("**ERROR** no user id");
       setIsLoading(false);

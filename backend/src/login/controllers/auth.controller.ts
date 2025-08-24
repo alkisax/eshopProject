@@ -285,7 +285,7 @@ export const googleSignup  = async(req: Request, res: Response) => {
     try {
       dbUser = await User.findOneAndUpdate(
         { email: user.email },
-        { $setOnInsert: { email: user.email, name: user.name, roles: ['user'] } },
+        { $setOnInsert: { email: user.email, name: user.name, roles: ['USER'] } },
         { upsert: true, new: true }
       );
       message = `user ${user.email} created and signed in`;

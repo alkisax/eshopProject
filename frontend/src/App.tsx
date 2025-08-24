@@ -16,6 +16,7 @@ import RegisterPageAppwriteLogin from "./authLogin/loginAppwrite/RegisterPageApp
 import HomeAppwriteLogin from "./authLogin/service/Protected";
 import PrivateRoute from './authLogin/service/PrivateRoute'
 import LayoutWithNavbar from './Layouts/LayoutWithNavbar'
+import AdminLayout from "./Layouts/AdminLayout"
 import ProfileUser from './pages/ProfileUser'
 
 function App() {
@@ -38,11 +39,15 @@ function App() {
 
         <Route element={<PrivateRoute />}>
           <Route path="/protected" element={<HomeAppwriteLogin />} />
-          <Route path="/profile" element={<ProfileUser url={url} />} />
+          <Route path="/profile" element={<ProfileUser />} />
         </Route>
+
         <Route element={<AdminPrivateRoute />}>
-          <Route path="/admin-panel" element={<AdminPanel />} />       
+          <Route element={<AdminLayout />}>
+            <Route path="/admin-panel" element={<AdminPanel />} />           
+          </Route>
         </Route>
+        
       </Route>
     </Routes>
     </>

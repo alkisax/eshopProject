@@ -583,6 +583,91 @@ describe('Protected User API routes with real middleware and login', () => {
       expect(res.body.status).toBe(false);
     });
 
+    describe('PUT /api/users/toggle-admin/:id - toggle admin role', () => {
+      let normalUserId: string;
+
+      beforeAll(async () => {
+        // Create a normal user if not already created
+        const userRes = await request(app)
+          .post('/api/users/signup/user')
+          .send({
+            username: 'toggleuser',
+            password: 'Passw0rd!',
+            email: 'toggleuser@example.com',
+          });
+
+        normalUserId = userRes.body.data._id || userRes.body.data.id;
+      });
+
+      it('should allow admin to make a user an admin', async () => {
+        const res = await request(app)
+          .put(`/api/users/toggle-admin/${normalUserId}`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send();
+
+        expect(res.status).toBe(200);
+        expect(res.body.status).toBe(true);
+        expect(res.body.data.roles).toContain('ADMIN');
+      });
+
+      it('should allow admin to remove admin role from a user', async () => {
+        // toggle back
+        const res = await request(app)
+          .put(`/api/users/toggle-admin/${normalUserId}`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send();
+
+        expect(res.status).toBe(200);
+        expect(res.body.status).toBe(true);
+        expect(res.body.data.roles).toContain('USER');
+        expect(res.body.data.roles).not.toContain('ADMIN');
+      });
+
+      it('should forbid non-admin users', async () => {
+        const res = await request(app)
+          .put(`/api/users/toggle-admin/${normalUserId}`)
+          .set('Authorization', `Bearer ${userToken}`)
+          .send();
+
+        expect(res.status).toBe(403);
+        expect(res.body.status).toBe(false);
+      });
+
+      it('should not allow admin to remove own admin role', async () => {
+        const res = await request(app)
+          .put(`/api/users/toggle-admin/${seededAdmin._id}`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send();
+
+        expect(res.status).toBe(400);
+        expect(res.body.status).toBe(false);
+        expect(res.body.error).toMatch(/cannot remove your own admin/i);
+      });
+
+      it('should return 404 if user does not exist', async () => {
+        const fakeId = new mongoose.Types.ObjectId();
+        const res = await request(app)
+          .put(`/api/users/toggle-admin/${fakeId}`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send();
+
+        expect(res.status).toBe(404);
+        expect(res.body.status).toBe(false);
+        expect(res.body.error).toMatch(/user not found/i);
+      });
+
+      it('should return 401 if no token provided', async () => {
+        const res = await request(app)
+          .put(`/api/users/toggle-admin/${normalUserId}`)
+          .send();
+
+        expect(res.status).toBe(401);
+        expect(res.body.status).toBe(false);
+      });
+    });
+
+
+
     //added tests
     it('should hash password if provided', async () => {
       const newPassword = 'NewPass123!';

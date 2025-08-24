@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import type { JwtPayload } from "jwt-decode";
 
 export interface IUser {
+  id?: string;
   _id?: string
   username: string
   name: string

@@ -166,6 +166,27 @@ export const readByEmail = async (req: Request, res: Response) => {
 };
 
 // update
+export const toggleRoleById = async (req: AuthRequest, res: Response) => {
+  const userIdToUpdate = req.params.id;
+  const requestingUser = req.user;
+  if (!requestingUser) {
+    return res.status(401).json({ status: false, error: 'Unauthorized' });
+  }
+  if (requestingUser.id === userIdToUpdate) {
+    return res.status(400).json({ status: false, error: 'You cannot remove your own admin role' });
+  }
+
+  try {
+    const updatedUser = await userDAO.toggleRoleById(userIdToUpdate);
+    if (!updatedUser) {
+      return res.status(404).json({ status: false, error: 'User not found' });
+    }
+    return res.status(200).json({ status: true, data: updatedUser });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 export const updateById = async (req: AuthRequest, res: Response) => {
 
   const userIdToUpdate = req.params.id;
@@ -245,6 +266,7 @@ export const userController = {
   readById,
   readByUsername,
   readByEmail,
+  toggleRoleById,
   updateById,
   deleteById
 };
