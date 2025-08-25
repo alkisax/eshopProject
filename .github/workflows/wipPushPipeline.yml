@@ -18,6 +18,9 @@ jobs:
       GOOGLE_REDIRECT_URI_LOGIN: ${{ secrets.GOOGLE_REDIRECT_URI_LOGIN }}
       GOOGLE_REDIRECT_URI_SIGNUP: ${{ secrets.GOOGLE_REDIRECT_URI_SIGNUP }}
       FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
+      APPWRITE_ENDPOINT: ${{ secrets.APPWRITE_ENDPOINT }}
+      APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
