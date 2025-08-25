@@ -1,5 +1,6 @@
 import Participant from '../models/participant.models';
 import type { ParticipantType } from '../types/stripe.types';
+import { Types } from 'mongoose';
 import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.types';
 
 // create 
@@ -34,7 +35,7 @@ const createParticipant = async (participantData: ParticipantType) => {
 //read 
 const findAllParticipants = async (page = 0): Promise<ParticipantType[]> => {
   // const response =  await Participant.find().populate('transactions').limit(50).skip(page * 50);
-  
+
   const response =  await Participant.find().limit(50).skip(page * 50);
   return response;
 };
@@ -86,7 +87,7 @@ const deleteParticipantById = async (id: string): Promise<ParticipantType> => {
   return response;
 };
 
-const addTransactionToParticipant = async (participantId: string, transactionId: string): Promise<ParticipantType> => {
+const addTransactionToParticipant = async (participantId: Types.ObjectId, transactionId: Types.ObjectId): Promise<ParticipantType> => {
   const response =  await Participant.findByIdAndUpdate(
     participantId,
     { $push: { transactions: transactionId } },

@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import stripeController from '../controllers/stripe.controller';
+import { stripeController } from '../controllers/stripe.controller';
 
 router.post('/checkout/:price_id', stripeController.createCheckoutSession);
 

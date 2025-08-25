@@ -1,7 +1,7 @@
 import { Router } from 'express';
 const router = Router();
 import { findAll, findUnprocessed, create, deleteById, toggleProcessed } from '../controllers/transactionController';
-import { verifyToken, checkRole } from '../middlewares/verification.middleware';
+import { middleware } from '../../login/middleware/verification.middleware';
 
 // GET all transactions (admin only)
 /**
@@ -40,7 +40,7 @@ import { verifyToken, checkRole } from '../middlewares/verification.middleware';
  *       403:
  *         description: Forbidden
  */
-router.get('/', verifyToken, checkRole('admin'), findAll);
+router.get('/', middleware.verifyToken, middleware.checkRole('ADMIN'), findAll);
 
 // GET unprocessed transactions (admin only)
 /**
@@ -70,7 +70,7 @@ router.get('/', verifyToken, checkRole('admin'), findAll);
  *       403:
  *         description: Forbidden
  */
-router.get('/unprocessed', verifyToken, checkRole('admin'), findUnprocessed);
+router.get('/unprocessed', middleware.verifyToken, middleware.checkRole('ADMIN'), findUnprocessed);
 
 // POST create a new transaction (no auth yet)
 /**
@@ -133,7 +133,7 @@ router.post('/', create);
  *         description: Forbidden
  */
 
-router.delete('/:id', verifyToken, checkRole('admin'), deleteById);
+router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), deleteById);
 
 // αυτο είναι σημαντικό γιατι στέλνει το αυτόματο ημαιλ
 /**
@@ -163,6 +163,6 @@ router.delete('/:id', verifyToken, checkRole('admin'), deleteById);
  *       403:
  *         description: Forbidden (admin access required)
  */
-router.put('/toggle/:id', verifyToken, checkRole('admin'), toggleProcessed);
+router.put('/toggle/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), toggleProcessed);
 
 export default router;
