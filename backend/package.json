@@ -41,6 +41,7 @@
     "mongoose": "^8.17.1",
     "mongoose-to-swagger": "^1.5.1",
     "querystring": "^0.2.1",
+    "stripe": "^18.4.0",
     "supertest": "^7.1.4",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

@@ -1,0 +1,77 @@
+/* eslint-disable no-console */
+import { participantDao } from '../daos/participant.dao';
+import { handleControllerError } from '../../utils/errorHnadler';
+import type { Request, Response } from 'express';
+
+export const findAll = async (req: Request, res: Response) => {
+  try {
+    if (!req.headers.authorization) {
+      return res.status(401).json({ status: false, error: 'No token provided' });
+    }
+
+    const participants = await participantDao.findAllParticipants();
+
+    console.log('Fetched all participants');
+    return res.status(200).json({ status: true, data: participants });
+
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+export const create = async (req: Request, res: Response) => {
+  const data = req.body;
+
+  const name = data.name;
+  const surname = data.surname;
+  const email = data.email;
+  const transactions = data.transactions;
+
+  try {
+    const newParticipant = await participantDao.createParticipant({
+      name,
+      surname,
+      email,
+      transactions
+    });
+
+    console.log(`Created new participant: ${email}`);
+    return res.status(201).json(newParticipant);
+
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+export const deleteById = async (req: Request, res: Response) => {
+  const participantId = req.params.id;
+  if (!participantId){
+    console.log('Delete attempt without ID');
+    return res.status(400).json({ status: false, error: 'participant ID is required OR not found' });
+  }
+  
+  try {
+    const deleteParticipant = await participantDao.deleteParticipantById(participantId);
+
+    if (!deleteParticipant){
+      console.log(`Delete failed: participant ${participantId} not found`);
+      return res.status(404).json({
+        status: false,
+        error: 'Error deleting participant: not found'
+      });
+    } else {
+
+      console.log(`Deleted participant ${deleteParticipant.email}`);
+      return res.status(200).json({ status: true, message: `participant ${deleteParticipant.email} deleted successfully` });
+
+    }
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+export const participantController = {
+  findAll,
+  create,
+  deleteById
+};

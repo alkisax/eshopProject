@@ -7,6 +7,7 @@ const Home =({ url }: Params) => {
   
   return (
     <>
+      home
       <Login url={url} />
     </>
   )

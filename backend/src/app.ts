@@ -9,6 +9,8 @@ import swaggerSpec from './utils/swagger';
 import swaggerUi from 'swagger-ui-express';
 import authRoutes from './login/routes/auth.routes';
 import userRoutes from './login/routes/user.routes';
+import participantRoutes from './stripe/routes/participant.routes';
+// import stripeRoutes from './stripe/routes/stripe.routes';
 
 const app = express();
 
@@ -32,6 +34,10 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+
+app.use('/api/participant', participantRoutes);
+// app.use('/api/transaction', transactionRoutes)
+// app.use('/api/stripe', stripeRoutes);
 
 app.use(express.static('dist')); 
 
