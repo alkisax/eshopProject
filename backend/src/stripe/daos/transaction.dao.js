@@ -1,14 +1,14 @@
-const Transaction = require('../models/transaction.models');
-const Participant = require('../models/participant.models')
+import Transaction, { find, findById, findByIdAndDelete, findByIdAndUpdate, findOne } from '../models/transaction.models';
+import { findByIdAndUpdate as _findByIdAndUpdate } from '../models/participant.models';
 
 // Find all transactions
 const findAllTransactions = async () => {
-  return await Transaction.find().populate('participant');
+  return await find().populate('participant');
 };
 
 // Find transaction by ID
 const findTransactionById = async (transactionId) => {
-  return await Transaction.findById(transactionId).populate('participant');
+  return await findById(transactionId).populate('participant');
 };
 
 // Create a new transaction
@@ -19,12 +19,12 @@ const createTransaction = async (transactionData) => {
 
 // Delete a transaction by ID
 const deleteTransactionById = async (transactionId) => {
-  return await Transaction.findByIdAndDelete(transactionId);
+  return await findByIdAndDelete(transactionId);
 };
 
 // Update a transaction (for example, changing the amount)
 const updateTransactionById = async (transactionId, updatedData) => {
-  return await Transaction.findByIdAndUpdate(
+  return await findByIdAndUpdate(
     transactionId,
     updatedData,
     { new: true } // return the updated document
@@ -32,11 +32,11 @@ const updateTransactionById = async (transactionId, updatedData) => {
 };
 
 const findTransactionsByProcessed = async (isProcessed) => {
-  return await Transaction.find({ processed: isProcessed }).populate('participant');
+  return await find({ processed: isProcessed }).populate('participant');
 };
 
 const addTransactionToParticipant = async (participantId, transactionId) => {
-  return await Participant.findByIdAndUpdate(
+  return await _findByIdAndUpdate(
     participantId,
     { $push: { transactions: transactionId } },
     { new: true }
@@ -44,10 +44,10 @@ const addTransactionToParticipant = async (participantId, transactionId) => {
 };
 
 const findBySessionId = async (sessionId) => {
-  return await Transaction.findOne({ sessionId });
+  return await findOne({ sessionId });
 };
 
-module.exports = {
+export default {
   findAllTransactions,
   findTransactionById,
   createTransaction,

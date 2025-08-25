@@ -1,7 +1,7 @@
-const express = require('express')
-const router = express.Router()
-const transactionController = require('../controllers/transactionController')
-const { verifyToken, checkRole } = require('../middlewares/verification.middleware')
+import { Router } from 'express';
+const router = Router();
+import { findAll, findUnprocessed, create, deleteById, toggleProcessed } from '../controllers/transactionController';
+import { verifyToken, checkRole } from '../middlewares/verification.middleware';
 
 // GET all transactions (admin only)
 /**
@@ -40,7 +40,7 @@ const { verifyToken, checkRole } = require('../middlewares/verification.middlewa
  *       403:
  *         description: Forbidden
  */
-router.get('/', verifyToken, checkRole('admin'), transactionController.findAll)
+router.get('/', verifyToken, checkRole('admin'), findAll);
 
 // GET unprocessed transactions (admin only)
 /**
@@ -70,7 +70,7 @@ router.get('/', verifyToken, checkRole('admin'), transactionController.findAll)
  *       403:
  *         description: Forbidden
  */
-router.get('/unprocessed', verifyToken, checkRole('admin'), transactionController.findUnprocessed)
+router.get('/unprocessed', verifyToken, checkRole('admin'), findUnprocessed);
 
 // POST create a new transaction (no auth yet)
 /**
@@ -102,7 +102,7 @@ router.get('/unprocessed', verifyToken, checkRole('admin'), transactionControlle
  *       400:
  *         description: Invalid input
  */
-router.post('/', transactionController.create);
+router.post('/', create);
 
 // DELETE a transaction by ID (admin only)
 /**
@@ -133,7 +133,7 @@ router.post('/', transactionController.create);
  *         description: Forbidden
  */
 
-router.delete('/:id', verifyToken, checkRole('admin'), transactionController.deleteById)
+router.delete('/:id', verifyToken, checkRole('admin'), deleteById);
 
 // αυτο είναι σημαντικό γιατι στέλνει το αυτόματο ημαιλ
 /**
@@ -163,6 +163,6 @@ router.delete('/:id', verifyToken, checkRole('admin'), transactionController.del
  *       403:
  *         description: Forbidden (admin access required)
  */
-router.put('/toggle/:id', verifyToken, checkRole('admin'), transactionController.toggleProcessed)
+router.put('/toggle/:id', verifyToken, checkRole('admin'), toggleProcessed);
 
-module.exports = router;
+export default router;

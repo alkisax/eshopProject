@@ -34,6 +34,7 @@ const createParticipant = async (participantData: ParticipantType) => {
 //read 
 const findAllParticipants = async (page = 0): Promise<ParticipantType[]> => {
   // const response =  await Participant.find().populate('transactions').limit(50).skip(page * 50);
+  
   const response =  await Participant.find().limit(50).skip(page * 50);
   return response;
 };

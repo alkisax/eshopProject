@@ -36,15 +36,15 @@ const handleSuccess = async (req, res) => {
     //prevent dublicate transactions
     const existingTransaction = await transactionDAO.findBySessionId(sessionId);
     if (existingTransaction) {
-      return res.status(200).send("Transaction already recorded.");
+      return res.status(200).send('Transaction already recorded.');
     }
 
     // δεν είμαι σιγουρος τι κανει. αλλα μάλλον κάνει await το response
     const session = await stripeService.retrieveSession(sessionId);
 
-    const name = session.metadata.name
-    const surname = session.metadata.surname
-    const email  = session.metadata.email 
+    const name = session.metadata.name;
+    const surname = session.metadata.surname;
+    const email  = session.metadata.email; 
 
     if (!email) {
       return res.status(400).send('Missing session ID.');
@@ -74,7 +74,7 @@ const handleSuccess = async (req, res) => {
       processed: false,
       participant: participant._id
     });
-    console.log("new transaction>>>", newTransaction);
+    console.log('new transaction>>>', newTransaction);
 
     // push the new transaction’s _id into the participant’s transactions array
     await participantDAO.addTransactionToParticipant(
