@@ -1,5 +1,6 @@
 import m2s from 'mongoose-to-swagger';
 import User from '../login/models/users.models';
+import Participant from '../stripe/models/participant.models';
 import swaggerJsdoc from 'swagger-jsdoc';
 import yaml from 'yamljs';
 import path from 'path';
@@ -9,6 +10,9 @@ const userRoutesDocs = yaml.load(
 );
 const authRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'authRoutes.swagger.yml')
+);
+const participanthRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'participantRoutes.swagger.yml')
 );
 
 const options = {
@@ -21,7 +25,8 @@ const options = {
     },
     components: {
       schemas: {
-        User: m2s(User)
+        User: m2s(User),
+        Participant: m2s(Participant)
       },
       securitySchemes: {
         bearerAuth: {
@@ -34,7 +39,8 @@ const options = {
     security: [{ bearerAuth: [] }],
     paths: {
       ...userRoutesDocs.paths,
-      ...authRoutesDocs.paths // merge
+      ...authRoutesDocs.paths,
+      ...participanthRoutesDocs.paths, // merge
     },
   },
   apis: []

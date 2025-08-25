@@ -59,7 +59,7 @@ const GithubSuccess = () => {
   //   fetchUser();
   // }, [navigate, setUser]);
 
-  return <p>Completing GitHub login...</p>;
+  return <p>Github login succesfull.</p>;
 };
 
 export default GithubSuccess;
