@@ -40,13 +40,13 @@ const findTransactionById = async (transactionId: string | Types.ObjectId): Prom
 };
 
 // I dont know what this is. i copy pasted it from another app. ill leave it commented out
-// const findBySessionId = async (sessionId: string | Types.ObjectId): Promise<TransactionType> => {
-//   const response =  await Transaction.findOne({ sessionId });
-//   if (!response) {
-//     throw new NotFoundError('Transaction does not exist');
-//   }
-//   return response;
-// };
+const findBySessionId = async (sessionId: string | Types.ObjectId): Promise<TransactionType> => {
+  const response =  await Transaction.findOne({ sessionId });
+  if (!response) {
+    throw new NotFoundError('Transaction does not exist');
+  }
+  return response;
+};
 
 const findTransactionsByProcessed = async (isProcessed: boolean): Promise<TransactionType[]> => {
   const response =  await Transaction.find({ processed: isProcessed }).populate<{ participant: ParticipantType }>('participant');
@@ -115,6 +115,6 @@ export const transactionDAO = {
   deleteTransactionById,
   updateTransactionById,
   findTransactionsByProcessed,
-  // findBySessionId,
+  findBySessionId,
   addTransactionToParticipant
 };
