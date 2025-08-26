@@ -1,5 +1,5 @@
 import Participant from '../models/participant.models';
-import type { ParticipantType } from '../types/stripe.types';
+import type { ParticipantType, TransactionType } from '../types/stripe.types';
 import { Types } from 'mongoose';
 import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.types';
 
@@ -34,14 +34,14 @@ const createParticipant = async (participantData: ParticipantType) => {
 
 //read 
 const findAllParticipants = async (page = 0): Promise<ParticipantType[]> => {
-  // const response =  await Participant.find().populate('transactions').limit(50).skip(page * 50);
+  // const response =  await Participant.find().populate<{ transactions: TransactionType[] }>('transactions').limit(50).skip(page * 50);
 
   const response =  await Participant.find().limit(50).skip(page * 50);
   return response;
 };
 
 const findParticipantByEmail = async (email: string): Promise<ParticipantType> => {
-  // const response =  await Participant.findOne({ email }).populate('transactions');
+  // const response =  await Participant.findOne({ email }).populate<{ transactions: TransactionType[] }>('transactions');
   const response =  await Participant.findOne({ email });
 
   if (!response) {
@@ -51,7 +51,7 @@ const findParticipantByEmail = async (email: string): Promise<ParticipantType> =
 };
 
 const findParticipantById = async (id: string): Promise<ParticipantType> => {
-  // const response = await Participant.findById(id).populate('transactions');
+  // const response = await Participant.findById(id).populate<{ transactions: TransactionType[] }>('transactions');
   const response = await Participant.findById(id);
 
   if (!response) {
@@ -70,7 +70,7 @@ const updateParticipantById = async (
     throw new ValidationError('Email cannot be updated');
   }
 
-  // const response = await Participant.findByIdAndUpdate(id, allowedData, { new: true }).populate('transactions');
+  // const response = await Participant.findByIdAndUpdate(id, allowedData, { new: true }).populate<{ transactions: TransactionType[] }>('transactions');
   const response = await Participant.findByIdAndUpdate(id, allowedData, { new: true });
   if (!response) {
     throw new NotFoundError('Participant not found');
@@ -92,7 +92,7 @@ const addTransactionToParticipant = async (participantId: Types.ObjectId, transa
     participantId,
     { $push: { transactions: transactionId } },
     { new: true }
-  ).populate('transactions');
+  ).populate<{ transactions: TransactionType[] }>('transactions');
   
   if (!response) {
     throw new NotFoundError('Participant not found');

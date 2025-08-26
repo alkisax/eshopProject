@@ -1,7 +1,12 @@
 import mongoose from 'mongoose';
+import type { TransactionType } from '../types/stripe.types';
 
 const Schema = mongoose.Schema;
 const transactionSchema = new Schema({
+  itemId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Item'
+  },
   amount:{
     type: Number,
     required: [true, 'amount is required'],
@@ -21,4 +26,4 @@ const transactionSchema = new Schema({
   timestamps: true
 });
 
-export default module.exports = mongoose.model('Transaction', transactionSchema);
+export default mongoose.model<TransactionType>('Transaction', transactionSchema);
