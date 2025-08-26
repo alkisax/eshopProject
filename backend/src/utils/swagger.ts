@@ -2,6 +2,7 @@ import m2s from 'mongoose-to-swagger';
 import User from '../login/models/users.models';
 import Participant from '../stripe/models/participant.models';
 import Transaction from '../stripe/models/transaction.models';
+import Commodity from '../stripe/models/commodity.models';
 import swaggerJsdoc from 'swagger-jsdoc';
 import yaml from 'yamljs';
 import path from 'path';
@@ -24,6 +25,9 @@ const emailRoutesDocs = yaml.load(
 const stripeRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'stripeRoutes.swagger.yml')
 );
+const commodityRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'commodityRoutes.swagger.yml')
+);
 
 const options = {
   definition: {
@@ -38,6 +42,7 @@ const options = {
         User: m2s(User),
         Participant: m2s(Participant),
         Transaction: m2s(Transaction),
+        Commodity: m2s(Commodity),
       },
       securitySchemes: {
         bearerAuth: {
@@ -54,7 +59,8 @@ const options = {
       ...participantRoutesDocs.paths,
       ...transactionRoutesDocs.paths,
       ...emailRoutesDocs.paths,
-      ...stripeRoutesDocs.paths, // merge
+      ...stripeRoutesDocs.paths,
+      ...commodityRoutesDocs.paths, // merge
     },
   },
   apis: []

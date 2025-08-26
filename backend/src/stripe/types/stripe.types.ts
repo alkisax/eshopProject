@@ -8,7 +8,7 @@ export interface ParticipantType {
   createdAt?: Date;
   updatedAt?: Date;
 }
-export interface TransactionType extends Document{
+export interface TransactionType extends Document {
   _id: Types.ObjectId;
   itemId: Types.ObjectId; // links to object for sale
   amount: number;
@@ -19,3 +19,28 @@ export interface TransactionType extends Document{
   updatedAt?: Date;
 }
 
+export interface CommodityType extends Document {
+  _id: Types.ObjectId;
+  name: string;
+  description?: string;
+  price: number;
+  currency: string;
+  stripePriceId: string;
+  stock: number;
+  active: boolean;
+  images?: string[];
+  comments?: CommentType[];
+}
+
+export interface CommentType {
+  user: Types.ObjectId | string;
+  text: string | EditorJsData;
+  rating?: 0 | 1 | 2 | 3 | 4 | 5;
+  createdAt?: Date;
+}
+
+export interface EditorJsData {
+  time: number;
+  blocks: { type: string; data: unknown }[];
+  version: string;
+}
