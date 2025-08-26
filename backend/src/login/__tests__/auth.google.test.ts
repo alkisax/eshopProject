@@ -8,13 +8,15 @@ jest.mock('../../utils/appwrite.ts', () => ({
   OAuthProvider: { Google: 'google' },
 }));
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 import request from 'supertest';
 import mongoose from 'mongoose';
 import app from '../../app';
 import { authService } from '../services/auth.service';
 import User from '../models/users.models';
-import dotenv from 'dotenv';
-dotenv.config();
+
 
 jest.mock('../services/auth.service', () => ({
   authService: {

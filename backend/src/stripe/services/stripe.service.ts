@@ -13,7 +13,7 @@ const QUANTITY = 1; // just number not string
 
 // παίρνει απο το φροντ το price_id και της πληροφορίες του πελάτη για να τις περάσει ως μεταντατα. Αργοτερα κατάλαβα οτι τα μεταντατα χάνονται, αλλα το αφήνω εδώ γιατι μπορεί να φανει χρήσιμο
 const createCheckoutSession = async (price_id: string, participantInfo: Partial<ParticipantType> = {}) => {
-  const FRONTEND_URL = process.env.FRONTEND_URL || 'http://http://localhost:5173';
+  const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
   // added to get the participant info from front to be able to create a new transaction
   const metadata = {

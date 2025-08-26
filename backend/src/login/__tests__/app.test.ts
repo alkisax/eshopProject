@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 process.env.APPWRITE_PROJECT_ID = 'fake';
 process.env.APPWRITE_ENDPOINT = 'http://fake';
 process.env.APPWRITE_API_KEY = 'fake-key';

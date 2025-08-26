@@ -27,40 +27,41 @@ const createCheckoutSession = async (req: Request, res: Response) => {
 // test url http://localhost:5173/success?success=true&session_id=cs_live_a16HqUdBc0VjlzlhfxfzMCDML6jYuvKoSXYusUdEwcTOO3RKCuperj2RB7
 // deployed payment Eva Ntaliani alkisax@zohomail.eu
 // https://revistedtarotbiasapp.onrender.com/success?success=true&session_id=cs_live_a18fcYxUMoQTz0x2vKDz1tBokiUjYrh3IQ6AkWCQ4sP4IfEwgSDa1kqYaN
+
 const handleSuccess = async (req: Request, res: Response) => {
   try {
     // συλλέγω διάφορα δεδομένα του χρήστη απο το url του success
     const sessionId = req.query.session_id as string;
     if (!sessionId) {
-      return res.status(400).send({ status: false, message: 'Missing session ID.' });
+      return res.status(400).json({ status: false, message: 'Missing session ID.' });
     }
 
     //prevent dublicate transactions
     const existingTransaction = await transactionDAO.findBySessionId(sessionId);
     if (existingTransaction) {
-      return res.status(200).send('Transaction already recorded.');
+      return res.status(409).json({ status: false, message: 'Transaction already recorded.' });
     }
 
     // δεν είμαι σιγουρος τι κανει. αλλα μάλλον κάνει await το response
     const session = await stripeService.retrieveSession(sessionId);
 
-    const name = session.metadata?.name;
-    const surname = session.metadata?.surname;
-    const email  = session.metadata?.email; 
+    const name = session.metadata?.name || '';
+    const surname = session.metadata?.surname || '';
+    const email  = session.metadata?.email || ''; 
 
     if (!email) {
-      return res.status(400).send('Missing session ID.');
+      return res.status(400).json({ status: false, message: 'Missing session ID.' });
     }
 
     // κάνω τα ευρώ σέντς
-    if (!session.amount_total ||session.amount_total === 0) {
+    if (!session.amount_total || session.amount_total === 0) {
       return res.status(400).json({ status: false, message: 'amount is 0' });
     }
     const amountTotal = session.amount_total / 100; // Stripe returns cents
 
     console.log(`Payment success for: ${email}, amount: ${amountTotal}`);
 
-    // ψαχνω τον participant απο το ημαιλ του για να τον ανανεώσω αν υπάρχει ή ν α τον δημιουργήσω
+    // ψαχνω τον participant απο το ημαιλ του για να τον ανανεώσω αν υπάρχει ή να τον δημιουργήσω
     let participant = await participantDao.findParticipantByEmail(email);
 
     if (participant) {
@@ -77,19 +78,18 @@ const handleSuccess = async (req: Request, res: Response) => {
     const newTransaction = await transactionDAO.createTransaction({
       amount: amountTotal,
       processed: false,
-      participant: participant._id as Types.ObjectId
+      participant: participant._id as Types.ObjectId,
+      sessionId
     });
-    console.log('new transaction>>>', newTransaction);
 
     // push the new transaction’s _id into the participant’s transactions array
-    await participantDao.addTransactionToParticipant(
-      participant._id!,
-      newTransaction._id
-    );
-    console.log(`Added transaction ${newTransaction._id} to participant ${participant._id}`);
-    
+    // await participantDao.addTransactionToParticipant(
+    //   participant._id!,
+    //   newTransaction._id
+    // );
+    // console.log(`Added transaction ${newTransaction._id} to participant ${participant._id}`);
 
-    return res.send('Success! Your donation was recorded. Thank you!');
+    return res.status(200).json({ status: true, data: newTransaction, message: 'Success! Your purchase has been recorded. You will soon recive an email with the progress. Thank you!' });
   } catch (error) {
     return handleControllerError(res, error);
   }

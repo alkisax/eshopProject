@@ -21,6 +21,9 @@ const transactionRoutesDocs = yaml.load(
 const emailRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'emailRoutes.swagger.yml')
 );
+const stripeRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'stripeRoutes.swagger.yml')
+);
 
 const options = {
   definition: {
@@ -50,7 +53,8 @@ const options = {
       ...userRoutesDocs.paths,
       ...participantRoutesDocs.paths,
       ...transactionRoutesDocs.paths,
-      ...emailRoutesDocs.paths, // merge
+      ...emailRoutesDocs.paths,
+      ...stripeRoutesDocs.paths, // merge
     },
   },
   apis: []
