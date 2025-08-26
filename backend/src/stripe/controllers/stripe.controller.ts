@@ -12,7 +12,6 @@ const createCheckoutSession = async (req: Request, res: Response) => {
   // added to catch participant url params
   const participantInfo = req.body.participantInfo;
 
-
   try {
     // added participantInfo to catch participant url params
     const session = await stripeService.createCheckoutSession(price_id, participantInfo);

@@ -16,6 +16,12 @@ const createTransaction = async (transactionData: Partial<TransactionType>): Pro
   const transaction = new Transaction(transactionData);
   try {
     const result = await transaction.save();
+
+    await Participant.findByIdAndUpdate(
+      transaction.participant,
+      { $push: { transactions: result._id } }
+    );
+
     return result;    
   } catch (err: unknown) {
     if (err instanceof Error && err.name === 'ValidationError') {
@@ -31,7 +37,7 @@ const findAllTransactions = async (): Promise<TransactionType[]> => {
 };
 
 // Find transaction by ID
-const findTransactionById = async (transactionId: string | Types.ObjectId): Promise<TransactionType> => {
+const findTransactionById = async (transactionId: string | Types.ObjectId): Promise<TransactionType  & { participant: ParticipantType }> => {
   const response = await Transaction.findById(transactionId).populate<{ participant: ParticipantType }>('participant');
   if (!response) {
     throw new NotFoundError('Transaction does not exist');
@@ -40,7 +46,7 @@ const findTransactionById = async (transactionId: string | Types.ObjectId): Prom
 };
 
 // I dont know what this is. i copy pasted it from another app. ill leave it commented out
-const findBySessionId = async (sessionId: string | Types.ObjectId): Promise<TransactionType> => {
+const findBySessionId = async (sessionId: string): Promise<TransactionType> => {
   const response =  await Transaction.findOne({ sessionId });
   if (!response) {
     throw new NotFoundError('Transaction does not exist');

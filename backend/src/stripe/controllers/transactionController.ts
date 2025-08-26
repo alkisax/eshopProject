@@ -25,7 +25,8 @@ const create = async (req: Request, res: Response) => {
       participant
     });
 
-    await transactionDAO.addTransactionToParticipant(participant, newTransaction._id);
+    // αφαιρέθηκε γιατί γινόταν δύο φορες, γιατί γίνεται και στο dao create
+    // await transactionDAO.addTransactionToParticipant(participant, newTransaction._id);
 
     return res.status(201).json({ status: true, data: newTransaction });
   } catch (error) {

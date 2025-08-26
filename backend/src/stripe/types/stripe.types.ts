@@ -14,6 +14,7 @@ export interface TransactionType extends Document{
   amount: number;
   processed?: boolean;
   participant: Types.ObjectId | string | ParticipantType; // links to Participant
+  sessionId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
