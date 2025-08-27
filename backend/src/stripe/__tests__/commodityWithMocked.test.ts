@@ -11,7 +11,7 @@ const mockRes = (): Response => {
   return res as Response;
 };
 
-describe('Commodity Controller – Unit tests for branches', () => {
+describe('Commodity Controller - Unit tests for branches', () => {
   it('should return 400 if no id in findById', async () => {
     const req: Partial<Request> = { params: {} };
     const res = mockRes();

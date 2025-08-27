@@ -3,6 +3,7 @@ import User from '../login/models/users.models';
 import Participant from '../stripe/models/participant.models';
 import Transaction from '../stripe/models/transaction.models';
 import Commodity from '../stripe/models/commodity.models';
+import Cart from '../stripe/models/cart.models';
 import swaggerJsdoc from 'swagger-jsdoc';
 import yaml from 'yamljs';
 import path from 'path';
@@ -28,6 +29,9 @@ const stripeRoutesDocs = yaml.load(
 const commodityRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'commodityRoutes.swagger.yml')
 );
+const cartRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'cartRoutes.swagger.yml' )
+);
 
 const options = {
   definition: {
@@ -43,6 +47,7 @@ const options = {
         Participant: m2s(Participant),
         Transaction: m2s(Transaction),
         Commodity: m2s(Commodity),
+        Cart: m2s(Cart),
       },
       securitySchemes: {
         bearerAuth: {
@@ -57,10 +62,11 @@ const options = {
       ...authRoutesDocs.paths,
       ...userRoutesDocs.paths,
       ...participantRoutesDocs.paths,
+      ...commodityRoutesDocs.paths,
+      ...cartRoutesDocs.paths,
       ...transactionRoutesDocs.paths,
       ...emailRoutesDocs.paths,
-      ...stripeRoutesDocs.paths,
-      ...commodityRoutesDocs.paths, // merge
+      ...stripeRoutesDocs.paths, // merge
     },
   },
   apis: []

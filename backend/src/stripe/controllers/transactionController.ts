@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { transactionDAO } from '../daos/transaction.dao';
-import post from 'axios';
+import axios from 'axios';
 import { handleControllerError } from '../../utils/errorHnadler';
 import type { TransactionType } from '../types/stripe.types';
 import { Types } from 'mongoose';
@@ -82,7 +82,7 @@ const toggleProcessed = async (req: Request, res: Response) => {
     const updatedTransaction = await transactionDAO.updateTransactionById(transactionId, updatedData);
 
     // εδώ στέλνουμε το email
-    await post(`${BACKEND_URL}/api/email/${transactionId}`);
+    await axios.post(`${BACKEND_URL}/api/email/${transactionId}`, {});
 
     return res.status(200).json({ status: true, data: updatedTransaction });
   } catch (error) {

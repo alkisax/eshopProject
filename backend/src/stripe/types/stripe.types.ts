@@ -46,3 +46,14 @@ export interface EditorJsData {
   blocks: { type: string; data: unknown }[];
   version: string;
 }
+
+export interface CartType {
+  _id: Types.ObjectId;
+  participant: Types.ObjectId | string | ParticipantType;
+  items: CartItemType[];
+}
+
+export interface CartItemType {
+  commodity: Types.ObjectId | string  | CommodityType;
+  quantity: number;
+}
