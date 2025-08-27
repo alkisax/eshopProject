@@ -200,4 +200,49 @@ describe('commodityDAO', () => {
       ).rejects.toThrow(NotFoundError);
     });
   });
+
+  describe('sellCommodityById', () => {
+    it('should decrease stock and increase soldCount', async () => {
+      const created = await commodityDAO.createCommodity({
+        name: 'Deck H',
+        price: 60,
+        currency: 'eur',
+        stripePriceId: 'price_h',
+        stock: 5,
+        active: true,
+      });
+
+      const updated = await commodityDAO.sellCommodityById(created._id, 2);
+      expect(updated.stock).toBe(3);
+      expect(updated.soldCount).toBe(2);
+    });
+
+    it('should throw ValidationError if quantity <= 0', async () => {
+      const created = await commodityDAO.createCommodity({
+        name: 'Deck I',
+        price: 70,
+        currency: 'eur',
+        stripePriceId: 'price_i',
+        stock: 5,
+        active: true,
+      });
+
+      await expect(commodityDAO.sellCommodityById(created._id, 0))
+        .rejects.toThrow('Quantity must be at least 1');
+    });
+
+    it('should throw ValidationError if stock insufficient', async () => {
+      const created = await commodityDAO.createCommodity({
+        name: 'Deck J',
+        price: 80,
+        currency: 'eur',
+        stripePriceId: 'price_j',
+        stock: 1,
+        active: true,
+      });
+
+      await expect(commodityDAO.sellCommodityById(created._id, 5))
+        .rejects.toThrow('Not enough quantity in stock');
+    });
+  });
 });

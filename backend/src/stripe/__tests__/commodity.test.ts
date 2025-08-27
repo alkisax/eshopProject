@@ -172,6 +172,52 @@ describe('Commodity Controller', () => {
     expect(res.body.message).toMatch(/deleted successfully/);
   });
 
+  it('should sell a commodity and update stock/soldCount (admin only)', async () => {
+    const createRes = await request(app)
+      .post('/api/commodity')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        name: 'Deck K',
+        price: 90,
+        currency: 'eur',
+        stripePriceId: 'price_k',
+        stock: 5,
+        active: true,
+      });
+    const id = createRes.body.data._id;
+
+    const sellRes = await request(app)
+      .patch(`/api/commodity/sell/${id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ quantity: 2 });
+
+    expect(sellRes.status).toBe(200);
+    expect(sellRes.body.data.stock).toBe(3);
+    expect(sellRes.body.data.soldCount).toBe(2);
+  });
+
+  it('should fail to sell if stock is insufficient', async () => {
+    const createRes = await request(app)
+      .post('/api/commodity')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        name: 'Deck L',
+        price: 100,
+        currency: 'eur',
+        stripePriceId: 'price_l',
+        stock: 1,
+        active: true,
+      });
+    const id = createRes.body.data._id;
+
+    const sellRes = await request(app)
+      .patch(`/api/commodity/sell/${id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ quantity: 5 });
+
+    expect(sellRes.status).toBe(400);
+  });
+
   describe('Negative cases', () => {
     it('should return 400 if creating comment without user/text', async () => {
       const res = await request(app)

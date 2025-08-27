@@ -61,6 +61,44 @@ const updateCommodityById = async (
   }
 };
 
+const sellCommodityById = async (
+  id: string | Types.ObjectId,
+  quantity: number
+): Promise<CommodityType> => {
+  if (quantity <= 0) {
+    throw new ValidationError('Quantity must be at least 1');
+  }
+
+  const commodity = await Commodity.findById(id);
+  if (!commodity) {
+    throw new NotFoundError('Commodity not found');
+  }
+
+  if (commodity.stock < quantity) {
+    throw new ValidationError('Not enough quantity in stock');
+  }
+
+  const updated = await Commodity.findByIdAndUpdate(
+    id,                        // 1️⃣ Which document? → Match by _id
+    {                          // 2️⃣ What update to apply?
+      $inc: {                  // Use MongoDB's $inc operator = "increment"
+        soldCount: quantity,   // Increase soldCount by the quantity sold
+        stock: -quantity       // Decrease stock by the same quantity
+      }
+    },
+    {                          // 3️⃣ Options for Mongoose
+      new: true,               // Return the *updated* document (not the old one)
+      runValidators: true
+    }
+  );
+
+  if (!updated) {
+    throw new NotFoundError('Commodity not found');
+  }
+
+  return updated;
+};
+
 // Delete
 const deleteCommodityById = async (id: string | Types.ObjectId): Promise<CommodityType> => {
   const deleted = await Commodity.findByIdAndDelete(id);
@@ -107,6 +145,7 @@ export const commodityDAO = {
   findAllCommodities,
   findCommodityById,
   updateCommodityById,
+  sellCommodityById,
   deleteCommodityById,
 
   addCommentToCommodity,

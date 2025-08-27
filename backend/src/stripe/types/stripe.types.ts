@@ -23,9 +23,11 @@ export interface CommodityType extends Document {
   _id: Types.ObjectId;
   name: string;
   description?: string;
+  category: string[]
   price: number;
   currency: string;
   stripePriceId: string;
+  soldCount: number;
   stock: number;
   active: boolean;
   images?: string[];

@@ -51,6 +51,46 @@ paths:
         '403':
           description: Forbidden (admin only)
 
+  /api/commodity/sell/{id}:
+    patch:
+      summary: Sell a commodity (decrease stock and increase sold count)
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                  example: 2
+      responses:
+        '200':
+          description: Commodity sold successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commodity'
+        '400':
+          description: Invalid input or insufficient stock
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '404':
+          description: Commodity not found
+
   /api/commodity/{id}:
     get:
       summary: Get commodity by ID

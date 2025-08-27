@@ -32,7 +32,12 @@ const commoditySchema = new Schema({
     required: true 
   },
   description: {
-    type: String
+    type: String,
+    default: ''
+  },
+  category: {
+    type: [String],
+    default: []
   },
   price: {
     type: Number,
@@ -47,9 +52,15 @@ const commoditySchema = new Schema({
     required: true,
     unique: true
   },
+  soldCount: {
+    type: Number,
+    default: 0,
+    validate: (value: number) => value >= 0
+  },
   stock: {
     type: Number,
-    default: 0
+    default: 0,
+    min: [0, 'Stock cannot go below 0']
   },
   active: {
     type: Boolean,

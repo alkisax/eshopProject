@@ -10,6 +10,8 @@ router.get('/:id', commodityController.findById);
 
 // 🛒 Admin: create, update, delete commodities
 router.post('/', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.create);
+// PATCH: decrease stock & increase soldCount
+router.patch('/sell/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.sellById);
 router.patch('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.updateById);
 router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.deleteById);
 

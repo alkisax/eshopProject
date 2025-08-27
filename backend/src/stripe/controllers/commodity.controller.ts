@@ -3,6 +3,20 @@ import type { Request, Response } from 'express';
 import { commodityDAO } from '../daos/commodity.dao';
 import { handleControllerError } from '../../utils/errorHnadler';
 
+// POST create commodity
+const create = async (req: Request, res: Response) => {
+  const data = req.body;
+
+  try {
+    const newCommodity = await commodityDAO.createCommodity(data);
+
+    console.log(`Created new commodity: ${newCommodity.name}`);
+    return res.status(201).json({ status: true, data: newCommodity });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 // GET all commodities
 const findAll = async (req: Request, res: Response) => {
   try {
@@ -32,20 +46,6 @@ const findById = async (req: Request, res: Response) => {
   }
 };
 
-// POST create commodity
-const create = async (req: Request, res: Response) => {
-  const data = req.body;
-
-  try {
-    const newCommodity = await commodityDAO.createCommodity(data);
-
-    console.log(`Created new commodity: ${newCommodity.name}`);
-    return res.status(201).json({ status: true, data: newCommodity });
-  } catch (error) {
-    return handleControllerError(res, error);
-  }
-};
-
 // PATCH update commodity
 const updateById = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -60,6 +60,24 @@ const updateById = async (req: Request, res: Response) => {
 
     console.log(`Updated commodity ${id}`);
     return res.status(200).json({ status: true, data: updatedCommodity });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+// PATCH sell commodity (stock decrease + soldCount increase)
+const sellById = async (req: Request, res: Response) => {
+  const id: string = req.params.id;
+  const quantity: number  = req.body.quantity;
+
+  if (!id || !quantity) {
+    return res.status(400).json({ status: false, message: 'Commodity ID and quantity are required' });
+  }
+
+  try {
+    const updated = await commodityDAO.sellCommodityById(id, quantity);
+    console.log(`Sold ${quantity} of commodity ${id}`);
+    return res.status(200).json({ status: true, data: updated });
   } catch (error) {
     return handleControllerError(res, error);
   }
@@ -126,6 +144,7 @@ export const commodityController = {
   findById,
   create,
   updateById,
+  sellById,
   deleteById,
   addComment,
   clearComments,
