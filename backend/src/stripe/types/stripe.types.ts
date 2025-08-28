@@ -14,6 +14,7 @@ export interface TransactionType extends Document {
   items: CartItemType[];   // reuse the same type
   amount: number; // total
   processed?: boolean;
+  cancelled?: boolean;
   sessionId?: string;
   createdAt?: Date;
   updatedAt?: Date;

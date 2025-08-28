@@ -245,4 +245,100 @@ describe('commodityDAO', () => {
         .rejects.toThrow('Not enough quantity in stock');
     });
   });
+
+  describe('extra error branches', () => {
+    it('should throw DatabaseError on unexpected error in createCommodity', async () => {
+      const spy = jest
+        .spyOn(Commodity.prototype, 'save')
+        .mockRejectedValueOnce(new Error('boom'));
+
+      const badData = {
+        name: 'Deck K',
+        price: 90,
+        currency: 'eur',
+        stripePriceId: 'price_k',
+        stock: 3,
+        active: true,
+      };
+
+      await expect(commodityDAO.createCommodity(badData))
+        .rejects.toThrow('Unexpected error creating commodity');
+
+      spy.mockRestore();
+    });
+
+    it('should rethrow ValidationError in updateCommodityById if thrown directly', async () => {
+      const created = await commodityDAO.createCommodity({
+        name: 'Deck L',
+        price: 100,
+        currency: 'eur',
+        stripePriceId: 'price_l',
+        stock: 5,
+        active: true,
+      });
+
+      const spy = jest
+        .spyOn(Commodity, 'findByIdAndUpdate')
+        .mockRejectedValueOnce(Object.assign(new Error('forced'), { name: 'ValidationError' }));
+
+      await expect(
+        commodityDAO.updateCommodityById(created._id, { stock: -10 })
+      ).rejects.toThrow(ValidationError);
+
+      spy.mockRestore();
+    });
+
+    it('should throw ValidationError when mongoose throws ValidationError by name in updateCommodityById', async () => {
+      const created = await commodityDAO.createCommodity({
+        name: 'Deck M',
+        price: 110,
+        currency: 'eur',
+        stripePriceId: 'price_m',
+        stock: 5,
+        active: true,
+      });
+
+      const err = new Error('fake validation');
+      err.name = 'ValidationError';
+
+      const spy = jest
+        .spyOn(Commodity, 'findByIdAndUpdate')
+        .mockRejectedValueOnce(err);
+
+      await expect(
+        commodityDAO.updateCommodityById(created._id, { stock: -5 })
+      ).rejects.toBeInstanceOf(ValidationError);
+
+      spy.mockRestore();
+    });
+
+    it('should throw NotFoundError when sellCommodityById cannot find commodity', async () => {
+      const fakeId = new mongoose.Types.ObjectId();
+      await expect(
+        commodityDAO.sellCommodityById(fakeId, 1)
+      ).rejects.toBeInstanceOf(NotFoundError);
+    });
+
+    it('should throw NotFoundError when sellCommodityById update returns null', async () => {
+      const created = await commodityDAO.createCommodity({
+        name: 'Deck N',
+        price: 120,
+        currency: 'eur',
+        stripePriceId: 'price_n',
+        stock: 2,
+        active: true,
+      });
+
+      const spy = jest
+        .spyOn(Commodity, 'findByIdAndUpdate')
+        .mockResolvedValueOnce(null);
+
+      await expect(
+        commodityDAO.sellCommodityById(created._id, 1)
+      ).rejects.toBeInstanceOf(NotFoundError);
+
+      spy.mockRestore();
+    });
+  });
+
 });

@@ -1,4 +1,5 @@
 import Commodity from '../models/commodity.models';
+import mongoose from 'mongoose';
 import type { CommodityType, CommentType } from '../types/stripe.types';
 import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.types';
 import { Types } from 'mongoose';
@@ -61,15 +62,17 @@ const updateCommodityById = async (
   }
 };
 
+// εδω έγιναν αλλαγές για να γίνει μέρος του session που έρχετε απο το backend\src\stripe\daos\transaction.dao.ts createTransaction εκεί είναι και τα σχόλια για το session
 const sellCommodityById = async (
   id: string | Types.ObjectId,
-  quantity: number
+  quantity: number,
+  session?: mongoose.ClientSession   //session
 ): Promise<CommodityType> => {
   if (quantity <= 0) {
     throw new ValidationError('Quantity must be at least 1');
   }
 
-  const commodity = await Commodity.findById(id);
+  const commodity = await Commodity.findById(id).session(session || null); // session;
   if (!commodity) {
     throw new NotFoundError('Commodity not found');
   }
@@ -88,7 +91,8 @@ const sellCommodityById = async (
     },
     {                          // 3️⃣ Options for Mongoose
       new: true,               // Return the *updated* document (not the old one)
-      runValidators: true
+      runValidators: true,
+      session //session
     }
   );
 
