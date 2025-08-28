@@ -13,6 +13,10 @@ const cartItemSchema = new Schema({
   quantity: {
     type: Number,
     required: true,
+  },
+  priceAtPurchase: {
+    type: Number,
+    required: true
   }
 }, { _id: false });
 

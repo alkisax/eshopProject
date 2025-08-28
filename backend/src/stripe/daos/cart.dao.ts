@@ -1,4 +1,5 @@
 import Cart from '../models/cart.models';
+import Commodity from '../models/commodity.models';
 import type { CartType, CartItemType } from '../types/stripe.types';
 import type { CommodityType } from '../types/stripe.types';
 import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.types';
@@ -42,19 +43,40 @@ const addOrRemoveItemToCart = async (
   const cart = await Cart.findOne({ participant: participantId });
   if (!cart) {
     throw new NotFoundError('Cart not found');
-  }
+  };
+
+  const commodity = await Commodity.findById(commodityId);
+  if (!commodity) {
+    throw new NotFoundError('Commodity not found');
+  };
 
   const existingItem = cart.items.find(item => item.commodity.toString() === commodityId.toString());
 
   if (existingItem) {
+    // ελεγχος αν υπερβένει το στοκ
+    const newQuantity = existingItem.quantity + quantity;
+    if (newQuantity > commodity.stock) {
+      throw new ValidationError('Not enough stock available');
+    }
+
+    // 🔹 always refresh price to current commodity.price
+    existingItem.priceAtPurchase = commodity.price;
+
+    // αλλάζω την ποσότητα προσθέτοντας/αφαιρόντας (το quantity μπορεί να είναι '-')
     existingItem.quantity += quantity;
+
     //If after updating, the quantity is 0 or negative (e.g. user removed items): Remove the item completely from the cart.
     if (existingItem.quantity <= 0) {
       cart.items = cart.items.filter(item => item.commodity.toString() !== commodityId.toString());
     }
   // Case: The item does not exist  
   } else if (quantity > 0) {
-    cart.items.push({ commodity: commodityId, quantity });
+
+    if (quantity > commodity.stock) {
+      throw new ValidationError('Not enough stock available');
+    }
+    
+    cart.items.push({ commodity: commodityId, quantity, priceAtPurchase: commodity.price });
   }
 
   return await cart.save();
@@ -67,11 +89,13 @@ const updateItemQuantity = async (
   commodityId: string | Types.ObjectId,
   quantity: number
 ): Promise<CartType> => {
+  // φέρνω το cart
   const cart = await Cart.findOne({ participant: participantId });
   if (!cart) {
     throw new NotFoundError('Cart not found');
   }
 
+  // φέρνω το προς αλλαγή αντικείμενο του cart
   const item = cart.items.find(item => item.commodity.toString() === commodityId.toString());
   if (!item) {
     throw new NotFoundError('Item not in cart');
@@ -81,7 +105,17 @@ const updateItemQuantity = async (
     // αν η ποσότητα γίνει 0 το αφαιρω
     cart.items = cart.items.filter(i => i.commodity.toString() !== commodityId.toString());
   } else {
+    const commodity = await Commodity.findById(commodityId);
+    if (!commodity) {
+      throw new NotFoundError('Commodity not found');
+    };
+    if (quantity > commodity.stock) {
+      throw new ValidationError('Not enough stock available');
+    };
+
     item.quantity = quantity;
+    // refresh price
+    item.priceAtPurchase = commodity.price;
   }
 
   return await cart.save();

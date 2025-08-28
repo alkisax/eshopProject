@@ -10,10 +10,10 @@ export interface ParticipantType {
 }
 export interface TransactionType extends Document {
   _id: Types.ObjectId;
-  itemId: Types.ObjectId; // links to object for sale
-  amount: number;
-  processed?: boolean;
   participant: Types.ObjectId | string | ParticipantType; // links to Participant
+  items: CartItemType[];   // reuse the same type
+  amount: number; // total
+  processed?: boolean;
   sessionId?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -56,4 +56,5 @@ export interface CartType {
 export interface CartItemType {
   commodity: Types.ObjectId | string  | CommodityType;
   quantity: number;
+  priceAtPurchase: number;
 }

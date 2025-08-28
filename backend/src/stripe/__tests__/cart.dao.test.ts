@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import mongoose from 'mongoose';
+import Commodity from '../models/commodity.models';
 import Cart from '../models/cart.models';
 import '../models/commodity.models';
 import { cartDAO } from '../daos/cart.dao';
@@ -26,6 +27,18 @@ describe('cartDAO', () => {
 
   beforeEach(async () => {
     await Cart.deleteMany({});
+    await Commodity.deleteMany({});   // clean
+
+    // Insert a commodity with known ID
+    await Commodity.create({
+      _id: commodityId,
+      name: 'Test Commodity',
+      price: 100,
+      currency: 'eur',
+      stripePriceId: 'price_test_123',
+      stock: 10,
+      active: true,
+    });
   });
 
   describe('createCart & getCartByParticipant', () => {
@@ -138,6 +151,118 @@ describe('cartDAO', () => {
       await expect(cartDAO.createCart(participantId)).rejects.toThrow('Error creating cart');
 
       spy.mockRestore();
+    });
+  });
+
+  describe('cartDAO with stock & price checks', () => {
+    let commodityId: mongoose.Types.ObjectId;
+
+    beforeEach(async () => {
+      await Cart.deleteMany({});
+      await Commodity.deleteMany({});
+
+      // Insert commodity with limited stock
+      const commodity = await Commodity.create({
+        name: 'Test Commodity',
+        price: 50,
+        currency: 'eur',
+        stripePriceId: 'price_test_123',
+        stock: 5,
+        active: true,
+      });
+      commodityId = commodity._id;
+    });
+
+    it('should throw ValidationError if adding more than stock', async () => {
+      await cartDAO.createCart(participantId);
+      await expect(cartDAO.addOrRemoveItemToCart(participantId, commodityId, 10))
+        .rejects.toThrow(ValidationError);
+    });
+
+    it('should refresh priceAtPurchase when commodity price changes', async () => {
+      await cartDAO.createCart(participantId);
+      await cartDAO.addOrRemoveItemToCart(participantId, commodityId, 1);
+
+      // Change commodity price
+      await Commodity.findByIdAndUpdate(commodityId, { price: 200 });
+
+      const updated = await cartDAO.addOrRemoveItemToCart(participantId, commodityId, 1);
+      expect(updated.items[0].priceAtPurchase).toBe(200);
+    });
+
+    it('should refresh priceAtPurchase when updating item quantity', async () => {
+      await cartDAO.createCart(participantId);
+      await cartDAO.addOrRemoveItemToCart(participantId, commodityId, 1);
+
+      // Change commodity price
+      await Commodity.findByIdAndUpdate(commodityId, { price: 300 });
+
+      const updated = await cartDAO.updateItemQuantity(participantId, commodityId, 2);
+      expect(updated.items[0].priceAtPurchase).toBe(300);
+    });
+
+    it('should throw NotFoundError if commodity not found in addOrRemoveItemToCart', async () => {
+      await cartDAO.createCart(participantId);
+      const fakeCommodity = new mongoose.Types.ObjectId();
+      await expect(
+        cartDAO.addOrRemoveItemToCart(participantId, fakeCommodity, 1)
+      ).rejects.toThrow(NotFoundError);
+    });
+
+    it('should throw ValidationError if adding more items than stock allows', async () => {
+      const commodity = await Commodity.create({
+        name: 'LowStock',
+        price: 20,
+        currency: 'eur',
+        stripePriceId: 'price_stock',
+        stock: 2,
+        active: true,
+      });
+
+      await cartDAO.createCart(participantId);
+      await cartDAO.addOrRemoveItemToCart(participantId, commodity._id, 2); // ok
+      await expect(
+        cartDAO.addOrRemoveItemToCart(participantId, commodity._id, 1) // exceed stock
+      ).rejects.toThrow(ValidationError);
+    });
+
+    it('should throw NotFoundError if commodity deleted before updateItemQuantity', async () => {
+      const commodity = await Commodity.create({
+        name: 'Temp',
+        price: 10,
+        currency: 'eur',
+        stripePriceId: 'price_temp',
+        stock: 5,
+        active: true,
+      });
+
+      await cartDAO.createCart(participantId);
+      await cartDAO.addOrRemoveItemToCart(participantId, commodity._id, 1);
+
+      // remove commodity from DB
+      await Commodity.findByIdAndDelete(commodity._id);
+
+      await expect(
+        cartDAO.updateItemQuantity(participantId, commodity._id, 2)
+      ).rejects.toThrow(NotFoundError);
+    });
+
+    it('should throw ValidationError if updating quantity above stock', async () => {
+      const commodity = await Commodity.create({
+        name: 'StockCheck',
+        price: 50,
+        currency: 'eur',
+        stripePriceId: 'price_check',
+        stock: 3,
+        active: true,
+      });
+
+      await cartDAO.createCart(participantId);
+      await cartDAO.addOrRemoveItemToCart(participantId, commodity._id, 1);
+
+      await expect(
+        cartDAO.updateItemQuantity(participantId, commodity._id, 10)
+      ).rejects.toThrow(ValidationError);
     });
   });
 
