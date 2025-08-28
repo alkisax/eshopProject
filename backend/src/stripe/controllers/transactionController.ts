@@ -2,33 +2,30 @@ import type { Request, Response } from 'express';
 import { transactionDAO } from '../daos/transaction.dao';
 import axios from 'axios';
 import { handleControllerError } from '../../utils/errorHnadler';
-import type { TransactionType } from '../types/stripe.types';
+// import type { TransactionType } from '../types/stripe.types';
 import { Types } from 'mongoose';
 // const sendThnxEmail = require('../controllers/email.controller') // !!!
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
 
 const create = async (req: Request, res: Response) => {
-  const data = req.body as Partial<TransactionType>;
-  const amount = data.amount;
-  const processed = data.processed ?? false;
-  const participant = data.participant as Types.ObjectId;
+  const participantId = req.body.participant as Types.ObjectId;
+  const sessionId = req.body.sessionId as string;
 
-  if (amount === undefined || !participant ) {
-    return res.status(400).json({ status: false, message: 'missing data to create transaction' });
+  if (!participantId || !sessionId) {
+    return res.status(400).json({ 
+      status: false, 
+      message: 'participantId and sessionId are required' 
+    });
   }
 
   try {
-    const newTransaction = await transactionDAO.createTransaction({
-      amount,
-      processed,
-      participant
+    const newTransaction = await transactionDAO.createTransaction(participantId, sessionId);
+
+    return res.status(201).json({ 
+      status: true, 
+      data: newTransaction 
     });
-
-    // αφαιρέθηκε γιατί γινόταν δύο φορες, γιατί γίνεται και στο dao create
-    // await transactionDAO.addTransactionToParticipant(participant, newTransaction._id);
-
-    return res.status(201).json({ status: true, data: newTransaction });
   } catch (error) {
     return handleControllerError(res, error);
   }
@@ -97,12 +94,13 @@ const deleteById = async (req: Request, res: Response) => {
   }
   
   try {
-    const deleteTransaction = await transactionDAO.deleteTransactionById(transactionId); 
+    const deletedTransaction = await transactionDAO.deleteTransactionById(transactionId);
 
-    if (!deleteTransaction){
+    if (!deletedTransaction){
       return res.status(404).json({ status: false, error: 'Error deleting transaction: not found' });
     } else {
-      return res.status(200).json({ status: true, message: 'transaction deleted successfully' });
+      // ✅ return the cancelled transaction
+      return res.status(200).json({ status: true, data: deletedTransaction });
     }
   } catch (error) {
     return handleControllerError(res, error);

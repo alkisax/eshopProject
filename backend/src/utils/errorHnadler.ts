@@ -11,7 +11,7 @@ export function handleControllerError(res: Response, error: unknown) {
     const statusCode = (error as AppError).statusCode !== undefined ? 
       (error as AppError).statusCode : 500;
 
-    return res.status(statusCode).json({ status: false, error: error.message });
+    return res.status(statusCode).json({ status: false, message: error.message });
   }
   return res.status(500).json({ status: false, error: 'Unknown error' });
 }

@@ -75,12 +75,10 @@ const handleSuccess = async (req: Request, res: Response) => {
     }
 
     // δημιουργία transaction
-    const newTransaction = await transactionDAO.createTransaction({
-      amount: amountTotal,
-      processed: false,
-      participant: participant._id as Types.ObjectId,
+    const newTransaction = await transactionDAO.createTransaction(
+      participant._id as Types.ObjectId,
       sessionId
-    });
+    );
 
     // push the new transaction’s _id into the participant’s transactions array
     // await participantDao.addTransactionToParticipant(
