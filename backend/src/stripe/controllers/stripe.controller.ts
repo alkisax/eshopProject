@@ -5,16 +5,16 @@ import type { Request, Response } from 'express';
 import { handleControllerError } from '../../utils/errorHnadler';
 import { participantDao } from '../daos/participant.dao';
 import { Types } from 'mongoose';
-// import logger from '../utils/logger';
+import { fetchCart } from '../daos/stripe.dao';
+import { CartType } from '../types/stripe.types';
 
 const createCheckoutSession = async (req: Request, res: Response) => {
-  const price_id = req.params.price_id;
-  // added to catch participant url params
+  const participantId = req.body.participantId;
   const participantInfo = req.body.participantInfo;
 
   try {
-    // added participantInfo to catch participant url params
-    const session = await stripeService.createCheckoutSession(price_id, participantInfo);
+    const cart: CartType = await fetchCart(participantId);
+    const session = await stripeService.createCheckoutSession(cart, participantInfo);
     return res.status(200).json({ status: true, data: session });
   } catch (error) {
     return handleControllerError(res, error);
@@ -79,13 +79,6 @@ const handleSuccess = async (req: Request, res: Response) => {
       participant._id as Types.ObjectId,
       sessionId
     );
-
-    // push the new transaction’s _id into the participant’s transactions array
-    // await participantDao.addTransactionToParticipant(
-    //   participant._id!,
-    //   newTransaction._id
-    // );
-    // console.log(`Added transaction ${newTransaction._id} to participant ${participant._id}`);
 
     return res.status(200).json({ status: true, data: newTransaction, message: 'Success! Your purchase has been recorded. You will soon recive an email with the progress. Thank you!' });
   } catch (error) {

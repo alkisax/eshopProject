@@ -2,11 +2,31 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { jest } from '@jest/globals';
 
-// Reset modules before each test so we can safely re-mock Stripe
-beforeEach(() => {
-  jest.resetModules();
-});
+import { Types } from 'mongoose';
+import type { CartType, CommodityType } from '../types/stripe.types';
 
+const mockCart: CartType = {
+  _id: new Types.ObjectId(),
+  participant: new Types.ObjectId(),
+  items: [
+    {
+      commodity: {
+        _id: new Types.ObjectId(),
+        name: 'Test Item',
+        price: 1000,
+        currency: 'eur',
+        stripePriceId: 'price_123',
+        soldCount: 0,
+        stock: 10,
+        active: true,
+      } as unknown as CommodityType,
+      quantity: 2,
+      priceAtPurchase: 1000,
+    },
+  ],
+};
+
+// Reset modules before each test so we can safely re-mock Stripe
 beforeEach(() => {
   jest.resetModules(); // clear module cache
   process.env.STRIPE_SECRET_KEY = 'test_secret'; // always set a default
@@ -32,7 +52,7 @@ describe('stripeService (unit)', () => {
 
     process.env.FRONTEND_URL = 'http://test.local';
 
-    const result = await stripeService.createCheckoutSession('price_123', {
+    const result = await stripeService.createCheckoutSession(mockCart, {
       name: 'John',
       surname: 'Doe',
       email: 'john@example.com',
@@ -82,7 +102,7 @@ describe('stripeService (unit)', () => {
         checkout: {
           sessions: {
             create: jest
-              .fn<() => Promise<any>>()
+              .fn<() => Promise<{ id: string; url: string }>>()
               .mockResolvedValue({ id: 'mock_sess', url: 'mock_url' }),
             retrieve: jest.fn(),
           },
@@ -93,7 +113,7 @@ describe('stripeService (unit)', () => {
     delete process.env.FRONTEND_URL; // force default branch
     const { stripeService } = await import('../services/stripe.service');
 
-    const result = await stripeService.createCheckoutSession('price_123');
+    const result = await stripeService.createCheckoutSession(mockCart);
     expect(result).toEqual({ id: 'mock_sess', url: 'mock_url' });
   });
 
@@ -103,7 +123,7 @@ describe('stripeService (unit)', () => {
         checkout: {
           sessions: {
             create: jest
-              .fn<() => Promise<any>>()
+              .fn<() => Promise<{ id: string; url: string }>>()
               .mockResolvedValue({ id: 'mock_sess', url: 'mock_url' }),
             retrieve: jest.fn(),
           },
@@ -114,7 +134,7 @@ describe('stripeService (unit)', () => {
     process.env.FRONTEND_URL = 'http://test.local';
     const { stripeService } = await import('../services/stripe.service');
 
-    const result = await stripeService.createCheckoutSession('price_123', {});
+    const result = await stripeService.createCheckoutSession(mockCart, {});
     expect(result).toEqual({ id: 'mock_sess', url: 'mock_url' });
   });
 });

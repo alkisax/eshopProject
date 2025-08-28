@@ -1,26 +1,27 @@
 paths:
-  /api/stripe/checkout/{price_id}:
+  /api/stripe/checkout/cart:
     post:
       tags:
         - Stripe
-      summary: Create a Stripe Checkout Session
-      description: Creates a new Stripe Checkout Session for a given price_id. Optionally, participant info can be included in the request body and will be stored as metadata.
-      parameters:
-        - in: path
-          name: price_id
-          required: true
-          schema:
-            type: string
-          description: The Stripe Price ID for the item/donation.
+      summary: Create a Stripe Checkout Session from a cart
+      description: Creates a new Stripe Checkout Session for all items currently in the participant's cart. Participant info can be included in the request body and will be stored as metadata.
       requestBody:
-        required: false
+        required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - participantId
               properties:
+                participantId:
+                  type: string
+                  format: objectId
+                  description: MongoDB ObjectId of the participant whose cart will be checked out.
+                  example: "64b2f70c2f1b3a5a0c9f4e88"
                 participantInfo:
                   type: object
+                  description: Optional participant info passed as Stripe metadata.
                   properties:
                     name:
                       type: string
@@ -47,7 +48,7 @@ paths:
                     type: object
                     description: Stripe Checkout Session object
         '400':
-          description: Invalid request
+          description: Invalid request (e.g. empty cart, missing participantId)
         '500':
           description: Server error
 
@@ -77,8 +78,11 @@ paths:
                     example: true
                   data:
                     $ref: '#/components/schemas/Transaction'
+                  message:
+                    type: string
+                    example: "Success! Your purchase has been recorded. You will soon receive an email with the progress. Thank you!"
         '400':
-          description: Missing or invalid session ID
+          description: Missing or invalid session ID / no email / amount is 0
         '409':
           description: Transaction already recorded
         '500':

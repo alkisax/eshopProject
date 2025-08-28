@@ -25,7 +25,7 @@ export interface CommodityType extends Document {
   name: string;
   description?: string;
   category: string[]
-  price: number;
+  price: number; //must be /100 to be in euro cents
   currency: string;
   stripePriceId: string;
   soldCount: number;
@@ -58,4 +58,9 @@ export interface CartItemType {
   commodity: Types.ObjectId | string  | CommodityType;
   quantity: number;
   priceAtPurchase: number;
+}
+
+export interface lineItemsType {
+  price: string;
+  quantity: number;
 }

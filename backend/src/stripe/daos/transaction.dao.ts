@@ -14,14 +14,6 @@ type PopulatedCartItem = {
   priceAtPurchase: number;
 };
 
-// type PopulatedCart = {
-//   _id: Types.ObjectId;
-//   participant: Types.ObjectId | ParticipantType;
-//   items: PopulatedCartItem[];
-//   createdAt?: Date;
-//   updatedAt?: Date;
-// };
-
 const createTransaction = async (
   participantId: string | Types.ObjectId,
   sessionId: string

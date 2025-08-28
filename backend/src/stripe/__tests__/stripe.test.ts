@@ -1,6 +1,8 @@
 import request from 'supertest';
 import app from '../../app';
 // import { stripeService } from '../services/stripe.service';
+import { Types } from 'mongoose';
+import type { CartType } from '../types/stripe.types';
 
 // Mock appwrite (to avoid env crashes)
 jest.mock('../../utils/appwrite.ts', () => ({
@@ -40,23 +42,43 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
+// Mock cart DAO
+const mockFetchCart = jest.fn();
+jest.mock('../daos/stripe.dao', () => ({
+  fetchCart: (...args: any[]) => mockFetchCart(...args),
+}));
+
+// Minimal mock cart
+const mockCart: CartType = {
+  _id: new Types.ObjectId(),
+  participant: new Types.ObjectId(),
+  items: [],
+};
+
 describe('Stripe Controller', () => {
-  describe('POST /api/stripe/checkout/:price_id', () => {
+  describe('POST /api/stripe/checkout/cart', () => {
     it('returns 200 with checkout session', async () => {
+      mockFetchCart.mockResolvedValue(mockCart);
       mockCreateCheckoutSession.mockResolvedValue({ id: 'mock_id', url: 'mock_url' });
 
       const res = await request(app)
-        .post('/api/stripe/checkout/test_price')
-        .send({ participantInfo: { email: 'john@example.com' } });
+        .post('/api/stripe/checkout/cart')
+        .send({
+          participantId: mockCart.participant.toString(),
+          participantInfo: { email: 'john@example.com' },
+        });
 
       expect(res.status).toBe(200);
       expect(res.body.data).toEqual({ id: 'mock_id', url: 'mock_url' });
     });
 
     it('returns 500 if service throws', async () => {
+      mockFetchCart.mockResolvedValue(mockCart);
       mockCreateCheckoutSession.mockRejectedValue(new Error('fail'));
 
-      const res = await request(app).post('/api/stripe/checkout/test_price');
+      const res = await request(app)
+        .post('/api/stripe/checkout/cart')
+        .send({ participantId: mockCart.participant.toString() });
 
       expect(res.status).toBe(500);
     });
@@ -124,4 +146,15 @@ describe('Stripe Controller', () => {
       expect(res.text).toContain('Payment canceled');
     });
   });
+  
+  it('returns 500 if stripeService.retrieveSession throws', async () => {
+    mockFindBySessionId.mockResolvedValue(null);
+    mockRetrieveSession.mockRejectedValue(new Error('unexpected fail'));
+
+    const res = await request(app).get('/api/stripe/success?session_id=abc');
+
+    expect(res.status).toBe(500);
+    expect(res.body.status).toBe(false);
+  });
+
 });

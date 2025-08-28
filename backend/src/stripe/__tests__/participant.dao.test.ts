@@ -4,7 +4,7 @@ dotenv.config();
 
 import Participant from '../models/participant.models';
 import { participantDao } from '../daos/participant.dao';
-import { ValidationError, NotFoundError } from '../types/errors.types';
+import { ValidationError, NotFoundError  } from '../types/errors.types';
 
 beforeAll(async () => {
   if (!process.env.MONGODB_TEST_URI) {
@@ -82,3 +82,43 @@ describe('participantDao', () => {
     await expect(participantDao.deleteParticipantById(fakeId)).rejects.toBeInstanceOf(NotFoundError);
   });
 });
+
+// jest.mock('../models/participant.models');
+// import { DatabaseError  } from '../types/errors.types';
+
+
+// describe('participantDao.createParticipant error branches', () => {
+//   afterEach(() => {
+//     jest.restoreAllMocks();
+//   });
+
+//   it('should throw DatabaseError if save returns falsy', async () => {
+//     // Arrange
+//     (Participant.prototype.save as jest.Mock).mockResolvedValueOnce(null);
+
+//     // Act & Assert
+//     await expect(
+//       participantDao.createParticipant({
+//         name: 'FailUser',
+//         surname: 'Test',
+//         email: 'fail1@example.com',
+//         transactions: []
+//       })
+//     ).rejects.toBeInstanceOf(DatabaseError);
+//   });
+
+//   it('should throw DatabaseError on unexpected error during save', async () => {
+//     // Arrange
+//     (Participant.prototype.save as jest.Mock).mockRejectedValueOnce(new Error('Boom'));
+
+//     // Act & Assert
+//     await expect(
+//       participantDao.createParticipant({
+//         name: 'FailUser2',
+//         surname: 'Test',
+//         email: 'fail2@example.com',
+//         transactions: []
+//       })
+//     ).rejects.toBeInstanceOf(DatabaseError);
+//   });
+// });
