@@ -29,6 +29,7 @@ const makeMockUser = (overrides: Partial<IUser> = {}): IUser => {
 describe('authService unit tests', () => {
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetModules();
     delete process.env.JWT_SECRET;
     delete process.env.GOOGLE_CLIENT_ID;
     delete process.env.GOOGLE_CLIENT_SECRET;
