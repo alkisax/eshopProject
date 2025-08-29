@@ -36,6 +36,7 @@ describe('authService unit tests', () => {
 
   describe('generateAccessToken', () => {
     it('should throw if JWT_SECRET missing', () => {
+      delete process.env.JWT_SECRET;
       expect(() =>
         authService.generateAccessToken(makeMockUser())
       ).toThrow(/JWT secret is not defined/);
