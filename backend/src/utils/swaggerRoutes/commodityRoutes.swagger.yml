@@ -364,4 +364,67 @@ paths:
           description: All comments cleared successfully
         '404':
           description: Commodity not found
+          
+  /api/commodity/{id}/comments/{commentId}:
+    delete:
+      summary: Delete a specific comment from a commodity (admin only)
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Commodity ID
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: string
+          description: Comment ID
+      responses:
+        '200':
+          description: Comment deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      comments:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            user:
+                              type: string
+                            text:
+                              type: string
+                            rating:
+                              type: integer
+                              minimum: 0
+                              maximum: 5
+                            isApproved:
+                              type: boolean
+                            createdAt:
+                              type: string
+        '400':
+          description: Invalid request (missing IDs)
+        '404':
+          description: Commodity or Comment not found
 

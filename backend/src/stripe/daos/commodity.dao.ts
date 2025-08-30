@@ -144,6 +144,23 @@ const clearCommentsFromCommodity = async (
   return updated;
 };
 
+const deleteCommentFromCommoditybyCommentId = async (
+  commodityId: string | Types.ObjectId,
+  commentId: string | Types.ObjectId
+): Promise<CommodityType> => {
+  const updated = await Commodity.findByIdAndUpdate(
+    commodityId,
+    { $pull: { comments: { _id: commentId } } },
+    { new: true }
+  );
+
+  if (!updated) {
+    throw new NotFoundError('Commodity or Comment not found');
+  }
+
+  return updated;
+};
+
 export const commodityDAO = {
   createCommodity,
   findAllCommodities,
@@ -153,5 +170,6 @@ export const commodityDAO = {
   deleteCommodityById,
 
   addCommentToCommodity,
-  clearCommentsFromCommodity
+  clearCommentsFromCommodity,
+  deleteCommentFromCommoditybyCommentId
 };

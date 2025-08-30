@@ -3,10 +3,9 @@ import request from 'supertest';
 import { hash } from 'bcrypt';
 import dotenv from 'dotenv';
 dotenv.config();
-import app from '../../app';
 
-import User from '../../login/models/users.models';
-import Commodity from '../models/commodity.models';
+import { commodityDAO } from '../daos/commodity.dao';
+import { ValidationError } from '../types/errors.types';
 
 // Add this mock at the top of your test file to ensure it doesn't interact with the actual Stripe service during tests.
 jest.mock('stripe', () => {
@@ -17,6 +16,29 @@ jest.mock('stripe', () => {
     }
   }));
 });
+
+jest.mock('../../utils/appwrite.ts', () => ({
+  account: {
+    get: jest.fn(),
+    create: jest.fn(),
+    deleteSession: jest.fn(),
+  },
+  OAuthProvider: { Google: 'google' },
+}));
+
+jest.mock('../../login/services/auth.service.ts', () => ({
+  authService: {
+    ...jest.requireActual('../../login/services/auth.service.ts').authService,
+    googleAuth: jest.fn(),  // stubbed out
+  },
+}));
+
+import app from '../../app';
+import User from '../../login/models/users.models';
+import Commodity from '../models/commodity.models';
+
+process.env.STRIPE_SECRET_KEY = 'sk_test_dummy';
+process.env.FRONTEND_URL = 'http://localhost:5173';
 
 if (!process.env.MONGODB_TEST_URI) {
   throw new Error('MONGODB_TEST_URI environment variable is required');
@@ -218,6 +240,77 @@ describe('Commodity Controller', () => {
     expect(sellRes.status).toBe(400);
   });
 
+  describe('Delete single comment', () => {
+    interface CommentResponse {
+      _id: string;
+      text: string;
+      rating?: number;
+    }
+    let commentId: string;
+
+    beforeEach(async () => {
+      // ensure a fresh commodity exists with unique stripePriceId
+      const createRes = await request(app)
+        .post('/api/commodity')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          name: `Temp Deck ${Date.now()}`,
+          price: 50,
+          currency: 'eur',
+          stripePriceId: `price_${Date.now()}`, // unique every run
+          stock: 10,
+          active: true,
+        });
+
+      expect(createRes.status).toBe(201);
+      commodityId = createRes.body.data._id;
+
+      // then add comment
+      const res = await request(app)
+        .post(`/api/commodity/${commodityId}/comments`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ user: userId, text: 'Temp comment', rating: 4 as const });
+
+      expect(res.status).toBe(200);
+      commentId = res.body.data.comments[0]._id;
+    });
+
+    it('should allow admin to delete a specific comment', async () => {
+      const res = await request(app)
+        .delete(`/api/commodity/${commodityId}/comments/${commentId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      
+      expect(res.status).toBe(200);
+      const comments: CommentResponse[] = res.body.data.comments;
+      const exists = comments.find(c => c._id === commentId);
+      expect(exists).toBeUndefined();
+    });
+
+    // bad test i know but had to do it. so lets leave it
+    it('should return 200 and leave comments unchanged if commentId does not exist', async () => {
+      const fakeCommentId = '64cfc3c5b5f1f1f1f1f1f1f1'; // valid ObjectId format
+      const res = await request(app)
+        .delete(`/api/commodity/${commodityId}/comments/${fakeCommentId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.comments.length).toBeGreaterThan(0); // unchanged
+    });
+
+    it('should return 400 if missing commentId (mocked)', async () => {
+      jest.spyOn(commodityDAO, 'deleteCommentFromCommoditybyCommentId')
+        .mockImplementationOnce(() => { throw new ValidationError('Missing commentId'); });
+
+      const res = await request(app)
+        .delete(`/api/commodity/${commodityId}/comments/fake`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(400);
+      jest.restoreAllMocks();
+    });
+  });
+
+
   describe('Negative cases', () => {
     it('should return 400 if creating comment without user/text', async () => {
       const res = await request(app)
@@ -300,4 +393,162 @@ describe('Commodity Controller', () => {
       expect([400, 404]).toContain(res.status);
     });
   });
+});
+
+describe ('some additional sad way tests', () => {
+  let adminToken: string;
+  // let commodityId: string;
+
+  beforeAll(async () => {
+    if (!process.env.MONGODB_TEST_URI) {
+      throw new Error('MONGODB_TEST_URI is required for tests');
+    }
+    await connect(process.env.MONGODB_TEST_URI);
+
+    // clear before inserting
+    await User.deleteMany({});
+    await Commodity.deleteMany({});
+    
+    // create admin user in DB
+    const hashedPassword = await hash('securepassword', 10);
+    await User.create({
+      username: 'adminuser',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      hashedPassword,
+      roles: ['ADMIN'],
+    });
+
+    // login to get token
+    const res = await request(app)
+      .post('/api/auth')
+      .send({ username: 'adminuser', password: 'securepassword' });
+
+    adminToken = res.body.data.token;
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  afterAll(async () => {
+    await User.deleteMany({});
+    await Commodity.deleteMany({});
+    // await disconnect();
+  });
+  
+  it('should return 400 if commodityDAO.createCommodity throws ValidationError (mocked)', async () => {
+    // Arrange: spy on DAO
+    jest.spyOn(commodityDAO, 'createCommodity')
+      .mockImplementationOnce(() => { throw new ValidationError('Invalid commodity data'); });
+
+    // Act: make request
+    const res = await request(app)
+      .post('/api/commodity')
+      .set('Authorization', `Bearer ${adminToken}`) // ensure ADMIN
+      .send({
+        name: 'Broken Item',
+        price: 20,
+        currency: 'eur',
+        stripePriceId: 'fake_id',
+        stock: 5
+      });
+
+    // Assert: response handled by catch -> handleControllerError
+    expect(res.status).toBe(400);
+    expect(res.body.status).toBe(false);
+    expect(res.body.error || res.body.message).toMatch(/Invalid commodity data/);
+
+    // Cleanup
+    jest.restoreAllMocks();
+  });
+
+  it('should return 400 if missing quantity in sellById', async () => {
+    const res = await request(app)
+      .patch('/api/commodity/sell/123fakeId')
+      .set('Authorization', `Bearer ${adminToken}`) // must be ADMIN
+      .send({}); // no quantity
+
+    expect(res.status).toBe(400);
+    expect(res.body.status).toBe(false);
+    expect(res.body.message).toMatch(/Commodity ID and quantity are required/);
+  });
+
+  it('should return 400 if DAO throws inside addComment', async () => {
+    // 🔄 load the real DAO instead of the global mock
+    // jest.unmock('../daos/commodity.dao');
+    // // Load the real module (not the mocked one)
+    // const realCommodityDAOModule = jest.requireActual('../daos/commodity.dao');
+
+    // // Narrow it to the right type
+    // const realCommodityDAO = realCommodityDAOModule as typeof import('../daos/commodity.dao');
+
+    // // Now TS knows the shape: has createCommodity, addCommentToCommodity, etc.
+    // (commodityDAO as Partial<typeof commodityDAO>).createCommodity = realCommodityDAO.createCommodity;
+    // (commodityDAO as Partial<typeof commodityDAO>).addCommentToCommodity = realCommodityDAO.addCommentToCommodity;
+
+    // 👇 create a commodity so we have a valid id
+    const commodityRes = await request(app)
+      .post('/api/commodity')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        name: 'Test Commodity',
+        price: 15,
+        currency: 'eur',
+        stripePriceId: `stripe_test_${Date.now()}`,
+        stock: 10,
+      });
+
+    //This way if creation fails, the test will fail with a clearer message.
+    expect(commodityRes.status).toBe(201); // ensure creation worked
+    expect(commodityRes.body.data).toBeDefined(); // sanity check
+    const commodityId = commodityRes.body.data._id;
+
+    // 👇 force DAO to throw
+    jest.spyOn(commodityDAO, 'addCommentToCommodity')
+      .mockImplementationOnce(() => { throw new ValidationError('Mocked DAO fail'); });
+
+    const res = await request(app)
+      .post(`/api/commodity/${commodityId}/comments`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ user: '123', text: 'hi', rating: 5 });
+
+    expect(res.status).toBe(400);
+    expect(res.body.status).toBe(false);
+    expect(res.body.error || res.body.message).toMatch(/Mocked DAO fail/);
+
+    jest.restoreAllMocks();
+  });
+
+  it('should return 400 if DAO throws inside clearComments', async () => {
+    // 👇 create a commodity so we have a valid id
+    const commodityRes = await request(app)
+      .post('/api/commodity')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        name: 'ClearTest Commodity',
+        price: 25,
+        currency: 'eur',
+        stripePriceId: `stripe_clear_${Date.now()}`,
+        stock: 5,
+      });
+
+    expect(commodityRes.status).toBe(201); // sanity check
+    const commodityId = commodityRes.body.data._id;
+
+    // 👇 force DAO to throw
+    jest.spyOn(commodityDAO, 'clearCommentsFromCommodity')
+      .mockImplementationOnce(() => { throw new ValidationError('Mocked DAO fail on clear'); });
+
+    const res = await request(app)
+      .delete(`/api/commodity/${commodityId}/comments`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(400);
+    expect(res.body.status).toBe(false);
+    expect(res.body.error || res.body.message).toMatch(/Mocked DAO fail on clear/);
+
+    jest.restoreAllMocks();
+  });
+
 });

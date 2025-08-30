@@ -17,14 +17,17 @@ const commentSchema = new Schema({
     type: Number,
     min: 0, max: 5
   },
+  isApproved: {
+    type: Boolean,
+    default: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
   },
-},
-{
-  _id: false
-}); // don’t need separate _id for comments unless you want to edit/delete them individually
+}, {
+  _id: true
+}); 
 
 const commoditySchema = new Schema({
   name: { 

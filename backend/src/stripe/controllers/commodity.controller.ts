@@ -139,6 +139,22 @@ const clearComments = async (req: Request, res: Response) => {
   }
 };
 
+// ❌ delete only one comment with comment id
+const deleteComment = async (req: Request, res: Response) => {
+  const { id, commentId } = req.params;
+
+  if (!id || !commentId) {
+    return res.status(400).json({ status: false, error: 'Commodity ID and Comment ID are required' });
+  }
+
+  try {
+    const updated = await commodityDAO.deleteCommentFromCommoditybyCommentId(id, commentId);
+    return res.status(200).json({ status: true, data: updated });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 export const commodityController = {
   findAll,
   findById,
@@ -148,4 +164,5 @@ export const commodityController = {
   deleteById,
   addComment,
   clearComments,
+  deleteComment
 };

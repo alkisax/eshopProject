@@ -36,9 +36,11 @@ export interface CommodityType extends Document {
 }
 
 export interface CommentType {
+  _id?: Types.ObjectId
   user: Types.ObjectId | string;
   text: string | EditorJsData;
   rating?: 0 | 1 | 2 | 3 | 4 | 5;
+  isApproved?: boolean,
   createdAt?: Date;
 }
 

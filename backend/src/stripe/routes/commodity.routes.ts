@@ -18,8 +18,9 @@ router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), com
 // 💬 Comments
 // Logged-in user can add a comment
 router.post('/:id/comments', middleware.verifyToken, commodityController.addComment);
-
 // Admin can clear all comments
 router.delete('/:id/comments', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.clearComments);
+// Admin can delete a specific comment
+router.delete('/:id/comments/:commentId', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.deleteComment);
 
 export default router;

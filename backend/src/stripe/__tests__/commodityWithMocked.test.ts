@@ -1,8 +1,38 @@
 import { Request, Response } from 'express';
 import { commodityController } from '../controllers/commodity.controller';
 import { commodityDAO } from '../daos/commodity.dao';
+// import { ValidationError } from '../types/errors.types';
+// import request from 'supertest';
+// import { hash } from 'bcrypt';
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+// process.env.STRIPE_SECRET_KEY = 'sk_test_dummy';
+// process.env.FRONTEND_URL = 'http://localhost:5173';
 
 jest.mock('../daos/commodity.dao');
+
+// jest.mock('../../utils/appwrite.ts', () => ({
+//   account: {
+//     get: jest.fn(),
+//     create: jest.fn(),
+//     deleteSession: jest.fn(),
+//   },
+//   OAuthProvider: { Google: 'google' },
+// }));
+
+// jest.mock('../../login/services/auth.service.ts', () => ({
+//   authService: {
+//     ...jest.requireActual('../../login/services/auth.service.ts').authService,
+//     googleAuth: jest.fn(),  // stubbed out
+//   },
+// }));
+
+// import app from '../../app';
+// import User from '../../login/models/users.models';
+// import Commodity from '../models/commodity.models';
+// import { connect, disconnect } from 'mongoose';
 
 const mockRes = (): Response => {
   const res: Partial<Response> = {};

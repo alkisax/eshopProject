@@ -199,6 +199,60 @@ describe('commodityDAO', () => {
         commodityDAO.clearCommentsFromCommodity(fakeId)
       ).rejects.toThrow(NotFoundError);
     });
+
+    it('should delete a specific comment by commentId', async () => {
+      const commodity = await commodityDAO.createCommodity({
+        name: 'Deck O', price: 55, currency: 'eur', stripePriceId: 'price_o', stock: 5, active: true
+      });
+
+      const comment1 = { user: new mongoose.Types.ObjectId(), text: 'First comment', rating: 4 as const };
+      const comment2 = { user: new mongoose.Types.ObjectId(), text: 'Second comment', rating: 5 as const };
+
+      // Add two comments
+      let updated = await commodityDAO.addCommentToCommodity(commodity._id, comment1);
+      updated = await commodityDAO.addCommentToCommodity(commodity._id, comment2);
+
+      expect(updated.comments?.length).toBe(2);
+
+      const commentIdToDelete = updated.comments![0]._id!;
+
+      const afterDelete = await commodityDAO.deleteCommentFromCommoditybyCommentId(
+        commodity._id,
+        commentIdToDelete
+      );
+
+      expect(afterDelete.comments?.length).toBe(1);
+      expect(afterDelete.comments?.some(c => c._id!.toString() === commentIdToDelete.toString())).toBe(false);
+    });
+
+    it('should throw NotFoundError when commodity does not exist', async () => {
+      const fakeCommodityId = new mongoose.Types.ObjectId();
+      const fakeCommentId = new mongoose.Types.ObjectId();
+
+      await expect(
+        commodityDAO.deleteCommentFromCommoditybyCommentId(fakeCommodityId, fakeCommentId)
+      ).rejects.toThrow(NotFoundError);
+    });
+
+    it('should not remove any comments if commentId does not exist', async () => {
+      const commodity = await commodityDAO.createCommodity({
+        name: 'Deck P', price: 65, currency: 'eur', stripePriceId: 'price_p', stock: 6, active: true
+      });
+
+      const comment = { user: new mongoose.Types.ObjectId(), text: 'Persist me', rating: 5 as const };
+      const updated = await commodityDAO.addCommentToCommodity(commodity._id, comment);
+
+      const fakeCommentId = new mongoose.Types.ObjectId();
+
+      const afterDelete = await commodityDAO.deleteCommentFromCommoditybyCommentId(
+        updated._id,
+        fakeCommentId
+      );
+
+      // commodity is found, but $pull did nothing
+      expect(afterDelete.comments?.length).toBe(1);
+      expect(afterDelete.comments?.[0].text).toBe('Persist me');
+    });    
   });
 
   describe('sellCommodityById', () => {
