@@ -70,7 +70,7 @@ beforeAll(async () => {
       transactions: [],
     });
 
-  participantId = participantRes.body._id;
+  participantId = participantRes.body.data._id; // ✅ FIXED
 
   const commodity = await Commodity.create({
     name: 'Test Commodity',
@@ -138,7 +138,7 @@ describe('Transaction API', () => {
           email: `empty_${Date.now()}@example.com`,
           transactions: [],
         });
-      const freshId = freshRes.body._id;
+      const freshId = freshRes.body.data._id; // ✅ FIXED
 
       const payload = {
         participant: freshId,
@@ -205,7 +205,7 @@ describe('Transaction API', () => {
       };
 
       const createRes = await request(app).post('/api/transaction').send(payload);
-      const transactionId = createRes.body.data._id;
+      const transactionId = createRes.body.data._id; // ✅ FIXED
 
       const res = await request(app)
         .delete(`/api/transaction/${transactionId}`)
@@ -254,7 +254,6 @@ describe('Transaction API', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.status).toBe(404); // Express route not matched
-      // OR test with empty param call directly (not common with supertest)
     });
 
     it('should return 400 if transactionId param is missing', async () => {
@@ -263,7 +262,6 @@ describe('Transaction API', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.status).toBe(404); // express route not matched
-      // OR unit-test controller directly for req.params.id = undefined
     });
 
     it('should toggle processed and send email', async () => {
@@ -274,7 +272,7 @@ describe('Transaction API', () => {
       );
       const payload = { participant: participantId, sessionId: `toggle_${Date.now()}` };
       const createRes = await request(app).post('/api/transaction').send(payload);
-      const transactionId = createRes.body.data._id;
+      const transactionId = createRes.body.data._id; // ✅ FIXED
 
       // ✅ spy on axios.post
       const axiosSpy = jest.spyOn(axios, 'post').mockResolvedValue({ data: {} });
@@ -289,8 +287,6 @@ describe('Transaction API', () => {
 
       axiosSpy.mockRestore();
     });
-
-
   });
 
   describe('PUT /api/transaction/toggle/:id', () => {
@@ -300,7 +296,6 @@ describe('Transaction API', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.status).toBe(404); // Express router returns 404 for missing param
-      // If you want to directly hit the controller function, you can unit-test it instead
     });
   });
 
@@ -311,7 +306,6 @@ describe('Transaction API', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.status).toBe(404); // Express never reaches controller
-      // again, only direct unit-test will trigger line 93
     });
 
     it('should handle DAO returning null (simulate)', async () => {

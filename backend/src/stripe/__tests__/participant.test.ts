@@ -5,10 +5,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 import app from '../../app';
 
-// Add this mock at the top of your test file to ensure it doesn't interact with the actual Stripe service during tests.
 jest.mock('stripe', () => {
   return jest.fn().mockImplementation(() => ({
-    // Mock the methods you need, e.g., charge, paymentIntents, etc.
     charges: {
       create: jest.fn().mockResolvedValue({ success: true })
     }
@@ -92,14 +90,12 @@ describe('Participant API', () => {
         .send(newParticipant);
 
       expect(res.status).toBe(201);
-      expect(res.body.name).toBe(newParticipant.name);
-      expect(res.body.email).toBe(newParticipant.email);
+      expect(res.body.data.name).toBe(newParticipant.name);   // ✅ FIX
+      expect(res.body.data.email).toBe(newParticipant.email); // ✅ FIX
     });
 
     it('should return 400 if required fields are missing', async () => {
-      const incompleteData = {
-        name: 'Jane',
-      };
+      const incompleteData = { name: 'Jane' };
 
       const res = await request(app)
         .post('/api/participant')
@@ -120,7 +116,7 @@ describe('Participant API', () => {
           transactions: [],
         });
 
-      const id = participant.body._id;
+      const id = participant.body.data._id; // ✅ FIX
 
       const res = await request(app)
         .delete(`/api/participant/${id}`)
@@ -153,14 +149,13 @@ describe('Participant API', () => {
         .delete('/api/participant/')
         .set('Authorization', `Bearer ${token}`);
 
-      expect(res.status).toBe(404); // Express will return 404 if the route doesn't match
+      expect(res.status).toBe(404);
     });
   });
 });
 
 describe('POST /api/participant with explicit user in body', () => {
   it('should create a participant when userId is passed in body', async () => {
-    // Create a standalone user first
     const userRes = await User.create({
       username: 'linkeduser',
       name: 'Linked User',
@@ -173,7 +168,7 @@ describe('POST /api/participant with explicit user in body', () => {
       name: 'Linked',
       surname: 'Participant',
       email: 'linkedparticipant@example.com',
-      user: userRes._id.toString(), // 👈 pass userId in body
+      user: userRes._id.toString(),
       transactions: [],
     };
 
@@ -182,32 +177,28 @@ describe('POST /api/participant with explicit user in body', () => {
       .send(newParticipant);
 
     expect(res.status).toBe(201);
-    expect(res.body.email).toBe(newParticipant.email);
-    expect(res.body.user).toBe(userRes._id.toString());
+    expect(res.body.data.email).toBe(newParticipant.email);        // ✅ FIX
+    expect(res.body.data.user.toString()).toBe(userRes._id.toString()); // ✅ FIX
   });
 });
 
 describe('Participant Controller edge cases', () => {
   it('GET /api/participant should return 401 if no Authorization header', async () => {
-    const res = await request(app).get('/api/participant'); // no header
-
+    const res = await request(app).get('/api/participant');
     expect(res.status).toBe(401);
     expect(res.body.status).toBe(false);
-    // comes from verifyToken middleware, not controller
     expect(res.body.message).toBe('No token found');
   });
 
   it('DELETE /api/participant should return 400 if no id param', async () => {
-    // Express treats missing param as route mismatch, so hit controller directly:
     const res = await request(app)
-      .delete('/api/participant/') // trailing slash → no id
+      .delete('/api/participant/')
       .set('Authorization', `Bearer ${token}`);
 
     expect([400,404]).toContain(res.status);
   });
 
   it('DELETE /api/participant/:id should return 404 if dao returns null', async () => {
-    // create then delete so dao returns null on 2nd attempt
     const participant = await request(app)
       .post('/api/participant')
       .send({
@@ -217,14 +208,12 @@ describe('Participant Controller edge cases', () => {
         transactions: []
       });
 
-    const id = participant.body._id;
+    const id = participant.body.data._id; // ✅ FIX
 
-    // First delete should succeed
     await request(app)
       .delete(`/api/participant/${id}`)
       .set('Authorization', `Bearer ${token}`);
 
-    // Second delete → dao returns null
     const res = await request(app)
       .delete(`/api/participant/${id}`)
       .set('Authorization', `Bearer ${token}`);
@@ -232,4 +221,3 @@ describe('Participant Controller edge cases', () => {
     expect(res.status).toBe(404);
   });
 });
-
