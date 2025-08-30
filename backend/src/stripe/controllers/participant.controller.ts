@@ -2,8 +2,13 @@
 import { participantDao } from '../daos/participant.dao';
 import { handleControllerError } from '../../utils/errorHnadler';
 import type { Request, Response } from 'express';
+// αντι να φτιάξουμε νέο interface το κάναμε ιμπορτ το ιδιο που είχε και το middleware
+import type { AuthRequest } from '../../login/types/user.types';
 
-export const create = async (req: Request, res: Response) => {
+export const create = async (req: AuthRequest , res: Response) => {
+
+  // if user comes from middleware use this else use whats comming from front
+  const userId = req.user?.id || req.body.user;
   const data = req.body;
 
   const name = data.name;
@@ -16,6 +21,7 @@ export const create = async (req: Request, res: Response) => {
       name,
       surname,
       email,
+      user: userId,
       transactions
     });
 

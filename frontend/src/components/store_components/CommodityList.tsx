@@ -43,21 +43,18 @@ const Store = () => {
       }
     };
     fetchAllCommodities();
-  }, [currentPage]);
+  }, [currentPage, setIsLoading, url]);
   
-  const addToCart = () => {
-    // export user from token
-    // check if user is associated with a participant
-    // check if participant exists if not create one
-    // add participant to user
-    // get participant id
-    // chack if participant has cart if no create one
-    // get commodity id
-    // add commidity to cart
-
-
-
-  }
+  // const addToCart = () => {
+  //   // export user from token
+  //   // check if user is associated with a participant
+  //   // check if participant exists if not create one
+  //   // add participant to user
+  //   // get participant id
+  //   // chack if participant has cart if no create one
+  //   // get commodity id
+  //   // add commidity to cart
+  // }
 
   const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page); // ✅ page is already 1-based

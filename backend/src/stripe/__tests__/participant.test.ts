@@ -157,3 +157,32 @@ describe('Participant API', () => {
     });
   });
 });
+
+describe('POST /api/participant with explicit user in body', () => {
+  it('should create a participant when userId is passed in body', async () => {
+    // Create a standalone user first
+    const userRes = await User.create({
+      username: 'linkeduser',
+      name: 'Linked User',
+      email: 'linked@example.com',
+      hashedPassword: await hash('password123', 10),
+      roles: ['USER'],
+    });
+
+    const newParticipant = {
+      name: 'Linked',
+      surname: 'Participant',
+      email: 'linkedparticipant@example.com',
+      user: userRes._id.toString(), // 👈 pass userId in body
+      transactions: [],
+    };
+
+    const res = await request(app)
+      .post('/api/participant')
+      .send(newParticipant);
+
+    expect(res.status).toBe(201);
+    expect(res.body.email).toBe(newParticipant.email);
+    expect(res.body.user).toBe(userRes._id.toString());
+  });
+});

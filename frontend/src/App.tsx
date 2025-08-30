@@ -30,7 +30,7 @@ function App() {
     <Routes>
       <Route element={<LayoutWithNavbar />}>
 
-        <Route path="/" element={<Home url={url} />} />
+        <Route path="/" element={<Home />} />
         <Route path="/store" element={<Store />} />
         
 

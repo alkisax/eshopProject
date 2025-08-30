@@ -3,6 +3,7 @@
 - bind participant to user ✅
 - transfer email message to .env ✅
 - cart total price ❌ will not do. as front can do i by it self
+- swagger fro participant find by id/email
 - stripe webhooks
 - comment crud
 - comment and store multer and appwrrite image bucket

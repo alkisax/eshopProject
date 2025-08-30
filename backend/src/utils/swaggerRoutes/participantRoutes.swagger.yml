@@ -81,8 +81,84 @@ paths:
                       type: string
         '400':
           description: Invalid input or request body
-
+  /api/participant/by-email:
+    get:
+      summary: Find participant by email
+      tags:
+        - Participants
+      parameters:
+        - in: query
+          name: email
+          required: true
+          schema:
+            type: string
+          description: Email of the participant
+      responses:
+        '200':
+          description: Participant found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                      surname:
+                        type: string
+                      email:
+                        type: string
+        '400':
+          description: Email missing
+        '404':
+          description: Participant not found
+          
   /api/participant/{id}:
+    get:
+      summary: Find participant by ID
+      tags:
+        - Participants
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the participant
+      responses:
+        '200':
+          description: Participant found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                      surname:
+                        type: string
+                      email:
+                        type: string
+        '400':
+          description: ID missing
+        '404':
+          description: Participant not found
+
     delete:
       summary: Delete a participant by ID
       tags:
