@@ -67,12 +67,19 @@ describe('participantDao other methods error branches (unit)', () => {
   });
 
   it('findParticipantById should throw NotFoundError if not found', async () => {
-    (Participant.findById as jest.Mock).mockResolvedValueOnce(null);
+    const fakeQuery = {
+      populate: () => fakeQuery, // chainable
+      then: (resolve: (value: null) => void) => resolve(null), // resolves to null
+    };
+
+    (Participant.findById as unknown as jest.Mock).mockReturnValueOnce(fakeQuery);
 
     await expect(
       participantDao.findParticipantById('507f1f77bcf86cd799439011')
     ).rejects.toBeInstanceOf(NotFoundError);
   });
+
+
 
   it('updateParticipantById should throw NotFoundError if not found', async () => {
     (Participant.findByIdAndUpdate as jest.Mock).mockResolvedValueOnce(null);
@@ -95,15 +102,6 @@ describe('participantDao other methods error branches (unit)', () => {
     ).rejects.toBeInstanceOf(NotFoundError);
   });
 
-  it('findParticipantById should return participant if found', async () => {
-    const fakeParticipant = { _id: new Types.ObjectId(), email: 'found@example.com' };
-
-    (Participant.findById as jest.Mock).mockResolvedValueOnce(fakeParticipant);
-
-    const result = await participantDao.findParticipantById(fakeParticipant._id.toString());
-    expect(result).toEqual(fakeParticipant);
-  });
-
   it('addTransactionToParticipant should return participant if found', async () => {
     const fakeParticipant = {
       _id: new Types.ObjectId(),
@@ -120,6 +118,20 @@ describe('participantDao other methods error branches (unit)', () => {
       new Types.ObjectId()
     );
 
+    expect(result).toEqual(fakeParticipant);
+  });
+
+  it('findParticipantById should return participant if found', async () => {
+    const fakeParticipant = { _id: new Types.ObjectId(), email: 'found@example.com' };
+
+    const fakeQuery = {
+      populate: () => fakeQuery, // allow chaining .populate()
+      then: (resolve: (val: typeof fakeParticipant) => void) => resolve(fakeParticipant), // resolve to participant
+    };
+
+    (Participant.findById as unknown as jest.Mock).mockReturnValueOnce(fakeQuery);
+
+    const result = await participantDao.findParticipantById(fakeParticipant._id.toString());
     expect(result).toEqual(fakeParticipant);
   });
 });

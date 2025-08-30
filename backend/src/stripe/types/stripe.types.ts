@@ -1,9 +1,11 @@
 import { Types, Document } from 'mongoose';
+import { IUser } from '../../login/types/user.types';
 export interface ParticipantType {
   _id?: Types.ObjectId;
   name?: string;
   surname?: string;
   email: string;
+  user?: Types.ObjectId | string | IUser;
   transactions?: (Types.ObjectId | TransactionType)[]; // array of Transaction IDs or full transaction obj
   createdAt?: Date;
   updatedAt?: Date;

@@ -16,6 +16,11 @@ const participantSchema = new Schema({
     required: [true, 'email is required'],
     unique: true
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',   // 🔹 link to existing User schema
+    required: false
+  },
   transactions: [{
     type: mongoose.Schema.Types.ObjectId, // Each item here is an ObjectId pointing to a Transaction document
     ref: 'Transaction' // This tells Mongoose *which* collection/model to link (the 'Transaction' model)
