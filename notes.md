@@ -4,7 +4,8 @@
 - transfer email message to .env ✅
 - cart total price ❌ will not do. as front can do i by it self
 - swagger fro participant find by id/email ✅
-- participant contorller create `return res.status(201).json(newParticipant);` and not `return res.status(201).json({ startus: true, data: newParticipant });` left it because too much fail in tests. used in front `frontend\src\components\store_components\CommodityList.tsx` addtocart
+- remove middleware from cart. guests need cart
+- /cart/clean-junk (longer than lastupdated a week)
 - stripe webhooks
 - comment crud
 - comment and store multer and appwrrite image bucket
