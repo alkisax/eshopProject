@@ -1,18 +1,22 @@
 import { useContext, useEffect, useState } from "react";
 import { Pagination } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import axios from "axios";
 
 import { VariablesContext } from "../../context/VariablesContext";
-import type { CommodityType } from "../../types/commerce.types";
+import type { CommodityType, ParticipantType } from "../../types/commerce.types";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import Loading from "../Loading";
 
 const Store = () => {
+  const { url } = useContext(VariablesContext);
+  const { user, isLoading, setIsLoading } = useContext(UserAuthContext);
+
   const [currentPage, setCurrentPage] = useState(1); // ✅ start from 1
   const [pageCount, setPageCount] = useState(0);
 
-  const { url } = useContext(VariablesContext);
-  const { isLoading, setIsLoading } = useContext(UserAuthContext);
+
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
 
   const ITEMS_PER_PAGE = 3; // try smaller to test pagination
@@ -45,16 +49,59 @@ const Store = () => {
     fetchAllCommodities();
   }, [currentPage, setIsLoading, url]);
   
-  // const addToCart = () => {
-  //   // export user from token
-  //   // check if user is associated with a participant
-  //   // check if participant exists if not create one
-  //   // add participant to user
-  //   // get participant id
-  //   // chack if participant has cart if no create one
-  //   // get commodity id
-  //   // add commidity to cart
-  // }
+  const addToCart = async () => {
+    console.log('enter addToCart')
+
+    // 1. get user from context
+    console.log('setp 1. See if user has participant. user from context: ', user);
+    const email = user?.email
+    if (!email) {
+      console.error('email is required')
+    }
+
+    // 2. see if user is assosiated with a participant
+    let participant: ParticipantType | null = null // If the try block throws, then participant is never assigned before the if (participant) check.Initialize it to null right away
+
+    try {
+      const response = await axios.get<{ status: boolean; data: ParticipantType }>(`${url}/api/participant/by-email?email=${email}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      participant = response.data.data
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        console.log("No participant found, will create a new one...");
+      } else {
+        throw err;
+      }
+    }
+
+    if (participant) {
+      console.log(`User already has participant id: ${participant._id}`);
+    } else {
+      // 3. if user without participant, create participant and add it to user
+      console.log('step 3. User has not participant association');
+      
+      const newParticipantData = {
+        name: user?.name,
+        surname: user?.surname,
+        email: user?.email,
+        user: user?._id,
+        transactions: []
+      }
+      const response = await axios.post<{ status: boolean; data: ParticipantType }>(`${url}/api/participant/`, newParticipantData)
+
+      const newParticipant = response.data.data
+      participant = newParticipant;
+
+      console.log(`step 3. User is associeted with a new participant. id: ${participant._id}`);        
+    }
+
+
+
+    // 4. if no user create a participant 
+    // 5. check if participant has a cart if no create one
+    // 6. add commodity to cart
+  }
 
   const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page); // ✅ page is already 1-based
@@ -70,6 +117,14 @@ const Store = () => {
           {commodities.map((c) => (
             <li key={c._id.toString()}>
               <strong>{c.name}</strong> — {c.price} {c.currency}
+              <IconButton  
+                color="primary" 
+                size="small" 
+                sx={{ ml: 2 }}
+                onClick={() => addToCart()}
+              >
+                <ShoppingCartIcon />
+              </IconButton >
             </li>
           ))}
         </ul>

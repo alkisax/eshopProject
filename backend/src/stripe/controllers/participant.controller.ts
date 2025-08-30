@@ -26,8 +26,7 @@ export const create = async (req: AuthRequest , res: Response) => {
     });
 
     console.log(`Created new participant: ${email}`);
-    return res.status(201).json(newParticipant);
-
+    return res.status(201).json({ startus: true, data: newParticipant });
   } catch (error) {
     return handleControllerError(res, error);
   }

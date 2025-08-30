@@ -186,3 +186,50 @@ describe('POST /api/participant with explicit user in body', () => {
     expect(res.body.user).toBe(userRes._id.toString());
   });
 });
+
+describe('Participant Controller edge cases', () => {
+  it('GET /api/participant should return 401 if no Authorization header', async () => {
+    const res = await request(app).get('/api/participant'); // no header
+
+    expect(res.status).toBe(401);
+    expect(res.body.status).toBe(false);
+    // comes from verifyToken middleware, not controller
+    expect(res.body.message).toBe('No token found');
+  });
+
+  it('DELETE /api/participant should return 400 if no id param', async () => {
+    // Express treats missing param as route mismatch, so hit controller directly:
+    const res = await request(app)
+      .delete('/api/participant/') // trailing slash → no id
+      .set('Authorization', `Bearer ${token}`);
+
+    expect([400,404]).toContain(res.status);
+  });
+
+  it('DELETE /api/participant/:id should return 404 if dao returns null', async () => {
+    // create then delete so dao returns null on 2nd attempt
+    const participant = await request(app)
+      .post('/api/participant')
+      .send({
+        name: 'ToBeDeletedTwice',
+        surname: 'Fail',
+        email: 'faildelete@example.com',
+        transactions: []
+      });
+
+    const id = participant.body._id;
+
+    // First delete should succeed
+    await request(app)
+      .delete(`/api/participant/${id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    // Second delete → dao returns null
+    const res = await request(app)
+      .delete(`/api/participant/${id}`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+  });
+});
+

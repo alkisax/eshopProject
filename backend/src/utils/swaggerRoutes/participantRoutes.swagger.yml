@@ -41,8 +41,6 @@ paths:
             schema:
               type: object
               required:
-                - name
-                - surname
                 - email
               properties:
                 name:
@@ -54,6 +52,10 @@ paths:
                 email:
                   type: string
                   example: alkis@example.com
+                user:        # ✅ optional field (not from token)
+                  type: string
+                  description: "MongoDB ObjectId of the associated User (optional)"
+                  example: 68aebb7d2a47dd01e42ff0e4
                 transactions:
                   type: array
                   items:
@@ -75,6 +77,9 @@ paths:
                     type: string
                   email:
                     type: string
+                  user:          # ✅ now returned in response
+                    type: string
+                    description: "MongoDB ObjectId of linked User"
                   transactions:
                     type: array
                     items:
