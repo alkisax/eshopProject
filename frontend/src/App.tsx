@@ -18,6 +18,7 @@ import PrivateRoute from './authLogin/service/PrivateRoute'
 import LayoutWithNavbar from './Layouts/LayoutWithNavbar'
 import AdminLayout from "./Layouts/AdminLayout"
 import ProfileUser from './pages/ProfileUser'
+import Store from './pages/Store'
 
 function App() {
 
@@ -30,6 +31,9 @@ function App() {
       <Route element={<LayoutWithNavbar />}>
 
         <Route path="/" element={<Home url={url} />} />
+        <Route path="/store" element={<Store />} />
+        
+
         <Route path="/login" element={<Login url={url} />} />
         <Route path="/signup" element={<GoogleLogin url={url} />} />
         <Route path="/register-appwrite" element={<RegisterPageAppwriteLogin />} />

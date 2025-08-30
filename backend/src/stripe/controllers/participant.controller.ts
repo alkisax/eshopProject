@@ -3,22 +3,6 @@ import { participantDao } from '../daos/participant.dao';
 import { handleControllerError } from '../../utils/errorHnadler';
 import type { Request, Response } from 'express';
 
-export const findAll = async (req: Request, res: Response) => {
-  try {
-    if (!req.headers.authorization) {
-      return res.status(401).json({ status: false, error: 'No token provided' });
-    }
-
-    const participants = await participantDao.findAllParticipants();
-
-    console.log('Fetched all participants');
-    return res.status(200).json({ status: true, data: participants });
-
-  } catch (error) {
-    return handleControllerError(res, error);
-  }
-};
-
 export const create = async (req: Request, res: Response) => {
   const data = req.body;
 
@@ -42,6 +26,51 @@ export const create = async (req: Request, res: Response) => {
     return handleControllerError(res, error);
   }
 };
+
+export const findAll = async (req: Request, res: Response) => {
+  try {
+    if (!req.headers.authorization) {
+      return res.status(401).json({ status: false, error: 'No token provided' });
+    }
+
+    const participants = await participantDao.findAllParticipants();
+
+    console.log('Fetched all participants');
+    return res.status(200).json({ status: true, data: participants });
+
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+export const findByEmail = async (req: Request, res: Response) => {
+  try {
+    const email = req.query.email as string;
+    if (!email) {
+      return res.status(400).json({ status: false, error: 'Email is required' });
+    }
+
+    const participant = await participantDao.findParticipantByEmail(email);
+    return res.status(200).json({ status: true, data: participant });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+export const findById = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json({ status: false, error: 'id is required' });
+    }
+
+    const participant = await participantDao.findParticipantById(id);
+    return res.status(200).json({ status: true, data: participant });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 
 export const deleteById = async (req: Request, res: Response) => {
   const participantId = req.params.id;
@@ -71,7 +100,9 @@ export const deleteById = async (req: Request, res: Response) => {
 };
 
 export const participantController = {
-  findAll,
   create,
+  findAll,
+  findByEmail,
+  findById,
   deleteById
 };

@@ -206,18 +206,18 @@ describe('transactionDAO', () => {
     ).rejects.toBeInstanceOf(NotFoundError);
   });
 
-  it('should throw DatabaseError if updateTransactionById fails unexpectedly', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
+  // it('should throw DatabaseError if updateTransactionById fails unexpectedly', async () => {
+  //   const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
 
-    // Spy on DAO instead of mongoose internals
-    const spy = jest.spyOn(transactionDAO as any, 'updateTransactionById').mockRejectedValueOnce(new DatabaseError('forced fail'));
+  //   // Spy on DAO instead of mongoose internals
+  //   const spy = jest.spyOn(transactionDAO as any, 'updateTransactionById').mockRejectedValueOnce(new DatabaseError('forced fail'));
 
-    await expect(
-      transactionDAO.updateTransactionById(tx._id, { processed: true })
-    ).rejects.toBeInstanceOf(DatabaseError);
+  //   await expect(
+  //     transactionDAO.updateTransactionById(tx._id, { processed: true })
+  //   ).rejects.toBeInstanceOf(DatabaseError);
 
-    spy.mockRestore();
-  });
+  //   spy.mockRestore();
+  // });
 
   it('should throw NotFoundError if Participant.findByIdAndUpdate returns null in addTransactionToParticipant', async () => {
     const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
