@@ -1,38 +1,51 @@
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { IconButton } from "@mui/material";
+import HomeIcon from "@mui/icons-material/Home";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import Tooltip from "@mui/material/Tooltip";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+
 import { Link, useNavigate } from "react-router-dom";
 import { useContext  } from "react";
 import { UserAuthContext } from "../context/UserAuthContext";
 import { handleLogout } from '../authLogin/authFunctions'
+import { VariablesContext } from "../context/VariablesContext";
 
 const NavbarAppwrite = () => {
+  const { hasCart, setHasCart } = useContext(VariablesContext);
   const { user, setUser } = useContext(UserAuthContext);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    navigate("/login");
-  };
+  // const handleLogin = () => {
+  //   navigate("/login");
+  // };
 
   return (
     <>
       <AppBar position="fixed">
         <Toolbar>
           {/* Logo / Title */}
+          <Tooltip title="Home">
+            <IconButton component={Link} color="inherit" to="/">
+              <HomeIcon />
+            </IconButton>            
+          </Tooltip>
+
+
           <Typography
             variant="h6"
             component={Link}
             to="/protected"
-            sx={{ flexGrow: 1, textDecoration: "none", color: "inherit" }}
+            sx={{  textDecoration: "none", color: "inherit" }}
           >
             Protected
           </Typography>
-          <Typography
-            variant="h6"
-            component={Link}
-            to="/"
-            sx={{ flexGrow: 1, textDecoration: "none", color: "inherit" }}
-          >
-            Home
-          </Typography>
+
+          {/* push everything after this to the right */}
+          <Box sx={{ flexGrow: 1 }} />
+
 
           {/* Buttons */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -54,19 +67,34 @@ const NavbarAppwrite = () => {
 
             {user ? (
               <>
-              <Button color="inherit" component={Link} to='/profile'>
-                Profile
-              </Button>
-              <Button color="inherit" onClick={() => handleLogout(setUser, navigate)}>
-                Logout {user.name}
-              </Button>              
+                <Tooltip title="profile">
+                  <IconButton component={Link} to="/profile" color="inherit">
+                    <AccountCircleIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="logout">
+                  <IconButton color="inherit" onClick={() => handleLogout(setUser, setHasCart, navigate)}>
+                    <LogoutIcon />
+                  </IconButton>
+                </Tooltip>
+
               </>
 
             ) : (
-              <Button color="inherit" onClick={handleLogin}>
-                Login
-              </Button>
+              <Tooltip title="login">
+                <IconButton component={Link} color="inherit" to="/login">
+                  <LoginIcon />
+                </IconButton>                
+              </Tooltip>
+
             )}
+
+            {hasCart &&
+              <IconButton component={Link} color="inherit" to="/cart">
+                <ShoppingCartIcon />
+              </IconButton>
+            }
           </Box>
         </Toolbar>
       </AppBar>

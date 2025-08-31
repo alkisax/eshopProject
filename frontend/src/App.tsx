@@ -2,8 +2,13 @@
 // tutorial
 // https://dev.to/devyoma/authentication-in-react-with-appwrite-4jaj
 
-
 import { Routes, Route } from "react-router-dom"
+import { useContext } from "react";
+
+import { useInitializer } from "./hooks/useInitializer";
+import { VariablesContext } from "./context/VariablesContext";
+import { UserAuthContext } from "./context/UserAuthContext";
+
 import Home from './pages/Home'
 import Login from './authLogin/Login'
 import GoogleLogin from './authLogin/loginGoogle/GoogleLogin'
@@ -19,11 +24,15 @@ import LayoutWithNavbar from './Layouts/LayoutWithNavbar'
 import AdminLayout from "./Layouts/AdminLayout"
 import ProfileUser from './pages/ProfileUser'
 import Store from './pages/Store'
+import Cart from "./pages/Cart";
+
 
 function App() {
-
+  const { user } = useContext(UserAuthContext);
+  const { setGlobalParticipant, setHasCart } = useContext(VariablesContext);
   const url: string = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
 
+  useInitializer(user, url, setHasCart, setGlobalParticipant);
 
   return (
     <>
@@ -32,6 +41,7 @@ function App() {
 
         <Route path="/" element={<Home />} />
         <Route path="/store" element={<Store />} />
+        <Route path="/cart" element={<Cart />} />
         
 
         <Route path="/login" element={<Login url={url} />} />

@@ -12,7 +12,7 @@ import Loading from "../Loading";
 
 const Store = () => {
   const { url } = useContext(VariablesContext);
-  const { globalParticipant, setGlobalParticipant } = useContext(VariablesContext);
+  const { globalParticipant, setGlobalParticipant, setHasCart } = useContext(VariablesContext);
 
   const { user, isLoading, setIsLoading } = useContext(UserAuthContext);
 
@@ -203,14 +203,17 @@ const Store = () => {
         return;
       }
 
-      addQuantityCommodityToCart(participantId, commodityId, 1)
-        setLoadingItemId(commodityId); //axios spamming controll
+      await addQuantityCommodityToCart(participantId, commodityId, 1)
+      setHasCart(true); // optimistic update
+      setLoadingItemId(commodityId); //axios spamming controll
 
       // this part is just for logging the cart maybe later remove
       const cartRes = await axios.get<{ status: boolean; data: CartType }>(
         `${url}/api/cart/${participantId}`
       );
+
       const cart = cartRes.data.data;
+      setHasCart(cart.items.length > 0);  // actual backend truth update    
       console.log(`cart items:`, cart.items);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
