@@ -12,11 +12,13 @@ import Loading from "../Loading";
 
 const Store = () => {
   const { url } = useContext(VariablesContext);
+  const { globalParticipant, setGlobalParticipant } = useContext(VariablesContext);
+
   const { user, isLoading, setIsLoading } = useContext(UserAuthContext);
-  const [participant, setParticipant] = useState<ParticipantType | null>(null)
 
   const [currentPage, setCurrentPage] = useState(1); // ✅ start from 1
   const [pageCount, setPageCount] = useState(0);
+  const [loadingItemId, setLoadingItemId] = useState<string | null>(null); //turning off add btn while prossecing to avoid axios spamming
 
 
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
@@ -48,8 +50,12 @@ const Store = () => {
         setIsLoading(false);
       }
     };
+
+    // main reson for this to use unsed vars. but its ok
+    console.log('global participant', globalParticipant);
+    
     fetchAllCommodities();
-  }, [currentPage, setIsLoading, url]);
+  }, [currentPage, globalParticipant, setIsLoading, url]);
   
   // part 1/2
   const fetchParticipantId = async () => {
@@ -61,6 +67,7 @@ const Store = () => {
       const email = user?.email
       if (!email) {
         console.error('email is required')
+        return null
       }
 
       // 2. see if user is assosiated with a participant
@@ -69,7 +76,8 @@ const Store = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         const found = response.data.data;
-        setParticipant(found)
+        setGlobalParticipant(found);
+        return found._id
       } catch (err: unknown) {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
           console.log("No participant found, will create a new one...");
@@ -78,32 +86,29 @@ const Store = () => {
         }
       }
 
-      if (participant) {
-        console.log(`User already has participant id: ${participant._id}`);
-        return participant._id
-      } else {
-        // 3. if user without participant, create participant and add it to user
-        console.log('step 3. User has not participant association');
-        
-        const newParticipantData = {
-          name: user?.name,
-          surname: user?.surname,
-          email: user?.email,
-          user: user?._id,
-          transactions: []
-        }
-
-        const response = await axios.post<{ status: boolean; data: ParticipantType }>(`${url}/api/participant/`, newParticipantData)
-        if (!response) {
-          console.error('error creating participant');          
-        }
-
-        const newParticipant = response.data.data
-        setParticipant(newParticipant);
-
-        console.log(`step 3. User is associeted with a new participant. id: ${newParticipant._id}`);
-        return newParticipant._id
+      // 3. if user without participant, create participant and add it to user
+      console.log('step 3. User has not participant association');
+      
+      const newParticipantData = {
+        name: user?.name,
+        surname: user?.surname,
+        email: user?.email,
+        user: user?._id,
+        transactions: []
       }
+
+      const response = await axios.post<{ status: boolean; data: ParticipantType }>(`${url}/api/participant/`, newParticipantData)
+      if (!response) {
+        console.error('error creating participant');
+        return null          
+      }
+
+      const newParticipant = response.data.data
+      setGlobalParticipant(newParticipant);
+
+      console.log(`step 3. User is associeted with a new participant. id: ${newParticipant._id}`);
+      return newParticipant._id
+      
     } else {
       // 4. if no user create a participant
       console.log('step 4. no existing user. we will create a participant not associated with a user');
@@ -117,7 +122,7 @@ const Store = () => {
             `${url}/api/participant/${storedParticipantId}`
           );
           const newParticipant = response.data.data
-          setParticipant(newParticipant);
+          setGlobalParticipant(newParticipant);
           console.log("Guest restored from localStorage:", response.data.data);
           return newParticipant._id
         } catch (err: unknown) {
@@ -140,7 +145,7 @@ const Store = () => {
         const response = await axios.post<{ status: boolean; data: ParticipantType }>(`${url}/api/participant/`, newParticipantData)
 
         const newParticipant = response.data.data
-        setParticipant(newParticipant);
+        setGlobalParticipant(newParticipant);
 
         // 🔑 Store the participant id for later refresh
         // added "trust me" at _id with '!'
@@ -162,9 +167,12 @@ const Store = () => {
     try {
       // 5. check if participant has a cart if no create one
       // creation is automated if not existing by cart dao
-      // await axios.get<{ status: boolean; data: CartType }>(
-      //   `${url}/api/cart/${participantId}`
-      // );
+      const cartRes =await axios.get<{ status: boolean; data: CartType }>(
+        `${url}/api/cart/${participantId}`
+      );
+      const ensuredCart = cartRes.data.data;
+      console.log('ensured cart: ', ensuredCart);
+      
 
       // 6. add commodity to cart
       const data = {
@@ -188,16 +196,17 @@ const Store = () => {
   };
 
   const addOneToCart = async (commodityId: string): Promise<void> => {
-    const participantId = await fetchParticipantId()
-    if (!participantId) {
-      console.error("No participantId available, cannot add to cart");
-      return;
-    }
-
-    addQuantityCommodityToCart(participantId, commodityId, 1)
-
-    // this part is just for logging the cart maybe later remove
     try {
+      const participantId = await fetchParticipantId()
+      if (!participantId) {
+        console.error("No participantId available, cannot add to cart");
+        return;
+      }
+
+      addQuantityCommodityToCart(participantId, commodityId, 1)
+        setLoadingItemId(commodityId); //axios spamming controll
+
+      // this part is just for logging the cart maybe later remove
       const cartRes = await axios.get<{ status: boolean; data: CartType }>(
         `${url}/api/cart/${participantId}`
       );
@@ -209,6 +218,8 @@ const Store = () => {
       } else {
         console.error("Unexpected error:", err);
       }
+    } finally {
+      setLoadingItemId(null);
     }
   }
 
@@ -232,6 +243,7 @@ const Store = () => {
                 size="small" 
                 sx={{ ml: 2 }}
                 onClick={() => addOneToCart(commodity._id)}
+                disabled={loadingItemId === commodity._id} //axios spamming controll
               >
                 <ShoppingCartIcon />
               </IconButton >
