@@ -1,0 +1,430 @@
+paths:
+  /api/commodity:
+    get:
+      summary: Get all commodities
+      tags:
+        - Commodities
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number for pagination
+      responses:
+        '200':
+          description: List of commodities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        category:
+                          type: array
+                          items:
+                            type: string
+                        price:
+                          type: number
+                        currency:
+                          type: string
+                        stripePriceId:
+                          type: string
+                        soldCount:
+                          type: integer
+                        stock:
+                          type: integer
+                        active:
+                          type: boolean
+                        images:
+                          type: array
+                          items:
+                            type: string
+                        comments:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              user:
+                                type: string
+                              text:
+                                type: string
+                              rating:
+                                type: integer
+                                minimum: 0
+                                maximum: 5
+                        createdAt:
+                          type: string
+                        updatedAt:
+                          type: string
+
+    post:
+      summary: Create a new commodity
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, price, currency, stripePriceId, stock]
+              properties:
+                name:
+                  type: string
+                  example: "Tarot Deck"
+                description:
+                  type: string
+                  example: "78-card traditional tarot deck"
+                category:
+                  type: array
+                  items:
+                    type: string
+                  example: ["Books", "Esoterica"]
+                price:
+                  type: number
+                  example: 19.99
+                currency:
+                  type: string
+                  example: "eur"
+                stripePriceId:
+                  type: string
+                  example: "price_12345abc"
+                stock:
+                  type: integer
+                  example: 100
+                active:
+                  type: boolean
+                  example: true
+                images:
+                  type: array
+                  items:
+                    type: string
+                  example: ["https://example.com/tarot.jpg"]
+      responses:
+        '201':
+          description: Commodity created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  price:
+                    type: number
+                  currency:
+                    type: string
+
+  /api/commodity/{id}:
+    get:
+      summary: Get a commodity by ID
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Commodity ID
+      responses:
+        '200':
+          description: Commodity retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      category:
+                        type: array
+                        items:
+                          type: string
+                      price:
+                        type: number
+                      currency:
+                        type: string
+                      stripePriceId:
+                        type: string
+                      soldCount:
+                        type: integer
+                      stock:
+                        type: integer
+                      active:
+                        type: boolean
+                      images:
+                        type: array
+                        items:
+                          type: string
+                      comments:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user:
+                              type: string
+                            text:
+                              type: string
+                            rating:
+                              type: integer
+                              minimum: 0
+                              maximum: 5
+                      createdAt:
+                        type: string
+                      updatedAt:
+                        type: string
+        '404':
+          description: Commodity not found
+
+    patch:
+      summary: Update a commodity (admin only)
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Commodity ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Updated Tarot Deck"
+                description:
+                  type: string
+                  example: "Updated description"
+                category:
+                  type: array
+                  items:
+                    type: string
+                  example: ["Books", "Esoterica"]
+                price:
+                  type: number
+                  example: 24.99
+                stock:
+                  type: integer
+                  example: 150
+                active:
+                  type: boolean
+                  example: true
+                images:
+                  type: array
+                  items:
+                    type: string
+                  example: ["https://example.com/newimage.jpg"]
+      responses:
+        '200':
+          description: Commodity updated successfully
+        '400':
+          description: Invalid request
+        '404':
+          description: Commodity not found
+
+    delete:
+      summary: Delete a commodity (admin only)
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Commodity ID
+      responses:
+        '200':
+          description: Commodity deleted successfully
+        '404':
+          description: Commodity not found
+
+  /api/commodity/sell/{id}:
+    patch:
+      summary: Sell a commodity (decrease stock and increase sold count)
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                  example: 2
+      responses:
+        '200':
+          description: Commodity sold successfully
+
+  /api/commodity/{id}/comments:
+    post:
+      summary: Add a comment to a commodity
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Commodity ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user, text]
+              properties:
+                user:
+                  type: string
+                  example: "68b17388d0c907eea3073b0e"   # 👈 now in body
+                text:
+                  type: string
+                  example: "Really nice deck, love the print quality!"
+                rating:
+                  type: integer
+                  minimum: 0
+                  maximum: 5
+                  example: 5
+      responses:
+        '200':
+          description: Comment added successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Commodity not found
+
+    delete:
+      summary: Clear all comments from a commodity (admin only)!
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Commodity ID
+      responses:
+        '200':
+          description: All comments cleared successfully
+        '404':
+          description: Commodity not found
+          
+  /api/commodity/{id}/comments/{commentId}:
+    delete:
+      summary: Delete a specific comment from a commodity (admin only)
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Commodity ID
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: string
+          description: Comment ID
+      responses:
+        '200':
+          description: Comment deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      comments:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            user:
+                              type: string
+                            text:
+                              type: string
+                            rating:
+                              type: integer
+                              minimum: 0
+                              maximum: 5
+                            isApproved:
+                              type: boolean
+                            createdAt:
+                              type: string
+        '400':
+          description: Invalid request (missing IDs)
+        '404':
+          description: Commodity or Comment not found
+

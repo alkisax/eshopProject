@@ -2,6 +2,7 @@ import Participant from '../models/participant.models';
 import type { ParticipantType, TransactionType } from '../types/stripe.types';
 import { Types } from 'mongoose';
 import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.types';
+import { IUser } from '../../login/types/user.types';
 
 // create 
 const createParticipant = async (participantData: ParticipantType) => {
@@ -14,7 +15,7 @@ const createParticipant = async (participantData: ParticipantType) => {
     name: participantData.name,
     surname: participantData.surname,
     email: participantData.email,
-    // transactions: participantData.transactions
+    user: participantData.user || null,
     transactions: []
   });
 
@@ -42,7 +43,9 @@ const findAllParticipants = async (page = 0): Promise<ParticipantType[]> => {
 
 const findParticipantByEmail = async (email: string): Promise<ParticipantType> => {
   // const response =  await Participant.findOne({ email }).populate<{ transactions: TransactionType[] }>('transactions');
-  const response =  await Participant.findOne({ email });
+  const response =  await Participant.findOne({ email })
+    .populate<{ user: IUser }>('user')
+    .populate<{ transactions: TransactionType[] }>('transactions');
 
   if (!response) {
     throw new NotFoundError('Participant does not exist');
@@ -52,7 +55,9 @@ const findParticipantByEmail = async (email: string): Promise<ParticipantType> =
 
 const findParticipantById = async (id: string): Promise<ParticipantType> => {
   // const response = await Participant.findById(id).populate<{ transactions: TransactionType[] }>('transactions');
-  const response = await Participant.findById(id);
+  const response = await Participant.findById(id)
+    .populate<{ user: IUser }>('user')
+    .populate<{ transactions: TransactionType[] }>('transactions');
 
   if (!response) {
     throw new NotFoundError('Participant does not exist');

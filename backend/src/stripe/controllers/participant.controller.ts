@@ -2,6 +2,35 @@
 import { participantDao } from '../daos/participant.dao';
 import { handleControllerError } from '../../utils/errorHnadler';
 import type { Request, Response } from 'express';
+// αντι να φτιάξουμε νέο interface το κάναμε ιμπορτ το ιδιο που είχε και το middleware
+import type { AuthRequest } from '../../login/types/user.types';
+
+export const create = async (req: AuthRequest , res: Response) => {
+
+  // if user comes from middleware use this else use whats comming from front
+  const userId = req.user?.id || req.body.user;
+  const data = req.body;
+
+  const name = data.name;
+  const surname = data.surname;
+  const email = data.email;
+  const transactions = data.transactions;
+
+  try {
+    const newParticipant = await participantDao.createParticipant({
+      name,
+      surname,
+      email,
+      user: userId,
+      transactions
+    });
+
+    console.log(`Created new participant: ${email}`);
+    return res.status(201).json({ startus: true, data: newParticipant });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
 
 export const findAll = async (req: Request, res: Response) => {
   try {
@@ -19,29 +48,34 @@ export const findAll = async (req: Request, res: Response) => {
   }
 };
 
-export const create = async (req: Request, res: Response) => {
-  const data = req.body;
-
-  const name = data.name;
-  const surname = data.surname;
-  const email = data.email;
-  const transactions = data.transactions;
-
+export const findByEmail = async (req: Request, res: Response) => {
   try {
-    const newParticipant = await participantDao.createParticipant({
-      name,
-      surname,
-      email,
-      transactions
-    });
+    const email = req.query.email as string;
+    if (!email) {
+      return res.status(400).json({ status: false, error: 'Email is required' });
+    }
 
-    console.log(`Created new participant: ${email}`);
-    return res.status(201).json(newParticipant);
-
+    const participant = await participantDao.findParticipantByEmail(email);
+    return res.status(200).json({ status: true, data: participant });
   } catch (error) {
     return handleControllerError(res, error);
   }
 };
+
+export const findById = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    if (!id) {
+      return res.status(400).json({ status: false, error: 'id is required' });
+    }
+
+    const participant = await participantDao.findParticipantById(id);
+    return res.status(200).json({ status: true, data: participant });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 
 export const deleteById = async (req: Request, res: Response) => {
   const participantId = req.params.id;
@@ -71,7 +105,9 @@ export const deleteById = async (req: Request, res: Response) => {
 };
 
 export const participantController = {
-  findAll,
   create,
+  findAll,
+  findByEmail,
+  findById,
   deleteById
 };

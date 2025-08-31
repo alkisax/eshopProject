@@ -1,29 +1,15 @@
-# Context for my app (quick catch-up)
-- [ ] UserAuthContext.tsx
-- [ ] Login.tsx (main login page/combiner)
-- [ ] LoginGoogle.tsx / LoginAppwrite.tsx / LoginBackend.tsx / GithubLogin.tsx
-- [ ] types.ts (IUser + JWT payloads)
-- [ ] Backend: auth.controller.ts
-- [ ] Backend: auth.service.ts
-- [ ] Backend: user.model.ts
+# backend
+- delete only one comment ✅
+- bind participant to user ✅
+- transfer email message to .env ✅
+- cart total price ❌ will not do. as front can do i by it self
+- swagger fro participant find by id/email ✅
+- remove middleware from cart. guests need cart
+- /cart/clean-junk (longer than lastupdated a week)
+- stripe webhooks
+- comment crud
+- comment and store multer and appwrrite image bucket
+- chat gpt profanity comment test. if not pass wait for admin aproval or delete after 5 days
 
-
-Frontend
-
-src/context/UserAuthContext.tsx → where you store/update the logged-in user.
-
-src/App.tsx (or your router entry) → to see how login/logout routes are wired.
-
-src/components/Login.tsx (or equivalent) → your login page that calls Google/Appwrite/backend.
-
-src/components/Navbar.tsx (or wherever you display user info / logout).
-
-Backend
-
-backend/src/models/User.ts (or schema file) → to see all fields (id, username, hasPassword, lastProvider, etc.).
-
-backend/src/controllers/auth.controller.ts (or main login/signup controller).
-
-backend/src/services/auth.service.ts → if you’ve separated the logic from controller.
-
-backend/src/routes/auth.routes.ts → to see what endpoints frontend calls.
+# frontend
+const addToCart = () => { // export user from token // check if user is associated with a participant // check if participant exists if not create one // add participant to user // get participant id // chack if participant has cart if no create one // get commodity id // add commidity to cart } (no code answer) im confused creating this psuedocode we have a user and a participant user only logs in but user can be a participant in backend only in participant model is association with user do we have to fetch all participants this could be huge

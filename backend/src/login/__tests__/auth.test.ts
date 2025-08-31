@@ -3,13 +3,14 @@ jest.mock('../../utils/appwrite.ts', () => ({
   OAuthProvider: { Google: 'google' },
 }));
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 import request from 'supertest';
 import mongoose, { Types } from 'mongoose';
 import bcrypt from 'bcrypt';
 import app from '../../app';
 import User from '../models/users.models';
-import dotenv from 'dotenv';
-dotenv.config();
 
 interface AdminUser {
   _id: Types.ObjectId;

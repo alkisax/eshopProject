@@ -1,38 +1,147 @@
+import mongoose from 'mongoose';
 import Transaction from '../models/transaction.models';
 import Participant from '../models/participant.models';
-import type { TransactionType, ParticipantType } from '../types/stripe.types';
+import Cart from '../models/cart.models';
+import { commodityDAO } from '../daos/commodity.dao';
+import type { TransactionType, ParticipantType, CommodityType } from '../types/stripe.types';
 import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.types';
 
 import { Types } from 'mongoose';
 
-// Create a new transaction
-const createTransaction = async (transactionData: Partial<TransactionType>): Promise<TransactionType> => {
+type PopulatedCartItem = {
+  commodity: CommodityType;   // always the full commodity now
+  quantity: number;
+  priceAtPurchase: number;
+};
 
-  // const existing = await Transaction.findById(transactionData._id);
-  // if (existing) {
-  //   throw new ValidationError('Transaction with this id already exists');
-  // }
+const createTransaction = async (
+  participantId: string | Types.ObjectId,
+  sessionId: string
+): Promise<TransactionType> => {
 
-  const transaction = new Transaction(transactionData);
-  try {
-    const result = await transaction.save();
-    return result;    
+  /*
+   σε αυτή τη συνάρτηση καλούσα πολλές φορές την βάση για να κάνω διάφορα. Να βρω τον participant, να βρώ το cart του, να σώσω την συναλλαγή του, να ενημερώσω τον participant για την νεα συναλαγή και να αδειάσω το crt. Αν κάτι χαλάσει στην μέση θα έχει κάνει κάποια και θα έχει αφήσει άλλα. Για αυτό η mongoose μου δίνει τα session που τα κάνει όλα bundle και αν δεν πετύχει κάποιο κάνει roll back
+      η σύνταξή του είναι ως εξής:
+      στην αρχή
+        const session = await mongoose.startSession();
+        session.startTransaction();
+      μετά σε όλα τα await της βάσης προσθέτω
+        .session(session)
+      στο save, αντι για .session(session) βάζω 
+        .save({ session })
+      και στα  queries το προσθέτω στο query
+            await Participant.findByIdAndUpdate(
+              participantId,
+              { $push: { transactions: result._id } },
+              { session }
+            );
+    **Προσοχη**
+    Stripe vs Mongoose session
+    Mongoose sessions = atomic DB transactions (all-or-nothing inside MongoDB).
+    Stripe = separate system. It does not automatically roll back your MongoDB if a payment fails halfway.
+    **That’s why you should**:
+    First confirm the payment success with Stripe (via webhook).
+    Then call your createTransaction with session.
+  */
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try{
+
+    // 1️⃣ Get participant
+    const participant = await Participant.findById(participantId).session(session);
+    if (!participant) {
+      throw new NotFoundError('Participant not found');
+    }
+
+    // 2️⃣ Get cart
+    // δεν καλούμε την λογική του cart dao create γιατί αυτή μου φτιάχνει ένα νέο cart αν δεν υπάρχει. εμείς εδώ είμαστε στο ταμείο και περιμένουμε απο τον πελάτη να έχει cart οταν φτάνει εδώ αλλιώς λάθος
+    const cart = await Cart.findOne({ participant: participantId }).populate<{ items: PopulatedCartItem[] }>('items.commodity').session(session);
+    if (!cart || cart.items.length === 0) {
+      throw new ValidationError('Cart is empty or not found');
+    }
+
+    // 3️⃣ Prevent duplicate sessions
+    const existingTransaction = await Transaction.findOne({ sessionId }).session(session);
+    if (existingTransaction) {
+      throw new ValidationError('Transaction already exists for this session');
+    }
+
+    // 4️⃣ Calculate total amount & snapshot items
+    const items = cart.items.map(item => ({
+      commodity: item.commodity._id,
+      quantity: item.quantity,
+      priceAtPurchase: item.priceAtPurchase
+    }));
+
+    // βρήσκω το συνολο της τιμής προϊόν * ποσοτητα για κάθε προϊόν
+    const amount = items.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
+
+    // 5️⃣ εδώ είναι η κατασκευή της τελικής συναλαγής μου που θα στείλω στο stripe. Eχει id πελάτη, αντικείμενα (με προϊόντα, ποσότητα, τιμή αγοράς), συνολική αξία, και αν έχει επεξεργαστεί. έχει ακόμα το id που χρησιμοποιήθηκε απο το stripe
+    const transaction = new Transaction({
+      participant: participantId,
+      items,
+      amount,
+      sessionId,
+      processed: false
+    });
+
+    const result = await transaction.save({ session });
+    // populate δεν χρειάζεται .session(session) Το populate είναι client-side operation
+    await result.populate<{ items: PopulatedCartItem[] }>('items.commodity');
+
+    // **ΠΡΟΣΟΧΗ** εδώ καλώ το sellCommodityById απο το commodity dao το οποίο το κάνω chain στο session
+    for (const item of items) {
+      await commodityDAO.sellCommodityById(item.commodity, item.quantity, session);  // <-- update stock
+    }
+
+    // Link transaction to participant
+    await Participant.findByIdAndUpdate(
+      participantId,
+      { $push: { transactions: result._id } },
+      { session }
+    );
+
+    // Clear cart after successful checkout
+    await Cart.findOneAndUpdate(
+      { participant: participantId },
+      { $set: { items: [] } },
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return result;
+
   } catch (err: unknown) {
+    await session.abortTransaction();
+    session.endSession();
+
+    if (err instanceof ValidationError) {
+      throw err;
+    };
+    if (err instanceof NotFoundError) {
+      throw err;
+    };
     if (err instanceof Error && err.name === 'ValidationError') {
       throw new ValidationError(err.message);
     }
-    throw new DatabaseError('error saving transaction');
+    throw new DatabaseError('Error saving transaction');
   }
 };
 
 // Find all transactions
 const findAllTransactions = async (): Promise<TransactionType[]> => {
-  return await Transaction.find().populate<{ participant: ParticipantType }>('participant');
+  return await Transaction.find()
+    .populate<{ participant: ParticipantType }>('participant')
+    .populate('items.commodity');
 };
 
 // Find transaction by ID
-const findTransactionById = async (transactionId: string | Types.ObjectId): Promise<TransactionType> => {
-  const response = await Transaction.findById(transactionId).populate<{ participant: ParticipantType }>('participant');
+const findTransactionById = async (transactionId: string | Types.ObjectId): Promise<TransactionType  & { participant: ParticipantType }> => {
+  const response = await Transaction.findById(transactionId)
+    .populate<{ participant: ParticipantType }>('participant')
+    .populate('items.commodity');
   if (!response) {
     throw new NotFoundError('Transaction does not exist');
   }
@@ -40,70 +149,112 @@ const findTransactionById = async (transactionId: string | Types.ObjectId): Prom
 };
 
 // I dont know what this is. i copy pasted it from another app. ill leave it commented out
-const findBySessionId = async (sessionId: string | Types.ObjectId): Promise<TransactionType> => {
-  const response =  await Transaction.findOne({ sessionId });
-  if (!response) {
-    throw new NotFoundError('Transaction does not exist');
-  }
+const findBySessionId = async (sessionId: string): Promise<TransactionType | null> => {
+  const response =  await Transaction.findOne({ sessionId })
+    .populate('participant')
+    .populate('items.commodity');
   return response;
 };
 
 const findTransactionsByProcessed = async (isProcessed: boolean): Promise<TransactionType[]> => {
-  const response =  await Transaction.find({ processed: isProcessed }).populate<{ participant: ParticipantType }>('participant');
-  // if (response.length === 0) {
-  //   throw new NotFoundError('No transaction is processed');
-  // }
+  const response =  await Transaction.find({ processed: isProcessed })
+    .populate<{ participant: ParticipantType }>('participant')
+    .populate('items.commodity');
   return response;
 };
 
-// Update a transaction (for example, changing the amount)
-const updateTransactionById = async (transactionId: string | Types.ObjectId, updatedData: Partial<TransactionType>): Promise<TransactionType> => {
+// Update a transaction (επιτρέπετε μόνο το toggle του processed γιατι είναι απόδειξη αγοράς)
+const updateTransactionById = async (
+  transactionId: string | Types.ObjectId,
+  updateData: Partial<TransactionType>
+): Promise<TransactionType> => {
   try {
-    const response = await Transaction.findByIdAndUpdate(transactionId, updatedData, { new: true, runValidators: true });
-    if (!response) {
-      throw new NotFoundError('transaction with this id does not exist');
+    // ✅ only "processed" is allowed
+    if (Object.keys(updateData).length !== 1 || !('processed' in updateData)) {
+      throw new ValidationError('Transactions are immutable and cannot be updated (only processed can be toggled)');
     }
-    return response;
+
+    const updated = await Transaction.findByIdAndUpdate(
+      transactionId,
+      { processed: updateData.processed },
+      { new: true, runValidators: true }
+    )
+      .populate('participant')
+      .populate('items.commodity');
+
+    if (!updated) {
+      throw new NotFoundError('Transaction not found');
+    }
+
+    return updated;
   } catch (err: unknown) {
     if (err instanceof Error && err.name === 'ValidationError') {
       throw new ValidationError(err.message);
     }
-    throw new DatabaseError('error updating transaction');
+    if (err instanceof NotFoundError) {
+      throw err;
+    };
+    throw new DatabaseError('Error updating transaction');
   }
 };
 
-const addTransactionToParticipant = async (participantId: string | Types.ObjectId, transactionId: string | Types.ObjectId): Promise<ParticipantType> => {
-  const existingParticipant = await Participant.findById(participantId);
-  const existingTransaction = await Transaction.findById(transactionId);
-  if ( !existingParticipant || !existingTransaction) {
-    throw new NotFoundError('partisipant or transaction 404');
-  }
+const addTransactionToParticipant = async (
+  participantId: string | Types.ObjectId,
+  transactionId: string | Types.ObjectId
+): Promise<ParticipantType> => {
+  try {
+    const existingParticipant = await Participant.findById(participantId);
+    const existingTransaction = await Transaction.findById(transactionId);
+    if (!existingParticipant || !existingTransaction) {
+      throw new NotFoundError('Participant or transaction not found');
+    }
 
-  const response = await Participant.findByIdAndUpdate(
-    participantId,
-    { $push: { transactions: transactionId } },
-    { new: true }
-  ); //"Find the participant and push this new transactionId into their transactions array."
-  if (!response) {
-    throw new NotFoundError('Participant 404');
+    const response = await Participant.findByIdAndUpdate(
+      participantId,
+      { $push: { transactions: transactionId } },
+      { new: true }
+    );
+
+    if (!response) {
+      throw new NotFoundError('Participant not found after update');
+    }
+
+    return response;
+  } catch (err: unknown) {
+    if (err instanceof NotFoundError) {
+      throw err; // bubble up expected
+    }
+    if (err instanceof Error && err.name === 'ValidationError') {
+      throw new ValidationError(err.message);
+    }
+    throw new DatabaseError('Error adding transaction to participant');
   }
-  return response;
 };
+
 
 // Delete a transaction by ID
-const deleteTransactionById = async (transactionId: string): Promise<TransactionType> => {
+const deleteTransactionById = async (transactionId: string | Types.ObjectId): Promise<TransactionType> => {
   const existing = await Transaction.findById(transactionId);
   if (!existing) {
     throw new NotFoundError('transaction 404');
   }
   
   try {
-    const response = await Transaction.findByIdAndDelete(transactionId);
+    const response = await Transaction.findByIdAndUpdate(
+      transactionId,
+      { $set: { cancelled: true } },
+      { new: true }
+    )
+      .populate('participant')
+      .populate('items.commodity');
     if (!response) {
       throw new DatabaseError('error deleting transaction');
     }
     return response;
-  } catch {
+  } catch (err: unknown) {
+    if (err instanceof NotFoundError) {
+      throw err;
+    };
     throw new DatabaseError('error deleting transaction');
   }
 };

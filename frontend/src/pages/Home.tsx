@@ -1,14 +1,19 @@
-import Login from "../authLogin/Login";
+import { Button } from "@mui/material"
+import { useNavigate } from "react-router-dom"
 
-interface Params {
-  url: string
-}
-const Home =({ url }: Params) => {
-  
+const Home =() => {
+  const navigate = useNavigate()
+
   return (
     <>
-      home
-      <Login url={url} />
+      <h1>home</h1> 
+      <Button 
+        variant="contained" 
+        color="primary" 
+        onClick={() => navigate("/store")}
+      >
+        Go to Store
+      </Button>
     </>
   )
 }

@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
+import dotenv from 'dotenv';
+dotenv.config();
+
 import mongoose, { Types } from 'mongoose';
 import request from 'supertest';
-import dotenv from 'dotenv';
 import app from '../../app';
 import bcrypt from 'bcrypt';
 import User from '../models/users.models';
@@ -10,8 +12,6 @@ import { userDAO } from '../dao/user.dao';
 jest.mock('../../utils/appwrite.ts', () => ({
   client: {},
 }));
-
-dotenv.config();
 
 console.log('MONGODB_TEST_URI exists?', !!process.env.MONGODB_TEST_URI);
 console.log('JWT_SECRET exists?', !!process.env.JWT_SECRET);
