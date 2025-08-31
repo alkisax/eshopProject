@@ -60,7 +60,7 @@ export interface CartType {
 }
 
 export interface CartItemType {
-  commodity: string | CommodityType;
+  commodity: CommodityType;
   quantity: number;
   priceAtPurchase: number;
 }
