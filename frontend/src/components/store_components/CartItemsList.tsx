@@ -1,17 +1,22 @@
 
+
 import axios from "axios";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import Loading from "../Loading";
 import { useContext, useEffect, useState } from "react";
 import { VariablesContext } from "../../context/VariablesContext";
 import type { CartType } from "../../types/commerce.types";
+import { useCheckout } from "../../hooks/useCheckout";
+
+import { Button } from "@mui/material";
 
 const CartItemsList = () => {
   const { url, globalParticipant } = useContext(VariablesContext);
-  // const { user, isLoading, setIsLoading } = useContext(UserAuthContext);
   const { setIsLoading, isLoading } = useContext(UserAuthContext);
   const [cart, setCart] = useState<CartType>()
-  // const [items, setItems] = useState<CartItemType[]>([])
+
+  const { handleCheckout } = useCheckout();
+
 
   useEffect(() => {
     const fetchCart= async () => {
@@ -51,24 +56,31 @@ const CartItemsList = () => {
             </li>
           ))}
         </ul>
+        
       )}
+
+      {cart && 
+        <p>
+          <strong>Total:</strong>{" "}
+          {cart.items.reduce(
+            (sum, item) => sum + item.commodity.price * item.quantity,
+            0
+          )}{" "}
+          {cart.items[0]?.commodity.currency || ""}
+        </p>
+      }
 
 
       {/* ✅ Mock checkout button */}
-      <button
-        style={{
-          marginTop: "1rem",
-          padding: "0.5rem 1rem",
-          fontSize: "1rem",
-          cursor: "pointer",
-        }}
-        onClick={() => {
-          console.log("TODO: integrate Stripe checkout");
-          alert("TODO: Proceed to checkout (Stripe)");
-        }}
+
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2 }}
+        onClick={() => {handleCheckout()}}
       >
         Proceed to Checkout
-      </button>
+      </Button>
     </>
   )
 }

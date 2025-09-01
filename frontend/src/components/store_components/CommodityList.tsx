@@ -23,7 +23,7 @@ const Store = () => {
 
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
 
-  const ITEMS_PER_PAGE = 3; // try smaller to test pagination
+  const ITEMS_PER_PAGE = 15; // try smaller to test pagination
 
   useEffect(() => {
     const fetchAllCommodities = async () => {
