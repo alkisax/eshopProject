@@ -36,6 +36,9 @@ const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
       const { data } = response.data;
   
       const stripe = await stripePromise
+      if (!stripe) {
+        throw new Error("Stripe failed to initialize");
+      }
       await stripe.redirectToCheckout({ sessionId: data.id })
     } catch (error) {
       console.error("Error during checkout:", error)
