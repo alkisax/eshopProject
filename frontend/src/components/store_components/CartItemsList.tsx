@@ -70,9 +70,6 @@ const CartItemsList = () => {
         </p>
       }
 
-
-      {/* ✅ Mock checkout button */}
-
       <Button
         variant="contained"
         color="primary"

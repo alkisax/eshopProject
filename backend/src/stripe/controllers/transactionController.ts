@@ -62,6 +62,22 @@ const findUnprocessed = async (_req: Request, res: Response) => {
   }
 };
 
+const findByParticipant = async (req: Request, res: Response) => {
+  const { participantId } = req.params;
+
+  if (!participantId) {
+    return res.status(400).json({ status: false, message: 'participantId is required' });
+  }
+
+  try {
+    const transactions = await transactionDAO.findByParticipantId(participantId);
+    return res.status(200).json({ status: true, data: transactions });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+
 // αυτή είναι σημαντική γιατί στέλνει αυτόματα το email
 const toggleProcessed = async (req: Request, res: Response) => {
   const transactionId = req.params.id;
@@ -111,6 +127,7 @@ export const transactionController = {
   create,
   findAll,
   findUnprocessed,
+  findByParticipant,
   toggleProcessed,
   deleteById
 };

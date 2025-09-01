@@ -25,6 +25,7 @@ import AdminLayout from "./Layouts/AdminLayout"
 import ProfileUser from './pages/ProfileUser'
 import Store from './pages/Store'
 import Cart from "./pages/Cart";
+import CheckoutSuccess from "./components/store_components/CheckoutSuccess";
 
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
         <Route path="/register-backend" element={<RegisterPageBackend url={url} />} />        
         <Route path="/google-success" element={<GoogleSuccess />} />
         <Route path="/github-success" element={<GithubSuccess />} />
+        <Route path="/checkout-success" element={<CheckoutSuccess />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/protected" element={<HomeAppwriteLogin />} />

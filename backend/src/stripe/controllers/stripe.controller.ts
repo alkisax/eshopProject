@@ -7,6 +7,7 @@ import { participantDao } from '../daos/participant.dao';
 import { Types } from 'mongoose';
 import { fetchCart } from '../daos/stripe.dao';
 import { CartType } from '../types/stripe.types';
+import { cartDAO } from '../daos/cart.dao';
 
 const createCheckoutSession = async (req: Request, res: Response) => {
   const participantId = req.body.participantId;
@@ -22,35 +23,43 @@ const createCheckoutSession = async (req: Request, res: Response) => {
 };
 
 // επειδή το τεστ γινόνταν με κανονικα λεφτα κράτησα μερικα url επιστροφής. αν τα βάλεις στον browser θα συμπεριφερθει σαν επιτυχεία συναλαγής δημιουργόντας transaction και ανανεώνοντας τον participant.
-// test url http://localhost:5173//api/stripe/success?success=true&session_id=cs_live_a1mkTS6fqvKZOmhtC9av3fmJoVGLpTae5WARcA3vclGPqs1CgNUzRxm5iu
-// test url http://localhost:5173/success?success=true&session_id=cs_live_a1n8TEyTBIrIsdg1taD0a2TjB5QaiCWTWSlGF6sslVeqXSnQgykb9yHDyp
-// test url http://localhost:5173/success?success=true&session_id=cs_live_a16HqUdBc0VjlzlhfxfzMCDML6jYuvKoSXYusUdEwcTOO3RKCuperj2RB7
-// deployed payment Eva Ntaliani alkisax@zohomail.eu
-// https://revistedtarotbiasapp.onrender.com/success?success=true&session_id=cs_live_a18fcYxUMoQTz0x2vKDz1tBokiUjYrh3IQ6AkWCQ4sP4IfEwgSDa1kqYaN
+// http://localhost:5173/checkout-success?session_id=cs_live_a1M7YbuVrH0XIIdahOgwfTdAhvteJsuFhAnLZvG66VGBw7lpSr27rnG292
+// http://localhost:5173/checkout-success?session_id=cs_live_a1VZ3MMjhOVL37pVe7RoOoVIswVZcItBOXD9SB5Wd3Nxh6egGyclzKCRdi
+//http://localhost:5173/checkout-success?session_id=cs_live_a1u5Qn0yiHn2hmITy0VHBIDEyT1LsWT7Xd4R7QQZTi4jFDVn3F4uLXSYyQ
+
 
 const handleSuccess = async (req: Request, res: Response) => {
   try {
     // συλλέγω διάφορα δεδομένα του χρήστη απο το url του success
     const sessionId = req.query.session_id as string;
     if (!sessionId) {
-      return res.status(400).json({ status: false, message: 'Missing session ID.' });
+      // return res.status(400).json({ status: false, message: 'Missing session ID.' });
+      // δεν θέλω να μου στείλει ένα json αλλα να με παει στην σελίδα λάθους. το json δεν θα έκανε render
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/cancel?error=missingSessionId`);
     }
 
     //prevent dublicate transactions
     const existingTransaction = await transactionDAO.findBySessionId(sessionId);
     if (existingTransaction) {
       return res.status(409).json({ status: false, message: 'Transaction already recorded.' });
+      // θα μπορούσα να το αλλάξω και να το κάνει να κάνει redirect στο success γιατι δεν είναι ακριβώς λάθος αλλα η συναλαγή έχει ήδη γίνει. Αλλα θα το αφήσω εδώ για να δείχνει οτι κάτι λάθος έγινε
     }
 
     // δεν είμαι σιγουρος τι κανει. αλλα μάλλον κάνει await το response
     const session = await stripeService.retrieveSession(sessionId);
+
+    // Ensure payment actually succeeded
+    if (session.payment_status !== 'paid') {
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/cancel?status=${session.payment_status || 'unknown'}`);
+    }
 
     const name = session.metadata?.name || '';
     const surname = session.metadata?.surname || '';
     const email  = session.metadata?.email || ''; 
 
     if (!email) {
-      return res.status(400).json({ status: false, message: 'Missing session ID.' });
+      // οχι json αλλα redirect στην σελλίδα λάθους
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/cancel?error=noEmailMetadata`);
     }
 
     // κάνω τα ευρώ σέντς
@@ -79,10 +88,18 @@ const handleSuccess = async (req: Request, res: Response) => {
       participant._id as Types.ObjectId,
       sessionId
     );
+    console.log(newTransaction);
+    
 
-    return res.status(200).json({ status: true, data: newTransaction, message: 'Success! Your purchase has been recorded. You will soon recive an email with the progress. Thank you!' });
+    // αδειάζω το cart
+    await cartDAO.clearCart(participant._id!);
+
+    // αντι να στείλουμε res.status(200) αφήνουμε να ολοκληρωθούν όλες οι backend λειτουργείες και μετά κάνουμε redirect στο success
+    return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout-success?session_id=${sessionId}`);
+
   } catch (error) {
-    return handleControllerError(res, error);
+    console.error('handleSuccess error:', error);
+    return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/cancel?error=server`);
   }
 };
 

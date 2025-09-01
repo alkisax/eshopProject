@@ -102,11 +102,11 @@ const createTransaction = async (
     );
 
     // Clear cart after successful checkout
-    await Cart.findOneAndUpdate(
-      { participant: participantId },
-      { $set: { items: [] } },
-      { session }
-    );
+    // await Cart.findOneAndUpdate(
+    //   { participant: participantId },
+    //   { $set: { items: [] } },
+    //   { session }
+    // );
 
     await session.commitTransaction();
     session.endSession();
@@ -148,7 +148,14 @@ const findTransactionById = async (transactionId: string | Types.ObjectId): Prom
   return response;
 };
 
-// I dont know what this is. i copy pasted it from another app. ill leave it commented out
+// sort -1 τα ποιο προσφατα πρώτα
+const findByParticipantId = async (participantId: string | Types.ObjectId) => {
+  return await Transaction.find({ participant: participantId })
+    .sort({ createdAt: -1 })
+    .populate<{ items:  { commodity: CommodityType }[]  }>('items.commodity');
+};
+
+// αυτο είναι για το session του stripe. δεν έχει ακόμα endpoint. ισως πρέπει να φτιαχτει
 const findBySessionId = async (sessionId: string): Promise<TransactionType | null> => {
   const response =  await Transaction.findOne({ sessionId })
     .populate('participant')
@@ -266,6 +273,7 @@ export const transactionDAO = {
   deleteTransactionById,
   updateTransactionById,
   findTransactionsByProcessed,
+  findByParticipantId,
   findBySessionId,
   addTransactionToParticipant
 };
