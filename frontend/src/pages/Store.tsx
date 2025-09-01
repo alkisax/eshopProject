@@ -7,7 +7,6 @@ const Store = () => {
 
   return (
     <>
-      store
       <br />
       <CommodityList />
     </>
