@@ -46,6 +46,15 @@ const findById = async (req: Request, res: Response) => {
   }
 };
 
+const getAllCategories = async (_req: Request, res: Response) => {
+  try {
+    const categories = await commodityDAO.getAllCategories();
+    return res.status(200).json({ status: true, data: categories });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 // PATCH update commodity
 const updateById = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -159,6 +168,7 @@ export const commodityController = {
   findAll,
   findById,
   create,
+  getAllCategories,
   updateById,
   sellById,
   deleteById,

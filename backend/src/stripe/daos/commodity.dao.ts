@@ -37,6 +37,16 @@ const findCommodityById = async (id: string | Types.ObjectId): Promise<Commodity
   return commodity;
 };
 
+const getAllCategories = async (): Promise<string[]> => {
+  const categories = await Commodity.aggregate([
+    { $unwind: '$category' },          // flatten arrays
+    { $match: { category: { $ne: '' } } }, // skip empty
+    { $group: { _id: '$category' } },  // unique
+    { $sort: { _id: 1 } }              // sort alphabetically
+  ]);
+  return categories.map(c => c._id);
+};
+
 // Update
 const updateCommodityById = async (
   id: string | Types.ObjectId,
@@ -165,10 +175,10 @@ export const commodityDAO = {
   createCommodity,
   findAllCommodities,
   findCommodityById,
+  getAllCategories,
   updateCommodityById,
   sellCommodityById,
   deleteCommodityById,
-
   addCommentToCommodity,
   clearCommentsFromCommodity,
   deleteCommentFromCommoditybyCommentId

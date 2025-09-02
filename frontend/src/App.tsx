@@ -27,6 +27,7 @@ import Store from './pages/Store'
 import Cart from "./pages/Cart";
 import CheckoutSuccess from "./components/store_components/CheckoutSuccess";
 import CommodityPage from "./components/store_components/CommodityPage";
+import StoreLayout from "./Layouts/storeLayout"
 
 
 function App() {
@@ -42,7 +43,11 @@ function App() {
       <Route element={<LayoutWithNavbar />}>
 
         <Route path="/" element={<Home />} />
-        <Route path="/store" element={<Store />} />
+        
+        <Route element={<StoreLayout />} >
+          <Route path="/store" element={<Store />} />
+        </Route>
+
         <Route path="/commodity/:id" element={<CommodityPage />} />
         <Route path="/cart" element={<Cart />} />
         

@@ -133,6 +133,29 @@ paths:
                   currency:
                     type: string
 
+
+  /api/commodity/categories:
+    get:
+      summary: Get all unique commodity categories
+      tags:
+        - Commodities
+      responses:
+        '200':
+          description: List of unique categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: string
+        '500':
+          description: Server error
+
   /api/commodity/{id}:
     get:
       summary: Get a commodity by ID
