@@ -5,16 +5,23 @@ import { VariablesContext } from "../../context/VariablesContext";
 import type { TransactionType } from "../../types/commerce.types";
 
 const CheckoutSuccess = () => {
-  const { url, globalParticipant } = useContext(VariablesContext);
+  const { url, globalParticipant, setGlobalParticipant } = useContext(VariablesContext);
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      if (!globalParticipant?._id) {
-        setLoading(false);
+      if (!globalParticipant?._id) 
+        {
+        const storedId = localStorage.getItem("guestParticipantId");
+        if (storedId) {
+          axios.get(`${url}/api/participant/${storedId}`).then(res => {
+            setGlobalParticipant(res.data.data);
+          });
+        }
         return;
       }
+
       try {
         const token = localStorage.getItem("token");  
         const res = await axios.get<{ status: boolean; data: TransactionType[] }>(
@@ -30,7 +37,7 @@ const CheckoutSuccess = () => {
     };
 
     fetchTransactions();
-  }, [globalParticipant?._id, url]);
+  }, [globalParticipant?._id, setGlobalParticipant, url]);
 
   if (loading) return <p>Loading your purchase history...</p>;
 
@@ -44,7 +51,7 @@ const CheckoutSuccess = () => {
     <>
       <p>Your payment was successful.</p>  
       <div style={{ padding: "1rem" }}>
-        <h2>✅ Thank you, {globalParticipant.name || "friend"}!</h2>
+        <h2>✅ Thank you, {globalParticipant.name || "customer - guest"}!</h2>
         <p>Your payment was successful.</p>
 
         {lastTransaction ? (
@@ -59,9 +66,10 @@ const CheckoutSuccess = () => {
             <p>
               <strong>Total:</strong> {lastTransaction.amount}€
             </p>
+            <p>✅ You will receive an email verification soon.</p>
           </>
         ) : (
-          <p>No recent purchase found.</p>
+          <p>You will receive an email verification soon.</p>
         )}
         
         {transactions.length > 1 && (

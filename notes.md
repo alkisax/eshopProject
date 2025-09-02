@@ -1,4 +1,5 @@
 # backend
+- **security issue:** if a user is logged in passes middleware. can access sensitive info of others? Θα πρέπει να φτιαχτούν διαφορετικά endpoints για τον guest που να κάνουν την ίδια δουλειά αλλα να μην έχουν verification middliware
 - delete only one comment ✅
 - bind participant to user ✅
 - transfer email message to .env ✅
@@ -20,11 +21,9 @@
 - left sidebar in store with criteria and search
 - chat gpt criteria optimiser
 - προηγούμενες αγορες ✅
+- profile page -> previous pages /change profile sidebar
+- crud εμπορευματων και transaction - admin pannel
 
-Validation
 
-Double-check you don’t allow accessing /api/transaction/participant/:id without ownership. Right now, you use verifyToken but not “ownership check” — a user could try to request another’s participantId.
-
-Easiest: check req.user.email === participant.email in controller.
 
 τι γινετε με το succes αν δεν είναι user. θα πρέπει να το παρκάμψουμε αλλα να δείχνει τελευταια αγορα μέσο φροντ εντ

@@ -26,6 +26,7 @@ import ProfileUser from './pages/ProfileUser'
 import Store from './pages/Store'
 import Cart from "./pages/Cart";
 import CheckoutSuccess from "./components/store_components/CheckoutSuccess";
+import CommodityPage from "./components/store_components/CommodityPage";
 
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
 
         <Route path="/" element={<Home />} />
         <Route path="/store" element={<Store />} />
+        <Route path="/commodity/:id" element={<CommodityPage />} />
         <Route path="/cart" element={<Cart />} />
         
 
