@@ -44,6 +44,8 @@ function App() {
 
         <Route path="/" element={<Home />} />
         
+        {/* used layout as origin of logic for store because its the component that encapsulates al the components. but this propably is not right because thats not the "layout" function. but will leave it as is */}
+        {/* layout works together with sidebar and item list */}
         <Route element={<StoreLayout />} >
           <Route path="/store" element={<Store />} />
         </Route>

@@ -18,6 +18,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
 
 interface StoreSidebarProps {
+  search: string;
   allCategories: string[];
   selectedCategories: string[];
   onSearch: (query: string) => void;
@@ -27,6 +28,7 @@ interface StoreSidebarProps {
 }
 
 const StoreSidebar: React.FC<StoreSidebarProps> = ({
+  search,
   allCategories,
   selectedCategories,
   onSearch,
@@ -49,7 +51,7 @@ const StoreSidebar: React.FC<StoreSidebarProps> = ({
         variant="outlined"
         size="small"
         fullWidth
-        value={""} // <- optional: pass down `search` state if you want controlled
+        value={search}                     // 👈 use the real state here
         onChange={(e) => onSearch(e.target.value)}
         sx={{ mb: 2, mt: 8 }}
       />

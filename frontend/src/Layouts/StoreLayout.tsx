@@ -51,15 +51,20 @@ const StoreLayout = () => {
     };
     fetchCategories();
   }, [url]);
-    
-  const filtered = commodities.filter((c) => {
-    const matchesCategory =
-      selectedCategories.length === 0 ||
-      selectedCategories.some((cat) => c.category.includes(cat));
-    const matchesSearch =
-      search === "" || c.name.toLowerCase().includes(search.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+ 
+  const filterBySearch = (items: CommodityType[], searchText: string) => {
+    if (!searchText) return items; // no filter if search is empty
+
+    const lowerSearch = searchText.toLowerCase();
+    return items.filter(c => c.name.toLowerCase().includes(lowerSearch));
+  };
+
+  const filterByCategory = (items: CommodityType[]) => {
+    if (selectedCategories.length === 0) return items;
+    return items.filter(c => selectedCategories.some(cat => c.category.includes(cat)));
+  };
+
+  const filtered = filterBySearch(filterByCategory(commodities), search);
 
   const pageCount = (Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice(
@@ -87,6 +92,7 @@ const StoreLayout = () => {
   return (
     <div style={{ display: "flex" }}>
       <StoreSidebar
+        search={search}
         allCategories={allCategories}
         selectedCategories={selectedCategories}
         onSearch={setSearch}
