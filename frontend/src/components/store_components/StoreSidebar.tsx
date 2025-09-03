@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Drawer,
   Toolbar,
@@ -12,45 +12,31 @@ import {
   Typography,
   IconButton,
   useMediaQuery,
+  Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
-import { VariablesContext } from "../../context/VariablesContext";
-import axios from "axios";
 
 interface StoreSidebarProps {
+  allCategories: string[];
+  selectedCategories: string[];
   onSearch: (query: string) => void;
   onToggleCategory: (category: string, checked: boolean) => void;
+  onApplyFilters: () => void;
+  onClearFilters: () => void;
 }
 
-const StoreSidebar: React.FC<StoreSidebarProps> = ({ onSearch, onToggleCategory }) => {
-
+const StoreSidebar: React.FC<StoreSidebarProps> = ({
+  allCategories,
+  selectedCategories,
+  onSearch,
+  onToggleCategory,
+  onApplyFilters,
+  onClearFilters,
+}) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // 👈 true on small screens
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const [categories, setCategories] = useState<string[]>([]);
-
-  const { url } = useContext(VariablesContext);
-
-    // ✅ Fetch categories from backend
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await axios.get<{ status: boolean; data: string[] }>(
-          `${url}/api/commodity/categories`
-        );
-        if (res.data.status) {
-          setCategories(res.data.data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch categories", err);
-        setCategories([]); // fallback to empty
-      }
-    };
-
-    fetchCategories();
-  }, [url]);
 
   const drawerContent = (
     <>
@@ -63,8 +49,9 @@ const StoreSidebar: React.FC<StoreSidebarProps> = ({ onSearch, onToggleCategory 
         variant="outlined"
         size="small"
         fullWidth
+        value={""} // <- optional: pass down `search` state if you want controlled
         onChange={(e) => onSearch(e.target.value)}
-        sx={{ mb: 2, mt: 8 }}   // 👈 extra margin top here
+        sx={{ mb: 2, mt: 8 }}
       />
 
       {/* 📦 Categories */}
@@ -73,11 +60,14 @@ const StoreSidebar: React.FC<StoreSidebarProps> = ({ onSearch, onToggleCategory 
       </Typography>
       <List dense disablePadding>
         <FormGroup>
-          {categories.map((cat) => (
+          {allCategories.map((cat) => (
             <ListItem key={cat} disablePadding>
               <FormControlLabel
                 control={
-                  <Checkbox onChange={(e) => onToggleCategory(cat, e.target.checked)} />
+                  <Checkbox
+                    checked={selectedCategories.includes(cat)}
+                    onChange={(e) => onToggleCategory(cat, e.target.checked)}
+                  />
                 }
                 label={cat}
               />
@@ -96,7 +86,7 @@ const StoreSidebar: React.FC<StoreSidebarProps> = ({ onSearch, onToggleCategory 
           onClick={() => setMobileOpen(!mobileOpen)}
           sx={{
             position: "fixed",
-            top: 72, // 👈 fixed distance below AppBar
+            top: 72,
             left: 8,
             zIndex: (theme) => theme.zIndex.drawer + 1,
             backgroundColor: "white",
@@ -119,7 +109,7 @@ const StoreSidebar: React.FC<StoreSidebarProps> = ({ onSearch, onToggleCategory 
           "& .MuiDrawer-paper": {
             width: 240,
             boxSizing: "border-box",
-            mt: isMobile ? 0 : "64px", // push below AppBar only on desktop
+            mt: isMobile ? 0 : "64px",
             borderRight: "1px solid #ddd",
             backgroundColor: "#f5f5f5",
             boxShadow: "2px 0 8px rgba(0,0,0,0.1)",
@@ -128,6 +118,24 @@ const StoreSidebar: React.FC<StoreSidebarProps> = ({ onSearch, onToggleCategory 
         }}
       >
         {drawerContent}
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{ mt: 2 }}
+          onClick={onApplyFilters}
+        >
+          Apply Filters
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          fullWidth
+          sx={{ mt: 1 }}
+          onClick={onClearFilters}
+        >
+          Clear Filters
+        </Button>
       </Drawer>
     </>
   );

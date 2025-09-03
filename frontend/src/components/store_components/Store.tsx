@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { Button, List, ListItem, ListItemButton, ListItemText, Pagination, Typography } from "@mui/material";
 import axios from "axios";
 
@@ -8,6 +8,12 @@ import { CartActionsContext } from '../../context/CartActionsContext'
 import type { CommodityType } from "../../types/commerce.types";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import Loading from "../Loading";
+
+type ContextType = {
+  search: string;
+  categories: string[];
+  filtersApplied: boolean;
+};
 
 const Store = () => {
   const { url } = useContext(VariablesContext);
@@ -20,10 +26,11 @@ const Store = () => {
   const [pageCount, setPageCount] = useState(0);
   const [loadingItemId] = useState<string | null>(null); //turning off add btn while prossecing to avoid axios spamming
 
-
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
 
   const ITEMS_PER_PAGE = 15; // try smaller to test pagination
+
+  const { search, categories, filtersApplied } = useOutletContext<ContextType>();
 
   useEffect(() => {
     const fetchAllCommodities = async () => {
@@ -55,7 +62,15 @@ const Store = () => {
     console.log('global participant', globalParticipant);
     
     fetchAllCommodities();
-  }, [currentPage, globalParticipant, setIsLoading, url]);
+  }, [filtersApplied, currentPage, globalParticipant, setIsLoading, url]);
+
+  const filtered = commodities.filter((c) => {
+    const matchesCategory =
+      categories.length === 0 || categories.some((cat) => c.category.includes(cat));
+    const matchesSearch =
+      search === "" || c.name.toLowerCase().includes(search.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
   
 
   // MUI pagination
@@ -73,7 +88,7 @@ const Store = () => {
         <Loading />
       ) : (
         <List>
-          {commodities.map((commodity) => (
+          {filtered.map((commodity) => (
             <ListItem
               key={commodity._id.toString()}
               sx={{ textDecoration: "none", color: "inherit" }}

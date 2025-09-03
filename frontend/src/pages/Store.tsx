@@ -1,4 +1,4 @@
-import CommodityList from '../components/store_components/CommodityList'
+import CommodityList from '../components/store_components/Store'
 
 const Store = () => {
   // const { url } = useContext(VariablesContext)  
