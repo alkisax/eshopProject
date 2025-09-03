@@ -18,12 +18,13 @@
 - minimal shop ✅
 - minimal cart page ✅ 
 - checkout ✅
-- right sidebar in store if cart with edit quantities
-- left sidebar in store with criteria and search
+- right sidebar in store if cart with edit quantities ✅
+- left sidebar in store with criteria and search ✅
 - chat gpt criteria optimiser
 - προηγούμενες αγορες ✅
 - profile page -> previous pages /change profile sidebar
 - crud εμπορευματων και transaction - admin pannel
+- πρέπει να δώσει υποχρεωτικα Mail ο guest για να του έρθει το confirmation
 
 
 
