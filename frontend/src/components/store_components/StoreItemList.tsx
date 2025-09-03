@@ -11,13 +11,15 @@ type ContextType = {
   pageCount: number;
   currentPage: number;
   setCurrentPage: (p: number) => void;
+  fetchCart: () => Promise<void>;
 };
 
 const StoreItemList = () => {
   const { addOneToCart } = useContext(CartActionsContext)!
   const { isLoading } = useContext(UserAuthContext);
 
-  const { commodities, pageCount, currentPage, setCurrentPage } = useOutletContext<ContextType>();
+  // επειδή αυτό δεν είναι ένα κανονικό παιδί του layout αλλα μπάινει στο outlet του, τα props έρχονται με την useOutletCOntext (δες και σχόλια στο layout)
+  const { commodities, pageCount, currentPage, setCurrentPage, fetchCart } = useOutletContext<ContextType>();
 
   const [loadingItemId] = useState<string | null>(null); //turning off add btn while prossecing to avoid axios spamming
 
@@ -37,6 +39,7 @@ const StoreItemList = () => {
       ) : (
         <List>
           {commodities.map((commodity) => (
+            // Η ιδιότητα secondaryAction είναι prop του MUI ListItem. Σου επιτρέπει να ορίσεις ένα δεύτερο στοιχείο/κουμπί/εικονίδιο που θα εμφανιστεί στα δεξιά του item. Είναι ο τυπικός τρόπος σε MUI lists να βάζεις actions (π.χ. delete, add to cart) χωρίς να χαλάει το layout.
             <ListItem
               key={commodity._id.toString()}
               sx={{ textDecoration: "none", color: "inherit" }}
@@ -45,9 +48,10 @@ const StoreItemList = () => {
                 <Button
                   variant="contained"
                   size="small"
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.preventDefault(); // prevent navigation when clicking Add
-                    addOneToCart(commodity._id);
+                    await addOneToCart(commodity._id);
+                    await fetchCart();
                   }}
                   disabled={loadingItemId === commodity._id}
                 >

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Drawer,
   Toolbar,
@@ -27,7 +27,7 @@ interface StoreSidebarProps {
   onClearFilters: () => void;
 }
 
-const StoreSidebar: React.FC<StoreSidebarProps> = ({
+const StoreSidebar = ({
   search,
   allCategories,
   selectedCategories,
@@ -35,28 +35,45 @@ const StoreSidebar: React.FC<StoreSidebarProps> = ({
   onToggleCategory,
   onApplyFilters,
   onClearFilters,
-}) => {
+}: StoreSidebarProps) => {
+
+  // Είναι React hook από το Material-UI (@mui/material/styles). Σου δίνει πρόσβαση στο theme Το theme είναι κάτι σαν "παγκόσμιο config" για styling. Το ορίζει το ThemeProvider που συνήθως βάζεις γύρω από όλη την app σου. και επειδή εδώ δεν έχουμε είναι default
   const theme = useTheme();
+  // ένα boolean που έρχετε απο το MUI
+  // Εδώ: true αν το πλάτος της οθόνης <= "sm".
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [localSearch, setLocalSearch] = useState(search);
+
+  // debounce 1/2
+  // αντι να ψάχνει κάθε φορα που γράφφετε ένα γράμμα έχει ένα μικρό delay
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onSearch(localSearch);
+    }, 50); 
+    return () => clearTimeout(timeout);
+  }, [localSearch, onSearch]);
 
   const drawerContent = (
     <>
       <Toolbar />
       <Divider />
 
-      {/* 🔍 Search box */}
+      {/* Search box */}
       <TextField
         label="Search products"
         variant="outlined"
         size="small"
         fullWidth
-        value={search}                     // 👈 use the real state here
-        onChange={(e) => onSearch(e.target.value)}
+        value={search}
+        // debounce 2/2
+        // onChange={(e) => onSearch(e.target.value)}
+        onChange={(e) => setLocalSearch(e.target.value)}
         sx={{ mb: 2, mt: 8 }}
       />
 
-      {/* 📦 Categories */}
+      {/* Categories */}
       <Typography variant="subtitle1" sx={{ mb: 1 }}>
         Categories
       </Typography>
@@ -119,6 +136,7 @@ const StoreSidebar: React.FC<StoreSidebarProps> = ({
           },
         }}
       >
+        {/* εδώ μου έρχετε το html/jsx που ορισαμε στην παραπάνω μεταβλητή. θα μπορούσε όλος ο κώδικας να είναι εδώ αλλα έχει χωριστεί για λόγους καθαρότητας */}
         {drawerContent}
         <Button
           variant="contained"
