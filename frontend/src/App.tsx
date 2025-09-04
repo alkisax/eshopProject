@@ -25,6 +25,9 @@ import AdminLayout from "./Layouts/AdminLayout"
 import ProfileUser from './pages/ProfileUser'
 import Store from './pages/Store'
 import Cart from "./pages/Cart";
+import CheckoutSuccess from "./components/store_components/CheckoutSuccess";
+import CommodityPage from "./components/store_components/CommodityPage";
+import StoreLayout from "./Layouts/StoreLayout"
 
 
 function App() {
@@ -40,7 +43,14 @@ function App() {
       <Route element={<LayoutWithNavbar />}>
 
         <Route path="/" element={<Home />} />
-        <Route path="/store" element={<Store />} />
+        
+        {/* used layout as origin of logic for store because its the component that encapsulates al the components. but this propably is not right because thats not the "layout" function. but will leave it as is */}
+        {/* layout works together with sidebar and item list */}
+        <Route element={<StoreLayout />} >
+          <Route path="/store" element={<Store />} />
+        </Route>
+
+        <Route path="/commodity/:id" element={<CommodityPage />} />
         <Route path="/cart" element={<Cart />} />
         
 
@@ -50,6 +60,7 @@ function App() {
         <Route path="/register-backend" element={<RegisterPageBackend url={url} />} />        
         <Route path="/google-success" element={<GoogleSuccess />} />
         <Route path="/github-success" element={<GithubSuccess />} />
+        <Route path="/checkout-success" element={<CheckoutSuccess />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/protected" element={<HomeAppwriteLogin />} />

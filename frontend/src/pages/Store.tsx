@@ -1,6 +1,4 @@
-// import { useContext } from "react"
-// import { VariablesContext } from "../context/VariablesContext"
-import CommodityList from '../components/store_components/CommodityList'
+import StoreItemList from '../components/store_components/StoreItemList'
 
 const Store = () => {
   // const { url } = useContext(VariablesContext)  
@@ -8,7 +6,7 @@ const Store = () => {
   return (
     <>
       <br />
-      <CommodityList />
+      <StoreItemList />
     </>
   )
 }

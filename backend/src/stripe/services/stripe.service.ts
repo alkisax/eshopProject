@@ -16,6 +16,7 @@ const createCheckoutSession = async (
   participantInfo: Partial<ParticipantType> = {}
 ) => {
   const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
 
   // added to get the participant info from front to be able to create a new transaction -> metadata come from front
   const metadata = {
@@ -27,12 +28,12 @@ const createCheckoutSession = async (
 
   const line_items: lineItemsType[] = buildLineItems(cart);
 
+  //Stripe will still show  Google Pay / Revolut if you have them enabled in your dashboard.
   return await stripe.checkout.sessions.create({
-    //Stripe will still show  Google Pay / Revolut if you have them enabled in your dashboard.
     mode: 'payment',
-    payment_method_types: ['card'],
+    payment_method_types: ['card', 'revolut_pay'],
     line_items,
-    success_url: `${FRONTEND_URL}/success?success=true&session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${BACKEND_URL}/api/stripe/success?success=true&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${FRONTEND_URL}/cancel?canceled=true`,
     metadata: metadata
   });

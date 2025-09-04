@@ -1,12 +1,12 @@
-import React from "react";
 import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Divider } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
+import GroupIcon from "@mui/icons-material/Group";
 
 interface AdminSidebarProps {
   onSelect: (panel: string) => void;
 }
 
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ onSelect }) => {
+const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
   return (
     <Drawer
       variant="permanent"
@@ -35,6 +35,33 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onSelect }) => {
               <PeopleIcon />
             </ListItemIcon>
             <ListItemText primary="Users" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("participants")}>
+            <ListItemIcon>
+              <GroupIcon />
+            </ListItemIcon>
+            <ListItemText primary="Participants" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("transactions")}>
+            <ListItemIcon>
+              <GroupIcon />
+            </ListItemIcon>
+            <ListItemText primary="Transactions" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("commodities")}>
+            <ListItemIcon>
+              <GroupIcon />
+            </ListItemIcon>
+            <ListItemText primary="Commodities" />
           </ListItemButton>
         </ListItem>
 

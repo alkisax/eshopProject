@@ -1,0 +1,163 @@
+import { Outlet } from "react-router-dom";
+import StoreSidebar from "../components/store_components/StoreSidebar";
+import { useCallback, useContext, useEffect, useState } from "react";
+import axios from "axios";
+import { VariablesContext } from "../context/VariablesContext";
+import { UserAuthContext } from "../context/UserAuthContext";
+import type { CartType, CommodityType } from "../types/commerce.types";
+import CartPreviewFooter from "../components/store_components/CartPreviewFooter";
+
+const StoreLayout = () => {
+  const { url } = useContext(VariablesContext);
+  const { setIsLoading } = useContext(UserAuthContext);
+
+  const [search, setSearch] = useState("");
+  const [filtersApplied, setFiltersApplied] = useState(false);
+  const [allCategories, setAllCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [commodities, setCommodities] = useState<CommodityType[]>([]);
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 15; // try smaller to test pagination
+
+  // φερνει τα commodities απο το backend
+  useEffect(() => {
+    const fetchAllCommodities = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${url}/api/commodity/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const allCommodities: CommodityType[] = res.data.data;
+
+        setCommodities(allCommodities);
+      } catch {
+        console.log("error fetching commodities");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAllCommodities();
+  }, [url, setIsLoading]);
+
+  // φέρνει όλες τις κατηγορίες για το filtering. θα μπορούσα να το έκανα και εδώ απο το commodities αλλα αφου έχω dedicated endpoint είναι μάλλον καλύτερα
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const res = await axios.get(`${url}/api/commodity/categories`);
+      if (res.data.status) {
+        setAllCategories(res.data.data);
+      }
+    };
+    fetchCategories();
+  }, [url]);
+ 
+  // 1/3
+  const filterBySearch = (items: CommodityType[], searchText: string) => {
+    if (!searchText) return items; // no filter if search is empty
+
+    const lowerSearch = searchText.toLowerCase();
+    return items.filter(commodity => commodity.name.toLowerCase().includes(lowerSearch));
+  };
+
+  // 2/3
+  const filterByCategory = (items: CommodityType[]) => {
+    if (selectedCategories.length === 0) return items; // no categories seected
+    return items.filter(c => selectedCategories.some(cat => c.category.includes(cat)));
+  };
+
+  // 3/3 συνένωση των δυο παραπάνω
+  const filtered = filterBySearch(filterByCategory(commodities), search);
+
+  // pagination
+  const pageCount = (Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginated = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // κάνει set το state με τις κατηγορίες που έχουν επιλεχθει
+  const handleToggleCategory = (cat: string, checked: boolean) => {
+    // Αν το checkbox μπήκε on (checked === true) → κάνουμε spread το προηγούμενο array και προσθέτουμε τη νέα κατηγορία. Αν το checkbox βγήκε off (checked === false) → κρατάμε όλες τις κατηγορίες εκτός από αυτήν
+    setSelectedCategories((prev) =>
+      checked ? [...prev, cat] : prev.filter((c) => c !== cat)
+    );
+  };
+
+  const handleApplyFilters = () => {
+    setFiltersApplied((prev) => !prev); // just toggle to re-trigger effect
+  };
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setSelectedCategories([]);
+    setFiltersApplied((prev) => !prev);
+  };
+
+  // απλό toggle που μπορεί να χρησιμοποιηθεί για re-render ή future side effects
+  console.log('filters applied', filtersApplied)
+
+  // FOOTER LOGIC
+  const { hasCart, globalParticipant } = useContext(VariablesContext);
+  const [cart, setCart] = useState<CartType | null>(null)
+
+  // copy/paste απο cartItemList
+  // 📝 Χρησιμοποιούμε useCallback για να "κλειδώσουμε" τη συνάρτηση fetchCart,// ώστε να μη δημιουργείται καινούρια σε κάθε render. Έτσι δεν τρελαίνεται το useEffect και αποφεύγουμε το άπειρο loop / warning για dependencies στο [] του useeffect.
+  const fetchCart = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await axios.get(`${url}/api/cart/${globalParticipant?._id}`);
+      const cartRes: CartType = res.data.data;
+      setCart(cartRes);
+    } catch {
+      console.log("error fetching cart");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [url, globalParticipant?._id, setIsLoading]);
+
+  useEffect(() => {
+    if (globalParticipant?._id) {
+      fetchCart();
+    }
+  }, [fetchCart, globalParticipant?._id, setIsLoading, url]);
+
+  // κανουμε render τρια πράγματα StoreSidebar το footer και Outlet (το Outlet ειναι placeholder του layout που θα καλυφθεί απο το StoreItemList μεσω του Store )
+  return (
+    <>
+      <div style={{ display: "flex",flexDirection: "column", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flexGrow: 1 }}>
+          <StoreSidebar
+            search={search}
+            allCategories={allCategories}
+            selectedCategories={selectedCategories}
+            onSearch={setSearch}
+            onToggleCategory={handleToggleCategory}
+            onApplyFilters={handleApplyFilters}
+            onClearFilters={handleClearFilters}
+          />
+          <main style={{ display: "flex", flexDirection: "column", flexGrow: 1, padding: "16px" }}>
+              {/*
+              - Props = δίνουμε τιμές/handlers κατευθείαν σε child component: <Child count={count} />
+              - Outlet context = δεν μπορούμε να περάσουμε props γιατί το child το δημιουργεί το router. Οπότε δίνουμε context στο <Outlet> και το child τα παίρνει με useOutletContext().
+              */}
+            <div style={{ flexGrow: 1 }}>
+              <Outlet context={{ commodities: paginated, pageCount, currentPage, fetchCart,setCurrentPage }} />              
+            </div>
+            <CartPreviewFooter 
+              hasCart={hasCart}
+              cart={cart}
+              fetchCart={fetchCart}
+            />
+          </main>
+      
+        </div>
+      </div>
+ 
+    </>
+  );
+};
+
+export default StoreLayout;

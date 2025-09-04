@@ -146,3 +146,97 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden (admin access required)
+          
+  /api/transaction/participant/{participantId}:
+    get:
+      summary: Get all transactions for a participant
+      description: >
+        Returns all transactions for a specific participant, sorted by most recent first.  
+        Requires authentication — only the participant’s owner can access their own transactions.
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: participantId
+          required: true
+          schema:
+            type: string
+            format: objectId
+          description: The ID of the participant whose transactions you want to fetch
+          example: "68ad7e285d9e6a24a76b249e"
+      responses:
+        '200':
+          description: A list of participant transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "68ad7e285d9e6a24a76b249e"
+                        participant:
+                          type: string
+                          example: "68ad7e285d9e6a24a76b249f"
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              commodity:
+                                type: object
+                                properties:
+                                  _id:
+                                    type: string
+                                    example: "68ad7e285d9e6a24a76b2500"
+                                  name:
+                                    type: string
+                                    example: "Sample Commodity"
+                                  price:
+                                    type: number
+                                    example: 9.99
+                                  currency:
+                                    type: string
+                                    example: "EUR"
+                              quantity:
+                                type: integer
+                                example: 2
+                              priceAtPurchase:
+                                type: number
+                                example: 9.99
+                        amount:
+                          type: number
+                          example: 19.98
+                        processed:
+                          type: boolean
+                          example: false
+                        cancelled:
+                          type: boolean
+                          example: false
+                        sessionId:
+                          type: string
+                          example: "cs_test_a1b2c3d4e5"
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2025-09-01T15:32:42.296Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2025-09-01T15:32:42.296Z"
+        '400':
+          description: Missing participantId
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (user not owner of participant)
+        '404':
+          description: Participant or transactions not found

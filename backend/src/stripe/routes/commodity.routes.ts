@@ -6,6 +6,7 @@ const router = Router();
 
 // 📖 Public: list and view commodities
 router.get('/', commodityController.findAll);
+router.get('/categories', commodityController.getAllCategories);
 router.get('/:id', commodityController.findById);
 
 // 🛒 Admin: create, update, delete commodities
