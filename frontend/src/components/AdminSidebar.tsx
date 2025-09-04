@@ -56,6 +56,15 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
           </ListItemButton>
         </ListItem>
 
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("commodities")}>
+            <ListItemIcon>
+              <GroupIcon />
+            </ListItemIcon>
+            <ListItemText primary="Commodities" />
+          </ListItemButton>
+        </ListItem>
+
         {/* Add more items with icons here */}
       </List>
     </Drawer>

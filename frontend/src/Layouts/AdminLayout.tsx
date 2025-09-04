@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import AdminSidebar from "../components/AdminSidebar";
 import AdminUsersPanel from "../components/AdminUsersPanel";
-import AdminParticipantsPanel from "../components/store_components/AdminParticipantsPanel ";
-import AdminTransactionsPanel from "../components/store_components/AdminTransactionsPanel";
+import AdminParticipantsPanel from "../components/store_components/adminPannelCommodity/AdminParticipantsPanel ";
+import AdminTransactionsPanel from "../components/store_components/adminPannelCommodity/AdminTransactionsPanel";
+import AdminCommoditiesPanel from "../components/store_components/adminPannelCommodity/AdminCommoditiesPanel"
 
 const AdminLayout = () => {
   const [activePanel, setActivePanel] = useState<string | null>(null);
@@ -15,6 +16,7 @@ const AdminLayout = () => {
         {activePanel === "users" && <AdminUsersPanel />}
         {activePanel === "participants" && <AdminParticipantsPanel />}
         {activePanel === "transactions" && <AdminTransactionsPanel />}
+        {activePanel === "commodities" && <AdminCommoditiesPanel />}
         {!activePanel && <p>Select a panel from the sidebar</p>}
         <Outlet />
       </main>

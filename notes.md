@@ -8,11 +8,13 @@
 - remove middleware from cart. guests need cart ✅
 - /cart/clean-junk /participant/clear-junk (longer than lastupdated a week)
 - stripe paypal and gpay (said its on stripe dashboard) ✅
+- appwrite image bucket
 - new category schema with supercategory, and allow parent category with arr of categories as child. Also some categories to have an atribute of "tag"
 - stripe webhooks
 - comment crud
 - comment and store multer and appwrrite image bucket
 - chat gpt profanity comment test. if not pass wait for admin aproval or delete after 5 days
+- participants must have shipping address
 
 # frontend
 - minimal shop ✅

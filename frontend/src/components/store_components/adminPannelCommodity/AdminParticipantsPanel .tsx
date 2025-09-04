@@ -1,9 +1,9 @@
 // src/components/admin/AdminParticipantsPanel.tsx
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { VariablesContext } from "../../context/VariablesContext";
-import type { ParticipantType } from "../../types/commerce.types";
-import { UserAuthContext } from "../../context/UserAuthContext";
+import { VariablesContext } from "../../../context/VariablesContext";
+import type { ParticipantType } from "../../../types/commerce.types";
+import { UserAuthContext } from "../../../context/UserAuthContext";
 import {
   Table, TableHead, TableRow, TableCell, TableBody,
   CircularProgress, Typography, Paper

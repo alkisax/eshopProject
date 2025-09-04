@@ -14,9 +14,9 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
-import { VariablesContext } from "../../context/VariablesContext";
-import { UserAuthContext } from "../../context/UserAuthContext";
-import type { TransactionType, ParticipantType } from "../../types/commerce.types";
+import { VariablesContext } from "../../../context/VariablesContext";
+import { UserAuthContext } from "../../../context/UserAuthContext";
+import type { TransactionType, ParticipantType } from "../../../types/commerce.types";
 
 const AdminTransactionsPanel = () => {
   const { url } = useContext(VariablesContext);
