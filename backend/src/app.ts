@@ -15,6 +15,7 @@ import emailRoutes from './stripe/routes/email.routes';
 import stripeRoutes from './stripe/routes/stripe.routes';
 import commodityRoutes from './stripe/routes/commodity.routes';
 import cartRoutes from './stripe/routes/cart.routes';
+import uploadMulterRoutes from './uploadMulter/upload.routes';
 
 const app = express();
 
@@ -45,6 +46,8 @@ app.use('/api/email', emailRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/commodity', commodityRoutes);
 app.use('/api/cart', cartRoutes);
+
+app.use('/api/upload-multer', uploadMulterRoutes);
 
 app.use(express.static('dist')); 
 

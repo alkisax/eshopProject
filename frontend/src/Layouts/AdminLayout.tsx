@@ -5,6 +5,8 @@ import AdminUsersPanel from "../components/AdminUsersPanel";
 import AdminParticipantsPanel from "../components/store_components/adminPannelCommodity/AdminParticipantsPanel ";
 import AdminTransactionsPanel from "../components/store_components/adminPannelCommodity/AdminTransactionsPanel";
 import AdminCommoditiesPanel from "../components/store_components/adminPannelCommodity/AdminCommoditiesPanel"
+import AdminLocalUploadsPanel from "../components/store_components/AdminLocalUploadPannel";
+
 
 const AdminLayout = () => {
   const [activePanel, setActivePanel] = useState<string | null>(null);
@@ -17,6 +19,7 @@ const AdminLayout = () => {
         {activePanel === "participants" && <AdminParticipantsPanel />}
         {activePanel === "transactions" && <AdminTransactionsPanel />}
         {activePanel === "commodities" && <AdminCommoditiesPanel />}
+        {activePanel === "uploads" && <AdminLocalUploadsPanel />}
         {!activePanel && <p>Select a panel from the sidebar</p>}
         <Outlet />
       </main>
