@@ -55,7 +55,8 @@ app.use(express.static('dist'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ✅ SERVE UPLOADS BEFORE DIST
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// ΠΡΟΣΟΧΗ το ../ στο path είναι συμαντικο. τα αρχεια μας βρίσκονται τελικά στον φάκελο dist
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // για να σερβίρει τον φακελο dist του front μετα το npm run build
 app.use(express.static('dist'));

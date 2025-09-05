@@ -39,19 +39,30 @@ const AdminLocalUploadsPanel = () => {
     const form = new FormData();
     form.append("image", file);
 
-    await axios.post(`${url}/api/upload-multer`, form, {
-      headers: { "Content-Type": "multipart/form-data" },
+    const token = localStorage.getItem("token");
+    await axios.post(`${url}/api/upload-multer?saveToMongo=true`, form, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
     });
+    
+    await fetchUploads();
     setFile(null);
-    fetchUploads();
   };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this file?")) return;
 
+    const token = localStorage.getItem("token");
     try {
       const res = await axios.delete<{ status: boolean; message: string }>(
-        `${url}/api/upload-multer/${id}`
+        `${url}/api/upload-multer/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (res.data.status) {
         // refresh the list
@@ -87,7 +98,8 @@ const AdminLocalUploadsPanel = () => {
 
       <List>
         {uploads.map((u) => (
-          <ListItem key={u._id}
+          <ListItem
+            key={u._id}
             secondaryAction={
               <Button
                 color="error"
@@ -97,17 +109,19 @@ const AdminLocalUploadsPanel = () => {
               </Button>
             }
           >
+            {u.file.contentType.startsWith("image/") && (
+              <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
+                <img
+                  src={u.file.url}
+                  alt={u.file.originalName}
+                  style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 4 }}
+                />
+              </Box>
+            )}
             <ListItemText
               primary={u.name || u.file.originalName}
               secondary={u.file.url}
             />
-            {u.file.contentType.startsWith("image/") && (
-              <img
-                src={u.file.url}
-                alt={u.file.originalName}
-                style={{ width: 60, marginLeft: 16 }}
-              />
-            )}
           </ListItem>
         ))}
       </List>

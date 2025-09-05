@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { account } from "../appwriteConfig";
+import { account } from "../../lib/appwriteConfig";
 import { ID } from "appwrite";
 import { Box, Button, TextField, Typography, Paper, Stack } from "@mui/material";
 
