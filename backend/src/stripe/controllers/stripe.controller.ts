@@ -12,7 +12,7 @@ import { cartDAO } from '../daos/cart.dao';
 const createCheckoutSession = async (req: Request, res: Response) => {
   const participantId = req.body.participantId;
   const participantInfo = req.body.participantInfo;
-  const shippinginfo = req.body.shippinginfo;
+  const shippinginfo = req.body.shippingInfo;
 
   try {
     const cart: CartType = await fetchCart(participantId);
