@@ -8,7 +8,8 @@ import Loading from "../Loading";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { VariablesContext } from "../../context/VariablesContext";
 import type { CartType } from "../../types/commerce.types";
-import { useCheckout } from "../../hooks/useCheckout";
+// removed for passing first through sipping info
+// import { useCheckout } from "../../hooks/useCheckout";
 
 import { Button, IconButton, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -24,7 +25,8 @@ const CartItemsList = () => {
   const { setIsLoading, isLoading } = useContext(UserAuthContext);
   const [cart, setCart] = useState<CartType>()
 
-  const { handleCheckout } = useCheckout();
+  // removed for passing first through sipping info
+  // const { handleCheckout } = useCheckout();
 
   const navigate = useNavigate();
 
@@ -155,15 +157,15 @@ const CartItemsList = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => handleCheckout()}
+          onClick={() => navigate("/shipping-info")}
         >
-          Proceed to Checkout
+          Proceed to shipping info
         </Button>
 
         <Button
           variant="outlined"
           color="secondary"
-          onClick={() => navigate("/store")} // 👈 change "/store" to your shop route
+          onClick={() => navigate("/store")}
         >
           Continue Shopping
         </Button>

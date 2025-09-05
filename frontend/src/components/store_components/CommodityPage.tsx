@@ -178,7 +178,7 @@ const CommodityPage = () => {
                 <Typography variant="body2">
                   <strong>User:</strong> {c.user}
                 </Typography>
-                {/* ΕΔΩ ΟΙ ΑΛΛΑΓΕ΅ΓΙΑ EDITOR JS */}
+                {/* ΕΔΩ ΟΙ ΑΛΛΑΓΕΣ ΓΙΑ EDITOR JS */}
                 <Typography variant="body2">
                   {typeof c.text === "string" ? c.text : JSON.stringify(c.text)}
                 </Typography>

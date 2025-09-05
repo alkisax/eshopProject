@@ -53,8 +53,8 @@ function App() {
 
         <Route path="/commodity/:id" element={<CommodityPage />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/shipping-info" element={<Cart />} />
         
-
         <Route path="/login" element={<Login url={url} />} />
         <Route path="/signup" element={<GoogleLogin url={url} />} />
         <Route path="/register-appwrite" element={<RegisterPageAppwriteLogin />} />

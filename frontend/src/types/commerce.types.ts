@@ -23,6 +23,17 @@ export interface TransactionType {
   updatedAt?: Date;
 }
 
+export interface ShippingInfoType {
+  fullName: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  phone?: string;
+  notes?: string;
+}
+
 export interface CommodityType {
   _id: string;
   name: string;

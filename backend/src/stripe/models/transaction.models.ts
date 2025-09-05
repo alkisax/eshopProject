@@ -19,6 +19,17 @@ const transactionItemSchema = new Schema({
   }
 }, { _id: false });
 
+const shippingSchema = new Schema({
+  fullName: String,
+  addressLine1: String,
+  addressLine2: String,
+  city: String,
+  postalCode: String,
+  country: String,
+  phone: String,
+  notes: String,
+}, { _id: false });
+
 const transactionSchema = new Schema({
   participant: {
     type: mongoose.Schema.Types.ObjectId, // This stores a reference (ID) to a Participant document
@@ -34,6 +45,7 @@ const transactionSchema = new Schema({
     type: Number,
     required: [true, 'amount is required'],
   },
+  shipping: shippingSchema,
   processed:{
     type: Boolean,
     default: false
