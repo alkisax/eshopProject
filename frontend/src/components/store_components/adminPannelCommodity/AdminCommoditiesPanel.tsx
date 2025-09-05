@@ -12,6 +12,7 @@ import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
 import type { CommodityType } from "../../../types/commerce.types";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import React from "react";
 import AdminCommodityFooter from "./AdminCommodityFooter";
 
@@ -25,6 +26,10 @@ const AdminCommoditiesPanel = () => {
   const [pageCount, setPageCount] = useState(0);
   const [expanded, setExpanded] = useState<string | null>('')
 
+  // 📍 React Router hook that gives info about the current URL (path, query, state).
+  // Here we use it to detect { state: { refresh: true } } when navigating back from "Add Commodity"
+  // so we know to re-fetch the commodity list.
+  const location = useLocation();
   const navigate = useNavigate();
 
   const fetchCommodities = useCallback(async () => {
@@ -47,6 +52,13 @@ const AdminCommoditiesPanel = () => {
   useEffect(() => {
     fetchCommodities();
   }, [fetchCommodities, url]);
+
+  // αυτο προστέθηκε για να μπορεί το new commodity που βρίσκετε σε διαφορετικό endpoint αλλα κάνει render στην ιδια σελίδα να προκαλεί refresh στα αντικείμενα οταν προστήθετε κάτι νέο. Χρησιμοποιεί useLocation. δες σχολιο παραπάνω
+  useEffect(() => {
+    if (location.state?.refresh) {
+      fetchCommodities();
+    }
+  }, [location.state, fetchCommodities]);
 
   const handleSaveCommodity = async (
     id: string,
@@ -116,7 +128,7 @@ const AdminCommoditiesPanel = () => {
   };
 
   const handleAdd = () => {
-    navigate(`/admin/commodity/new`);
+    navigate(`/admin-panel/commodity/new`);
   };
 
   // edit logic in footer

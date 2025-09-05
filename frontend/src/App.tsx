@@ -28,6 +28,7 @@ import Cart from "./pages/Cart";
 import CheckoutSuccess from "./components/store_components/CheckoutSuccess";
 import CommodityPage from "./components/store_components/CommodityPage";
 import StoreLayout from "./Layouts/StoreLayout"
+import AdminAddNewCommodity from "./components/store_components/adminPannelCommodity/AdminAddNewCommodity";
 
 
 function App() {
@@ -69,7 +70,8 @@ function App() {
 
         <Route element={<AdminPrivateRoute />}>
           <Route element={<AdminLayout />}>
-            <Route path="/admin-panel" element={<AdminPanel />} />           
+            <Route path="/admin-panel" element={<AdminPanel />} />
+            <Route path="/admin-panel/commodity/new" element={<AdminAddNewCommodity />} />  
           </Route>
         </Route>
         
