@@ -32,7 +32,6 @@ const AdminTransactionsPanel = () => {
 
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
   const [showAll, setShowAll] = useState(false);
-
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<TransactionType | null>(null);
 

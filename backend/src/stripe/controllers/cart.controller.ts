@@ -13,6 +13,16 @@ const getCart = async (req: Request, res: Response) => {
   }
 };
 
+// get all carts
+const getAllCarts = async (_req: Request, res: Response) => {
+  try {
+    const cart = await cartDAO.getAllCarts();
+    return res.status(200).json({ status: true, data: cart });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 // POST create empty cart
 const createCart = async (req: Request, res: Response) => {
   const participantId = req.body.participantId;
@@ -62,10 +72,22 @@ const clearCart = async (req: Request, res: Response) => {
   }
 };
 
+// clear old carts (<5days)
+const deleteOldCarts = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const deletedCount = await cartDAO.deleteOldCarts(5);
+    res.status(200).json({ status: true, message: `${deletedCount} carts older than 5 days were deleted.` });
+  } catch (error) {
+    handleControllerError(res, error);
+  }
+};
+
 export const cartController = {
   getCart,
+  getAllCarts,
   createCart,
   addOrRemoveItem,
   updateQuantity,
   clearCart,
+  deleteOldCarts
 };

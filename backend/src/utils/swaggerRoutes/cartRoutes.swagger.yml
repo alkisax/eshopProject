@@ -78,6 +78,26 @@ paths:
           description: Unauthorized
         '409':
           description: Cart already exists
+    get:
+      summary: Get all carts
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: List of all carts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Cart'
+        '500':
+          description: Server error
 
   /api/cart/{participantId}/items:
     patch:
@@ -158,3 +178,30 @@ paths:
           description: Unauthorized
         '404':
           description: Cart or item not found
+          
+  /api/cart/clear/old:
+    delete:
+      summary: Delete carts older than 5 days
+      security:
+        - bearerAuth: []
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Old carts cleared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "3 carts older than 5 days were deleted."
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error
