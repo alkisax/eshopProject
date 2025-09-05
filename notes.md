@@ -29,9 +29,10 @@
 - chat gpt criteria optimiser
 - προηγούμενες αγορες ✅
 - crud εμπορευματων και transaction - admin pannel ✅
-- add create commodity to admin panel → commodity tab
-- add image to commodity admin panel → commodity tab → edit
+- add create commodity to admin panel → commodity tab ✅
+- add image to commodity admin panel → commodity tab → edit ✅
 - πρέπει να δώσει υποχρεωτικα Mail ο guest για να του έρθει το confirmation
+- πόσα έχουν πουληθεί στο admin pannel commodities
 
 
 

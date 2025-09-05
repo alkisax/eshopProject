@@ -27,8 +27,8 @@ export interface CommodityType {
   _id: string;
   name: string;
   description?: string;
-  category: string[]
-  price: number; //must be /100 to be in euro cents
+  category: string[];
+  price: number;
   currency: string;
   stripePriceId: string;
   soldCount: number;
@@ -36,6 +36,8 @@ export interface CommodityType {
   active: boolean;
   images?: string[];
   comments?: CommentType[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CommentType {
