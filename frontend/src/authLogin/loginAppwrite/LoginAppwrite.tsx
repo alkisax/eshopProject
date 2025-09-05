@@ -5,7 +5,7 @@ import { Link, useNavigate  } from "react-router-dom";
 import axios from "axios";
 import { Box, Button, TextField, Typography, IconButton, InputAdornment } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { account } from "../appwriteConfig";
+import { account } from "../../lib/appwriteConfig";
 import { UserAuthContext } from "../../context/UserAuthContext";
 
 interface params {

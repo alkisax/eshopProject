@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState  } from "react";
 import { jwtDecode } from "jwt-decode";
 import axios from 'axios';
-import { account } from "../authLogin/appwriteConfig"; 
+import { account } from "../lib/appwriteConfig"; 
 import type { AppwriteUser, GoogleJwtPayload, UserAuthContextType, UserProviderProps, BackendJwtPayload, GithubJwtPayload } from "../types/types";
 import type { IUser } from "../types/types"
 

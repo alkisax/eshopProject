@@ -1,4 +1,4 @@
-import { account } from "./appwriteConfig";
+import { account } from "../lib/appwriteConfig";
 import type { IUser } from "../types/types"
 
 type SetUser = (user: IUser | null) => void;

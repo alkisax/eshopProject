@@ -1,6 +1,6 @@
 // https://www.youtube.com/watch?v=Bx1JqfPROXA
 
-import { account } from "../appwriteConfig";
+import { account } from "../../lib/appwriteConfig";
 import { OAuthProvider } from "appwrite";
 import { Box, Button } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
