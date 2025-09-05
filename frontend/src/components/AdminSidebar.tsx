@@ -2,6 +2,7 @@ import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Too
 import PeopleIcon from "@mui/icons-material/People";
 import GroupIcon from "@mui/icons-material/Group";
 import UploadIcon from "@mui/icons-material/Upload";
+import { CloudUpload } from "@mui/icons-material";
 
 interface AdminSidebarProps {
   onSelect: (panel: string) => void;
@@ -63,6 +64,15 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
               <GroupIcon />
             </ListItemIcon>
             <ListItemText primary="Commodities" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("cloudUploads")}>
+            <ListItemIcon>
+              <CloudUpload />
+            </ListItemIcon>
+            <ListItemText primary="cloud Uploads (use this)" />
           </ListItemButton>
         </ListItem>
 
