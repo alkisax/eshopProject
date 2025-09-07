@@ -240,3 +240,34 @@ paths:
           description: Forbidden (user not owner of participant)
         '404':
           description: Participant or transactions not found
+          
+  /api/transaction/clear/old:
+    delete:
+      summary: Delete processed transactions older than 5 days (admin only)
+      description: >
+        Permanently deletes all transactions that are marked as `processed: true`  
+        and have an `updatedAt` timestamp older than 5 days.  
+        Useful for cleanup and database hygiene.
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Old processed transactions deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "3 processed transactions older than 5 days were deleted."
+        '401':
+          description: Unauthorized (no token provided)
+        '403':
+          description: Forbidden (non-admin user)
+        '500':
+          description: Server error

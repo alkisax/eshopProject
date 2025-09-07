@@ -118,7 +118,7 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
           localStorage.removeItem("guestParticipantId");
         }
       } else {
-        // 4c. if no create a sth to lockal storage.
+        // 4c. if no create a guest participant to lockal storage.
         const uuidGuest = uuidv4();
         const guestEmail = `guest-${uuidGuest}@eshop.local`;
 
@@ -126,7 +126,7 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
           name: "",
           surname: "",
           email: guestEmail,
-          user: "",
+          user: null,
           transactions: [],
         };
 

@@ -268,11 +268,25 @@ const deleteTransactionById = async (transactionId: string | Types.ObjectId): Pr
   }
 };
 
+// delete processed transactions older than 5 days
+const deleteOldProcessedTransactions = async (days = 5): Promise<number> => {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+
+  const result = await Transaction.deleteMany({
+    processed: true,
+    updatedAt: { $lt: cutoff },
+  });
+
+  return result.deletedCount ?? 0;
+};
+
 export const transactionDAO = {
   findAllTransactions,
   findTransactionById,
   createTransaction,
   deleteTransactionById,
+  deleteOldProcessedTransactions,
   updateTransactionById,
   findTransactionsByProcessed,
   findByParticipantId,

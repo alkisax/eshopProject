@@ -123,11 +123,24 @@ const deleteById = async (req: Request, res: Response) => {
   }
 };
 
+const deleteOldProcessedTransactions = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const deletedCount = await transactionDAO.deleteOldProcessedTransactions(5);
+    res.status(200).json({
+      status: true,
+      message: `${deletedCount} processed transactions older than 5 days were deleted.`,
+    });
+  } catch (error) {
+    handleControllerError(res, error);
+  }
+};
+
 export const transactionController = {
   create,
   findAll,
   findUnprocessed,
   findByParticipant,
   toggleProcessed,
-  deleteById
+  deleteById,
+  deleteOldProcessedTransactions
 };

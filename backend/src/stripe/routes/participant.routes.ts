@@ -8,6 +8,6 @@ router.get ('/', middleware.verifyToken, middleware.checkRole('ADMIN'), particip
 router.get('/by-email', participantController.findByEmail);
 router.get('/:id', participantController.findById);
 router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), participantController.deleteById);
-
+router.delete( '/clear/old-guests', middleware.verifyToken, middleware.checkRole('ADMIN'), participantController.deleteOldGuestParticipants);
 
 export default router;
