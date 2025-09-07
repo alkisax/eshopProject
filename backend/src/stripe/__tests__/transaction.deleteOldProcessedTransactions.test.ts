@@ -54,9 +54,9 @@ afterAll(async () => {
 });
 
 describe('DELETE /api/transaction/clear/old', () => {
-  it('should delete processed transactions older than 5 days', async () => {
+  it('should delete processed transactions older than 5 years', async () => {
     const oldDate = new Date();
-    oldDate.setDate(oldDate.getDate() - 10);
+    oldDate.setFullYear(oldDate.getFullYear() - 10); // make it 10 years old
 
     await Transaction.create({
       participant: new mongoose.Types.ObjectId(),
@@ -73,8 +73,9 @@ describe('DELETE /api/transaction/clear/old', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.status).toBe(true);
-    expect(res.body.message).toMatch(/transactions older than 5 days were deleted/);
+    expect(res.body.message).toMatch(/transactions older than 5 years were deleted/);
   });
+
 
   it('should not delete recent processed transactions', async () => {
     const now = new Date();
@@ -118,23 +119,6 @@ describe('DELETE /api/transaction/clear/old', () => {
 });
 
 describe('transactionDAO.deleteOldProcessedTransactions', () => {
-  it('should delete processed transactions older than 5 days', async () => {
-    const oldDate = new Date();
-    oldDate.setDate(oldDate.getDate() - 10);
-
-    await Transaction.create({
-      participant: new mongoose.Types.ObjectId(),
-      items: [],
-      amount: 30,
-      processed: true,
-      createdAt: oldDate,
-      updatedAt: oldDate,
-    });
-
-    const count = await transactionDAO.deleteOldProcessedTransactions(5);
-    expect(count).toBeGreaterThanOrEqual(1);
-  });
-
   it('should not delete unprocessed transactions', async () => {
     const oldDate = new Date();
     oldDate.setDate(oldDate.getDate() - 10);

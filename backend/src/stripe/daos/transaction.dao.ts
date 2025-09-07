@@ -269,9 +269,10 @@ const deleteTransactionById = async (transactionId: string | Types.ObjectId): Pr
 };
 
 // delete processed transactions older than 5 days
-const deleteOldProcessedTransactions = async (days = 5): Promise<number> => {
+const deleteOldProcessedTransactions = async (years = 5): Promise<number> => {
   const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - days);
+  // cutoff.setDate(cutoff.getDate() - years);
+  cutoff.setFullYear(cutoff.getFullYear() - years);
 
   const result = await Transaction.deleteMany({
     processed: true,

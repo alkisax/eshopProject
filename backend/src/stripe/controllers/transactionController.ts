@@ -128,7 +128,7 @@ const deleteOldProcessedTransactions = async (_req: Request, res: Response): Pro
     const deletedCount = await transactionDAO.deleteOldProcessedTransactions(5);
     res.status(200).json({
       status: true,
-      message: `${deletedCount} processed transactions older than 5 days were deleted.`,
+      message: `${deletedCount} processed transactions older than 5 years were deleted.`,
     });
   } catch (error) {
     handleControllerError(res, error);
