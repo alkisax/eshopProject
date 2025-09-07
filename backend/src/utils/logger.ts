@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from 'winston';
-import 'winston-mongodb';
+// import 'winston-mongodb';
 
 const logger = createLogger({
   format: format.combine(

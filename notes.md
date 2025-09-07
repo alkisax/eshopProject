@@ -9,13 +9,13 @@
 - remove middleware from cart. guests need cart ✅
 - /cart/clean-junk ✅ clear old transactions✅ /participant/clear ✅(longer than lastupdated a week)
 - stripe paypal and gpay (said its on stripe dashboard) ✅
+- stripe webhooks
 - multer upload ✅
 - appwrite image bucket ✅
 - clear junk endpoint✅
 - (what happens to deleted commodity images?)
-- add logger to save to file after stripe success 
+- add logger to save to file after stripe success ✅
 - new category schema with supercategory, and allow parent category with arr of categories as child. Also some categories to have an atribute of "tag"
-- stripe webhooks
 - comment crud
 - participants must have shipping address end email / users must have shipping address ✅ implemented by adding shipping info to transaction
 - chat gpt profanity comment test. if not pass wait for admin aproval or delete after 5 days

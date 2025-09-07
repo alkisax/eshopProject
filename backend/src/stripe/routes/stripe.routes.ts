@@ -8,4 +8,6 @@ router.get('/success', stripeController.handleSuccess);
 
 router.get('/cancel', stripeController.handleCancel);
 
+router.post( '/webhook', express.raw({ type: 'application/json' }), stripeController.handleWebhook);
+
 export default router;
