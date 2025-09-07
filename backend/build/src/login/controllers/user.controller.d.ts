@@ -1,0 +1,30 @@
+import { z } from 'zod';
+import type { Request, Response } from 'express';
+import type { AuthRequest } from '../types/user.types';
+export declare const updateZodUserSchema: z.ZodObject<{
+    username: z.ZodOptional<z.ZodString>;
+    password: z.ZodOptional<z.ZodString>;
+    name: z.ZodOptional<z.ZodOptional<z.ZodString>>;
+    email: z.ZodOptional<z.ZodOptional<z.ZodEmail>>;
+    roles: z.ZodOptional<z.ZodOptional<z.ZodArray<z.ZodString>>>;
+}, z.core.$strip>;
+export declare const createUser: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const createAdmin: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const findAll: (_req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const readById: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const readByUsername: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const readByEmail: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const toggleRoleById: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const updateById: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const deleteById: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const userController: {
+    createUser: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+    createAdmin: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+    findAll: (_req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+    readById: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+    readByUsername: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+    readByEmail: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+    toggleRoleById: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>>>;
+    updateById: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>>>;
+    deleteById: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+};

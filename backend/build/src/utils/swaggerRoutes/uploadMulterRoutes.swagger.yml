@@ -1,0 +1,170 @@
+openapi: 3.1.0
+info:
+  title: UploadMulter API
+  version: "1.0.0"
+  description: Endpoints for uploading, listing, and deleting files using multer.
+tags:
+  - name: UploadMulter
+    description: Endpoints for uploading, listing, and deleting files with multer
+
+paths:
+  /api/upload-multer:
+    get:
+      tags: [UploadMulter]
+      summary: List all uploads (Mongo only)
+      description: Returns metadata of all uploaded files saved in MongoDB. Files uploaded with `?saveToMongo=false` are not included.
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: 66f4abc12345...
+                        name:
+                          type: string
+                          example: my-mongo-image
+                        desc:
+                          type: string
+                          example: stored in db
+                        file:
+                          type: object
+                          properties:
+                            contentType:
+                              type: string
+                              example: image/jpeg
+                            originalName:
+                              type: string
+                              example: owl-sword-logo1.jpg
+                            filename:
+                              type: string
+                              example: 169...-....jpg
+                            size:
+                              type: integer
+                              example: 98013
+                            extension:
+                              type: string
+                              example: jpg
+    post:
+      tags: [UploadMulter]
+      summary: Upload a file
+      description: |
+        Uploads a file using multipart/form-data.  
+        - If `?saveToMongo=false` → saves only to disk (in `/uploads`).  
+        - If `?saveToMongo=true` → saves to disk **and** persists metadata in MongoDB.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: File to upload
+                name:
+                  type: string
+                  example: test-file
+                desc:
+                  type: string
+                  example: just for test
+      responses:
+        "200":
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: integer
+                        example: 1
+                      file:
+                        type: object
+                        properties:
+                          url:
+                            type: string
+                            example: http://localhost:3001/uploads/owl-sword-logo1.jpg
+                          name:
+                            type: string
+                            example: owl-sword-logo1.jpg
+                          size:
+                            type: integer
+                            example: 98013
+                          type:
+                            type: string
+                            example: image/jpeg
+                          extension:
+                            type: string
+                            example: jpg
+                          filename:
+                            type: string
+                            example: owl-sword-logo1.jpg
+
+  /api/upload-multer/{id}:
+    delete:
+      tags: [UploadMulter]
+      summary: Delete an uploaded file (Mongo only)
+      description: Deletes the file record from MongoDB and removes the file from disk.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: MongoDB ID of the upload
+      responses:
+        "200":
+          description: Deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: File deleted successfully
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: File not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

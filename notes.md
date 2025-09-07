@@ -34,4 +34,14 @@
 - add image to commodity admin panel → commodity tab → edit ✅
 - πρέπει να δώσει υποχρεωτικα Mail ο guest για να του έρθει το confirmation ✅
 - πόσα έχουν πουληθεί στο admin pannel commodities ✅
+- notes in shipping unresponcive
 - chat gpt criteria optimiser
+
+
+# notes
+### Render setup
+Root Directory: leave blank (since backend + frontend are in root).
+Build Command:
+`cd frontend && npm install && npm run build && cd ../backend && npm install && npm run build`
+Start Command:
+`cd backend && npm start`

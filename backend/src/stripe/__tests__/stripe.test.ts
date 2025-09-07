@@ -136,7 +136,13 @@ describe('Stripe Controller', () => {
       });
       mockFindParticipantByEmail.mockResolvedValue(null);
       mockCreateParticipant.mockResolvedValue({ _id: new Types.ObjectId(), email: 'a@b.c' });
-      mockCreateTransaction.mockResolvedValue({ _id: 't1' });
+      mockCreateTransaction.mockResolvedValue({
+        _id: 't1',
+        amount: 200,
+        items: [
+          { commodity: new Types.ObjectId(), quantity: 1, priceAtPurchase: 200 }
+        ]
+      });
 
       const res = await request(app).get('/api/stripe/success?session_id=abc');
       expect(res.status).toBe(302);
@@ -154,7 +160,13 @@ describe('Stripe Controller', () => {
         payment_status: 'paid',
       });
       mockFindParticipantByEmail.mockResolvedValue({ _id: new Types.ObjectId(), email: 'a@b.c' });
-      mockCreateTransaction.mockResolvedValue({ _id: 't1' });
+      mockCreateTransaction.mockResolvedValue({
+        _id: 't1',
+        amount: 200,
+        items: [
+          { commodity: new Types.ObjectId(), quantity: 1, priceAtPurchase: 200 }
+        ]
+      });
 
       const res = await request(app).get('/api/stripe/success?session_id=abc');
       expect(res.status).toBe(302);
