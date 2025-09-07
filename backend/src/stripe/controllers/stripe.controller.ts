@@ -142,6 +142,10 @@ Raw body: You must use express.raw({ type: 'application/json' }) on this route o
 Signature validation: stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET) ensures the event is genuine.
 Timing: The webhook may arrive even if the user never comes back to your site.
 */
+
+// Stripe Dashboard → Developers → Webhooks → Add endpoint → your account → 🔎 chekcout → checkout.session.completed → wenhook endpoint → https://eshopproject-ggmn.onrender.com/api/stripe/webhook
+
+
 // ⚠️ Important: this route must use express.raw({ type: 'application/json' })
 // instead of express.json(), otherwise signature verification will fail.
 const handleWebhook = async (req: Request, res: Response) => {

@@ -7,7 +7,7 @@
 - cart total price ❌ will not do. as front can do i by it self
 - swagger fro participant find by id/email ✅
 - remove middleware from cart. guests need cart ✅
-- /cart/clean-junk ✅ clear old transactions✅ /participant/clear ✅(longer than lastupdated a week)
+- /cart/clean-junk ✅ clear old transactions✅(5 years) /participant/clear ✅(longer than lastupdated a week)
 - stripe paypal and gpay (said its on stripe dashboard) ✅
 - stripe webhooks
 - multer upload ✅
@@ -35,6 +35,7 @@
 - πρέπει να δώσει υποχρεωτικα Mail ο guest για να του έρθει το confirmation ✅
 - πόσα έχουν πουληθεί στο admin pannel commodities ✅
 - notes in shipping unresponcive
+- if no commodity image show sth
 - chat gpt criteria optimiser
 
 

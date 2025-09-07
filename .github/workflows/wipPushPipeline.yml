@@ -25,6 +25,7 @@ jobs:
       EMAIL_PASS_USER: ${{ secrets.EMAIL_PASS_USER }}
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
       
     steps:
       - name: Checkout code
