@@ -1,11 +1,11 @@
 import { useState } from "react";
 import {
   TableRow, TableCell, Button, TextField, 
-  Stack,
-  IconButton
+  Stack, IconButton, Typography
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { CommodityType } from "../../../types/commerce.types";
+import { useAppwriteUploader } from "../../../hooks/useAppwriteUploader";
 
 interface CommodityFooterProps {
   setExpanded: (id: string | null) => void;
@@ -29,6 +29,8 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
   });
   const [restockQty, setRestockQty] = useState("");
 
+  const { ready, uploadFile, getFileUrl } = useAppwriteUploader();
+
   const handleChange = (field: string, value: string | number | string[] | boolean) => {
     setForm({ ...form, [field]: value });
   };
@@ -43,6 +45,7 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
       >
         <CloseIcon fontSize="small" />
       </IconButton>
+
       <TableRow>
         <TableCell colSpan={6}>
           {!editMode ? (
@@ -128,6 +131,64 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
                 onChange={(e) => handleChange("stock", Number(e.target.value))}
               />
 
+              {/* === Images Section === */}
+              {/* σχόλια για την λειτουργεία του images θα βρείς στο ΑdminAddNewCommodity */}
+              <>
+                <Typography variant="subtitle1">Images</Typography>
+
+                {/* Manual URLs */}
+                <TextField
+                  label="Image URLs (comma separated)"
+                  size="small"
+                  value={form.images.join(", ")}
+                  onChange={(e) =>
+                    handleChange(
+                      "images",
+                      e.target.value.split(",").map((s) => s.trim())
+                    )
+                  }
+                />
+
+                {/* Upload file(s) */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={async (e) => {
+                    if (!e.target.files) return;
+                    const files = Array.from(e.target.files);
+                    const uploadedUrls: string[] = [];
+                    for (const file of files) {
+                      try {
+                        const res = await uploadFile(file);
+                        const url = getFileUrl(res.$id);
+                        uploadedUrls.push(url);
+                      } catch (err) {
+                        console.error("Upload failed:", err);
+                      }
+                    }
+                    setForm((prev) => ({
+                      ...prev,
+                      images: [...prev.images, ...uploadedUrls],
+                    }));
+                  }}
+                  disabled={!ready}
+                />
+
+                {/* Preview thumbnails */}
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                  {form.images.map((url, idx) => (
+                    <img
+                      key={idx}
+                      src={url}
+                      alt={`preview-${idx}`}
+                      style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 4 }}
+                    />
+                  ))}
+                </Stack>              
+              </>
+
+
               <Stack spacing={1} direction="row">
                 <Button
                   variant="contained"
@@ -145,9 +206,8 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
             </Stack>
           )}
         </TableCell>
-      </TableRow>    
+      </TableRow>
     </>
-
   );
 };
 

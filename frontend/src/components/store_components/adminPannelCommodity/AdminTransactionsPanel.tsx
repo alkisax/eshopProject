@@ -13,6 +13,14 @@ import {
   Typography,
   Switch,
   FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  Box,
 } from "@mui/material";
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
@@ -24,9 +32,9 @@ const AdminTransactionsPanel = () => {
 
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
   const [showAll, setShowAll] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<TransactionType | null>(null);
 
-  //useCallback tells React: “Please remember this function.Only give me a new one if something in its dependencies changes.”
-  // το κάναμε και αλλου αυτό. το πρόβλημα είναι οτι αν είναι εκτός του dependency aray της useEffect έχω worning, αλλα πρέπει να μείνει και εκτός γιατι την χρησιμοποιώ και αλλου
   const fetchTransactions = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -41,12 +49,10 @@ const AdminTransactionsPanel = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [url, setIsLoading]); 
+  }, [url, setIsLoading]);
 
   useEffect(() => {
-    
     fetchTransactions();
-
   }, [fetchTransactions, url]);
 
   const markProcessed = async (transactionId: string) => {
@@ -62,6 +68,16 @@ const AdminTransactionsPanel = () => {
     } catch (err) {
       console.error("Error toggling transaction:", err);
     }
+  };
+
+  const handleOpen = (t: TransactionType) => {
+    setSelected(t);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelected(null);
   };
 
   return (
@@ -107,7 +123,12 @@ const AdminTransactionsPanel = () => {
                 .map((t) => {
                   const participant = t.participant as ParticipantType;
                   return (
-                    <TableRow key={t._id?.toString()}>
+                    <TableRow
+                      key={t._id?.toString()}
+                      hover
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => handleOpen(t)}
+                    >
                       <TableCell>{participant?.name || "No Name"}</TableCell>
                       <TableCell>{participant?.surname || "No Surname"}</TableCell>
                       <TableCell>{participant?.email || "No Email"}</TableCell>
@@ -125,7 +146,10 @@ const AdminTransactionsPanel = () => {
                           variant={t.processed ? "outlined" : "contained"}
                           color={t.processed ? "warning" : "success"}
                           size="small"
-                          onClick={() => markProcessed(t._id!.toString())}
+                          onClick={(e) => {
+                            e.stopPropagation(); // prevent row click
+                            markProcessed(t._id!.toString());
+                          }}
                         >
                           {t.processed
                             ? "Mark Unprocessed"
@@ -139,6 +163,60 @@ const AdminTransactionsPanel = () => {
           </Table>
         </TableContainer>
       )}
+
+      {/* Transaction details dialog */}
+      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+        <DialogTitle>Transaction Details</DialogTitle>
+        <DialogContent dividers>
+          {selected && (
+            <>
+              <Typography variant="subtitle1">Items:</Typography>
+              <List dense>
+                {selected.items.map((item, idx) => (
+                  <ListItem key={idx}>
+                    <ListItemText
+                      primary={`${item.commodity.name} × ${item.quantity}`}
+                      secondary={`${item.priceAtPurchase}€ each`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+
+              <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                Shipping Info:
+              </Typography>
+              {selected.shipping ? (
+                <Box sx={{ ml: 1 }}>
+                  <Typography variant="body2">{selected.shipping.fullName}</Typography>
+                  <Typography variant="body2">
+                    {selected.shipping.addressLine1}
+                  </Typography>
+                  {selected.shipping.addressLine2 && (
+                    <Typography variant="body2">
+                      {selected.shipping.addressLine2}
+                    </Typography>
+                  )}
+                  <Typography variant="body2">
+                    {selected.shipping.postalCode}, {selected.shipping.city}
+                  </Typography>
+                  <Typography variant="body2">{selected.shipping.country}</Typography>
+                  <Typography variant="body2">
+                    Phone: {selected.shipping.phone}
+                  </Typography>
+                  <Typography variant="body2">
+                    Notes: {selected.shipping.notes}
+                  </Typography>
+                </Box>
+              ) : (
+                <Typography variant="body2">No shipping info available.</Typography>
+              )}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

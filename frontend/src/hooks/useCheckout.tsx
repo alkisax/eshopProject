@@ -3,6 +3,7 @@ import { loadStripe } from '@stripe/stripe-js'
 import { useContext } from "react";
 // import { UserAuthContext } from "../../context/UserAuthContext";
 import { VariablesContext } from "../context/VariablesContext";
+import type { ShippingInfoType } from '../types/commerce.types';
 
 const PUBLIC_STRIPE_KEY = import.meta.env.VITE_PUBLIC_STRIPE_KEY
 
@@ -11,7 +12,7 @@ const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
  export const useCheckout = () => {
   const { url, globalParticipant } = useContext(VariablesContext);
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (form: ShippingInfoType) => {
     if (!globalParticipant?._id) {
       console.error("No participant found");
       return;
@@ -28,13 +29,15 @@ const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
 
     try {
       // added participant info to be sent to back via url params
-        const response = await axios.post(`${url}/api/stripe/checkout/cart`, {
+      // added shipping inf to be sent to back in body
+      const response = await axios.post(`${url}/api/stripe/checkout/cart`, {
         participantId: globalParticipant._id, 
-        participantInfo
+        participantInfo,
+        shippingInfo: form
       })
 
       const { data } = response.data;
-  
+
       const stripe = await stripePromise
       if (!stripe) {
         throw new Error("Stripe failed to initialize");

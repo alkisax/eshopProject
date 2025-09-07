@@ -104,10 +104,23 @@ export const deleteById = async (req: Request, res: Response) => {
   }
 };
 
+const deleteOldGuestParticipants = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const deletedCount = await participantDao.deleteOldGuestParticipants(5);
+    res.status(200).json({
+      status: true,
+      message: `${deletedCount} guest participants older than 5 days were deleted.`,
+    });
+  } catch (error) {
+    handleControllerError(res, error);
+  }
+};
+
 export const participantController = {
   create,
   findAll,
   findByEmail,
   findById,
-  deleteById
+  deleteById,
+  deleteOldGuestParticipants,
 };

@@ -22,4 +22,6 @@ router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), tra
 // αυτο είναι σημαντικό γιατι στέλνει το αυτόματο ημαιλ
 router.put('/toggle/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), transactionController.toggleProcessed);
 
+router.delete( '/clear/old', middleware.verifyToken, middleware.checkRole('ADMIN'), transactionController.deleteOldProcessedTransactions );
+
 export default router;

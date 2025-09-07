@@ -106,6 +106,34 @@ const addTransactionToParticipant = async (participantId: Types.ObjectId, transa
   return response;
 };
 
+export const deleteOldGuestParticipants = async (days = 5): Promise<number> => {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+
+  const filter = {
+    email: { $regex: /^guest-/ },              // only guest-* emails
+    updatedAt: { $lt: cutoff },                // older than N days
+    $or: [
+      { user: { $exists: false } },            // no user field
+      { user: null },                          // explicit null
+      // user === '' but only when it's actually stored as a string
+      {
+        // For each document, compare the field $user with the literal "". If they are equal, it matches. Αυτο προστέθηκε γιατι αρχικά το front μου έφτιαχνε τον guest participant με user: '' και οχι null
+        $expr: {
+          $and: [
+            { $eq: [ { $type: '$user' }, 'string' ] },
+            { $eq: [ '$user', '' ] }
+          ]
+        }
+      }
+    ]
+  };
+
+  // Use the native driver (no Mongoose casting on ObjectId fields)
+  const result = await Participant.collection.deleteMany(filter);
+  return result.deletedCount ?? 0;
+};
+
 export const participantDao = {
   createParticipant,
   findAllParticipants,
@@ -114,4 +142,5 @@ export const participantDao = {
   updateParticipantById,
   deleteParticipantById,
   addTransactionToParticipant,
+  deleteOldGuestParticipants,
 };

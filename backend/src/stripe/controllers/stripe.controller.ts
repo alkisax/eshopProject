@@ -12,10 +12,11 @@ import { cartDAO } from '../daos/cart.dao';
 const createCheckoutSession = async (req: Request, res: Response) => {
   const participantId = req.body.participantId;
   const participantInfo = req.body.participantInfo;
+  const shippinginfo = req.body.shippingInfo;
 
   try {
     const cart: CartType = await fetchCart(participantId);
-    const session = await stripeService.createCheckoutSession(cart, participantInfo);
+    const session = await stripeService.createCheckoutSession(cart, participantInfo, shippinginfo);
     return res.status(200).json({ status: true, data: session });
   } catch (error) {
     return handleControllerError(res, error);
@@ -56,6 +57,17 @@ const handleSuccess = async (req: Request, res: Response) => {
     const name = session.metadata?.name || '';
     const surname = session.metadata?.surname || '';
     const email  = session.metadata?.email || ''; 
+    const shipping = {
+      shippingEmail: session.metadata?.shippingEmail || '',
+      fullName: session.metadata?.fullName || '',
+      addressLine1: session.metadata?.addressLine1 || '',
+      addressLine2: session.metadata?.addressLine2 || '',
+      city: session.metadata?.city || '',
+      postalCode: session.metadata?.postalCode || '',
+      country: session.metadata?.country || '',
+      phone: session.metadata?.phone || '',
+      notes: session.metadata?.notes || '',
+    };
 
     if (!email) {
       // οχι json αλλα redirect στην σελλίδα λάθους
@@ -69,6 +81,7 @@ const handleSuccess = async (req: Request, res: Response) => {
     const amountTotal = session.amount_total / 100; // Stripe returns cents
 
     console.log(`Payment success for: ${email}, amount: ${amountTotal}`);
+    console.log('shipping address: ', shipping);
 
     // ψαχνω τον participant απο το ημαιλ του για να τον ανανεώσω αν υπάρχει ή να τον δημιουργήσω
     let participant = await participantDao.findParticipantByEmail(email);
@@ -86,7 +99,8 @@ const handleSuccess = async (req: Request, res: Response) => {
     // δημιουργία transaction
     const newTransaction = await transactionDAO.createTransaction(
       participant._id as Types.ObjectId,
-      sessionId
+      sessionId,
+      shipping
     );
     console.log(newTransaction);
     

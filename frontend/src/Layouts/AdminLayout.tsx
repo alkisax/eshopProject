@@ -7,6 +7,7 @@ import AdminTransactionsPanel from "../components/store_components/adminPannelCo
 import AdminCommoditiesPanel from "../components/store_components/adminPannelCommodity/AdminCommoditiesPanel"
 import AdminLocalUploadsPanel from "../components/AdminLocalUploadPannel";
 import AdminCloudUploadsPanel from "../components/AdminCloudUploadsPanel";
+import AdminClearOldPanel from "../components/store_components/adminPannelCommodity/AdminClearOldPannel";
 
 
 const AdminLayout = () => {
@@ -22,6 +23,7 @@ const AdminLayout = () => {
         {activePanel === "commodities" && <AdminCommoditiesPanel />}
         {activePanel === "cloudUploads" && <AdminCloudUploadsPanel />}
         {activePanel === "uploads" && <AdminLocalUploadsPanel />}
+        {activePanel === "clearOld" && <AdminClearOldPanel />}
         {!activePanel && <p>Select a panel from the sidebar</p>}
         <Outlet />
       </main>

@@ -6,7 +6,6 @@ import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.t
 import { Types } from 'mongoose';
 
 type PopulatedCartItem = Omit<CartItemType, 'commodity'> & { commodity: CommodityType };
-// type PopulatedCart = Omit<CartType, 'items'> & { items: PopulatedCartItem[] };
 
 // 🔹 Get cart for participant
 const getCartByParticipant = async (participantId: string | Types.ObjectId): Promise<CartType> => {
@@ -15,6 +14,11 @@ const getCartByParticipant = async (participantId: string | Types.ObjectId): Pro
     return createCart(participantId);
   }
   return cart;
+};
+
+const getAllCarts = async (): Promise<CartType[]> => {
+  const carts = await Cart.find({}).populate<{ items: PopulatedCartItem[] }>('items.commodity');
+  return carts;
 };
 
 // 🔹 Create a new empty cart for participant
@@ -135,10 +139,26 @@ const clearCart = async (participantId: string | Types.ObjectId): Promise<CartTy
   return cart;
 };
 
+// delete older than 5 days 
+export const deleteOldCarts = async (days = 5): Promise<number> => {
+  // becomes a date obj
+  const toBeCLeared = new Date();
+  // today - days
+  toBeCLeared.setDate(toBeCLeared.getDate() - days);
+
+  // $lt: less than
+  const result = await Cart.deleteMany({
+    updatedAt: { $lt: toBeCLeared },
+  });
+  return result.deletedCount ?? 0;
+};
+
 export const cartDAO = {
   getCartByParticipant,
+  getAllCarts,
   createCart,
   addOrRemoveItemToCart,
   updateItemQuantity,
   clearCart,
+  deleteOldCarts
 };

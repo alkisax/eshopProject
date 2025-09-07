@@ -3,7 +3,7 @@ import Transaction from '../models/transaction.models';
 import Participant from '../models/participant.models';
 import Cart from '../models/cart.models';
 import { commodityDAO } from '../daos/commodity.dao';
-import type { TransactionType, ParticipantType, CommodityType } from '../types/stripe.types';
+import type { TransactionType, ParticipantType, CommodityType, ShippingInfoType } from '../types/stripe.types';
 import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.types';
 
 import { Types } from 'mongoose';
@@ -16,7 +16,8 @@ type PopulatedCartItem = {
 
 const createTransaction = async (
   participantId: string | Types.ObjectId,
-  sessionId: string
+  sessionId: string,
+  shipping?: ShippingInfoType
 ): Promise<TransactionType> => {
 
   /*
@@ -81,6 +82,7 @@ const createTransaction = async (
       participant: participantId,
       items,
       amount,
+      shipping: shipping || {},
       sessionId,
       processed: false
     });
@@ -266,11 +268,26 @@ const deleteTransactionById = async (transactionId: string | Types.ObjectId): Pr
   }
 };
 
+// delete processed transactions older than 5 days
+const deleteOldProcessedTransactions = async (years = 5): Promise<number> => {
+  const cutoff = new Date();
+  // cutoff.setDate(cutoff.getDate() - years);
+  cutoff.setFullYear(cutoff.getFullYear() - years);
+
+  const result = await Transaction.deleteMany({
+    processed: true,
+    updatedAt: { $lt: cutoff },
+  });
+
+  return result.deletedCount ?? 0;
+};
+
 export const transactionDAO = {
   findAllTransactions,
   findTransactionById,
   createTransaction,
   deleteTransactionById,
+  deleteOldProcessedTransactions,
   updateTransactionById,
   findTransactionsByProcessed,
   findByParticipantId,

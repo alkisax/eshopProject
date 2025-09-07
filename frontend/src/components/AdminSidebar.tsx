@@ -2,6 +2,7 @@ import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Too
 import PeopleIcon from "@mui/icons-material/People";
 import GroupIcon from "@mui/icons-material/Group";
 import UploadIcon from "@mui/icons-material/Upload";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import { CloudUpload } from "@mui/icons-material";
 
 interface AdminSidebarProps {
@@ -82,6 +83,15 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
               <UploadIcon />
             </ListItemIcon>
             <ListItemText primary="Local Uploads (avoid)" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("clearOld")}>
+            <ListItemIcon>
+              <DeleteSweepIcon />
+            </ListItemIcon>
+            <ListItemText primary="Clear old" />
           </ListItemButton>
         </ListItem>
 

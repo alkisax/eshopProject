@@ -1,5 +1,4 @@
-// import { Types, Document } from 'mongoose';
-import type { IUser } from './types';
+import type { IUser } from "./types";
 
 export interface ParticipantType {
   _id?: string;
@@ -7,28 +6,41 @@ export interface ParticipantType {
   surname?: string;
   email: string;
   user?: string | IUser;
-  transactions?: (string | TransactionType)[]; // array of Transaction IDs or full transaction obj
+  transactions?: (string | TransactionType)[];
   createdAt?: Date;
   updatedAt?: Date;
 }
+
 export interface TransactionType {
   _id: string;
-  participant: string | ParticipantType; // links to Participant
-  items: CartItemType[];   // reuse the same type
-  amount: number; // total
+  participant: string | ParticipantType;
+  items: CartItemType[];
+  amount: number;
   processed?: boolean;
   cancelled?: boolean;
   sessionId?: string;
+  shipping?: ShippingInfoType;   // ✅ add this
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface ShippingInfoType {
+  fullName: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  phone?: string;
+  notes?: string;
 }
 
 export interface CommodityType {
   _id: string;
   name: string;
   description?: string;
-  category: string[]
-  price: number; //must be /100 to be in euro cents
+  category: string[];
+  price: number;
   currency: string;
   stripePriceId: string;
   soldCount: number;
@@ -36,14 +48,16 @@ export interface CommodityType {
   active: boolean;
   images?: string[];
   comments?: CommentType[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CommentType {
-  _id?: string
+  _id?: string;
   user: string;
   text: string | EditorJsData;
   rating?: 0 | 1 | 2 | 3 | 4 | 5;
-  isApproved?: boolean,
+  isApproved?: boolean;
   createdAt?: Date;
 }
 

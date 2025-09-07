@@ -3,7 +3,7 @@
 
 import Stripe from 'stripe';
 import { buildLineItems } from './stripe.functions.helper';
-import type { CartType, ParticipantType, lineItemsType } from '../types/stripe.types';
+import type { CartType, ParticipantType, ShippingInfoType, lineItemsType } from '../types/stripe.types';
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error ('missing env variables');
@@ -13,7 +13,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // παίρνει απο το φροντ το cart και της πληροφορίες του πελάτη ως μεταντατα.
 const createCheckoutSession = async (
   cart: CartType, 
-  participantInfo: Partial<ParticipantType> = {}
+  participantInfo: Partial<ParticipantType> = {},
+  shippingInfo: Partial<ShippingInfoType> = {}
 ) => {
   const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
   const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
@@ -22,7 +23,16 @@ const createCheckoutSession = async (
   const metadata = {
     name: participantInfo.name || '',
     surname: participantInfo.surname || '',
-    email: participantInfo.email as string
+    email: participantInfo.email as string,
+    shippingEmail: shippingInfo.shippingEmail as string,
+    fullName: shippingInfo.fullName || '',
+    addressLine1: shippingInfo.addressLine1 || '',
+    addressLine2: shippingInfo.addressLine2 || '',
+    city: shippingInfo.city || '',
+    postalCode: shippingInfo.postalCode || '',
+    country: shippingInfo.country || '',
+    phone: shippingInfo.phone || '',
+    notes: shippingInfo.notes || '',
   };
   console.log('Creating checkout session with metadata:', metadata);
 

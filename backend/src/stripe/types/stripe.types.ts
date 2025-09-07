@@ -68,3 +68,15 @@ export interface lineItemsType {
   price: string;
   quantity: number;
 }
+
+export interface ShippingInfoType {
+  fullName: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  shippingEmail: string;
+  phone?: string;
+  notes?: string;
+}
