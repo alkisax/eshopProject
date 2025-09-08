@@ -31,6 +31,8 @@ const createCheckoutSession = async (req: Request, res: Response) => {
 // guest:
 // http://localhost:5173/checkout-success?session_id=cs_live_a1Pw0WJbxkHY4HcPZr6zqZhuh1akVcWPrM4oHDpvMV8iEEnbnUaO5TFHsx
 
+// DO NOT DELETE - working handlesucces - commented out to use webhook
+/*
 const handleSuccess = async (req: Request, res: Response) => {
   try {
     // συλλέγω διάφορα δεδομένα του χρήστη απο το url του success
@@ -132,6 +134,7 @@ const handleSuccess = async (req: Request, res: Response) => {
     return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/cancel?error=server`);
   }
 };
+*/
 
 // επειδή η επικοινωνία στο webhook είναι server to server εδώ σταματάω και θα ανεβάσω την εφαρμογή στο render για να είναι ο backend live και να μην πρέπει να κάνω expose το back port με ngrok
 /*
@@ -149,6 +152,7 @@ Timing: The webhook may arrive even if the user never comes back to your site.
 // ⚠️ Important: this route must use express.raw({ type: 'application/json' })
 // instead of express.json(), otherwise signature verification will fail.
 const handleWebhook = async (req: Request, res: Response) => {
+  console.log('🔥 Stripe webhook hit');
 
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error('Missing STRIPE_SECRET_KEY env variable');    
@@ -157,12 +161,16 @@ const handleWebhook = async (req: Request, res: Response) => {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   try {
+    // 🟢 Debug logs
+    console.log('Headers:', req.headers);
+    console.log('Raw body length:', req.body?.length || 'not raw');
     // ✨ Unlike handleSuccess, we don’t read query params.
     // Webhooks POST a raw body + Stripe-Signature header.
     // αλλά παίρναμε το session id απο τα queries και με αυτό βρίσκαμε αν υπάρχει ήδη session. Πως γινετε εδώ αυτό;
     // In webhooks, Stripe calls your backend directly. (θα πρέπει οπότε να αλαχθεί και το front). Stripe also signs it with a special header Stripe-Signature.You must verify this signature to prove it’s from Stripe.
     const sig = req.headers['stripe-signature'];
     if (!sig) {
+      console.error('❌ Missing Stripe signature header');
       return res.status(400).send('Missing Stripe signature');
     }
 
@@ -179,10 +187,17 @@ const handleWebhook = async (req: Request, res: Response) => {
       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     }
 
+    console.log('✅ Verified event type:', event.type);
+
     // ✨ Webhooks send many event types — we only care about checkout.session.completed
     // το session id για τον έλεγχο το παίρνουμε απο την απάντηση του webhook
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
+      console.log('💰 Session completed:', {
+        id: session.id,
+        email: session.metadata?.email,
+        amount: session.amount_total
+      });
 
       const sessionId = session.id;
 
@@ -284,7 +299,7 @@ const handleCancel = (_req: Request, res: Response) => {
 
 export const stripeController = {
   createCheckoutSession,
-  handleSuccess,
+  // handleSuccess,
   handleWebhook,
   handleCancel
 };

@@ -15,7 +15,7 @@ const stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY);
 // παίρνει απο το φροντ το cart και της πληροφορίες του πελάτη ως μεταντατα.
 const createCheckoutSession = async (cart, participantInfo = {}, shippingInfo = {}) => {
     const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+    // const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
     // added to get the participant info from front to be able to create a new transaction -> metadata come from front
     const metadata = {
         name: participantInfo.name || '',
@@ -38,7 +38,7 @@ const createCheckoutSession = async (cart, participantInfo = {}, shippingInfo = 
         mode: 'payment',
         payment_method_types: ['card', 'revolut_pay'],
         line_items,
-        success_url: `${BACKEND_URL}/api/stripe/success?success=true&session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${FRONTEND_URL}/cancel?canceled=true`,
         metadata: metadata
     });

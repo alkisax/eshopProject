@@ -16,10 +16,19 @@ import stripeRoutes from './stripe/routes/stripe.routes';
 import commodityRoutes from './stripe/routes/commodity.routes';
 import cartRoutes from './stripe/routes/cart.routes';
 import uploadMulterRoutes from './uploadMulter/upload.routes';
+// import stripeWebhookRoutes from './stripe/routes/stripe.webhook.routes';
+import { stripeController } from './stripe/controllers/stripe.controller';
 
 const app = express();
 
 app.use(cors());
+
+app.post(
+  '/api/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  stripeController.handleWebhook
+);
+
 app.use(express.json());
 
 // app.use((req: Request, _res: Response, next: NextFunction) => {
