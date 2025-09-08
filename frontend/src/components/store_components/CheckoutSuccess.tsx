@@ -38,7 +38,13 @@ const CheckoutSuccess = () => {
           `${url}/api/transaction/participant/${globalParticipant._id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setTransactions(res.data.data);
+
+        // sort transactions by createdAt DESC
+        const sorted = res.data.data.sort(
+          (a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+        );
+
+        setTransactions(sorted);
       } catch (err) {
         console.error("Error fetching transactions", err);
       } finally {
@@ -61,7 +67,8 @@ const CheckoutSuccess = () => {
     return <Typography color="error">❌ No participant info found. Please log in again.</Typography>;
   }
 
-  const lastTransaction = transactions[transactions.length - 1];
+  // after sorting, latest is at index 0
+  const lastTransaction = transactions[0];
 
   return (
     <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
@@ -104,8 +111,9 @@ const CheckoutSuccess = () => {
             <Divider sx={{ my: 2 }} />
             <Typography variant="h6">Previous Purchases</Typography>
             <List dense>
+              {/* slice from index 1 onward */}
               {transactions
-                .slice(0, -1)
+                .slice(1)
                 .map((t) => (
                   <ListItem key={t._id?.toString()}>
                     <Stack>
@@ -132,7 +140,6 @@ const CheckoutSuccess = () => {
 };
 
 export default CheckoutSuccess;
-
 
 
 // // src/pages/CheckoutSuccess.tsx

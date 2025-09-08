@@ -46,3 +46,6 @@ Build Command:
 `cd frontend && npm install && npm run build && cd ../backend && npm install && npm run build`
 Start Command:
 `cd backend && npm start`
+
+test success stripe
+`http://localhost:5173/checkout-success?session_id=cs_live_a1PBF9KvFU5WOiYAIA6FyI3zpQfRDR54C1VO7OJTBax1YfytAyK2bygMFj`
