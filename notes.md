@@ -9,15 +9,16 @@
 - remove middleware from cart. guests need cart ✅
 - /cart/clean-junk ✅ clear old transactions✅(5 years) /participant/clear ✅(longer than lastupdated a week)
 - stripe paypal and gpay (said its on stripe dashboard) ✅
-- stripe webhooks
+- stripe webhooks ✅
 - multer upload ✅
 - appwrite image bucket ✅
 - clear junk endpoint✅
-- (what happens to deleted commodity images?)
 - add logger to save to file after stripe success ✅
+- participants must have shipping address end email / users must have shipping address ✅ implemented by adding shipping info to transaction
+- (what happens to deleted commodity images?)
 - new category schema with supercategory, and allow parent category with arr of categories as child. Also some categories to have an atribute of "tag"
 - comment crud
-- participants must have shipping address end email / users must have shipping address ✅ implemented by adding shipping info to transaction
+- fix email
 - chat gpt profanity comment test. if not pass wait for admin aproval or delete after 5 days
 
 - create a security risks checklist
@@ -34,7 +35,7 @@
 - add image to commodity admin panel → commodity tab → edit ✅
 - πρέπει να δώσει υποχρεωτικα Mail ο guest για να του έρθει το confirmation ✅
 - πόσα έχουν πουληθεί στο admin pannel commodities ✅
-- notes in shipping unresponcive
+- notes in shipping unresponcive ✅
 - if no commodity image show sth
 - chat gpt criteria optimiser
 
