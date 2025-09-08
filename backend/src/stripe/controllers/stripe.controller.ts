@@ -160,47 +160,46 @@ const handleWebhook = async (req: Request, res: Response) => {
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-  try {
-    // 🟢 Debug logs
-    console.log('Headers:', req.headers);
-    console.log('Raw body length:', req.body?.length || 'not raw');
-    // ✨ Unlike handleSuccess, we don’t read query params.
-    // Webhooks POST a raw body + Stripe-Signature header.
-    // αλλά παίρναμε το session id απο τα queries και με αυτό βρίσκαμε αν υπάρχει ήδη session. Πως γινετε εδώ αυτό;
-    // In webhooks, Stripe calls your backend directly.το front κάνει μόνο το initiate της διαδικασίας. Stripe also signs it with a special header Stripe-Signature.You must verify this signature to prove it’s from Stripe.
-    const sig = req.headers['stripe-signature'];
-    if (!sig) {
-      console.error('❌ Missing Stripe signature header');
-      return res.status(400).send('Missing Stripe signature');
-    }
+  // 🟢 Debug logs
+  console.log('Headers:', req.headers);
+  console.log('Raw body length:', req.body?.length || 'not raw');
+  // ✨ Unlike handleSuccess, we don’t read query params.
+  // Webhooks POST a raw body + Stripe-Signature header.
+  // αλλά παίρναμε το session id απο τα queries και με αυτό βρίσκαμε αν υπάρχει ήδη session. Πως γινετε εδώ αυτό;
+  // In webhooks, Stripe calls your backend directly.το front κάνει μόνο το initiate της διαδικασίας. Stripe also signs it with a special header Stripe-Signature.You must verify this signature to prove it’s from Stripe.
+  const sig = req.headers['stripe-signature'];
+  if (!sig) {
+    console.error('❌ Missing Stripe signature header');
+    return res.status(400).send('Missing Stripe signature');
+  }
 
-    let event: Stripe.Event;
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body, // ⚠️ raw body, not parsed JSON - εδώ βρίσκετε πια το Payload μου με το shipping info και particippant info
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET as string
+    );
+  } catch (err) {
+    console.error('⚠️ Webhook signature verification failed:', err);
+    return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
+  }
+
+  console.log('✅ Verified event type:', event.type);
+
+  // ✨ Webhooks send many event types — we only care about checkout.session.completed
+  // το session id για τον έλεγχο το παίρνουμε απο την απάντηση του webhook
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log('💰 Session completed:', {
+      id: session.id,
+      email: session.metadata?.email,
+      amount: session.amount_total
+    });
+
+    const sessionId = session.id;
 
     try {
-      event = stripe.webhooks.constructEvent(
-        req.body, // ⚠️ raw body, not parsed JSON - εδώ βρίσκετε πια το Payload μου με το shipping info και particippant info
-        sig,
-        process.env.STRIPE_WEBHOOK_SECRET as string
-      );
-    } catch (err) {
-      console.error('⚠️ Webhook signature verification failed:', err);
-      return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
-    }
-
-    console.log('✅ Verified event type:', event.type);
-
-    // ✨ Webhooks send many event types — we only care about checkout.session.completed
-    // το session id για τον έλεγχο το παίρνουμε απο την απάντηση του webhook
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session;
-      console.log('💰 Session completed:', {
-        id: session.id,
-        email: session.metadata?.email,
-        amount: session.amount_total
-      });
-
-      const sessionId = session.id;
-
       // prevent duplicate transactions
       const existingTransaction = await transactionDAO.findBySessionId(sessionId);
       if (existingTransaction) {
@@ -210,7 +209,7 @@ const handleWebhook = async (req: Request, res: Response) => {
 
       // Ensure payment actually succeeded
       if (session.payment_status !== 'paid') {
-        return res.json({ received: true, message: `Payment status: ${session.payment_status}` });
+        return res.status(400).send(`Payment status: ${session.payment_status}`);
       }
 
       // const name = session.metadata?.name || '';
@@ -231,12 +230,12 @@ const handleWebhook = async (req: Request, res: Response) => {
       if (!email) {
         // ✨ In webhook we don’t redirect — just log and return
         console.error('No email metadata in session');
-        return res.json({ received: true, error: 'noEmailMetadata' });
+        return res.status(400).send('noEmailMetadata');
       }
 
       // κάνω τα ευρώ σέντς
       if (!session.amount_total || session.amount_total === 0) {
-        return res.json({ received: true, error: 'amount is 0' });
+        return res.status(400).send('amount is 0');
       }
       const amountTotal = session.amount_total / 100; // Stripe returns cents
 
@@ -300,14 +299,17 @@ const handleWebhook = async (req: Request, res: Response) => {
           console.warn('Cart clear skipped:', err);
         }
       }
-    }
 
-    // ✨ Webhook endpoints must return 200 quickly, no redirects
-    return res.json({ received: true });
-  } catch (error) {
-    console.error('handleWebhook error:', error);
-    return res.status(500).send('Webhook handler failed');
+      // ✅ success ack
+      return res.json({ received: true });
+    } catch (err) {
+      console.error('❌ Webhook DB error, letting Stripe retry:', err);
+      return res.status(500).send('Webhook DB error');
+    }
   }
+
+  // ✨ Webhook endpoints must return 200 quickly, no redirects for other event types
+  return res.json({ received: true });
 };
 
 const handleCancel = (_req: Request, res: Response) => {

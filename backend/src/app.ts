@@ -22,6 +22,7 @@ const app = express();
 
 app.use(cors());
 
+// web hook is implemented here and not in usual routes/contoller type because it has to be raw and not json so its declared before app.use(express.json())
 app.post(
   '/api/stripe/webhook',
   express.raw({ type: 'application/json' }),
