@@ -282,7 +282,15 @@ const handleWebhook = async (req: Request, res: Response) => {
       });
 
       // αδειάζω το cart
-      await cartDAO.clearCart(participant._id!);
+      try {
+        await cartDAO.clearCart(participant._id!);
+      } catch (err) {
+        if (err instanceof Error) {
+          console.warn('Cart clear skipped:', err.message);
+        } else {
+          console.warn('Cart clear skipped:', err);
+        }
+      }
     }
 
     // ✨ Webhook endpoints must return 200 quickly, no redirects
