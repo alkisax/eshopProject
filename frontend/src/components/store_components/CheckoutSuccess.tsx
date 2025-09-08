@@ -38,12 +38,7 @@ const CheckoutSuccess = () => {
           `${url}/api/transaction/participant/${globalParticipant._id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-
-        const sorted = [...res.data.data].sort(
-          (a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
-        );
-
-        setTransactions(sorted);
+        setTransactions(res.data.data);
       } catch (err) {
         console.error("Error fetching transactions", err);
       } finally {
