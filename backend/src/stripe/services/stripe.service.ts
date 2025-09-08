@@ -21,6 +21,7 @@ const createCheckoutSession = async (
 
   // added to get the participant info from front to be able to create a new transaction -> metadata come from front
   const metadata = {
+    participantId: participantInfo._id?.toString() || '',
     name: participantInfo.name || '',
     surname: participantInfo.surname || '',
     email: participantInfo.email as string,

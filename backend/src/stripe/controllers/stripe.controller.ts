@@ -132,7 +132,7 @@ const handleSuccess = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('handleSuccess error:', error);
     return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/cancel?error=server`);
-  }
+  } 
 };
 */
 
@@ -167,7 +167,7 @@ const handleWebhook = async (req: Request, res: Response) => {
     // ✨ Unlike handleSuccess, we don’t read query params.
     // Webhooks POST a raw body + Stripe-Signature header.
     // αλλά παίρναμε το session id απο τα queries και με αυτό βρίσκαμε αν υπάρχει ήδη session. Πως γινετε εδώ αυτό;
-    // In webhooks, Stripe calls your backend directly. (θα πρέπει οπότε να αλαχθεί και το front). Stripe also signs it with a special header Stripe-Signature.You must verify this signature to prove it’s from Stripe.
+    // In webhooks, Stripe calls your backend directly.το front κάνει μόνο το initiate της διαδικασίας. Stripe also signs it with a special header Stripe-Signature.You must verify this signature to prove it’s from Stripe.
     const sig = req.headers['stripe-signature'];
     if (!sig) {
       console.error('❌ Missing Stripe signature header');
@@ -213,8 +213,8 @@ const handleWebhook = async (req: Request, res: Response) => {
         return res.json({ received: true, message: `Payment status: ${session.payment_status}` });
       }
 
-      const name = session.metadata?.name || '';
-      const surname = session.metadata?.surname || '';
+      // const name = session.metadata?.name || '';
+      // const surname = session.metadata?.surname || '';
       const email = session.metadata?.email || '';
       const shipping = {
         shippingEmail: session.metadata?.shippingEmail || '',
@@ -244,19 +244,28 @@ const handleWebhook = async (req: Request, res: Response) => {
       console.log('shipping address: ', shipping);
 
       // ψαχνω τον participant απο το ημαιλ του για να τον ανανεώσω αν υπάρχει ή να τον δημιουργήσω
-      let participant = await participantDao.findParticipantByEmail(email);
+      // let participant = await participantDao.findParticipantByEmail(email);
 
-      if (participant) {
-        console.log(`Participant ${participant.email} found`);
+      // if (participant) {
+      //   console.log(`Participant ${participant.email} found`);
+      // }
+
+      // if (!participant || !participant._id) {
+      //   console.log('Participant not found, creating new one...');
+      //   participant = await participantDao.createParticipant({
+      //     email: email,
+      //     name: name,
+      //     surname: surname,
+      //   });
+      // }
+
+      const participantId = session.metadata?.participantId;
+      if (!participantId) {
+        throw new Error('Missing participantId in Stripe session metadata');
       }
-
-      if (!participant || !participant._id) {
-        console.log('Participant not found, creating new one...');
-        participant = await participantDao.createParticipant({
-          email: email,
-          name: name,
-          surname: surname,
-        });
+      const participant = await participantDao.findParticipantById(participantId);
+      if (!participant) {
+        throw new Error(`Participant ${participantId} not found`);
       }
 
       // δημιουργία transaction
