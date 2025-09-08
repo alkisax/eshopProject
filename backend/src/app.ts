@@ -16,10 +16,19 @@ import stripeRoutes from './stripe/routes/stripe.routes';
 import commodityRoutes from './stripe/routes/commodity.routes';
 import cartRoutes from './stripe/routes/cart.routes';
 import uploadMulterRoutes from './uploadMulter/upload.routes';
+import { stripeController } from './stripe/controllers/stripe.controller';
 
 const app = express();
 
 app.use(cors());
+
+// web hook is implemented here and not in usual routes/contoller type because it has to be raw and not json so its declared before app.use(express.json())
+app.post(
+  '/api/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  stripeController.handleWebhook
+);
+
 app.use(express.json());
 
 // app.use((req: Request, _res: Response, next: NextFunction) => {
@@ -59,11 +68,13 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // για να σερβίρει τον φακελο dist του front μετα το npm run build
-app.use(express.static('dist'));
+// app.use(express.static('dist'));
+app.use(express.static(path.join(__dirname, '../../dist')));
 
 //αυτο είναι για να σερβίρει το index.html του front όταν ο χρήστης επισκέπτεται το root path ή οποιοδήποτε άλλο path που δεν είναι api ή api-docs
 app.get(/^\/(?!api|api-docs).*/, (_req, res) => {
-  res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+  // res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+  res.sendFile(path.join(__dirname, '../../dist', 'index.html'));
 });
 
 export default app;

@@ -19,6 +19,7 @@ const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
     }
       
     const participantInfo = { 
+      _id: globalParticipant._id,
       name: globalParticipant.name,
       surname: globalParticipant.surname,  
       email: globalParticipant.email,

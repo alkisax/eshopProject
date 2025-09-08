@@ -1,0 +1,207 @@
+paths:
+  /api/cart/{participantId}:
+    get:
+      summary: Get cart by participant
+      security:
+        - bearerAuth: []
+      tags:
+        - Cart
+      parameters:
+        - in: path
+          name: participantId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cart retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Cart'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cart not found
+
+    delete:
+      summary: Clear cart by participant
+      security:
+        - bearerAuth: []
+      tags:
+        - Cart
+      parameters:
+        - in: path
+          name: participantId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cart cleared successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cart not found
+
+  /api/cart:
+    post:
+      summary: Create a new empty cart for a participant
+      security:
+        - bearerAuth: []
+      tags:
+        - Cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                participantId:
+                  type: string
+      responses:
+        '201':
+          description: Cart created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '409':
+          description: Cart already exists
+    get:
+      summary: Get all carts
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: List of all carts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Cart'
+        '500':
+          description: Server error
+
+  /api/cart/{participantId}/items:
+    patch:
+      summary: Add or remove item from cart (increment/decrement quantity)
+      security:
+        - bearerAuth: []
+      tags:
+        - Cart
+      parameters:
+        - in: path
+          name: participantId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commodityId:
+                  type: string
+                quantity:
+                  type: integer
+                  description: Positive to add, negative to remove
+                  example: 1
+      responses:
+        '200':
+          description: Cart updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cart not found
+
+  /api/cart/{participantId}/items/update:
+    patch:
+      summary: Update quantity of an item in the cart directly
+      security:
+        - bearerAuth: []
+      tags:
+        - Cart
+      parameters:
+        - in: path
+          name: participantId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commodityId:
+                  type: string
+                quantity:
+                  type: integer
+                  description: New quantity (0 to remove item)
+                  example: 5
+      responses:
+        '200':
+          description: Item quantity updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cart or item not found
+          
+  /api/cart/clear/old:
+    delete:
+      summary: Delete carts older than 5 days
+      security:
+        - bearerAuth: []
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Old carts cleared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "3 carts older than 5 days were deleted."
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error

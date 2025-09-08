@@ -1,0 +1,104 @@
+paths:
+  /api/stripe/checkout/cart:
+    post:
+      tags:
+        - Stripe
+      summary: Create a Stripe Checkout Session from a cart
+      description: Creates a new Stripe Checkout Session for all items currently in the participant's cart. Participant info can be included in the request body and will be stored as metadata.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - participantId
+              properties:
+                participantId:
+                  type: string
+                  format: objectId
+                  description: MongoDB ObjectId of the participant whose cart will be checked out.
+                  example: "64b2f70c2f1b3a5a0c9f4e88"
+                participantInfo:
+                  type: object
+                  description: Optional participant info passed as Stripe metadata.
+                  properties:
+                    name:
+                      type: string
+                      example: "John"
+                    surname:
+                      type: string
+                      example: "Doe"
+                    email:
+                      type: string
+                      format: email
+                      example: "john.doe@example.com"
+      responses:
+        '200':
+          description: Checkout Session successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    description: Stripe Checkout Session object
+        '400':
+          description: Invalid request (e.g. empty cart, missing participantId)
+        '500':
+          description: Server error
+
+  /api/stripe/success:
+    get:
+      tags:
+        - Stripe
+      summary: Handle successful payment
+      description: Called after a successful Stripe Checkout. Records the transaction and updates the participant in the database.
+      parameters:
+        - in: query
+          name: session_id
+          required: true
+          schema:
+            type: string
+          description: Stripe Checkout Session ID
+      responses:
+        '200':
+          description: Transaction recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Transaction'
+                  message:
+                    type: string
+                    example: "Success! Your purchase has been recorded. You will soon receive an email with the progress. Thank you!"
+        '400':
+          description: Missing or invalid session ID / no email / amount is 0
+        '409':
+          description: Transaction already recorded
+        '500':
+          description: Server error
+
+  /api/stripe/cancel:
+    get:
+      tags:
+        - Stripe
+      summary: Handle canceled payment
+      description: Called after a canceled Stripe Checkout. Does not modify the database.
+      responses:
+        '200':
+          description: Payment canceled response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Payment canceled! :("
