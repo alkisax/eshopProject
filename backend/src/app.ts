@@ -17,12 +17,13 @@ import commodityRoutes from './stripe/routes/commodity.routes';
 import cartRoutes from './stripe/routes/cart.routes';
 import uploadMulterRoutes from './uploadMulter/upload.routes';
 import { stripeController } from './stripe/controllers/stripe.controller';
+import categoryRoutes from './stripe/routes/category.routes';
 
 const app = express();
 
 app.use(cors());
 
-// web hook is implemented here and not in usual routes/contoller type because it has to be raw and not json so its declared before app.use(express.json())
+// stripe checkout web hook is implemented here and not in usual routes/contoller type because it has to be raw and not json so its declared before app.use(express.json())
 app.post(
   '/api/stripe/webhook',
   express.raw({ type: 'application/json' }),
@@ -55,6 +56,7 @@ app.use('/api/email', emailRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/commodity', commodityRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/category', categoryRoutes);
 
 app.use('/api/upload-multer', uploadMulterRoutes);
 

@@ -16,6 +16,7 @@
 - add logger to save to file after stripe success ✅
 - participants must have shipping address end email / users must have shipping address ✅ implemented by adding shipping info to transaction
 - (what happens to deleted commodity images?)
+- webhook swagger and tests
 - new category schema with supercategory, and allow parent category with arr of categories as child. Also some categories to have an atribute of "tag"
 - comment crud
 - fix email
@@ -36,7 +37,7 @@
 - πρέπει να δώσει υποχρεωτικα Mail ο guest για να του έρθει το confirmation ✅
 - πόσα έχουν πουληθεί στο admin pannel commodities ✅
 - notes in shipping unresponcive ✅
-- if no commodity image show sth
+- if no commodity image show sth ✅
 - chat gpt criteria optimiser
 
 

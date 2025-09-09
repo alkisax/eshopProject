@@ -199,6 +199,11 @@ const handleWebhook = async (req: Request, res: Response) => {
         amount: session.amount_total
       });
 
+      // ✅ EARLY RETURN if payment not actually paid
+      if (session.payment_status !== 'paid') {
+        return res.json({ received: true, message: `Payment status: ${session.payment_status}` });
+      }
+
       const sessionId = session.id;
 
       // prevent duplicate transactions
@@ -208,13 +213,6 @@ const handleWebhook = async (req: Request, res: Response) => {
         return res.json({ received: true, message: 'Transaction already recorded' });
       }
 
-      // Ensure payment actually succeeded
-      if (session.payment_status !== 'paid') {
-        return res.json({ received: true, message: `Payment status: ${session.payment_status}` });
-      }
-
-      // const name = session.metadata?.name || '';
-      // const surname = session.metadata?.surname || '';
       const email = session.metadata?.email || '';
       const shipping = {
         shippingEmail: session.metadata?.shippingEmail || '',

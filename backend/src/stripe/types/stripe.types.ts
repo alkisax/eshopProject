@@ -1,4 +1,4 @@
-import { Types, Document } from 'mongoose';
+import mongoose, { Types, Document } from 'mongoose';
 import { IUser } from '../../login/types/user.types';
 export interface ParticipantType {
   _id?: Types.ObjectId;
@@ -79,4 +79,17 @@ export interface ShippingInfoType {
   shippingEmail: string;
   phone?: string;
   notes?: string;
+}
+
+export interface CategoryType extends Document {
+  name: string;
+  slug: string;
+  description?: string;
+  parent?: mongoose.Types.ObjectId;
+  children?: mongoose.Types.ObjectId[]; 
+  isTag?: boolean;      // treat like a minor category
+  featured?: boolean;
+  image?: string;
+  order?: number;
+  active: boolean;
 }

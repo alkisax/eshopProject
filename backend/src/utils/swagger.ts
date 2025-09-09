@@ -5,6 +5,7 @@ import Transaction from '../stripe/models/transaction.models';
 import Commodity from '../stripe/models/commodity.models';
 import Cart from '../stripe/models/cart.models';
 import Upload from '../uploadMulter/upload.model';
+import Category from '../stripe/models/category.models';
 import swaggerJsdoc from 'swagger-jsdoc';
 import yaml from 'yamljs';
 import path from 'path';
@@ -36,6 +37,9 @@ const cartRoutesDocs = yaml.load(
 const uploadMulterRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'uploadMulterRoutes.swagger.yml' )
 );
+const categoriesRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'categoriesRoutes.swagger.yml' )
+);
 
 const options = {
   definition: {
@@ -52,7 +56,8 @@ const options = {
         Transaction: m2s(Transaction),
         Commodity: m2s(Commodity),
         Cart: m2s(Cart),
-        Multer: m2s(Upload)
+        Multer: m2s(Upload),
+        Category: m2s(Category),
       },
       securitySchemes: {
         bearerAuth: {
@@ -72,7 +77,8 @@ const options = {
       ...transactionRoutesDocs.paths,
       ...emailRoutesDocs.paths,
       ...stripeRoutesDocs.paths,
-      ...uploadMulterRoutesDocs.paths, // merge
+      ...uploadMulterRoutesDocs.paths,
+      ...categoriesRoutesDocs.paths, // merge
     },
   },
   apis: []
