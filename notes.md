@@ -51,3 +51,6 @@ Start Command:
 
 test success stripe
 `http://localhost:5173/checkout-success?session_id=cs_live_a1PBF9KvFU5WOiYAIA6FyI3zpQfRDR54C1VO7OJTBax1YfytAyK2bygMFj`
+
+
+https://mykarma.gr/cdn/shop/products/image_4016df63-3062-49c5-8468-9477e95741ed.png, https://mykarma.gr/cdn/shop/products/image_5df831d4-0f9f-446f-a3da-cfd7e65effba.png, https://mykarma.gr/cdn/shop/products/image_b47e045f-672b-4c0d-bc04-15e4cb781fec.png

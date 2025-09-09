@@ -78,3 +78,16 @@ export interface CartItemType {
   quantity: number;
   priceAtPurchase: number;
 }
+
+export interface CategoryType {
+  name: string;
+  slug: string;
+  description?: string;
+  parent?: string;
+  children?: string[]; 
+  isTag?: boolean;
+  featured?: boolean;
+  image?: string;
+  order?: number;
+  active: boolean;
+}
