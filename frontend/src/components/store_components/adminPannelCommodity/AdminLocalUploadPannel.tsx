@@ -4,7 +4,7 @@ import axios from "axios";
 import {
   Typography, Button, List, ListItem, ListItemText, Box
 } from "@mui/material";
-import { VariablesContext } from "../context/VariablesContext";
+import { VariablesContext } from "../../../context/VariablesContext";
 
 export interface UploadMeta {
   _id: string;

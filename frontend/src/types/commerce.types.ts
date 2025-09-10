@@ -80,6 +80,7 @@ export interface CartItemType {
 }
 
 export interface CategoryType {
+  _id: string;
   name: string;
   slug: string;
   description?: string;
