@@ -20,13 +20,16 @@ const AddCategoryDialog = ({ open, onClose, onCreate }: Props) => {
       slug: slug.trim() || slugify(name),
       description: description.trim() || undefined,
     };
+    // func Που έρχετε απο τον πατέρα. Κάνει το axios post
     await onCreate(payload);
     setName(""); setSlug(""); setDescription("");
   };
 
   return (
+    // float φορμα
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Add Category</DialogTitle>
+      {/* main form body */}
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -34,6 +37,7 @@ const AddCategoryDialog = ({ open, onClose, onCreate }: Props) => {
           <TextField label="Description" value={description} onChange={(e) => setDescription(e.target.value)} multiline />
         </Stack>
       </DialogContent>
+      {/* form footer */}
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button variant="contained" disabled={!name.trim()} onClick={submit}>

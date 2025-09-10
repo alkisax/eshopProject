@@ -84,7 +84,7 @@ export interface CategoryType {
   name: string;
   slug: string;
   description?: string;
-  parent?: string;
+  parent?: string | { _id: string; name: string; slug: string }; // can be populated
   children?: string[]; 
   isTag?: boolean;
   featured?: boolean;

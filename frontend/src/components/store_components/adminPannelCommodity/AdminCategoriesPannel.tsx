@@ -1,20 +1,20 @@
 // src/components/admin/categories/AdminCategoriesPanel.tsx
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import axios from "axios";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, Typography, IconButton, Chip, Stack, Switch, Tooltip,
-  Box
+  Paper, Button, Typography, IconButton, Chip, Stack, Switch, Tooltip, 
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AccountTreeIcon from "@mui/icons-material/AccountTree";
+// import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import CallSplitIcon from "@mui/icons-material/CallSplit";
 import AddBoxIcon from "@mui/icons-material/AddBox";
+import EscalatorWarningTwoToneIcon from '@mui/icons-material/EscalatorWarningTwoTone';
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
 import type { CategoryType } from "../../../types/commerce.types";
-import AdminCategoryFooter from "./AdminCategoryFooter";
+// import AdminCategoryFooter from "./AdminCategoryFooter";
 import SetParentDialog from "./SetParentDialog";
 import AddCategoryDialog from "./AddCategoryDialog";
 
@@ -23,31 +23,32 @@ const AdminCategoriesPanel = () => {
   const { setIsLoading } = useContext(UserAuthContext);
 
   const [expanded, setExpanded] = useState<string | null>(null);
+  // το state αυτό δεν είναι ένα απλό boolean, φυλάει και το id αν είναι θετικό
   const [openSetParent, setOpenSetParent] = useState<null | { childId: string }>(null);
-  const [openAdd, setOpenAdd] = useState(false);
+  const [openAdd, setOpenAdd] = useState<boolean>(false);
 
-  // id -> category
-  // το useMemo είναι ένα state που διατηρείτε στα refresh, έχει ένα [] που κάνει trigger την ανανεωσή του 
-  const byId = useMemo(() => {
-    // το map μας φτιάχνει έναν index πίνακα για να γλυτώσουμε τον χρόνο απο διαρκείς αναζητήσεις. Πρώτα κάνω instansiate το obj 
-    const map = new Map<string, CategoryType>();
-    // ένας χάρτης με κλειδί το id και τιμή το περιεχόμενο
-    for (const c of categories) map.set(c._id as string, c);
-    return map;
-  }, [categories]);
-
-  // children names via ids (children is ObjectId[])
-  const childNames = (c: CategoryType) => {
+  //unused vars
+  console.log(expanded);
+  
+  // children names via ids
+  const childNames = (c: CategoryType): string[] => {
     if (!c.children || c.children.length === 0) return [];
     return c.children
-      .map((id) => byId.get(id as string)?.name)
+      .map((id) => categories.find((category) => category._id === id)?.name)
+      // cleans the array to only include valid names
       .filter(Boolean) as string[];
+  };
+
+  const parentName = (c: CategoryType): string | null => {
+    if (!c.parent || typeof c.parent !== "object") return null;
+    return c.parent.name ?? null;
   };
 
   const toggleFlag = async (c: CategoryType, field: "active" | "isTag", value: boolean) => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
+      // το field απο τα params. κάνει toggle δυο πραγματα
       await axios.patch(
         `${url}/api/category/${c._id}`,
         { [field]: value },
@@ -57,6 +58,41 @@ const AdminCategoriesPanel = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRemoveParent = async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${url}/api/category/${id}/remove-parent`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await refreshCategories();
+    } catch (err) {
+      console.error("Error removing parent:", err);
+    }
+  };
+
+  const handleSetParent = async (parentId: string) => {
+    if (!openSetParent) return;
+    const token = localStorage.getItem("token");
+    await axios.post(
+      `${url}/api/category/make-parent`,
+      { parentId, childId: openSetParent.childId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    await refreshCategories();
+    setOpenSetParent(null);
+  };
+
+  const handleAddCategory = async (payload: Partial<CategoryType>) => {
+    const token = localStorage.getItem("token");
+    await axios.post(`${url}/api/category`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    await refreshCategories();
+    setOpenAdd(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -75,8 +111,10 @@ const AdminCategoriesPanel = () => {
 
   return (
     <div>
+      {/* το κουμπί για δημιουργία νεου επάνω δεξια. Αν το state openAdd αλλάξει ανοίγει αναδιώμενο παράθυρο */}
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Typography variant="h5">Categories</Typography>
+        {/* startIcon={<AddBoxIcon />} → Render this icon to the left of the button text, */}
         <Button
           variant="contained"
           startIcon={<AddBoxIcon />}
@@ -86,41 +124,39 @@ const AdminCategoriesPanel = () => {
         </Button>
       </Stack>
 
+      {/* πρωτα ανοίγουμε TableContainer μέσα του table. Μέσα στο table TableHead και TableBody */}
+      {/* component={Paper} → instead of rendering as <div>…</div>, render as a <Paper>…</Paper> */}
       <TableContainer component={Paper}>
         <Table size="small">
           <TableHead>
             <TableRow>
+              {/* Always visible */}
               <TableCell>Name / Slug & Actions</TableCell>
-              <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>
-                Parent
-              </TableCell>
-              <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
-                Children
-              </TableCell>
-              <TableCell align="center">Active</TableCell>
-              <TableCell align="center">Tag</TableCell>
-              <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
-                Order
-              </TableCell>
+              {/* Hidden on small → display: { xs: "none", md: "table-cell" } */}
+              <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>Parent</TableCell>
+              <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>Children</TableCell>
+              <TableCell align="center" sx={{ display: { xs: "none", md: "table-cell" } }}>Active</TableCell>
+              <TableCell align="center" sx={{ display: { xs: "none", md: "table-cell" } }}>Tag</TableCell>
             </TableRow>
           </TableHead>
 
+          {/* ο κυρίως πίνακας στον οποίο θα κάνουμε map τις κατηγορίες */}
           <TableBody>
             {categories.map((c) => {
+              // διαφορες ιδιότητες της κάθε κατηγορίας μες στο map
               const id = c._id as string;
-              const parentName = c.parent ? byId.get(c.parent as string)?.name : null;
+              const parent = parentName(c)
               const children = childNames(c);
 
-              // limit chips for compactness
-              const MAX_CHIPS = 3;
-              const visibleChildren = children.slice(0, MAX_CHIPS);
-              const extraCount = Math.max(children.length - visibleChildren.length, 0);
-
+              // Το "return" εδώ δεν είναι νέο return της συνάρτησης component, αλλά το return του callback της .map(). Κάθε τέτοιο return αποδίδει ένα <TableRow> για την τρέχουσα κατηγορία.
               return (
+                // το hover μου κάνει γκρι την γραμμή
                 <TableRow key={id} hover>
-                  {/* NAME / SLUG + ACTIONS (stacked) */}
+                  {/* === Always visible on all screens === */}
+                  {/* το πρώτο και κύριο κελί με τα κουμπιά δράσης και το όνομα */}
                   <TableCell sx={{ verticalAlign: "top" }}>
                     <Stack spacing={0.75}>
+                      {/* Name + slug */}
                       <Stack spacing={0.25}>
                         <Typography fontWeight={600} noWrap>
                           {c.name}
@@ -130,124 +166,67 @@ const AdminCategoriesPanel = () => {
                         </Typography>
                       </Stack>
 
-                      {/* Actions below each item */}
-                      <Stack
-                        direction="row"
-                        spacing={0.5}
-                        flexWrap="wrap"
-                        useFlexGap
-                        sx={{ mt: 0.5 }}
-                      >
+                      {/* Actions inline for small screens */}
+                      <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                        {/* το tooltip μου δείχνει το ενημερωτικό popup label */}
                         <Tooltip title="Edit">
+                          {/* αλλάζει το state του expanded (το expanded δεν είναι απλό bool φυλάει και το id για να το περάσει στο component) και κάνει trigger το άνοιγμα του σχετικού παραθύρου (παρακάτω) */}
                           <IconButton size="small" color="primary" onClick={() => setExpanded(id)}>
                             <EditIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-
                         <Tooltip title="Set parent">
+                          {/* αλλάζει το state του openSetParent και κάνει trigger το άνοιγμα του σχετικού παραθύρου (παρακάτω) */}
                           <IconButton size="small" onClick={() => setOpenSetParent({ childId: id })}>
-                            <AccountTreeIcon fontSize="small" />
+                            <EscalatorWarningTwoToneIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-
                         <Tooltip title="Remove parent">
-                          <IconButton
-                            size="small"
-                            onClick={async () => {
-                              const token = localStorage.getItem("token");
-                              await axios.put(
-                                `${url}/api/category/${id}/remove-parent`,
-                                {},
-                                { headers: { Authorization: `Bearer ${token}` } }
-                              );
-                              await refreshCategories();
-                            }}
-                          >
+                          <IconButton size="small" onClick={() => handleRemoveParent(id)}>
                             <CallSplitIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-
                         <Tooltip title="Delete">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleDelete(id)}
-                          >
+                          <IconButton size="small" color="error" onClick={() => handleDelete(id)}>
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                       </Stack>
-
-                      {/* inline footer/editor when expanded */}
-                      {expanded === id && (
-                        <Box sx={{ mt: 1 }}>
-                          <AdminCategoryFooter
-                            category={c}
-                            close={() => setExpanded(null)}
-                            onSaved={async () => {
-                              await refreshCategories();
-                              setExpanded(null);
-                            }}
-                          />
-                        </Box>
-                      )}
                     </Stack>
                   </TableCell>
 
-                  {/* PARENT (hidden on xs) */}
-                  <TableCell sx={{ display: { xs: "none", sm: "table-cell" }, verticalAlign: "top" }}>
-                    {parentName ? (
-                      <Chip label={parentName} size="small" />
+                  {/* === Hidden on small, shown on bigger screens === */}
+                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
+                    {parent ? (
+                      <Chip label={parent} size="small" />
                     ) : (
                       <Typography variant="caption" color="text.secondary">—</Typography>
                     )}
                   </TableCell>
 
-                  {/* CHILDREN (hidden on <md) */}
-                  <TableCell sx={{ display: { xs: "none", md: "table-cell" }, verticalAlign: "top" }}>
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-                      {visibleChildren.length ? (
-                        <>
-                          {visibleChildren.map((n) => (
-                            <Chip key={n} label={n} size="small" />
-                          ))}
-                          {extraCount > 0 && (
-                            <Tooltip title={children.slice(MAX_CHIPS).join(", ")}>
-                              <Chip label={`+${extraCount}`} size="small" variant="outlined" />
-                            </Tooltip>
-                          )}
-                        </>
-                      ) : (
-                        <Typography variant="caption" color="text.secondary">—</Typography>
-                      )}
-                    </Stack>
+                  {/* αυτό είναι το μόνο που έχει display: lg (όλα τα άλλα έχουν md) με αποτέλεσμα να κρίβετε και στις μεσαίες οθόνες */}
+                  <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                    {children.length > 0 ? (
+                      children.map((n) => <Chip key={n} label={n} size="small" />)
+                    ) : (
+                      <Typography variant="caption" color="text.secondary">—</Typography>
+                    )}
                   </TableCell>
 
-                  {/* ACTIVE */}
-                  <TableCell align="center" sx={{ verticalAlign: "top" }}>
-                    <Tooltip title="Toggle active">
-                      <Switch
-                        size="small"
-                        checked={c.active ?? true}
-                        onChange={(_e, checked) => toggleFlag(c, "active", checked)}
-                      />
-                    </Tooltip>
+                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
+                    <Switch
+                      size="small"
+                      checked={c.active ?? true}
+                      onChange={(_e, checked) => toggleFlag(c, "active", checked)}
+                    />
                   </TableCell>
 
-                  {/* TAG */}
-                  <TableCell align="center" sx={{ verticalAlign: "top" }}>
-                    <Tooltip title="Toggle tag">
-                      <Switch
-                        size="small"
-                        checked={!!c.isTag}
-                        onChange={(_e, checked) => toggleFlag(c, "isTag", checked)}
-                      />
-                    </Tooltip>
-                  </TableCell>
-
-                  {/* ORDER (hidden on xs) */}
-                  <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" }, verticalAlign: "top" }}>
-                    {c.order ?? 0}
+                  <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
+                    <Switch
+                      size="small"
+                      checked={!!c.isTag}
+                      onChange={(_e, checked) => toggleFlag(c, "isTag", checked)}
+                    />
                   </TableCell>
                 </TableRow>
               );
@@ -256,24 +235,16 @@ const AdminCategoriesPanel = () => {
         </Table>
       </TableContainer>
 
-
       {/* dialogs */}
+      {/* μεταφερθηκαν σε δικό τους component */}
       {openSetParent && (
         <SetParentDialog
+          // διαφορα Props 
           open
           childId={openSetParent.childId}
-          categories={categories}
           onClose={() => setOpenSetParent(null)}
-          onSet={async (parentId) => {
-            const token = localStorage.getItem("token");
-            await axios.post(
-              `${url}/api/category/make-parent`,
-              { parentId, childId: openSetParent.childId },
-              { headers: { Authorization: `Bearer ${token}` } }
-            );
-            await refreshCategories();
-            setOpenSetParent(null);
-          }}
+          // Νεο η onSet χρησιμοποιείτε εδώ για να μεταφέρω το state απο το παιδί στον πατέρα
+          onSet={handleSetParent}
         />
       )}
 
@@ -281,14 +252,7 @@ const AdminCategoriesPanel = () => {
         <AddCategoryDialog
           open
           onClose={() => setOpenAdd(false)}
-          onCreate={async (payload) => {
-            const token = localStorage.getItem("token");
-            await axios.post(`${url}/api/category`, payload, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-            await refreshCategories();
-            setOpenAdd(false);
-          }}
+          onCreate={handleAddCategory}
         />
       )}
     </div>
