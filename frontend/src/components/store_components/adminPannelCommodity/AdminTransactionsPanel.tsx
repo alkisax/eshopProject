@@ -108,11 +108,11 @@ const AdminTransactionsPanel = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Surname</TableCell>
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>Name</TableCell>
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>Surname</TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>Amount (€)</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>Status</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
@@ -129,11 +129,15 @@ const AdminTransactionsPanel = () => {
                       sx={{ cursor: "pointer" }}
                       onClick={() => handleOpen(t)}
                     >
-                      <TableCell>{participant?.name || "No Name"}</TableCell>
-                      <TableCell>{participant?.surname || "No Surname"}</TableCell>
+                      <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                        {participant?.name || "No Name"}
+                      </TableCell>
+                      <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                        {participant?.surname || "No Surname"}
+                      </TableCell>
                       <TableCell>{participant?.email || "No Email"}</TableCell>
                       <TableCell>{t.amount} €</TableCell>
-                      <TableCell>
+                      <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
                         {t.processed ? "Processed" : "Unprocessed"}
                       </TableCell>
                       <TableCell>
