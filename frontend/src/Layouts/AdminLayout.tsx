@@ -9,7 +9,7 @@ import AdminLocalUploadsPanel from "../components/store_components/adminPannelCo
 import AdminCloudUploadsPanel from "../components/store_components/adminPannelCommodity/AdminCloudUploadsPanel";
 import AdminClearOldPanel from "../components/store_components/adminPannelCommodity/AdminClearOldPannel";
 import AdminCategoriesPanel from '../components/store_components/adminPannelCommodity/AdminCategoriesPannel'
-
+import AdminCommentsPanel from "../components/store_components/adminPannelCommodity/AdminCommentsPannel";
 
 const AdminLayout = () => {
   const [activePanel, setActivePanel] = useState<string | null>(null);
@@ -25,6 +25,7 @@ const AdminLayout = () => {
         {activePanel === "cloudUploads" && <AdminCloudUploadsPanel />}
         {activePanel === "uploads" && <AdminLocalUploadsPanel />}
         {activePanel === "categories" && <AdminCategoriesPanel />}
+        {activePanel === "comments" && <AdminCommentsPanel />}
         {activePanel === "clearOld" && <AdminClearOldPanel />}
         {!activePanel && <p>Select a panel from the sidebar</p>}
         <Outlet />

@@ -1,6 +1,6 @@
 // src/pages/CommodityPage.tsx
 import { useParams } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import {
   Typography,
@@ -10,9 +10,13 @@ import {
   Stack,
   Paper,
 } from "@mui/material";
+import { TextField, Rating, Pagination } from "@mui/material";
+import { UserAuthContext } from "../../context/UserAuthContext";
 import type { CommodityType } from "../../types/commerce.types";
 import { VariablesContext } from "../../context/VariablesContext";
 import { CartActionsContext } from "../../context/CartActionsContext";
+import type { IUser } from "../../types/types";
+import type { Types } from "mongoose";
 
 const CommodityPage = () => {
   const { url } = useContext(VariablesContext);
@@ -22,28 +26,79 @@ const CommodityPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [newComment, setNewComment] = useState("");
+  const [newRating, setNewRating] = useState<number | null>(null);
+  const [commentPage, setCommentPage] = useState(1);
+  const commentsPerPage = 3;
+
+  const comments = commodity?.comments ?? [];
+  const totalComments = comments.length;
+  const paginatedComments = comments.slice(
+    (commentPage - 1) * commentsPerPage,
+    commentPage * commentsPerPage
+  );
 
   const { id } = useParams<{ id: string }>();
 
-  useEffect(() => {
-    const fetchCommodity = async () => {
-      try {
-        const res = await axios.get(`${url}/api/commodity/${id}`);
-        setCommodity(res.data.data);
+  const { user } = useContext(UserAuthContext);
 
-        // 👇 set first image as selected
-        if (res.data.data.images?.length > 0) {
-          setSelectedImage(res.data.data.images[0]);
-        }
-      } catch (err) {
-        setError("Failed to load commodity.");
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const ratings = (commodity?.comments ?? [])
+    .map(c => c.rating)
+    .filter(r => r !== undefined) as number[];
+  const averageRating = ratings.length > 0
+    ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1)
+    : null;
+
+  const handleAddComment = async () => {
+    if (!id || !user) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${url}/api/commodity/${id}/comments`,
+        { user: user._id, text: newComment, rating: newRating },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // refresh commodity
+      const res = await axios.get(`${url}/api/commodity/${id}`);
+      setCommodity(res.data.data);
+      setNewComment("");
+      setNewRating(null);
+      setCommentPage(1); // reset to first page
+    } catch (err) {
+      console.error("Failed to add comment", err);
+    }
+  };
+
+  const fetchCommodity = useCallback(async () => {
+    try {
+      const res = await axios.get(`${url}/api/commodity/${id}`);
+      setCommodity(res.data.data);
+
+      // 👇 set first image as selected
+      if (res.data.data.images?.length > 0) {
+        setSelectedImage(res.data.data.images[0]);
       }
-    };
-    if (id) fetchCommodity();
+    } catch (err) {
+      setError("Failed to load commodity.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [id, url]);
+
+  useEffect(() => {
+    if (id) fetchCommodity();
+  }, [id, fetchCommodity]);
+
+  const getCommentUserLabel = (u: string | IUser | Types.ObjectId | undefined): string => {
+    if (!u) return "Anonymous";
+    if (typeof u === "string") return u; // you may want to filter guest-xxx here
+    if ("username" in (u as IUser) && (u as IUser).username) {
+      return (u as IUser).username!;
+    }
+    return "Anonymous";
+  };
+
 
   if (loading) {
     return (
@@ -154,31 +209,69 @@ const CommodityPage = () => {
         {/* === Reviews section placeholder === */}
         <Paper sx={{ p: 2, mt: 4 }}>
           <Typography variant="h6">Customer Reviews</Typography>
-          {(commodity.comments?.length ?? 0) > 0 ? (
-            commodity.comments!.map((c, idx) => (
+
+          {averageRating && (
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <Rating value={Number(averageRating)} precision={0.5} readOnly />
+              <Typography sx={{ ml: 1 }}>({averageRating} / 5)</Typography>
+            </Box>
+          )}    
+
+          {/* Only logged-in users can add */}
+          {user && (
+            <Box sx={{ mt: 2 }}>
+              <TextField
+                label="Write a review"
+                fullWidth
+                multiline
+                minRows={2}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                <Rating
+                  value={newRating}
+                  onChange={(_, val) => setNewRating(val)}
+                />
+                <Button
+                  variant="contained"
+                  sx={{ ml: 2 }}
+                  disabled={!newComment.trim()}
+                  onClick={handleAddComment}
+                >
+                  Post
+                </Button>
+              </Box>
+            </Box>
+          )}
+
+          {paginatedComments && paginatedComments.length > 0 ? (
+            paginatedComments.map((c, idx) => (
               <Box
-                key={idx}
-                sx={{
-                  mt: 2,
-                  p: 2,
-                  border: "1px solid #ddd",
-                  borderRadius: 2,
-                }}
+                key={c._id?.toString() || idx}
+                sx={{ mt: 2, p: 2, border: "1px solid #ddd", borderRadius: 2 }}
               >
                 <Typography variant="body2">
-                  <strong>User:</strong> {c.user}
+                  <strong>User:</strong> {getCommentUserLabel(c.user)}
                 </Typography>
-                {/* ΕΔΩ ΟΙ ΑΛΛΑΓΕΣ ΓΙΑ EDITOR JS */}
-                <Typography variant="body2">
-                  {typeof c.text === "string" ? c.text : JSON.stringify(c.text)}
-                </Typography>
-                {c.rating !== undefined && (
-                  <Typography variant="body2">⭐ {c.rating}/5</Typography>
-                )}
+                <Typography variant="body2">{typeof c.text === "string" ? c.text : JSON.stringify(c.text)}</Typography>
+                {c.rating !== undefined && <Typography variant="body2">⭐ {c.rating}/5</Typography>}
               </Box>
             ))
           ) : (
             <Typography variant="body2">No reviews yet.</Typography>
+          )}
+
+          {/* Pagination */}
+          {totalComments > commentsPerPage && (
+            <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+              <Pagination
+                count={Math.ceil(totalComments / commentsPerPage)}
+                page={commentPage}
+                onChange={(_, val) => setCommentPage(val)}
+                color="primary"
+              />
+            </Box>
           )}
         </Paper>
       </Stack>
@@ -187,3 +280,4 @@ const CommodityPage = () => {
 };
 
 export default CommodityPage;
+

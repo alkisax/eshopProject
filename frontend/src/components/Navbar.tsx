@@ -6,16 +6,18 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Tooltip from "@mui/material/Tooltip";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-
+import { Badge } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext  } from "react";
 import { UserAuthContext } from "../context/UserAuthContext";
 import { handleLogout } from '../authLogin/authFunctions'
 import { VariablesContext } from "../context/VariablesContext";
+import { CartActionsContext } from "../context/CartActionsContext";
 
 const NavbarAppwrite = () => {
-  const { hasCart, setHasCart } = useContext(VariablesContext);
+  const { setHasCart } = useContext(VariablesContext);
   const { user, setUser } = useContext(UserAuthContext);
+  const { cartCount } = useContext(CartActionsContext);
   const navigate = useNavigate();
 
   // const handleLogin = () => {
@@ -90,11 +92,15 @@ const NavbarAppwrite = () => {
 
             )}
 
-            {hasCart &&
-              <IconButton component={Link} color="inherit" to="/cart">
-                <ShoppingCartIcon />
-              </IconButton>
-            }
+            {cartCount > 0 && (
+              <Tooltip title="Cart">
+                <IconButton component={Link} color="inherit" to="/cart">
+                  <Badge badgeContent={cartCount} color="secondary">
+                    <ShoppingCartIcon />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         </Toolbar>
       </AppBar>

@@ -30,7 +30,8 @@ const findAllCommodities = async (page = 0): Promise<CommodityType[]> => {
 
 // Read by ID
 const findCommodityById = async (id: string | Types.ObjectId): Promise<CommodityType> => {
-  const commodity = await Commodity.findById(id);
+  const commodity = await Commodity.findById(id)
+    .populate('comments.user', 'username');
   if (!commodity) {
     throw new NotFoundError('Commodity not found');
   }
@@ -171,6 +172,39 @@ const deleteCommentFromCommoditybyCommentId = async (
   return updated;
 };
 
+// chatgpt for hard mongo syntax 😢
+const getAllComments = async () => {
+  const result = await Commodity.aggregate([
+    { $unwind: '$comments' },
+    {
+      $lookup: {
+        from: 'users',                // collection name in Mongo
+        localField: 'comments.user',  // ObjectId reference
+        foreignField: '_id',
+        as: 'userInfo'
+      }
+    },
+    { $unwind: { path: '$userInfo', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        commodity: { _id: '$_id', name: '$name' },
+        user: {
+          _id: '$userInfo._id',
+          username: '$userInfo.username',
+          email: '$userInfo.email',
+          name: '$userInfo.name'
+        },
+        text: '$comments.text',
+        rating: '$comments.rating',
+        isApproved: '$comments.isApproved',
+        createdAt: '$comments.createdAt',
+        commentId: '$comments._id'
+      }
+    }
+  ]);
+  return result;
+};
+
 export const commodityDAO = {
   createCommodity,
   findAllCommodities,
@@ -181,5 +215,6 @@ export const commodityDAO = {
   deleteCommodityById,
   addCommentToCommodity,
   clearCommentsFromCommodity,
-  deleteCommentFromCommoditybyCommentId
+  deleteCommentFromCommoditybyCommentId,
+  getAllComments
 };

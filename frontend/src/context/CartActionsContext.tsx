@@ -19,6 +19,8 @@ interface CartActionsContextType {
   fetchParticipantId: () => Promise<string | null>;
   loadingItemId: string | null;
   hasCart: boolean;
+  cartCount: number;
+  setCartCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -29,6 +31,8 @@ export const CartActionsContext = createContext<CartActionsContextType>({
   fetchParticipantId: async () => null,
   loadingItemId: null,
   hasCart: false,
+  cartCount: 0,
+  setCartCount: () => {},
 });
 
 
@@ -207,6 +211,7 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
 
       const cart = cartRes.data.data;
       setHasCart(cart.items.length > 0); // actual backend truth update
+      setCartCount(cart.items.reduce((sum, item) => sum + item.quantity, 0)); // 🆕 total quantity
       console.log(`cart items:`, cart.items);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -224,13 +229,14 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
     commodityId: string
   ): Promise<void> => {
     try {
-      await axios.patch<{ status: boolean; data: CartType }>(
+      const updated = await axios.patch<{ status: boolean; data: CartType }>(
         `${url}/api/cart/${participantId}/items`,
         {
           commodityId,
           quantity: -99999, // TODO ugly
         }
       );
+      setCartCount(updated.data.data.items.reduce((sum, item) => sum + item.quantity, 0));
       console.log(`Removed commodity ${commodityId} completely from cart`);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -241,6 +247,8 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const [cartCount, setCartCount] = useState<number>(0);
+
   return (
     <CartActionsContext.Provider
       value={{
@@ -250,6 +258,8 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
         fetchParticipantId,
         loadingItemId,
         hasCart,
+        cartCount,
+        setCartCount
       }}
     >
       {children}

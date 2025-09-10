@@ -3,6 +3,7 @@ dotenv.config();
 
 import mongoose from 'mongoose';
 import Commodity from '../models/commodity.models';
+// import User from '../../login/models/users.models';
 import { commodityDAO } from '../daos/commodity.dao';
 import { ValidationError, NotFoundError } from '../types/errors.types';
 
@@ -72,14 +73,27 @@ describe('commodityDAO', () => {
 
   describe('findCommodityById', () => {
     it('should find a commodity by ID', async () => {
+      // ⚡ Ensure User model is registered for populate
+      if (!mongoose.models.User) {
+        const userSchema = new mongoose.Schema({ username: String, email: String });
+        mongoose.model('User', userSchema);
+      }
+
       const data = {
-        name: 'Deck C', price: 40, currency: 'eur', stripePriceId: 'price_c', stock: 7, active: true
+        name: 'Deck C',
+        price: 40,
+        currency: 'eur',
+        stripePriceId: 'price_c',
+        stock: 7,
+        active: true,
       };
+
       const created = await commodityDAO.createCommodity(data);
 
       const found = await commodityDAO.findCommodityById(created._id);
       expect(found.name).toBe('Deck C');
     });
+
 
     it('should throw NotFoundError if not found', async () => {
       const fakeId = new mongoose.Types.ObjectId();
