@@ -17,6 +17,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import UploadIcon from "@mui/icons-material/Upload";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import CategoryIcon from "@mui/icons-material/Category";
+import CommentIcon from '@mui/icons-material/Comment';
 import { CloudUpload } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 
@@ -104,6 +105,15 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
               <CategoryIcon />
             </ListItemIcon>
             <ListItemText primary="Categories" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("comments")}>
+            <ListItemIcon>
+              <CommentIcon />
+            </ListItemIcon>
+            <ListItemText primary="comments" />
           </ListItemButton>
         </ListItem>
 

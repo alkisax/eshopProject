@@ -110,6 +110,16 @@ const deleteById = async (req: Request, res: Response) => {
   }
 };
 
+const getAllComments = async (_req: Request, res: Response) => {
+  try {
+    const comments = await commodityDAO.getAllComments();
+    // console.log('Controller sending:', comments.length);
+    res.status(200).json({ status: true, data: comments });
+  } catch (err) {
+    handleControllerError(res, err);
+  }
+};
+
 // ➕ Add a comment
 const addComment = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -172,6 +182,7 @@ export const commodityController = {
   updateById,
   sellById,
   deleteById,
+  getAllComments,
   addComment,
   clearComments,
   deleteComment
