@@ -103,12 +103,11 @@ const ShippingInfo = () => {
           <TextField
             label="Notes"
             value={form.notes}
+            onChange={(e) => handleChange("notes", e.target.value)}
             multiline
             rows={4}
             variant="outlined"
-          >
-            Notes: 
-          </TextField>
+          />
 
           <Button variant="contained" color="primary" type="submit">
             Continue to Checkout

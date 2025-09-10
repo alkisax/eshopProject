@@ -1,34 +1,37 @@
-import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Divider } from "@mui/material";
+import { useState } from "react";
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Divider,
+  IconButton,
+  useMediaQuery,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import PeopleIcon from "@mui/icons-material/People";
 import GroupIcon from "@mui/icons-material/Group";
 import UploadIcon from "@mui/icons-material/Upload";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
+import CategoryIcon from "@mui/icons-material/Category";
 import { CloudUpload } from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
 
 interface AdminSidebarProps {
   onSelect: (panel: string) => void;
 }
 
 const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: 220,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
-          width: 220,
-          boxSizing: "border-box",
-          mt: '64px', // push below AppBar (adjust if navbar is taller)
-          borderRight: '1px solid #ddd',
-          backgroundColor: '#f5f5f5',
-          boxShadow: '2px 0 8px rgba(0,0,0,0.1)', // right shadow
-        },
-      }}
-    >
-      {/* Adds space equal to AppBar height so content starts below it */}
-      <Toolbar />
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // ✅ true when on mobile width
+  const [mobileOpen, setMobileOpen] = useState(false); // ✅ controls mobile drawer open/close
 
+  const drawerContent = (
+    <>
+      <Toolbar />
       <Divider />
 
       <List>
@@ -95,11 +98,62 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
           </ListItemButton>
         </ListItem>
 
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("categories")}>
+            <ListItemIcon>
+              <CategoryIcon />
+            </ListItemIcon>
+            <ListItemText primary="Categories" />
+          </ListItemButton>
+        </ListItem>
+
         {/* Add more items with icons here */}
       </List>
-    </Drawer>
+    </>
+  );
+
+  return (
+    <>
+      {/* ✅ Hamburger button visible only on mobile */}
+      {isMobile && (
+        <IconButton
+          onClick={() => setMobileOpen(!mobileOpen)}
+          sx={{
+            position: "fixed",
+            top: 72, // push below AppBar
+            left: 8,
+            zIndex: (theme) => theme.zIndex.drawer + 1,
+            backgroundColor: "white",
+            border: "1px solid #ddd",
+            "&:hover": { backgroundColor: "#f0f0f0" },
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+      )}
+
+      {/* ✅ Drawer changes mode depending on screen size */}
+      <Drawer
+        variant={isMobile ? "temporary" : "permanent"} // mobile → temporary (slides in), desktop → permanent (always visible)
+        open={isMobile ? mobileOpen : true} // mobile controlled by hamburger, desktop always open
+        onClose={() => setMobileOpen(false)} // ✅ close when clicking outside (only mobile)
+        sx={{
+          width: 220,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: 220,
+            boxSizing: "border-box",
+            mt: isMobile ? 0 : "64px", // push below AppBar only on desktop
+            borderRight: "1px solid #ddd",
+            backgroundColor: "#f5f5f5",
+            boxShadow: "2px 0 8px rgba(0,0,0,0.1)", // right shadow
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    </>
   );
 };
 
 export default AdminSidebar;
-

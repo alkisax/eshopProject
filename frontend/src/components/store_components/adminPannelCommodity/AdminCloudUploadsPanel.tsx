@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Typography, Button, List, ListItem, ListItemText, Box
 } from "@mui/material";
-import { useAppwriteUploader } from "../hooks/useAppwriteUploader";
+import { useAppwriteUploader } from "../../../hooks/useAppwriteUploader";
 
 interface CloudFile {
   $id: string;

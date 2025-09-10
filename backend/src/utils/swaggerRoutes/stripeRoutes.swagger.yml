@@ -1,10 +1,9 @@
 paths:
   /api/stripe/checkout/cart:
     post:
-      tags:
-        - Stripe
+      tags: [Stripe]
       summary: Create a Stripe Checkout Session from a cart
-      description: Creates a new Stripe Checkout Session for all items currently in the participant's cart. Participant info can be included in the request body and will be stored as metadata.
+      description: Creates a new Stripe Checkout Session for all items currently in the participant's cart. Participant info and shipping info are stored as Stripe session metadata.
       requestBody:
         required: true
         content:
@@ -23,6 +22,10 @@ paths:
                   type: object
                   description: Optional participant info passed as Stripe metadata.
                   properties:
+                    _id:
+                      type: string
+                      format: objectId
+                      example: "64b2f70c2f1b3a5a0c9f4e88"
                     name:
                       type: string
                       example: "John"
@@ -33,6 +36,45 @@ paths:
                       type: string
                       format: email
                       example: "john.doe@example.com"
+                shippingInfo:
+                  type: object
+                  description: Shipping information to be included in Stripe metadata.
+                  required:
+                    - shippingEmail
+                    - fullName
+                    - addressLine1
+                    - city
+                    - postalCode
+                    - country
+                  properties:
+                    shippingEmail:
+                      type: string
+                      format: email
+                      example: "ship.to@example.com"
+                    fullName:
+                      type: string
+                      example: "John Doe"
+                    addressLine1:
+                      type: string
+                      example: "123 Main St"
+                    addressLine2:
+                      type: string
+                      example: "Apt 4B"
+                    city:
+                      type: string
+                      example: "Athens"
+                    postalCode:
+                      type: string
+                      example: "10445"
+                    country:
+                      type: string
+                      example: "GR"
+                    phone:
+                      type: string
+                      example: "+30 210 0000000"
+                    notes:
+                      type: string
+                      example: "Leave at reception"
       responses:
         '200':
           description: Checkout Session successfully created
@@ -46,52 +88,120 @@ paths:
                     example: true
                   data:
                     type: object
-                    description: Stripe Checkout Session object
+                    description: Stripe Checkout Session object (truncated)
         '400':
           description: Invalid request (e.g. empty cart, missing participantId)
         '500':
           description: Server error
 
-  /api/stripe/success:
-    get:
-      tags:
-        - Stripe
-      summary: Handle successful payment
-      description: Called after a successful Stripe Checkout. Records the transaction and updates the participant in the database.
+  /api/stripe/webhook:
+    post:
+      tags: [Stripe]
+      summary: Stripe webhook endpoint
+      description: >
+        Stripe sends event notifications (e.g., `checkout.session.completed`) to this endpoint.
+        The request **must** be verified with the `Stripe-Signature` header. Your server must
+        read the **raw** request body to verify the signature (implementation detail in Express).
       parameters:
-        - in: query
-          name: session_id
+        - in: header
+          name: Stripe-Signature
           required: true
           schema:
             type: string
-          description: Stripe Checkout Session ID
+          description: Signature used by Stripe to verify the webhook payload.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Stripe Event payload.
+              properties:
+                id:
+                  type: string
+                  example: "evt_1QabcXYZ..."
+                type:
+                  type: string
+                  example: "checkout.session.completed"
+                data:
+                  type: object
+                  properties:
+                    object:
+                      type: object
+                      description: The resource associated with the event (e.g., Checkout Session).
+                      properties:
+                        id:
+                          type: string
+                          example: "cs_test_a1b2c3"
+                        payment_status:
+                          type: string
+                          example: "paid"
+                        amount_total:
+                          type: integer
+                          example: 1999
+                        metadata:
+                          type: object
+                          properties:
+                            participantId:
+                              type: string
+                              example: "64b2f70c2f1b3a5a0c9f4e88"
+                            email:
+                              type: string
+                              example: "john.doe@example.com"
+                            shippingEmail:
+                              type: string
+                              example: "ship.to@example.com"
+                            fullName:
+                              type: string
+                              example: "John Doe"
+                            addressLine1:
+                              type: string
+                              example: "123 Main St"
+                            addressLine2:
+                              type: string
+                              example: "Apt 4B"
+                            city:
+                              type: string
+                              example: "Athens"
+                            postalCode:
+                              type: string
+                              example: "10445"
+                            country:
+                              type: string
+                              example: "GR"
+                            phone:
+                              type: string
+                              example: "+30 210 0000000"
+                            notes:
+                              type: string
+                              example: "Leave at reception"
       responses:
         '200':
-          description: Transaction recorded successfully
+          description: Webhook received (always acknowledge quickly)
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  status:
+                  received:
                     type: boolean
                     example: true
-                  data:
-                    $ref: '#/components/schemas/Transaction'
                   message:
                     type: string
-                    example: "Success! Your purchase has been recorded. You will soon receive an email with the progress. Thank you!"
+                    example: "Transaction already recorded"
         '400':
-          description: Missing or invalid session ID / no email / amount is 0
-        '409':
-          description: Transaction already recorded
+          description: Signature missing or invalid
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Missing Stripe signature"
         '500':
-          description: Server error
+          description: Server error while handling webhook
 
   /api/stripe/cancel:
     get:
-      tags:
-        - Stripe
+      tags: [Stripe]
       summary: Handle canceled payment
       description: Called after a canceled Stripe Checkout. Does not modify the database.
       responses:

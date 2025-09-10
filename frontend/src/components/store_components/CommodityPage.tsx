@@ -80,28 +80,18 @@ const CommodityPage = () => {
               alignItems: "center",
             }}
           >
-            {selectedImage ? (
-              <img
-                src={selectedImage}
-                alt={commodity.name}
-                style={{
-                  width: "100%",
-                  maxHeight: 400,
-                  borderRadius: 8,
-                  objectFit: "contain", // full image without distortion
-                  backgroundColor: "#fafafa",
-                }}
-              />
-            ) : (
-              <Box
-                sx={{
-                  width: "100%",
-                  height: 300,
-                  bgcolor: "#eee",
-                  borderRadius: 8,
-                }}
-              />
-            )}
+          <img
+            src={selectedImage ? selectedImage : "/placeholder.jpg"}
+            alt={commodity.name || "No image"}
+            style={{
+              width: "100%",
+              maxHeight: 400,
+              borderRadius: 8,
+              objectFit: "contain",
+              backgroundColor: "#fafafa",
+            }}
+            onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.jpg" }}
+          />
           </Box>
 
           {/* Thumbnails */}

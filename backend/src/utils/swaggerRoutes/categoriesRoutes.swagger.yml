@@ -1,0 +1,370 @@
+openapi: 3.1.0
+info:
+  title: Categories API
+  version: "1.0.0"
+  description: CRUD and hierarchy management for product categories.
+
+tags:
+  - name: Categories
+    description: Manage product categories and parent/child relations
+
+paths:
+  /api/categories:
+    get:
+      tags: [Categories]
+      summary: List all categories
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "66f4abca12f3c9a2b1c23456"
+                        name:
+                          type: string
+                          example: "Electronics"
+                        slug:
+                          type: string
+                          example: "electronics"
+                        description:
+                          type: string
+                          example: "Devices and gadgets."
+                        parent:
+                          type: object
+                          nullable: true
+                          description: Populated parent category (if any)
+                          properties:
+                            _id:
+                              type: string
+                              example: "66f4abca12f3c9a2b1c29999"
+                            name:
+                              type: string
+                              example: "Root"
+                            slug:
+                              type: string
+                              example: "root"
+                        children:
+                          type: array
+                          items:
+                            type: string
+                          example:
+                            - "66f4abca12f3c9a2b1c25555"
+                            - "66f4abca12f3c9a2b1c26666"
+                        isTag:
+                          type: boolean
+                          example: false
+                        featured:
+                          type: boolean
+                          example: true
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+    post:
+      tags: [Categories]
+      summary: Create a category
+      description: Admin-only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug]
+              properties:
+                name:
+                  type: string
+                  example: "Smartphones"
+                slug:
+                  type: string
+                  example: "smartphones"
+                description:
+                  type: string
+                  example: "Phones and accessories."
+                parent:
+                  type: string
+                  nullable: true
+                  example: "66f4abca12f3c9a2b1c23456"
+                isTag:
+                  type: boolean
+                  example: false
+                featured:
+                  type: boolean
+                  example: false
+      responses:
+        "201":
+          description: Category created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      _id: { type: string }
+                      name: { type: string }
+                      slug: { type: string }
+                      description: { type: string }
+                      parent:
+                        type: string
+                        nullable: true
+                      children:
+                        type: array
+                        items: { type: string }
+                      isTag: { type: boolean }
+                      featured: { type: boolean }
+                      createdAt: { type: string, format: date-time }
+                      updatedAt: { type: string, format: date-time }
+        "400":
+          description: Validation error
+
+  /api/categories/{id}:
+    get:
+      tags: [Categories]
+      summary: Get a category by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Category details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean, example: true }
+                  data:
+                    type: object
+                    properties:
+                      _id: { type: string }
+                      name: { type: string }
+                      slug: { type: string }
+                      description: { type: string }
+                      parent:
+                        type: object
+                        nullable: true
+                        properties:
+                          _id: { type: string }
+                          name: { type: string }
+                          slug: { type: string }
+                      children:
+                        type: array
+                        items: { type: string }
+                      isTag: { type: boolean }
+                      featured: { type: boolean }
+                      createdAt: { type: string, format: date-time }
+                      updatedAt: { type: string, format: date-time }
+        "404":
+          description: Category not found
+    patch:
+      tags: [Categories]
+      summary: Update a category
+      description: Admin-only.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Any subset of fields to update
+              properties:
+                name:
+                  type: string
+                  example: "Phones"
+                slug:
+                  type: string
+                  example: "phones"
+                description:
+                  type: string
+                  example: "Updated description"
+                parent:
+                  type: string
+                  nullable: true
+                isTag:
+                  type: boolean
+                featured:
+                  type: boolean
+      responses:
+        "200":
+          description: Updated category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean, example: true }
+                  data:
+                    type: object
+                    properties:
+                      _id: { type: string }
+                      name: { type: string }
+                      slug: { type: string }
+                      description: { type: string }
+                      parent:
+                        type: object
+                        nullable: true
+                        properties:
+                          _id: { type: string }
+                          name: { type: string }
+                          slug: { type: string }
+                      children:
+                        type: array
+                        items: { type: string }
+                      isTag: { type: boolean }
+                      featured: { type: boolean }
+                      createdAt: { type: string, format: date-time }
+                      updatedAt: { type: string, format: date-time }
+        "404":
+          description: Category not found
+    delete:
+      tags: [Categories]
+      summary: Delete a category
+      description: Admin-only.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Deleted category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean, example: true }
+                  data:
+                    type: object
+                    properties:
+                      _id: { type: string }
+                      name: { type: string }
+                      slug: { type: string }
+        "404":
+          description: Category not found
+
+  /api/categories/{id}/toggle-tag:
+    put:
+      tags: [Categories]
+      summary: Toggle the isTag flag on a category
+      description: Admin-only.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Toggled category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean, example: true }
+                  data:
+                    type: object
+                    properties:
+                      _id: { type: string }
+                      name: { type: string }
+                      slug: { type: string }
+                      isTag: { type: boolean }
+                      updatedAt: { type: string, format: date-time }
+        "404":
+          description: Category not found
+
+  /api/categories/make-parent:
+    post:
+      tags: [Categories]
+      summary: Set a parent category for a child category
+      description: Admin-only. Links `childId` under `parentId` and updates both documents.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [parentId, childId]
+              properties:
+                parentId:
+                  type: string
+                  example: "66f4abca12f3c9a2b1c23456"
+                childId:
+                  type: string
+                  example: "66f4abca12f3c9a2b1c25555"
+      responses:
+        "200":
+          description: Child updated with new parent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean, example: true }
+                  data:
+                    type: object
+                    properties:
+                      _id: { type: string }
+                      name: { type: string }
+                      slug: { type: string }
+                      parent: { type: string, example: "66f4abca12f3c9a2b1c23456" }
+        "404":
+          description: Parent or child not found
+
+  /api/categories/{id}/remove-parent:
+    put:
+      tags: [Categories]
+      summary: Remove a parent from a child category
+      description: Admin-only.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Parent removed from child
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean, example: true }
+                  data:
+                    type: object
+                    properties:
+                      _id: { type: string }
+                      name: { type: string }
+                      slug: { type: string }
+                      parent:
+                        type: string
+                        nullable: true
+                        example: null
+        "404":
+          description: Child category not found

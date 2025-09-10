@@ -3,7 +3,8 @@ import { useEffect, useState, useContext, useCallback } from "react";
 import axios from "axios";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, Typography, Pagination, IconButton
+  Paper, Button, Typography, Pagination, IconButton,
+  Stack
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import AddBoxIcon from "@mui/icons-material/AddBox";
@@ -178,22 +179,58 @@ const AdminCommoditiesPanel = () => {
                   <TableRow>
                     <TableCell>{c.name}</TableCell>
                     <TableCell>{c.category.join(", ")}</TableCell>
-                    <TableCell>{c.price} {c.currency}</TableCell>
+                    <TableCell>
+                      {c.price} {c.currency}
+                    </TableCell>
                     <TableCell>{c.stock}</TableCell>
                     <TableCell>{c.soldCount}</TableCell>
+
+                    {/* Actions cell */}
                     <TableCell>
-                      <IconButton
-                        color="primary"
-                        onClick={() => setExpanded(c._id!.toString())}
+                      {/* On large screens → row of buttons */}
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{ display: { xs: "none", sm: "flex" } }}
                       >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() => handleDelete(c._id!.toString())}
+                        <IconButton
+                          color="primary"
+                          onClick={() => setExpanded(c._id!.toString())}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDelete(c._id!.toString())}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Stack>
+
+                      {/* On small screens → stacked buttons */}
+                      <Stack
+                        direction="column"
+                        spacing={0.5}
+                        sx={{ display: { xs: "flex", sm: "none" } }}
                       >
-                        <DeleteIcon />
-                      </IconButton>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<EditIcon />}
+                          onClick={() => setExpanded(c._id!.toString())}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          startIcon={<DeleteIcon />}
+                          onClick={() => handleDelete(c._id!.toString())}
+                        >
+                          Delete
+                        </Button>
+                      </Stack>
                     </TableCell>
                   </TableRow>
 
@@ -204,7 +241,7 @@ const AdminCommoditiesPanel = () => {
                       onSave={handleSaveCommodity}
                       onRestock={handleRestockCommodity}
                     />
-                  )}                 
+                  )}
                 </React.Fragment>
 
               ))}
@@ -223,6 +260,6 @@ const AdminCommoditiesPanel = () => {
       )}
     </div>
   );
-};
+}
 
 export default AdminCommoditiesPanel;

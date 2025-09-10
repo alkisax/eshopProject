@@ -109,9 +109,9 @@ const AdminPanel = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "#f0f0f0" }}>
-              <TableCell>Name</TableCell>
+              <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>Name</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Username</TableCell>
+              <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>Username</TableCell>
               <TableCell>Roles</TableCell>
             </TableRow>
           </TableHead>
@@ -121,9 +121,9 @@ const AdminPanel = () => {
             <React.Fragment key={user.id}>  
 
               <TableRow sx={{ backgroundColor: idx % 2 === 0 ? "#fff" : "#f9f9f9" }}>
-                <TableCell>{user.name}</TableCell>
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.username}</TableCell>
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>{user.username}</TableCell>
                 <TableCell>{user.roles.join(", ")}</TableCell>
               </TableRow>
               <TableRow sx={{ backgroundColor: "#f4fdffff" }}>
