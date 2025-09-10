@@ -30,7 +30,8 @@ const findAllCommodities = async (page = 0): Promise<CommodityType[]> => {
 
 // Read by ID
 const findCommodityById = async (id: string | Types.ObjectId): Promise<CommodityType> => {
-  const commodity = await Commodity.findById(id);
+  const commodity = await Commodity.findById(id)
+    .populate('comments.user', 'username');
   if (!commodity) {
     throw new NotFoundError('Commodity not found');
   }
