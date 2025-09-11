@@ -11,8 +11,12 @@ import User from '../../login/models/users.models';
 import SubPage from '../../blog/models/subPage.model';
 import { subPageDao } from '../../blog/daos/subPage.dao';
 
-if (!process.env.MONGODB_TEST_URI) {throw new Error('MONGODB_TEST_URI is required');}
-if (!process.env.JWT_SECRET) {throw new Error('JWT_SECRET is required');}
+if (!process.env.MONGODB_TEST_URI) {
+  throw new Error('MONGODB_TEST_URI is required');
+};
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+};
 
 let adminToken = '';
 let subPageId = '';
@@ -32,12 +36,21 @@ beforeAll(async () => {
   });
 
   adminToken = jwt.sign(
-    { id: admin._id.toString(), username: admin.username, email: admin.email, roles: admin.roles },
+    {
+      id: admin._id.toString(),
+      username: admin.username,
+      email: admin.email,
+      roles: admin.roles,
+    },
     process.env.JWT_SECRET!,
     { expiresIn: '1h' }
   );
 
-  const subPage = await SubPage.create({ name: 'to-delete' });
+  const subPage = await SubPage.create({
+    name: 'to-delete',
+    slug: 'to-delete',
+    description: 'temporary subpage',
+  });
   subPageId = subPage._id.toString();
 });
 
@@ -52,20 +65,25 @@ describe('DELETE /api/subpage/:id', () => {
     const res = await request(app)
       .delete(`/api/subpage/${subPageId}`)
       .set('Authorization', `Bearer ${adminToken}`);
+
     expect(res.status).toBe(200);
+    expect(res.body.status).toBe(true);
+    expect(res.body.message).toMatch(/deleted/i);
   });
 
-  it('404 not found', async () => {
+  it('404 when already deleted', async () => {
     const res = await request(app)
       .delete(`/api/subpage/${subPageId}`)
       .set('Authorization', `Bearer ${adminToken}`);
+
     expect(res.status).toBe(404);
   });
 
-  it('500 invalid id', async () => {
+  it('500 when invalid id', async () => {
     const res = await request(app)
       .delete('/api/subpage/not-an-id')
       .set('Authorization', `Bearer ${adminToken}`);
+
     expect(res.status).toBe(500);
   });
 });
@@ -76,7 +94,9 @@ describe('DAO errors with spyOn', () => {
   });
 
   it('500 when DAO throws', async () => {
-    const spy = jest.spyOn(subPageDao, 'deleteSubPage').mockRejectedValue(new Error('DB fail'));
+    const spy = jest
+      .spyOn(subPageDao, 'deleteSubPage')
+      .mockRejectedValue(new Error('DB fail'));
 
     const res = await request(app)
       .delete(`/api/subpage/${new mongoose.Types.ObjectId().toString()}`)

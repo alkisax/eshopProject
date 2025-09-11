@@ -1,9 +1,9 @@
 import {useNavigate} from "react-router-dom";
 // import { useRef } from 'react';
 import { useState } from 'react';
-import EditorJs from "../components/EditorJs";
-import LeftSidebarDashboard from "../components/LeftSidebarDashboard";
-import { handlePreview, handleSubmit, handlePageSelect, handleNewPageSubmit } from "../utils/editorHelper"
+import EditorJs from "../EditorJs";
+import LeftSidebarDashboard from "../blogComponents/LeftSidebarDashboard";
+import { handlePreview, handleSubmit, handlePageSelect, handleNewPageSubmit } from "../blogUtils/editorHelper"
 import { useParams } from 'react-router-dom';
 
 function Dashboard({

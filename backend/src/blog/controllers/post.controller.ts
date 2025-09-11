@@ -3,33 +3,34 @@ import type { Request, Response } from 'express';
 import type { PostType } from '../types/blog.types';
 import { handleControllerError } from '../../utils/errorHnadler';
 
-// === CREATE ===
 const createPost = async (req: Request, res: Response) => {
   try {
-    const { content, subPage, pinned } = req.body as Partial<PostType>;
+    const { title, content, subPage, pinned } = req.body as Partial<PostType>;
 
+    if (!title || !title.trim()) {
+      return res.status(400).json({ status: false, message: 'Post title required' });
+    }
     if (!content || !content.blocks || content.blocks.length === 0) {
       return res.status(400).json({ status: false, message: 'Invalid EditorJS content' });
     }
 
-    const savedPost = await postDAO.createPost(content, subPage!, pinned ?? false);
+    const savedPost = await postDAO.createPost(title, content, subPage!, pinned ?? false);
     return res.status(201).json({ status: true, data: savedPost });
   } catch (error) {
     return handleControllerError(res, error);
   }
 };
 
-// === EDIT ===
 const editPost = async (req: Request, res: Response) => {
   try {
     const { postId } = req.params;
-    const { content, subPage, pinned } = req.body as Partial<PostType>;
+    const { title, content, subPage, pinned } = req.body as Partial<PostType>;
 
     if (!content || !content.blocks || content.blocks.length === 0) {
       return res.status(400).json({ status: false, message: 'Invalid EditorJS content for edit' });
     }
 
-    const updatedPost = await postDAO.editPost(postId, content, subPage, pinned);
+    const updatedPost = await postDAO.editPost(postId, content, subPage, pinned, title);
     return res.status(200).json({ status: true, data: updatedPost });
   } catch (error) {
     return handleControllerError(res, error);

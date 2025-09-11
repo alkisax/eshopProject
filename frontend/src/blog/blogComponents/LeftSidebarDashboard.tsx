@@ -1,4 +1,4 @@
-import CustomPageCreatorComponent from './CustomPageCreatorComponent';
+import CustomPageCreatorComponent from '../CustomPageCreatorComponent';
 
 const LeftSidebarDashboard = ({
   navigateToPosts,

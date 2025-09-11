@@ -26,6 +26,10 @@ paths:
                       properties:
                         _id:
                           type: string
+                        title:
+                          type: string
+                        slug:
+                          type: string
                         content:
                           type: object
                           properties:
@@ -61,7 +65,13 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - title
+                - content
+                - subPage
               properties:
+                title:
+                  type: string
                 content:
                   type: object
                   properties:
@@ -96,6 +106,10 @@ paths:
                     type: object
                     properties:
                       _id:
+                        type: string
+                      title:
+                        type: string
+                      slug:
                         type: string
                       content:
                         type: object
@@ -149,6 +163,10 @@ paths:
                     properties:
                       _id:
                         type: string
+                      title:
+                        type: string
+                      slug:
+                        type: string
                       content:
                         type: object
                         properties:
@@ -191,6 +209,8 @@ paths:
             schema:
               type: object
               properties:
+                title:
+                  type: string
                 content:
                   type: object
                   properties:
@@ -225,6 +245,10 @@ paths:
                     type: object
                     properties:
                       _id:
+                        type: string
+                      title:
+                        type: string
+                      slug:
                         type: string
                       content:
                         type: object
@@ -277,6 +301,10 @@ paths:
                     type: object
                     properties:
                       _id:
+                        type: string
+                      title:
+                        type: string
+                      slug:
                         type: string
                       content:
                         type: object

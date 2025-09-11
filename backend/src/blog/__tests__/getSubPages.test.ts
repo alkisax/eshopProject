@@ -10,9 +10,14 @@ import app from '../../app';
 import User from '../../login/models/users.models';
 import SubPage from '../../blog/models/subPage.model';
 import { subPageDao } from '../../blog/daos/subPage.dao';
+import { slugify } from '../../blog/utils/slugify';
 
-if (!process.env.MONGODB_TEST_URI) {throw new Error('MONGODB_TEST_URI is required');}
-if (!process.env.JWT_SECRET) {throw new Error('JWT_SECRET is required');}
+if (!process.env.MONGODB_TEST_URI) {
+  throw new Error('MONGODB_TEST_URI is required');
+}
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
 
 let adminToken = '';
 
@@ -31,13 +36,18 @@ beforeAll(async () => {
   });
 
   adminToken = jwt.sign(
-    { id: admin._id.toString(), username: admin.username, email: admin.email, roles: admin.roles },
+    {
+      id: admin._id.toString(),
+      username: admin.username,
+      email: admin.email,
+      roles: admin.roles,
+    },
     process.env.JWT_SECRET!,
     { expiresIn: '1h' }
   );
 
-  await SubPage.create({ name: 'news' });
-  await SubPage.create({ name: 'announcements' });
+  await SubPage.create({ name: 'news', slug: slugify('news') });
+  await SubPage.create({ name: 'announcements', slug: slugify('announcements') });
 });
 
 afterAll(async () => {
@@ -63,7 +73,9 @@ describe('DAO errors with spyOn', () => {
   });
 
   it('500 when DAO throws', async () => {
-    const spy = jest.spyOn(subPageDao, 'getAllSubPages').mockRejectedValue(new Error('DB fail'));
+    const spy = jest
+      .spyOn(subPageDao, 'getAllSubPages')
+      .mockRejectedValue(new Error('DB fail'));
 
     const res = await request(app)
       .get('/api/subpage')
@@ -79,7 +91,9 @@ describe('DAO errors with spyOn', () => {
       throw new Error('Mongoose fail');
     });
 
-    await expect(subPageDao.getAllSubPages()).rejects.toThrow('Failed to fetch subpages: Mongoose fail');
+    await expect(subPageDao.getAllSubPages()).rejects.toThrow(
+      'Failed to fetch subpages: Mongoose fail'
+    );
 
     spy.mockRestore();
   });

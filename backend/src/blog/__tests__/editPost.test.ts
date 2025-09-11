@@ -10,9 +10,14 @@ import User from '../../login/models/users.models';
 import Post from '../../blog/models/post.model';
 import SubPage from '../../blog/models/subPage.model';
 import { postDAO } from '../../blog/daos/post.dao';
+import { slugify } from '../../blog/utils/slugify';
 
-if (!process.env.MONGODB_TEST_URI) {throw new Error('MONGODB_TEST_URI is required');}
-if (!process.env.JWT_SECRET) {throw new Error('JWT_SECRET is required');}
+if (!process.env.MONGODB_TEST_URI) {
+  throw new Error('MONGODB_TEST_URI is required');
+}
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
 
 let adminToken = '';
 let subPageId = '';
@@ -42,8 +47,15 @@ beforeAll(async () => {
   const subPage = await SubPage.create({ name: 'announcements' });
   subPageId = subPage._id.toString();
 
+  const title = 'Before Edit';
   const post = await Post.create({
-    content: { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'Before Edit' } }], version: '2.28.0' },
+    title,
+    slug: slugify(title),
+    content: {
+      time: Date.now(),
+      blocks: [{ type: 'paragraph', data: { text: 'Before Edit' } }],
+      version: '2.28.0',
+    },
     subPage: subPageId,
     pinned: false,
   });
@@ -71,12 +83,18 @@ describe('PUT /api/posts/:postId', () => {
       .put(`/api/posts/${postId}`)
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
-        content: { time: Date.now(), blocks: [{ type: 'header', data: { text: 'Edited', level: 2 } }], version: '2.28.0' },
+        title: 'Edited Post',
+        content: {
+          time: Date.now(),
+          blocks: [{ type: 'header', data: { text: 'Edited', level: 2 } }],
+          version: '2.28.0',
+        },
         subPage: subPageId,
         pinned: true,
       });
     expect(res.status).toBe(200);
     expect(res.body.data.pinned).toBe(true);
+    expect(res.body.data.title).toBe('Edited Post');
   });
 
   it('404 not found', async () => {
@@ -84,7 +102,12 @@ describe('PUT /api/posts/:postId', () => {
       .put('/api/posts/68ad7e285d9e6a24a76b249e')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
-        content: { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'Not Found' } }], version: '2.28.0' },
+        title: 'Not Found Title',
+        content: {
+          time: Date.now(),
+          blocks: [{ type: 'paragraph', data: { text: 'Not Found' } }],
+          version: '2.28.0',
+        },
         subPage: subPageId,
       });
     expect(res.status).toBe(404);
@@ -95,7 +118,12 @@ describe('PUT /api/posts/:postId', () => {
       .put('/api/posts/not-an-id')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
-        content: { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'Bad Id' } }], version: '2.28.0' },
+        title: 'Bad ID',
+        content: {
+          time: Date.now(),
+          blocks: [{ type: 'paragraph', data: { text: 'Bad Id' } }],
+          version: '2.28.0',
+        },
         subPage: subPageId,
       });
     expect(res.status).toBe(500);
@@ -108,8 +136,13 @@ describe('PUT /api/posts/:postId', () => {
       .put(`/api/posts/${postId}`)
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
-        content: { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'Only subPage' } }], version: '2.28.0' },
-        subPage: otherPage._id.toString()
+        title: 'Changed SubPage',
+        content: {
+          time: Date.now(),
+          blocks: [{ type: 'paragraph', data: { text: 'Only subPage' } }],
+          version: '2.28.0',
+        },
+        subPage: otherPage._id.toString(),
       });
 
     expect(res.status).toBe(200);
@@ -121,13 +154,18 @@ describe('PUT /api/posts/:postId', () => {
       .put(`/api/posts/${postId}`)
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
-        content: { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'Only pinned' } }], version: '2.28.0' },
-        pinned: false
+        title: 'Pinned Toggle',
+        content: {
+          time: Date.now(),
+          blocks: [{ type: 'paragraph', data: { text: 'Only pinned' } }],
+          version: '2.28.0',
+        },
+        pinned: false,
       });
 
     expect(res.status).toBe(200);
     expect(res.body.data.pinned).toBe(false);
-  });  
+  });
 });
 
 describe('DAO errors with spyOn', () => {
@@ -137,7 +175,12 @@ describe('DAO errors with spyOn', () => {
       .put(`/api/posts/${postId}`)
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
-        content: { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'Spy Edit' } }], version: '2.28.0' },
+        title: 'Spy Edit',
+        content: {
+          time: Date.now(),
+          blocks: [{ type: 'paragraph', data: { text: 'Spy Edit' } }],
+          version: '2.28.0',
+        },
         subPage: subPageId,
       });
     expect(res.status).toBe(500);

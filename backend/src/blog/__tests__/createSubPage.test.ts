@@ -11,8 +11,11 @@ import User from '../../login/models/users.models';
 import SubPage from '../../blog/models/subPage.model';
 import { subPageDao } from '../../blog/daos/subPage.dao';
 
-if (!process.env.MONGODB_TEST_URI) {throw new Error('MONGODB_TEST_URI is required');}
-if (!process.env.JWT_SECRET) {throw new Error('JWT_SECRET is required');}
+if (!process.env.MONGODB_TEST_URI) {
+  throw new Error('MONGODB_TEST_URI is required');
+};
+if (!process.env.JWT_SECRET) {throw new Error('JWT_SECRET is required');
+};
 
 let adminToken = '';
 
@@ -31,7 +34,12 @@ beforeAll(async () => {
   });
 
   adminToken = jwt.sign(
-    { id: admin._id.toString(), username: admin.username, email: admin.email, roles: admin.roles },
+    {
+      id: admin._id.toString(),
+      username: admin.username,
+      email: admin.email,
+      roles: admin.roles,
+    },
     process.env.JWT_SECRET!,
     { expiresIn: '1h' }
   );
@@ -56,9 +64,13 @@ describe('POST /api/subpage', () => {
     const res = await request(app)
       .post('/api/subpage')
       .set('Authorization', `Bearer ${adminToken}`)
-      .send({ name: 'to-create' });
+      .send({
+        name: 'To Create'
+      });
+
     expect(res.status).toBe(201);
-    expect(res.body.data.name).toBe('to-create');
+    expect(res.body.status).toBe(true);
+    expect(res.body.data.name).toBe('To Create');
   });
 });
 
@@ -80,14 +92,15 @@ describe('DAO errors with spyOn', () => {
     spy.mockRestore();
   });
 
-  it('throws DatabaseError when SubPage.create fails', async () => {
+  it('DAO wraps SubPage.create errors into DatabaseError', async () => {
     const spy = jest.spyOn(SubPage, 'create').mockImplementation(() => {
       throw new Error('Mongoose fail');
     });
 
-    await expect(subPageDao.createSubPage('bad')).rejects.toThrow('Failed to create subpage: Mongoose fail');
+    await expect(subPageDao.createSubPage('bad')).rejects.toThrow(
+      'Failed to create subpage: Mongoose fail'
+    );
 
     spy.mockRestore();
   });
-
 });

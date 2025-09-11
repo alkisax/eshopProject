@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import axios from 'axios';
 // import { useParams } from 'react-router-dom';
-import RenderedEditorJsContent from './RenderedEditorJsContent'
+import RenderedEditorJsContent from './blogComponents/RenderedEditorJsContent'
 import { useInitEditor } from '../hooks/useInitEditor';
 
 const EditorJs = ({ 

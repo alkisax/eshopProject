@@ -1,22 +1,18 @@
-import { Types } from 'mongoose';
-
 export interface PostType {
-  _id?: Types.ObjectId;
-  title: string;
-  slug: string;
+  _id?: string;
   content: EditorJsContent;
-  subPage: Types.ObjectId | SubPageType | string;
+  subPage: SubPageType | string;
   pinned: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export interface SubPageType {
-  _id?: Types.ObjectId;
+  _id?: string;
   name: string;
   slug: string;
   description?: string;
-  pinnedPosts?: (Types.ObjectId | string)[]; // could also be PostType[] if populated
+  pinnedPosts?: string[]; // could also be PostType[] if populated
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -40,6 +36,7 @@ export type EditorJsBlock =
   | EmbedBlock
   | WarningBlock;
 
+// απο εδώ και κάτω απλώς ορίζονται τα διάφορα block του editorJS
 
 interface EditorJsBaseBlock {
   id?: string;

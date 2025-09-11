@@ -10,9 +10,14 @@ import User from '../../login/models/users.models';
 import Post from '../../blog/models/post.model';
 import SubPage from '../../blog/models/subPage.model';
 import { postDAO } from '../../blog/daos/post.dao';
+import { slugify } from '../../blog/utils/slugify';
 
-if (!process.env.MONGODB_TEST_URI) {throw new Error('MONGODB_TEST_URI is required');}
-if (!process.env.JWT_SECRET) {throw new Error('JWT_SECRET is required');}
+if (!process.env.MONGODB_TEST_URI) {
+  throw new Error('MONGODB_TEST_URI is required');
+}
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
 
 let adminToken = '';
 let subPageId = '';
@@ -34,7 +39,12 @@ beforeAll(async () => {
   });
 
   adminToken = jwt.sign(
-    { id: admin._id.toString(), username: admin.username, email: admin.email, roles: admin.roles },
+    {
+      id: admin._id.toString(),
+      username: admin.username,
+      email: admin.email,
+      roles: admin.roles,
+    },
     process.env.JWT_SECRET!,
     { expiresIn: '1h' }
   );
@@ -42,8 +52,15 @@ beforeAll(async () => {
   const subPage = await SubPage.create({ name: 'general' });
   subPageId = subPage._id.toString();
 
+  const title = 'Delete Me';
   const post = await Post.create({
-    content: { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'Delete Me' } }], version: '2.28.0' },
+    title,
+    slug: slugify(title),
+    content: {
+      time: Date.now(),
+      blocks: [{ type: 'paragraph', data: { text: 'Delete Me' } }],
+      version: '2.28.0',
+    },
     subPage: subPageId,
     pinned: false,
   });
@@ -84,8 +101,15 @@ describe('DELETE /api/posts/:postId', () => {
 describe('DAO errors with spyOn', () => {
   it('500 when DAO throws', async () => {
     const subPage = await SubPage.create({ name: 'spyDel' });
+    const title = 'Spy Delete';
     const tempPost = await Post.create({
-      content: { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'Spy Delete' } }], version: '2.28.0' },
+      title,
+      slug: slugify(title),
+      content: {
+        time: Date.now(),
+        blocks: [{ type: 'paragraph', data: { text: 'Spy Delete' } }],
+        version: '2.28.0',
+      },
       subPage: subPage._id.toString(),
       pinned: false,
     });

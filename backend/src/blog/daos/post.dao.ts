@@ -2,6 +2,7 @@ import Post from '../models/post.model';
 import type { PostType, SubPageType } from '../types/blog.types';
 import { DatabaseError, NotFoundError } from '../../stripe/types/errors.types';
 import { Types } from 'mongoose';
+import { slugify } from '../utils/slugify';
 
 const getAllPosts = async (): Promise<PostType[]> => {
   try {
@@ -34,12 +35,14 @@ const getPostById = async (postId: string | Types.ObjectId): Promise<PostType> =
 };
 
 export const createPost = async (
+  title: string,
   content: PostType['content'],
   subPage: Types.ObjectId | string | SubPageType,
   pinned: boolean
 ): Promise<PostType> => {
   try {
-    return await Post.create({ content, subPage, pinned });
+    const slug = slugify(title);
+    return await Post.create({ title, slug, content, subPage, pinned });
   } catch (err) {
     throw new DatabaseError(`Failed to create post: ${(err as Error).message}`);
   }
@@ -49,8 +52,8 @@ const editPost = async (
   postId: string | Types.ObjectId,
   content: PostType['content'],
   subPage?: Types.ObjectId | string | SubPageType,
-
-  pinned?: boolean
+  pinned?: boolean,
+  title?: string
 ): Promise<PostType> => {
   try {
     const post = await Post.findById(postId).exec();
@@ -66,6 +69,11 @@ const editPost = async (
       post.pinned = pinned;
     }
 
+    if (title !== undefined) {
+      post.title = title;
+      post.slug = slugify(title);
+    }
+
     return await post.save();
   } catch (err) {
     if (err instanceof NotFoundError) {
@@ -74,6 +82,7 @@ const editPost = async (
     throw new DatabaseError(`Failed to edit post: ${(err as Error).message}`);
   }
 };
+
 
 const deletePost = async (postId: string | Types.ObjectId): Promise<PostType> => {
   try {

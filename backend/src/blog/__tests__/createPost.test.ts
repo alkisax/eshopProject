@@ -10,9 +10,14 @@ import User from '../../login/models/users.models';
 import Post from '../../blog/models/post.model';
 import SubPage from '../../blog/models/subPage.model';
 import { postDAO } from '../../blog/daos/post.dao';
+import { slugify } from '../../blog/utils/slugify';
 
-if (!process.env.MONGODB_TEST_URI) {throw new Error('MONGODB_TEST_URI is required');}
-if (!process.env.JWT_SECRET) {throw new Error('JWT_SECRET is required');}
+if (!process.env.MONGODB_TEST_URI) {
+  throw new Error('MONGODB_TEST_URI is required');
+}
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
 
 let adminToken = '';
 let subPageId = '';
@@ -33,7 +38,12 @@ beforeAll(async () => {
   });
 
   adminToken = jwt.sign(
-    { id: admin._id.toString(), username: admin.username, email: admin.email, roles: admin.roles },
+    {
+      id: admin._id.toString(),
+      username: admin.username,
+      email: admin.email,
+      roles: admin.roles,
+    },
     process.env.JWT_SECRET!,
     { expiresIn: '1h' }
   );
@@ -59,11 +69,18 @@ describe('POST /api/posts', () => {
   });
 
   it('creates post (201)', async () => {
+    const title = 'Created Post';
     const res = await request(app)
       .post('/api/posts')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
-        content: { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'Created!' } }], version: '2.28.0' },
+        title,
+        slug: slugify(title),
+        content: {
+          time: Date.now(),
+          blocks: [{ type: 'paragraph', data: { text: 'Created!' } }],
+          version: '2.28.0',
+        },
         subPage: subPageId,
         pinned: false,
       });
@@ -82,14 +99,17 @@ describe('DAO errors with spyOn', () => {
       throw new Error('DB fail');
     });
 
+    const title = 'Spy Fail Post';
     const res = await request(app)
       .post('/api/posts')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
+        title,
+        slug: slugify(title),
         content: {
           time: Date.now(),
           blocks: [{ type: 'paragraph', data: { text: 'Spy fail' } }],
-          version: '2.28.0'
+          version: '2.28.0',
         },
         subPage: subPageId,
       });
@@ -99,10 +119,14 @@ describe('DAO errors with spyOn', () => {
   });
 
   it('DAO catch block wraps Post.create error', async () => {
-    const spy = jest.spyOn(Post, 'create').mockRejectedValue(new Error('Mongoose create failed'));
+    const spy = jest
+      .spyOn(Post, 'create')
+      .mockRejectedValue(new Error('Mongoose create failed'));
 
+    const title = 'DAO Fail Post';
     await expect(
       postDAO.createPost(
+        title,
         { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'fail' } }], version: '2.28.0' },
         subPageId,
         false

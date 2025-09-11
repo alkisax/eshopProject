@@ -10,9 +10,14 @@ import User from '../../login/models/users.models';
 import Post from '../../blog/models/post.model';
 import SubPage from '../../blog/models/subPage.model';
 import { postDAO } from '../../blog/daos/post.dao';
+import { slugify } from '../../blog/utils/slugify';
 
-if (!process.env.MONGODB_TEST_URI) {throw new Error('MONGODB_TEST_URI is required');}
-if (!process.env.JWT_SECRET) {throw new Error('JWT_SECRET is required');}
+if (!process.env.MONGODB_TEST_URI) {
+  throw new Error('MONGODB_TEST_URI is required');
+}
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
 
 let adminToken = '';
 let subPageId = '';
@@ -41,8 +46,15 @@ beforeAll(async () => {
   const subPage = await SubPage.create({ name: 'news' });
   subPageId = subPage._id.toString();
 
+  const title = 'Hello World';
   await Post.create({
-    content: { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: 'Hello' } }], version: '2.28.0' },
+    title,
+    slug: slugify(title),
+    content: {
+      time: Date.now(),
+      blocks: [{ type: 'paragraph', data: { text: 'Hello' } }],
+      version: '2.28.0',
+    },
     subPage: subPageId,
     pinned: false,
   });
@@ -57,7 +69,9 @@ afterAll(async () => {
 
 describe('GET /api/posts', () => {
   it('returns posts (200)', async () => {
-    const res = await request(app).get('/api/posts').set('Authorization', `Bearer ${adminToken}`);
+    const res = await request(app)
+      .get('/api/posts')
+      .set('Authorization', `Bearer ${adminToken}`);
     expect(res.status).toBe(200);
     expect(res.body.status).toBe(true);
     expect(Array.isArray(res.body.data)).toBe(true);
@@ -83,9 +97,10 @@ describe('DAO errors with spyOn', () => {
       throw new Error('Mongoose fail');
     });
 
-    await expect(postDAO.getAllPosts()).rejects.toThrow('Failed to fetch posts: Mongoose fail');
+    await expect(postDAO.getAllPosts()).rejects.toThrow(
+      'Failed to fetch posts: Mongoose fail'
+    );
 
     spy.mockRestore();
   });
 });
-
