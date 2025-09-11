@@ -9,18 +9,10 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { VariablesContext } from "../../../context/VariablesContext";
 import axios from "axios";
-import type { CommodityType } from "../../../types/commerce.types";
-import type { IUser } from "../../../types/types";
+import type { CommentType } from "../../../types/commerce.types";
+// import type { IUser } from "../../../types/types";
+// import { Types } from "mongoose";
 
-interface CommentType {
-  _id?: string;
-  user: string | IUser;
-  text: string | object;
-  rating?: number;
-  isApproved?: boolean;
-  createdAt?: string;
-  commodity: CommodityType; // populated on backend
-}
 
 const AdminCommentsPanel = () => {
   const { url } = useContext(VariablesContext);
@@ -48,27 +40,39 @@ const AdminCommentsPanel = () => {
     fetchComments();
   }, [fetchComments]);
 
-  const handleDelete = async (id?: string) => {
-    if (!id) return;
+  const handleDelete = async (comment: CommentType) => {
+    // Prefer explicit commentId if it exists, fallback to comment._id
+    const commodityId = comment.commodity?._id || comment._id;
+    const commentId = comment.commentId || comment._id;
+
+    console.log("Deleting comment", commentId, "from commodity", commodityId);
+
+    if (!commentId || !commodityId) return;
     if (!window.confirm("Delete this comment?")) return;
+
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${url}/api/commodity/comments/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${url}/api/commodity/${commodityId}/comments/${commentId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       fetchComments();
     } catch (err) {
       console.error("Failed to delete comment", err);
     }
   };
 
-  const handleToggleApproval = async (id?: string, current?: boolean) => {
-    if (!id) return;
+  const handleToggleApproval = async (comment: CommentType) => {
+    const commodityId = comment.commodity?._id || comment._id;  // commodity id
+    const commentId = comment.commentId;                        // comment id
+
+    if (!commodityId || !commentId) return;
+
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
-        `${url}/api/commodity/comments/${id}`,
-        { isApproved: !current },
+        `${url}/api/commodity/${commodityId}/comments/${commentId}`,   // ✅ match backend
+        { isApproved: !comment.isApproved },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchComments();
@@ -77,15 +81,17 @@ const AdminCommentsPanel = () => {
     }
   };
 
-  const getUserName = (u: string | IUser) => {
+  const getUserName = (u: CommentType["user"]) => {
     if (!u) return "Anonymous";
-    if (typeof u === "string") return u;
-    return u.username || u.name || "User";
+    if (typeof u === "string") return u; // sometimes it's just the id string
+    if ("username" in u && u.username) return u.username;
+    if ("name" in u && u.name) return u.name;
+    return "User";
   };
 
-  const getUserEmail = (u: string | IUser) => {
+  const getUserEmail = (u: CommentType["user"]) => {
     if (!u) return "—";
-    if (typeof u === "string") return u;
+    if (typeof u === "string") return "—";
     return u.email || "—";
   };
 
@@ -123,8 +129,8 @@ const AdminCommentsPanel = () => {
           <TableBody>
             {comments
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((c) => (
-                <TableRow key={c._id} hover>
+              .map((c, idx) => (
+                <TableRow key={`${c._id}-${idx}`} hover>
                   {/* hidden on small screens */}
                   <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
                     {getUserName(c.user)}
@@ -156,9 +162,7 @@ const AdminCommentsPanel = () => {
                         <IconButton
                           size="small"
                           color={c.isApproved ? "success" : "default"}
-                          onClick={() =>
-                            handleToggleApproval(c._id, c.isApproved)
-                          }
+                          onClick={() => handleToggleApproval(c)}
                         >
                           {c.isApproved ? (
                             <CancelIcon fontSize="small" />
@@ -171,7 +175,7 @@ const AdminCommentsPanel = () => {
                         <IconButton
                           size="small"
                           color="error"
-                          onClick={() => handleDelete(c._id)}
+                          onClick={() => handleDelete(c)}
                         >
                           <DeleteIcon fontSize="small" />
                         </IconButton>

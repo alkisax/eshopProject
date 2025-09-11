@@ -1,5 +1,4 @@
 import type { IUser } from "./types";
-import type { Types } from "mongoose";
 
 export interface ParticipantType {
   _id?: string;
@@ -54,8 +53,13 @@ export interface CommodityType {
 }
 
 export interface CommentType {
-  _id?: string;
-  user: Types.ObjectId | string | IUser;
+  _id: string;              // commodity id
+  commentId?: string;        // comment id
+  commodity?: {
+    _id: string;
+    name: string;
+  };
+  user: string | IUser;
   text: string | EditorJsData;
   rating?: 0 | 1 | 2 | 3 | 4 | 5;
   isApproved?: boolean;

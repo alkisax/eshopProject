@@ -140,6 +140,23 @@ const addCommentToCommodity = async (
   return updated;
 };
 
+const updateCommentInCommodity = async (
+  commodityId: string | Types.ObjectId,
+  commentId: string | Types.ObjectId,
+  updates: Partial<CommentType>
+): Promise<CommodityType> => {
+  const updated = await Commodity.findOneAndUpdate(
+    { _id: commodityId, 'comments._id': commentId },
+    { $set: { 'comments.$.isApproved': updates.isApproved } }, // 👈 only update that field
+    { new: true }
+  );
+
+  if (!updated) {
+    throw new NotFoundError('Commodity or Comment not found');
+  }
+  return updated;
+};
+
 // ❌ Remove all comments (since comments don’t have IDs in your schema)
 const clearCommentsFromCommodity = async (
   commodityId: string | Types.ObjectId
@@ -214,6 +231,7 @@ export const commodityDAO = {
   sellCommodityById,
   deleteCommodityById,
   addCommentToCommodity,
+  updateCommentInCommodity,
   clearCommentsFromCommodity,
   deleteCommentFromCommoditybyCommentId,
   getAllComments
