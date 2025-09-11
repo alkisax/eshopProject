@@ -82,7 +82,18 @@ const BlogPost = () => {
           elevation={3}
           sx={{ p: 3, borderRadius: 2, bgcolor: "grey.50" }}
         >
-          <RenderedEditorJsContent editorJsData={post.content} />
+          {/* Εδώ περνάμε και το όνομα του subPage στο RenderedEditorJsContent. Το post.subPage μπορεί να είναι:
+            - Object (αν έχει γίνει populate από το backend, π.χ. { _id, name, slug... })
+            - String / ObjectId (αν δεν έγινε populate)
+          Με το typeof + "name" in ελέγχουμε αν όντως είναι αντικείμενο με name.  Αν είναι → παίρνουμε το όνομα του subPage. Αν όχι → δίνουμε κενό string για να μην σπάσει το component */}
+          <RenderedEditorJsContent 
+            editorJsData={post.content} 
+            subPageName={
+              typeof post.subPage === "object" && "name" in post.subPage
+                ? post.subPage.name
+                : ""
+            }
+          />
 
           <Typography
             variant="caption"

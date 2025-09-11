@@ -34,19 +34,27 @@ export type EditorJsBlock =
   | ChecklistBlock
   | DelimiterBlock
   | EmbedBlock
-  | WarningBlock;
+  | WarningBlock
+  | AttachesBlock
+  | InlineCodeBlock;
 
 // απο εδώ και κάτω απλώς ορίζονται τα διάφορα block του editorJS
 
 interface EditorJsBaseBlock {
   id?: string;
   type: string;
+  tunes?: {
+    alignment?: {
+      alignment?: 'left' | 'center' | 'right' | 'justify';
+    };
+  };
 }
 
 interface ParagraphBlock extends EditorJsBaseBlock {
   type: 'paragraph';
   data: {
     text: string;
+    alignment?: 'left' | 'center' | 'right' | 'justify';
   };
 }
 
@@ -55,6 +63,11 @@ interface HeaderBlock extends EditorJsBaseBlock {
   data: {
     text: string;
     level: number; // 1–6
+  };
+  tunes?: {
+    alignment?: {
+      alignment?: 'left' | 'center' | 'right' | 'justify';
+    };
   };
 }
 
@@ -139,5 +152,26 @@ interface WarningBlock extends EditorJsBaseBlock {
   data: {
     title: string;
     message: string;
+  };
+}
+
+// ✅ Attaches block
+interface AttachesBlock extends EditorJsBaseBlock {
+  type: 'attaches';
+  data: {
+    file: {
+      url: string;
+      name?: string;
+      size?: number;
+    };
+    title?: string;
+  };
+}
+
+// ✅ InlineCode
+interface InlineCodeBlock extends EditorJsBaseBlock {
+  type: 'inlineCode';
+  data: {
+    code: string;
   };
 }
