@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
 // controllers/post.controller.js
-const postDao = require('../daos/post.dao');
+import { createPost as _createPost, editPost as _editPost, getAllPosts as _getAllPosts, getPostById as _getPostById, deletePost as _deletePost } from '../daos/post.dao';
 
 const createPost = async (req, res) => {
   try {
@@ -9,7 +10,7 @@ const createPost = async (req, res) => {
       return res.status(400).json({ error: 'Invalid EditorJS content' });
     }
 
-    const savedPost = await postDao.createPost(content, subPage, pinned);
+    const savedPost = await _createPost(content, subPage, pinned);
 
     res.status(200).json(savedPost);
   } catch (err) {
@@ -27,7 +28,7 @@ const editPost = async (req, res) => {
       return res.status(400).json({ error: 'Invalid EditorJS content for edit post' });
     }
 
-    const savedPost = await postDao.editPost(postId, content, subPage, pinned);
+    const savedPost = await _editPost(postId, content, subPage, pinned);
 
     res.status(200).json(savedPost);
   } catch (err) {
@@ -38,7 +39,7 @@ const editPost = async (req, res) => {
 
 const getAllPosts = async (req, res) => {
   try {
-    const posts = await postDao.getAllPosts()
+    const posts = await _getAllPosts()
     res.status(200).json(posts);
   } catch (err) {
     res.status(500).json({ error: 'Server error while fetching posts' })
@@ -48,7 +49,7 @@ const getAllPosts = async (req, res) => {
 const getPostById = async (req, res) => {
   const { postId } = req.params;
   try {
-    const post = await postDao.getPostById(postId);
+    const post = await _getPostById(postId);
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -62,7 +63,7 @@ const getPostById = async (req, res) => {
 const deletePost = async (req, res) => {
   try {
     const { postId } = req.params;
-    const deletedPost = await postDao.deletePost(postId);
+    const deletedPost = await _deletePost(postId);
 
     if (!deletedPost) {
       return res.status(404).json({ error: 'Post not found' });
@@ -75,7 +76,7 @@ const deletePost = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   createPost,
   editPost,
   getPostById,
