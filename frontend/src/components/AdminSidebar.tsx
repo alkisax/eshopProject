@@ -18,6 +18,8 @@ import UploadIcon from "@mui/icons-material/Upload";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import CategoryIcon from "@mui/icons-material/Category";
 import CommentIcon from '@mui/icons-material/Comment';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import { CloudUpload } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 
@@ -57,7 +59,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         <ListItem disablePadding>
           <ListItemButton onClick={() => onSelect("transactions")}>
             <ListItemIcon>
-              <GroupIcon />
+              <ReceiptIcon />
             </ListItemIcon>
             <ListItemText primary="Transactions" />
           </ListItemButton>
@@ -66,7 +68,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         <ListItem disablePadding>
           <ListItemButton onClick={() => onSelect("commodities")}>
             <ListItemIcon>
-              <GroupIcon />
+              <Inventory2Icon />
             </ListItemIcon>
             <ListItemText primary="Commodities" />
           </ListItemButton>

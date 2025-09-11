@@ -18,7 +18,7 @@
 - (what happens to deleted commodity images?)
 - webhook swagger and tests ✅
 - new category schema with supercategory, and allow parent category with arr of categories as child. Also some categories to have an atribute of "tag" ✅
-- comment crud
+- comment crud ✅
 - fix email
 - chat gpt profanity comment test. if not pass wait for admin aproval or delete after 5 days
 
@@ -38,6 +38,7 @@
 - πόσα έχουν πουληθεί στο admin pannel commodities ✅
 - notes in shipping unresponcive ✅
 - if no commodity image show sth ✅
+- local upload ❌
 - chat gpt criteria optimiser
 
 
