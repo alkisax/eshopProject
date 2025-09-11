@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
+import type { PostType } from '../types/blog.types';
 
 const postSchema = new mongoose.Schema({
   content: {
     time: Number,
+    // blocks is an array field in the schema. Each element can be any arbitrary JSON object (Mixed in Mongoose means “accept any type without validation”).
     blocks: [mongoose.Schema.Types.Mixed],
     version: String
   },
@@ -17,4 +19,4 @@ const postSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Post', postSchema);
+export default mongoose.model<PostType>('Post', postSchema);

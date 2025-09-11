@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import type { SubPageType } from '../types/blog.types';
 
 const subPageSchema = new mongoose.Schema({
   name: {
@@ -9,4 +10,4 @@ const subPageSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model('SubPage', subPageSchema);
+export default mongoose.model<SubPageType>('SubPage', subPageSchema);

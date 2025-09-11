@@ -42,6 +42,7 @@
 - chat gpt criteria optimiser
 
 
+
 # notes
 ### Render setup
 Root Directory: leave blank (since backend + frontend are in root).

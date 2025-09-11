@@ -6,6 +6,8 @@ import Commodity from '../stripe/models/commodity.models';
 import Cart from '../stripe/models/cart.models';
 import Upload from '../uploadMulter/upload.model';
 import Category from '../stripe/models/category.models';
+import Post from '../blog/models/post.model';
+import SubPage from '../blog/models/subPage.model';
 import swaggerJsdoc from 'swagger-jsdoc';
 import yaml from 'yamljs';
 import path from 'path';
@@ -40,6 +42,12 @@ const uploadMulterRoutesDocs = yaml.load(
 const categoriesRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'categoriesRoutes.swagger.yml' )
 );
+const postRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'postRoutes.swagger.yml' )
+);
+const subPageRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'subPageRoutes.swagger.yml' )
+);
 
 const options = {
   definition: {
@@ -58,6 +66,8 @@ const options = {
         Cart: m2s(Cart),
         Multer: m2s(Upload),
         Category: m2s(Category),
+        Post: m2s(Post),
+        SubPage: m2s(SubPage)
       },
       securitySchemes: {
         bearerAuth: {
@@ -78,7 +88,9 @@ const options = {
       ...emailRoutesDocs.paths,
       ...stripeRoutesDocs.paths,
       ...uploadMulterRoutesDocs.paths,
-      ...categoriesRoutesDocs.paths, // merge
+      ...categoriesRoutesDocs.paths,
+      ...postRoutesDocs.paths,
+      ...subPageRoutesDocs.paths, // merge
     },
   },
   apis: []
