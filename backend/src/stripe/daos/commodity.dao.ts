@@ -189,6 +189,40 @@ const deleteCommentFromCommoditybyCommentId = async (
   return updated;
 };
 
+// ⏳ cron autodelete dao action
+export const deleteOldUnapprovedComments = async (days = 5): Promise<number> => {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+
+  // ✅ ensure same subdocument matches both conditions
+  const commodities = await Commodity.find({
+    comments: { $elemMatch: { isApproved: false, updatedAt: { $lt: cutoff } } }
+  });
+
+  let removedCount = 0;
+
+  for (const commodity of commodities) {
+    const before = commodity.comments?.length ?? 0;
+
+    if (!commodity.comments || commodity.comments.length === 0) {
+      continue;
+    };
+
+    commodity.comments = commodity.comments.filter(
+      (c: CommentType) => !(c.isApproved === false && c.updatedAt && c.updatedAt < cutoff)
+    );
+
+    const after = commodity.comments.length;
+    removedCount += before - after;
+
+    if (before !== after) {
+      await commodity.save();
+    }
+  }
+
+  return removedCount;
+};
+
 // chatgpt for hard mongo syntax 😢
 const getAllComments = async () => {
   const result = await Commodity.aggregate([
@@ -234,5 +268,6 @@ export const commodityDAO = {
   updateCommentInCommodity,
   clearCommentsFromCommodity,
   deleteCommentFromCommoditybyCommentId,
+  deleteOldUnapprovedComments,
   getAllComments
 };

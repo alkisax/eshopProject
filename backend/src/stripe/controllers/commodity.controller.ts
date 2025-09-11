@@ -190,6 +190,19 @@ const deleteComment = async (req: Request, res: Response) => {
   }
 };
 
+//⏳❌
+const deleteOldUnapprovedComments = async (_req: Request, res: Response) => {
+  try {
+    const deletedCount = await commodityDAO.deleteOldUnapprovedComments(5); // προεπιλογή 5 μέρες
+    res.status(200).json({
+      status: true,
+      message: `${deletedCount} unapproved comments older than 5 days were deleted.`
+    });
+  } catch (error) {
+    handleControllerError(res, error);
+  }
+};
+
 export const commodityController = {
   findAll,
   findById,
@@ -202,5 +215,6 @@ export const commodityController = {
   addComment,
   updateComment,
   clearComments,
-  deleteComment
+  deleteComment,
+  deleteOldUnapprovedComments
 };

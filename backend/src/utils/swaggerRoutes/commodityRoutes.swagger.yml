@@ -591,3 +591,30 @@ paths:
         '500':
           description: Server error
 
+  /api/commodity/comments/clear/old-unapproved:
+    delete:
+      summary: Delete old unapproved comments (admin only)
+      description: Deletes all comments that are not approved and have stayed unapproved for more than 5 days (uses `updatedAt` timestamp).
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      responses:
+        '200':
+          description: Number of comments deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "3 unapproved comments older than 5 days were deleted."
+        '401':
+          description: Unauthorized (missing or invalid token)
+        '403':
+          description: Forbidden (requires ADMIN role)
+        '500':
+          description: Server error
