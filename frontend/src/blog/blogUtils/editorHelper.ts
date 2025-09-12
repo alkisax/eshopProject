@@ -1,107 +1,109 @@
+/* 
+  3️⃣1/2
+  📌 editorHelper.ts
+  Βοηθητικές συναρτήσεις για την λειτουργία του EditorJS με backend.
+
+  - handlePageSelect(e, setSelectedPage): χειρίζεται την αλλαγή σελίδας ή επιλογή νέας σελίδας.
+  - handleNewPageSubmit(pages, newPage, backEndUrl, setPages, setSelectedPage, setNewPage): δημιουργεί νέα subPage μέσω backend.
+  - handleSubmit(editorRef, setEditorJsData, isEditMode, id, backEndUrl, selectedPage, isPinned): αποθηκεύει τα δεδομένα του editor, δημιουργεί ή ενημερώνει post.
+  - handlePreview(editorRef, setEditorJsData): αποθηκεύει προσωρινά τα δεδομένα για preview χωρίς submit.
+  - getPreviewContent(content, maxWords): δημιουργεί μικρό preview με 1 εικόνα + 70 λέξεις (ή άλλο όριο).
+*/
+
 import axios from 'axios';
+import type EditorJS from '@editorjs/editorjs';
+import type { EditorJsContent, SubPageType } from '../blogTypes/blogTypes';
+import type { OutputData } from '@editorjs/editorjs';
 
-export const handlePageSelect = (e, setSelectedPage) => {
-  const value = e.target.value
-  if (value === '__new__') {
-    setSelectedPage('')
+// handlePageSelect
+export const handlePageSelect = (pageId: string, setSelectedPage: (val: string) => void) => {
+  if (pageId === '__new__') {
+    setSelectedPage('');
   } else {
-    setSelectedPage(value)
-  }
-}
-
-export const handleNewPageSubmit = async (pages, newPage, backEndUrl, setPages, setSelectedPage, setNewPage) => {
-  if (!newPage) return;
-  try {
-    const res = await axios.post(`${backEndUrl}/api/subPages`, { name: newPage });
-    setPages([...pages, res.data]);
-    setSelectedPage(res.data._id);
-    setNewPage('');
-  } catch (err) {
-    console.error('Error creating page', err);
+    setSelectedPage(pageId);
   }
 };
 
-export const handleSubmit = async (editorRef, setEditorJsData, isEditMode, id, backEndUrl, selectedPage, isPinned) => {
-  if(editorRef.current) {
+// handleNewPageSubmit
+export const handleNewPageSubmit = async (
+  newPage: string,
+  url: string,
+  setPages: React.Dispatch<React.SetStateAction<SubPageType[]>>,
+  setSelectedPage: (val: string) => void,
+  setNewPage: (val: string) => void
+) => {
+  if (!newPage) return;
+  const res = await axios.post(`${url}/api/subpage`, { name: newPage });
+  const created = res.data.data || res.data;
+  setPages((prev) => [...prev, created]);
+  setSelectedPage(created._id);
+  setNewPage('');
+};
+
+// handleSubmit
+export const handleSubmit = async (
+  editorRef: React.RefObject<EditorJS | null>,
+  setEditorJsData: (data: EditorJsContent | null) => void,
+  isEditMode: boolean,
+  id: string | undefined,
+  backEndUrl: string,
+  selectedPage: string,
+  isPinned: boolean
+) => {
+  if (editorRef.current) {
     try {
       //  η save() ερχεται απο τον editorjs και επιστρέφει μια υπόσχεση με τα δεδομένα του editor
-      const outputData = await editorRef.current.save()
-      // localStorage.setItem('editorData', JSON.stringify(outputData));
-      setEditorJsData(outputData);
+      const outputData: OutputData = await editorRef.current.save();
+      setEditorJsData(outputData as unknown as EditorJsContent);
       console.log('Data saved:', outputData);
 
       if (isEditMode && id) {
         await axios.put(`${backEndUrl}/api/posts/${id}`, {
           content: outputData,
           subPage: selectedPage,
-          pinned: isPinned
-        })
-        console.log("✅ Post updated");
-        alert("Post updated successfully!");
+          pinned: isPinned,
+        });
+        console.log('✅ Post updated');
+        alert('Post updated successfully!');
       } else {
         await axios.post(`${backEndUrl}/api/posts`, {
           content: outputData,
           subPage: selectedPage,
-          pinned: isPinned
-        })
-        console.log("✅ Post created");
-        alert("Post created successfully!");
+          pinned: isPinned,
+        });
+        console.log('✅ Post created');
+        alert('Post created successfully!');
       }
 
       // για την αποθήκευση στην Mongo        
       // για επιπλέων αποθήκευση εικόνων στην mongoDB ως base64. Τo axios παραπάνω τα σώζει ως λινκ. πχ http://localhost:3001/uploads/image-1751308923423.jpg
-      // const imageBlocks = outputData.blocks.filter(block => block.type === 'image')
-
-      // for (const block of imageBlocks) {
-      //   const imageUrl = block.data.file.url
-
-        // // ✅ Skip if image already existed in original post
-        // if (originalImageUrls.includes(imageUrl)) {
-        //   console.log(`Skipping already uploaded image: ${imageUrl}`);
-        //   continue;
-        // }
-
-        // try {
-        //   // 👇 ΠΑΡΕ ΤΗΝ ΕΙΚΟΝΑ ως arraybuffer (BINARY)
-        //   const imageResponse = await axios.get(imageUrl, {
-        //     responseType: 'arraybuffer'
-        //   })
-
-        //   // 👇 Convert binary to Blob/File
-        //   const mimeType = block.data.file.mime || 'image/jpeg';
-        //   const buffer = imageResponse.data;
-        //   const file = new File([buffer], 'editor-image.jpg', { type: mimeType });
-
-        //   // 👇 Upload using FormData (required for multer backend)
-        //   const formData = new FormData();
-        //   formData.append('image', file);
-        //   formData.append('name', block.data.caption || 'Image');
-        //   formData.append('desc', block.data.caption || '');
-
-        //   await axios.post(`${backEndUrl}/api/images`, formData)
-        //   console.log('✅ Image sent as JSON to MongoDB');
-        // } catch (err) {
-        //   console.error('❌ Failed to upload image:', err);
-        // }
-      // }
+      // αφαιρέθηκε. ο κώδικας μπορεί να βρεθεί στο Bolg&Dashboard project
     } catch (error) {
-      console.error("saving failed", error)
-    };
+      console.error('saving failed', error);
+    }
   }
-}
+};
 
-export const handlePreview = async (editorRef, setEditorJsData) => {
+// handlePreview
+export const handlePreview = async (
+  editorRef: React.RefObject<EditorJS | null>,
+  setEditorJsData: (data: EditorJsContent | null) => void
+) => {
   if (!editorRef.current) {
-    console.error("Editor instance not ready");
+    console.error('Editor instance not ready');
     return;
   }
-  const outputData = await editorRef.current.save()
-  setEditorJsData(outputData);
-}
+  const outputData: OutputData = await editorRef.current.save();
+  setEditorJsData(outputData as unknown as EditorJsContent);
+};
 
+// getPreviewContent
 // αυτή η συνάρτηση κρατάει μόνο την πρώτη εικόνα και τις πρώτες 70 λέξεις. Σε μεγάλο βαθμό απο GPT
-export const getPreviewContent = (content, maxWords = 70) => {
-  const previewBlocks = [];
+export const getPreviewContent = (
+  content: EditorJsContent,
+  maxWords = 70
+): EditorJsContent => {
+  const previewBlocks: typeof content.blocks = [];
   let wordCount = 0;
   let imageIncluded = false;
 
@@ -126,8 +128,10 @@ export const getPreviewContent = (content, maxWords = 70) => {
         ...block,
         data: {
           ...block.data,
-          text: trimmedWords.join(' ') + (words.length > remaining ? '...' : '')
-        }
+          text:
+            trimmedWords.join(' ') +
+            (words.length > remaining ? '...' : ''),
+        },
       });
 
       wordCount += trimmedWords.length;
@@ -138,6 +142,6 @@ export const getPreviewContent = (content, maxWords = 70) => {
 
   return {
     ...content,
-    blocks: previewBlocks
+    blocks: previewBlocks,
   };
 };

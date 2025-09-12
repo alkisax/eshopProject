@@ -18,9 +18,9 @@ export interface SubPageType {
 }
 
 export interface EditorJsContent {
-  time: number;
+  time?: number;
   blocks: EditorJsBlock[];
-  version: string;
+  version?: string;
 }
 
 export type EditorJsBlock =

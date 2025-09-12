@@ -1,5 +1,6 @@
 import { Box, Button, Container, Typography, Stack, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import BlogHome from '../blog/blogPages/BlogHome'
 
 const Home = () => {
   const navigate = useNavigate();
@@ -22,7 +23,9 @@ const Home = () => {
         <Typography variant="h6" color="text.secondary" paragraph>
           Explore mystical tools, ancient wisdom, and the latest updates from our metaphysical world.
         </Typography>
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center" mt={3}>
+        
+        <Stack direction={{ xs: "column", sm: "column" }} spacing={2} justifyContent="center" mt={3}>
+          
           <Button
             variant="contained"
             color="primary"
@@ -31,23 +34,10 @@ const Home = () => {
           >
             🛍 Go to Store
           </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            size="large"
-            onClick={() => navigate("/news")}
-          >
-            📰 News
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            size="large"
-            onClick={() => navigate("/announcements")}
-          >
-            📢 Announcements
-          </Button>
+          <BlogHome />
+
         </Stack>
+
       </Paper>
 
       {/* Info Section */}

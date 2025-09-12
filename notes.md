@@ -39,6 +39,7 @@
 - notes in shipping unresponcive ✅
 - if no commodity image show sth ✅
 - local upload ❌
+- missmacth with front comerce type editorJsContent❓❓❓
 - chat gpt criteria optimiser
 
 

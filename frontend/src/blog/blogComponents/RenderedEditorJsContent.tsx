@@ -4,7 +4,7 @@ import { Box, Checkbox, Link, List, ListItem, ListItemText, Paper, Typography } 
 import type { JSX } from 'react';
 
 interface Props {
-  editorJsData: EditorJsContent,
+  editorJsData: EditorJsContent  | null,
   subPageName: string
 }
 
