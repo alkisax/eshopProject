@@ -10,7 +10,7 @@
 
 import { useNavigate, useParams } from "react-router-dom";
 import { useContext, useState } from "react";
-import Editor from "../blogUtils/EditorJs";
+import Editor from "../blogUtils/Editor";
 import HeaderDashboard from "../blogComponents/HeaderDashboard";
 import { handlePreview, handleSubmit, handlePageSelect, handleNewPageSubmit } from "../blogUtils/editorHelper";
 import type { EditorJsContent, SubPageType } from "../blogTypes/blogTypes";

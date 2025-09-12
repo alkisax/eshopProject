@@ -35,8 +35,9 @@ const CustomPageCreatorComponent = ({
           labelId="page-select-label"
           value={selectedPage}
           onChange={(e) => handlePageSelect(e.target.value)}
+          label="Select a page"
         >
-          <MenuItem value="">
+          <MenuItem value="" disabled>
             <em>Select a page</em>
           </MenuItem>
           {pages.map((p) => (
@@ -49,7 +50,7 @@ const CustomPageCreatorComponent = ({
       </FormControl>
 
       {/* Αν είναι new page input */}
-      {selectedPage === "" && (
+      {selectedPage === "__new__" && (
         <Box sx={{ display: "flex", gap: 1 }}>
           <TextField
             fullWidth

@@ -48,10 +48,11 @@ const Editor = ({
   // ✅ σε χωριστό custom hook μεταφέρθηκε όλη η παραμετροποίηση του editorJs
   useInitEditor(editorRef);
 
+  // απο εδώ έρχονται τα tags των subpages
   useEffect(() => {
     const getpages = async () => {
-      const res = await axios.get(`${url}/api/subPages`)
-      setPages(res.data)
+      const res = await axios.get(`${url}/api/subPage`)
+      setPages(res.data.data)
     }
     getpages()
   }, [url, setPages])

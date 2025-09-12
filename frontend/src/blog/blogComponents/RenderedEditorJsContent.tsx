@@ -73,11 +73,20 @@ const RenderedEditorJsContent = ({ editorJsData, subPageName }: Props) => {
 
             // normal ordered/unordered list
             const items = block.data.items.map((item, i) => {
-              // Το text μπορεί να είναι string. Αν δεν είναι string, τότε δείχνουμε "[invalid item]"
-              const text = typeof item === "string" ? item : "[invalid item]";
+              // Το text μπορεί να είναι string (old plugin) ή object με content (νέος plugin).
+              const text =
+                typeof item === "string"
+                  ? item
+                  : item && typeof item === "object" && "content" in item
+                  ? (item as { content: string }).content
+                  : "[invalid item]";
 
               return (
-                <ListItem key={i} disablePadding>
+                <ListItem 
+                  key={i}
+                  disablePadding
+                  sx={{ display: "list-item" }} //restore list-item display
+                >
                   {/* Εδώ βάζουμε το καθαρισμένο text με DOMPurify */}
                   <ListItemText primary={DOMPurify.sanitize(text)} />
                 </ListItem>
@@ -87,8 +96,12 @@ const RenderedEditorJsContent = ({ editorJsData, subPageName }: Props) => {
             return (
               <List
                 key={index}
-                sx={alignStyle}
-                component={block.data.style === "ordered" ? "ol" : "ul"} // 👈 κρατάει semantic HTML (<ol>/<ul>)
+                sx={{
+                  ...alignStyle,
+                  listStyleType: block.data.style === "ordered" ? "decimal" : "disc", // force markers
+                  pl: 4,
+                }}
+                component={block.data.style === "ordered" ? "ol" : "ul"}
               >
                 {items}
               </List>

@@ -17,11 +17,11 @@ import type { OutputData } from '@editorjs/editorjs';
 
 // handlePageSelect
 export const handlePageSelect = (pageId: string, setSelectedPage: (val: string) => void) => {
-  if (pageId === '__new__') {
-    setSelectedPage('');
-  } else {
+  // if (pageId === '__new__') {
+  //   setSelectedPage('');
+  // } else {
     setSelectedPage(pageId);
-  }
+  // }
 };
 
 // handleNewPageSubmit
@@ -46,7 +46,7 @@ export const handleSubmit = async (
   setEditorJsData: (data: EditorJsContent | null) => void,
   isEditMode: boolean,
   id: string | undefined,
-  backEndUrl: string,
+  url: string,
   selectedPage: string,
   isPinned: boolean
 ) => {
@@ -58,7 +58,7 @@ export const handleSubmit = async (
       console.log('Data saved:', outputData);
 
       if (isEditMode && id) {
-        await axios.put(`${backEndUrl}/api/posts/${id}`, {
+        await axios.put(`${url}/api/posts/${id}`, {
           content: outputData,
           subPage: selectedPage,
           pinned: isPinned,
@@ -66,7 +66,7 @@ export const handleSubmit = async (
         console.log('✅ Post updated');
         alert('Post updated successfully!');
       } else {
-        await axios.post(`${backEndUrl}/api/posts`, {
+        await axios.post(`${url}/api/posts`, {
           content: outputData,
           subPage: selectedPage,
           pinned: isPinned,
@@ -94,6 +94,7 @@ export const handlePreview = async (
     return;
   }
   const outputData: OutputData = await editorRef.current.save();
+  console.log("🔎 Preview object:", JSON.stringify(outputData, null, 2));
   setEditorJsData(outputData as unknown as EditorJsContent);
 };
 
