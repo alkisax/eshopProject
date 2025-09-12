@@ -74,8 +74,15 @@ interface HeaderBlock extends EditorJsBaseBlock {
 interface ListBlock extends EditorJsBaseBlock {
   type: 'list';
   data: {
-    style: 'ordered' | 'unordered';
-    items: string[];
+    style: 'ordered' | 'unordered' | 'checklist';
+    items: Array<
+      | string
+      | {
+          content: string;
+          meta?: { checked?: boolean };
+          items?: unknown[];
+        }
+    >;
   };
 }
 

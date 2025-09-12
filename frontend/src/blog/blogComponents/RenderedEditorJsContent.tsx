@@ -65,8 +65,62 @@ const RenderedEditorJsContent = ({ editorJsData, subPageName }: Props) => {
           }
           // το List ήταν αρκετά πολυπλοκο γιατί χρειαζόταν να ελεξω αν είναι ordered η unorder και αν είναι checkbox, όπου αν είναι αν είναι checked και μετά να κάνω το ανάλογο map για την παραγωγή της λίστας
           // list και checked list σπάσανε σε δυο
+
+          // === Checklist Block ===
+          if (block.type === "list" && block.data.style === "checklist") {
+            // το i είναι ένα index (1,2,3...)
+            // το !! στη JS κάνει μετατροπή οποιασδήποτε τιμής σε boolean
+
+            const items = block.data.items.map((item, i) => {
+              if (typeof item === "string") {
+                return (
+                  <ListItem key={i} disablePadding>
+                    {/* disabled για να φαίνεται μόνο το checkbox χωρίς να μπορεί να αλλάξει */}
+                    <Checkbox checked={false} disabled sx={{ mr: 1 }} />
+
+                    {/* Το κείμενο του κάθε στοιχείου */}
+                    <ListItemText
+                      primary={DOMPurify.sanitize(item)}
+                      primaryTypographyProps={{ variant: "body2" }}
+                    />
+                  </ListItem>
+                );
+              }
+
+              // εδώ item είναι αντικείμενο { content, meta, items }
+              const isChecked = !!item.meta?.checked;
+              const text = item.content;
+
+              return (
+                <ListItem
+                  key={i}
+                  sx={{ display: "flex", alignItems: "center" }}
+                  disablePadding
+                >
+                  {/* disabled για να φαίνεται μόνο το checkbox χωρίς να μπορεί να αλλάξει */}
+                  <Checkbox checked={isChecked} disabled sx={{ mr: 1 }} />
+
+                  {/* Το κείμενο του κάθε στοιχείου */}
+                  <ListItemText
+                    primary={DOMPurify.sanitize(text)}
+                    primaryTypographyProps={{ variant: "body2" }}
+                  />
+                </ListItem>
+              );
+            });
+
+            // Έχει δύο return: 
+            // 1) μέσα στο map → φτιάχνει το κάθε μεμονωμένο <ListItem> 
+            // 2) εδώ έξω → παράγει τη <List> που τα περιέχει όλα
+            return (
+              <List key={index} sx={{ pl: 0 }}>
+                {items}
+              </List>
+            );
+          }
+
           // === Normal List Block (ordered / unordered) ===
-          if (block.type === "list") {
+          if (block.type === "list" && (block.data.style === "ordered" || block.data.style === "unordered")) {
             // alignment είναι tune (plugin από το EditorJS AlignmentTuneTool)
             const alignment = block.tunes?.alignment?.alignment || "left";
             const alignStyle = { textAlign: alignment };
@@ -77,15 +131,15 @@ const RenderedEditorJsContent = ({ editorJsData, subPageName }: Props) => {
               const text =
                 typeof item === "string"
                   ? item
-                  : item && typeof item === "object" && "content" in item
-                  ? (item as { content: string }).content
+                  : "content" in item
+                  ? item.content
                   : "[invalid item]";
 
               return (
-                <ListItem 
+                <ListItem
                   key={i}
                   disablePadding
-                  sx={{ display: "list-item" }} //restore list-item display
+                  sx={{ display: "list-item" }} // restore list-item display
                 >
                   {/* Εδώ βάζουμε το καθαρισμένο text με DOMPurify */}
                   <ListItemText primary={DOMPurify.sanitize(text)} />
@@ -103,42 +157,6 @@ const RenderedEditorJsContent = ({ editorJsData, subPageName }: Props) => {
                 }}
                 component={block.data.style === "ordered" ? "ol" : "ul"}
               >
-                {items}
-              </List>
-            );
-          }
-          // === Checklist Block ===
-          if (block.type === "checklist") {
-            // console.log(block.data.items);
-            // το i είναι ένα index (1,2,3...)
-            // το !! στη JS κάνει μετατροπή οποιασδήποτε τιμής σε boolean
-
-            const items = block.data.items.map((item, i) => {
-              const isChecked = !!item.checked;
-
-              return (
-                <ListItem
-                  key={i}
-                  sx={{ display: "flex", alignItems: "center" }}
-                  disablePadding
-                >
-                  {/* disabled για να φαίνεται μόνο το checkbox χωρίς να μπορεί να αλλάξει */}
-                  <Checkbox checked={isChecked} disabled sx={{ mr: 1 }} />
-
-                  {/* Το κείμενο του κάθε στοιχείου */}
-                  <ListItemText
-                    primary={DOMPurify.sanitize(item.text)}
-                    primaryTypographyProps={{ variant: "body2" }}
-                  />
-                </ListItem>
-              );
-            });
-
-            // Έχει δύο return: 
-            // 1) μέσα στο map → φτιάχνει το κάθε μεμονωμένο <ListItem> 
-            // 2) εδώ έξω → παράγει τη <List> που τα περιέχει όλα
-            return (
-              <List key={index} sx={{ pl: 0 }}>
                 {items}
               </List>
             );
