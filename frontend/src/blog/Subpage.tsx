@@ -7,18 +7,18 @@ import { getPreviewContent } from "./blogUtils/editorHelper";
 // import { usePagination } from "../hooks/usePagination";
 // import Pagination from "../components/Pagination";
 import { VariablesContext } from "../context/VariablesContext";
-import type { SubPageType } from "./blogTypes/blogTypes";
-import type { PostType } from "./blogTypes/blogTypes";
+// import type { SubPageType } from "./blogTypes/blogTypes";
+import type { PostType, SubPageType } from "./blogTypes/blogTypes";
 
 interface Props {
-  forcedName: string
+  forcedName?: string
 }
 
 const Subpage = ({ forcedName }: Props) => {
   const { url } = useContext(VariablesContext);
   const [loading, setLoading] = useState(true)
-  const [posts, setPosts] = useState([])
-  const [pages, setPages] = useState([])
+  const [posts, setPosts] = useState<PostType[]>([])
+  const [pages, setPages] = useState<SubPageType[]>([])
 
   useEffect(() => {
     const getpages = async () => {
@@ -53,14 +53,14 @@ const Subpage = ({ forcedName }: Props) => {
 
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     if (a.pinned !== b.pinned) {
-      return b.pinned - a.pinned; // pinned first
+      return Number(b.pinned) - Number(a.pinned); // pinned first
     }
-    return new Date(b.createdAt) - new Date(a.createdAt); // newest first
+    return new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime(); // newest first
   });
 
   // Use pagination on sortedPosts
-  const { currentItems: currentPosts, pageCount, currentPage, handlePageClick, goToPage } =
-  usePagination(sortedPosts, 10);
+  // const { currentItems: currentPosts, pageCount, currentPage, handlePageClick, goToPage } =
+  // usePagination(sortedPosts, 10);
 
   return (
     <>
@@ -70,8 +70,8 @@ const Subpage = ({ forcedName }: Props) => {
 
         <div className="grid gap-6">
             {!loading && posts.length !== 0 &&
-              [...currentPosts]
-                .sort((a, b) => b.pinned - a.pinned)
+              [...sortedPosts]
+                .sort((a, b) => Number(b.pinned) - Number(a.pinned))
                 .map((post) => (
                 <Link to={`/posts/${post._id}`} key={post._id}>
                   <div 
@@ -83,21 +83,21 @@ const Subpage = ({ forcedName }: Props) => {
                       />
 
                     <p className="text-sm text-gray-500 mt-4">
-                      {new Date(post.createdAt).toLocaleString()}
+                      {new Date(post.createdAt!).toLocaleString()}
                     </p>
                   </div>
                 </Link>
               ))
             }        
         </div>
-        <Pagination
+        {/* <Pagination
           loading={loading}
           posts={sortedPosts} // Pass the full list, not paginated
           goToPage={goToPage}
           currentPage={currentPage}
           pageCount={pageCount}
           handlePageClick={handlePageClick}
-        /> 
+        />  */}
       </div>
     </>
   )
