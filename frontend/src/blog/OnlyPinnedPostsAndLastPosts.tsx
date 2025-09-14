@@ -1,24 +1,27 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { Link } from "react-router-dom"
 import axios from 'axios';
-import RenderedEditorJsContent from "./RenderedEditorJsContent";
-import { getPreviewContent } from "../utils/editorHelper";
+import RenderedEditorJsContent from "./blogComponents/RenderedEditorJsContent";
+import { getPreviewContent } from "./blogUtils/editorHelper";
+import { VariablesContext } from "../context/VariablesContext";
+import type { PostType } from "./blogTypes/blogTypes";
 
-const OnlyPinnedPostsAndLastPosts = ({ backEndUrl }) => {
+const OnlyPinnedPostsAndLastPosts = () => {
+  const { url } = useContext(VariablesContext);
   const [loading, setLoading] = useState(true)
-  const [pinnedPosts, setPinnedPosts] = useState([])
-  const [lastPosts, setLastPosts] = useState([]);
+  const [pinnedPosts, setPinnedPosts] = useState<PostType[]>([])
+  const [lastPosts, setLastPosts] = useState<PostType[]>([]);
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`${backEndUrl}/api/posts`);
+        const response = await axios.get<PostType[]>(`${url}/api/posts`);
         // console.log("API response.data:", response.data);
         const pinnedOnly = response.data.filter(post => post.pinned === true);
 
         // Sort all posts by createdAt (newest first) and take the last 3
         const lastThree = response.data
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime())
           .slice(0, 3);
 
         setLastPosts(lastThree);
@@ -31,7 +34,7 @@ const OnlyPinnedPostsAndLastPosts = ({ backEndUrl }) => {
     };
     
     fetchPosts();
-  }, [backEndUrl]);
+  }, [url]);
 
   return (
     <>
@@ -54,7 +57,7 @@ const OnlyPinnedPostsAndLastPosts = ({ backEndUrl }) => {
                       />
 
                     <p className="text-sm text-gray-500 mt-4">
-                      {new Date(post.createdAt).toLocaleString()}
+                      {new Date(post.createdAt!).toLocaleString()}
                     </p>
                   </div>
                 </Link>
@@ -82,7 +85,7 @@ const OnlyPinnedPostsAndLastPosts = ({ backEndUrl }) => {
                       />
 
                     <p className="text-sm text-gray-500 mt-4">
-                      {new Date(post.createdAt).toLocaleString()}
+                      {new Date(post.createdAt!).toLocaleString()}
                     </p>
                   </div>
                 </Link>

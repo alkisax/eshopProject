@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import axios from 'axios';
-import RenderedEditorJsContent from "../components/RenderedEditorJsContent";
-import { getPreviewContent } from "../utils/editorHelper";
-import { usePagination } from "../hooks/usePagination";
-import Pagination from "../components/Pagination";
+import RenderedEditorJsContent from "./blogComponents/RenderedEditorJsContent";
+import { getPreviewContent } from "./blogUtils/editorHelper";
+import { VariablesContext } from "../context/VariablesContext";
+  const { url } = useContext(VariablesContext);
+// import { usePagination } from "../hooks/usePagination";
+// import Pagination from "../components/Pagination";
 
 const Posts = ({ backEndUrl }) => {
   const [loading, setLoading] = useState(true)

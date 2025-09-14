@@ -1,7 +1,7 @@
 export interface PostType {
   _id?: string;
   content: EditorJsContent;
-  subPage: SubPageType | string;
+  subPage: SubPageType;
   pinned: boolean;
   createdAt?: Date;
   updatedAt?: Date;

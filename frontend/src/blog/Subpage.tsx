@@ -1,29 +1,37 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { Link } from "react-router-dom"
 import { useParams  } from 'react-router-dom';
 import axios from 'axios';
-import RenderedEditorJsContent from "../components/RenderedEditorJsContent";
-import { getPreviewContent } from "../utils/editorHelper";
-import { usePagination } from "../hooks/usePagination";
-import Pagination from "../components/Pagination";
+import RenderedEditorJsContent from "./blogComponents/RenderedEditorJsContent";
+import { getPreviewContent } from "./blogUtils/editorHelper";
+// import { usePagination } from "../hooks/usePagination";
+// import Pagination from "../components/Pagination";
+import { VariablesContext } from "../context/VariablesContext";
+import type { SubPageType } from "./blogTypes/blogTypes";
+import type { PostType } from "./blogTypes/blogTypes";
 
-const Subpage = ({ backEndUrl, forcedName }) => {
+interface Props {
+  forcedName: string
+}
+
+const Subpage = ({ forcedName }: Props) => {
+  const { url } = useContext(VariablesContext);
   const [loading, setLoading] = useState(true)
   const [posts, setPosts] = useState([])
   const [pages, setPages] = useState([])
 
   useEffect(() => {
     const getpages = async () => {
-      const res = await axios.get(`${backEndUrl}/api/subPages`)
+      const res = await axios.get(`${url}/api/subPages`)
       setPages(res.data)
     }
     getpages()
-  }, [backEndUrl])
+  }, [url])
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`${backEndUrl}/api/posts`);
+        const response = await axios.get<PostType[]>(`${url}/api/posts`);
         setPosts(response.data); 
         setLoading(false);
       } catch (error) {
@@ -33,7 +41,7 @@ const Subpage = ({ backEndUrl, forcedName }) => {
     };
     
     fetchPosts();
-  }, [backEndUrl]);
+  }, [url]);
 
   const { name: paramName } = useParams();
   const name = forcedName || paramName;
