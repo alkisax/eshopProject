@@ -1,0 +1,401 @@
+openapi: 3.0.3
+info:
+  title: Post API
+  version: 1.0.0
+  description: API for managing posts with Editor.js content.
+
+paths:
+  /api/posts:
+    get:
+      summary: Get all posts
+      tags: [Posts]
+      responses:
+        '200':
+          description: List of posts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        title:
+                          type: string
+                        slug:
+                          type: string
+                        content:
+                          type: object
+                          properties:
+                            time:
+                              type: integer
+                            blocks:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  type:
+                                    type: string
+                                  data:
+                                    type: object
+                            version:
+                              type: string
+                        subPage:
+                          type: string
+                        pinned:
+                          type: boolean
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+    post:
+      summary: Create a new post
+      tags: [Posts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - subPage
+              properties:
+                title:
+                  type: string
+                content:
+                  type: object
+                  properties:
+                    time:
+                      type: integer
+                    blocks:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                          data:
+                            type: object
+                    version:
+                      type: string
+                subPage:
+                  type: string
+                pinned:
+                  type: boolean
+      responses:
+        '201':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      title:
+                        type: string
+                      slug:
+                        type: string
+                      content:
+                        type: object
+                        properties:
+                          time:
+                            type: integer
+                          blocks:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                data:
+                                  type: object
+                          version:
+                            type: string
+                      subPage:
+                        type: string
+                      pinned:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+
+  /api/posts/slug/{slug}:
+    get:
+      summary: Get a post by slug
+      tags: [Posts]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Single post fetched by slug
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      title:
+                        type: string
+                      slug:
+                        type: string
+                      content:
+                        type: object
+                        properties:
+                          time:
+                            type: integer
+                          blocks:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                data:
+                                  type: object
+                          version:
+                            type: string
+                      subPage:
+                        type: string
+                      pinned:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        '404':
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+
+  /api/posts/{postId}:
+    get:
+      summary: Get a post by ID
+      tags: [Posts]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Single post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      title:
+                        type: string
+                      slug:
+                        type: string
+                      content:
+                        type: object
+                        properties:
+                          time:
+                            type: integer
+                          blocks:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                data:
+                                  type: object
+                          version:
+                            type: string
+                      subPage:
+                        type: string
+                      pinned:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+    put:
+      summary: Edit a post
+      tags: [Posts]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: object
+                  properties:
+                    time:
+                      type: integer
+                    blocks:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                          data:
+                            type: object
+                    version:
+                      type: string
+                subPage:
+                  type: string
+                pinned:
+                  type: boolean
+      responses:
+        '200':
+          description: Updated post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      title:
+                        type: string
+                      slug:
+                        type: string
+                      content:
+                        type: object
+                        properties:
+                          time:
+                            type: integer
+                          blocks:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                data:
+                                  type: object
+                          version:
+                            type: string
+                      subPage:
+                        type: string
+                      pinned:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+    delete:
+      summary: Delete a post
+      tags: [Posts]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Post deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      title:
+                        type: string
+                      slug:
+                        type: string
+                      content:
+                        type: object
+                        properties:
+                          time:
+                            type: integer
+                          blocks:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                data:
+                                  type: object
+                          version:
+                            type: string
+                      subPage:
+                        type: string
+                      pinned:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time

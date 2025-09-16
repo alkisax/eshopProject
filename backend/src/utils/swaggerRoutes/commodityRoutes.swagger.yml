@@ -509,3 +509,112 @@ paths:
         '404':
           description: Commodity or Comment not found
 
+  /api/commodity/{commodityId}/comments/{commentId}:
+    patch:
+      summary: Update a specific comment (admin only)
+      description: Update fields of a specific comment inside a commodity, such as toggling `isApproved`.
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: commodityId
+          required: true
+          schema:
+            type: string
+          description: Commodity ID
+        - in: path
+          name: commentId
+          required: true
+          schema:
+            type: string
+          description: Comment ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isApproved:
+                  type: boolean
+                  example: false
+      responses:
+        '200':
+          description: Comment updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        description: Commodity ID
+                      name:
+                        type: string
+                      comments:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                              description: Comment ID
+                            user:
+                              type: string
+                              description: User ID
+                            text:
+                              type: string
+                            rating:
+                              type: integer
+                              minimum: 0
+                              maximum: 5
+                            isApproved:
+                              type: boolean
+                            createdAt:
+                              type: string
+                              format: date-time
+        '400':
+          description: Commodity ID and Comment ID are required
+        '401':
+          description: Unauthorized (missing or invalid token)
+        '403':
+          description: Forbidden (requires ADMIN role)
+        '404':
+          description: Commodity or Comment not found
+        '500':
+          description: Server error
+
+  /api/commodity/comments/clear/old-unapproved:
+    delete:
+      summary: Delete old unapproved comments (admin only)
+      description: Deletes all comments that are not approved and have stayed unapproved for more than 5 days (uses `updatedAt` timestamp).
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      responses:
+        '200':
+          description: Number of comments deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "3 unapproved comments older than 5 days were deleted."
+        '401':
+          description: Unauthorized (missing or invalid token)
+        '403':
+          description: Forbidden (requires ADMIN role)
+        '500':
+          description: Server error

@@ -21,12 +21,9 @@ const commentSchema = new Schema({
     type: Boolean,
     default: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
 }, {
-  _id: true
+  _id: true,
+  timestamps: true
 }); 
 
 const commoditySchema = new Schema({

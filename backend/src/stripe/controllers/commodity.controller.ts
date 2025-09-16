@@ -141,6 +141,22 @@ const addComment = async (req: Request, res: Response) => {
   }
 };
 
+const updateComment = async (req: Request, res: Response) => {
+  const { commodityId, commentId } = req.params;
+  const { isApproved } = req.body;
+
+  if (!commodityId || !commentId) {
+    return res.status(400).json({ status: false, error: 'Commodity ID and Comment ID are required' });
+  }
+
+  try {
+    const updated = await commodityDAO.updateCommentInCommodity(commodityId, commentId, { isApproved });
+    return res.status(200).json({ status: true, data: updated });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 // ❌ Clear all comments
 const clearComments = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -174,6 +190,19 @@ const deleteComment = async (req: Request, res: Response) => {
   }
 };
 
+//⏳❌
+const deleteOldUnapprovedComments = async (_req: Request, res: Response) => {
+  try {
+    const deletedCount = await commodityDAO.deleteOldUnapprovedComments(5); // προεπιλογή 5 μέρες
+    res.status(200).json({
+      status: true,
+      message: `${deletedCount} unapproved comments older than 5 days were deleted.`
+    });
+  } catch (error) {
+    handleControllerError(res, error);
+  }
+};
+
 export const commodityController = {
   findAll,
   findById,
@@ -184,6 +213,8 @@ export const commodityController = {
   deleteById,
   getAllComments,
   addComment,
+  updateComment,
   clearComments,
-  deleteComment
+  deleteComment,
+  deleteOldUnapprovedComments
 };

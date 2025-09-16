@@ -140,6 +140,23 @@ const addCommentToCommodity = async (
   return updated;
 };
 
+const updateCommentInCommodity = async (
+  commodityId: string | Types.ObjectId,
+  commentId: string | Types.ObjectId,
+  updates: Partial<CommentType>
+): Promise<CommodityType> => {
+  const updated = await Commodity.findOneAndUpdate(
+    { _id: commodityId, 'comments._id': commentId },
+    { $set: { 'comments.$.isApproved': updates.isApproved } }, // 👈 only update that field
+    { new: true }
+  );
+
+  if (!updated) {
+    throw new NotFoundError('Commodity or Comment not found');
+  }
+  return updated;
+};
+
 // ❌ Remove all comments (since comments don’t have IDs in your schema)
 const clearCommentsFromCommodity = async (
   commodityId: string | Types.ObjectId
@@ -170,6 +187,40 @@ const deleteCommentFromCommoditybyCommentId = async (
   }
 
   return updated;
+};
+
+// ⏳ cron autodelete dao action
+export const deleteOldUnapprovedComments = async (days = 5): Promise<number> => {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+
+  // ✅ ensure same subdocument matches both conditions
+  const commodities = await Commodity.find({
+    comments: { $elemMatch: { isApproved: false, updatedAt: { $lt: cutoff } } }
+  });
+
+  let removedCount = 0;
+
+  for (const commodity of commodities) {
+    const before = commodity.comments?.length ?? 0;
+
+    if (!commodity.comments || commodity.comments.length === 0) {
+      continue;
+    };
+
+    commodity.comments = commodity.comments.filter(
+      (c: CommentType) => !(c.isApproved === false && c.updatedAt && c.updatedAt < cutoff)
+    );
+
+    const after = commodity.comments.length;
+    removedCount += before - after;
+
+    if (before !== after) {
+      await commodity.save();
+    }
+  }
+
+  return removedCount;
 };
 
 // chatgpt for hard mongo syntax 😢
@@ -214,7 +265,9 @@ export const commodityDAO = {
   sellCommodityById,
   deleteCommodityById,
   addCommentToCommodity,
+  updateCommentInCommodity,
   clearCommentsFromCommodity,
   deleteCommentFromCommoditybyCommentId,
+  deleteOldUnapprovedComments,
   getAllComments
 };

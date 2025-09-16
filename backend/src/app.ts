@@ -16,6 +16,8 @@ import stripeRoutes from './stripe/routes/stripe.routes';
 import commodityRoutes from './stripe/routes/commodity.routes';
 import cartRoutes from './stripe/routes/cart.routes';
 import uploadMulterRoutes from './uploadMulter/upload.routes';
+import postRoutes from './blog/routes/post.routes';
+import subPageRoutes from './blog/routes/subPage.routes';
 import { stripeController } from './stripe/controllers/stripe.controller';
 import categoryRoutes from './stripe/routes/category.routes';
 
@@ -57,6 +59,8 @@ app.use('/api/stripe', stripeRoutes);
 app.use('/api/commodity', commodityRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/category', categoryRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/subpage', subPageRoutes);
 
 app.use('/api/upload-multer', uploadMulterRoutes);
 

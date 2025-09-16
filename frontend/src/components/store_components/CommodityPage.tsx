@@ -31,7 +31,7 @@ const CommodityPage = () => {
   const [commentPage, setCommentPage] = useState(1);
   const commentsPerPage = 3;
 
-  const comments = commodity?.comments ?? [];
+  const comments = (commodity?.comments ?? []).filter(c => c.isApproved);
   const totalComments = comments.length;
   const paginatedComments = comments.slice(
     (commentPage - 1) * commentsPerPage,
@@ -254,8 +254,14 @@ const CommodityPage = () => {
                 <Typography variant="body2">
                   <strong>User:</strong> {getCommentUserLabel(c.user)}
                 </Typography>
-                <Typography variant="body2">{typeof c.text === "string" ? c.text : JSON.stringify(c.text)}</Typography>
-                {c.rating !== undefined && <Typography variant="body2">⭐ {c.rating}/5</Typography>}
+                <Typography variant="body2">
+                  {typeof c.text === "string" ? c.text : JSON.stringify(c.text)}
+                </Typography>
+                {typeof c.rating === "number" ? (
+                  <Typography variant="body2">
+                    ⭐ {c.rating}/5
+                  </Typography>
+                ) : null}
               </Box>
             ))
           ) : (

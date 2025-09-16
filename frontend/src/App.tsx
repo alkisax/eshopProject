@@ -30,7 +30,9 @@ import CheckoutSuccess from "./components/store_components/CheckoutSuccess";
 import CommodityPage from "./components/store_components/CommodityPage";
 import StoreLayout from "./Layouts/StoreLayout"
 import AdminAddNewCommodity from "./components/store_components/adminPannelCommodity/AdminAddNewCommodity";
-
+import Announcements from "./blog/blogPages/Announcements";
+import News from "./blog/blogPages/News";
+import BlogPost from "./blog/blogPages/BlogPost";
 
 function App() {
   const { user } = useContext(UserAuthContext);
@@ -45,6 +47,9 @@ function App() {
       <Route element={<LayoutWithNavbar />}>
 
         <Route path="/" element={<Home />} />
+        <Route path="/news" element={<News />} />
+        <Route path="/announcements" element={<Announcements />} />
+        <Route path="/posts/:slug" element={<BlogPost />} />
         
         {/* used layout as origin of logic for store because its the component that encapsulates al the components. but this propably is not right because thats not the "layout" function. but will leave it as is */}
         {/* layout works together with sidebar and item list */}

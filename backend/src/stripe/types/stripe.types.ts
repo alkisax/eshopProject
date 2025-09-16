@@ -44,6 +44,7 @@ export interface CommentType {
   rating?: 0 | 1 | 2 | 3 | 4 | 5;
   isApproved?: boolean,
   createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface EditorJsData {

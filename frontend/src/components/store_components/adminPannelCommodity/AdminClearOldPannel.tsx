@@ -48,10 +48,24 @@ const AdminClearOldPanel = () => {
     }
   };
 
+  const clearUnapprovedComments = async () => {
+    try {
+      const res = await axios.delete<{ status: boolean; message: string }>(
+        `${url}/api/commodity/comments/clear/old-unapproved`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMessage(res.data.message);
+    } catch (err) {
+      console.error(err);
+      setMessage("Error clearing unapproved comments");
+    }
+  };
+
   const clearAll = async () => {
     await clearTransactions();
     await clearCarts();
     await clearGuests();
+    await clearUnapprovedComments();
     setMessage("All cleanup endpoints executed.");
   };
 
@@ -69,6 +83,9 @@ const AdminClearOldPanel = () => {
         </Button>
         <Button variant="contained" color="primary" onClick={clearGuests}>
           Clear Old Guest Participants
+        </Button>
+        <Button variant="contained" color="primary" onClick={clearUnapprovedComments}>
+          Clear Old Unapproved Comments
         </Button>
         <Button variant="contained" color="error" onClick={clearAll}>
           Clear All

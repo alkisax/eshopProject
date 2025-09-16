@@ -18,6 +18,10 @@ import UploadIcon from "@mui/icons-material/Upload";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import CategoryIcon from "@mui/icons-material/Category";
 import CommentIcon from '@mui/icons-material/Comment';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import ArticleIcon from "@mui/icons-material/Article"; 
+import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import { CloudUpload } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 
@@ -57,7 +61,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         <ListItem disablePadding>
           <ListItemButton onClick={() => onSelect("transactions")}>
             <ListItemIcon>
-              <GroupIcon />
+              <ReceiptIcon />
             </ListItemIcon>
             <ListItemText primary="Transactions" />
           </ListItemButton>
@@ -66,7 +70,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         <ListItem disablePadding>
           <ListItemButton onClick={() => onSelect("commodities")}>
             <ListItemIcon>
-              <GroupIcon />
+              <Inventory2Icon />
             </ListItemIcon>
             <ListItemText primary="Commodities" />
           </ListItemButton>
@@ -117,7 +121,24 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
           </ListItemButton>
         </ListItem>
 
-        {/* Add more items with icons here */}
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("blog")}>
+            <ListItemIcon>
+              <ArticleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Create/Edit blog posts" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("posts")}>
+            <ListItemIcon>
+              <DynamicFeedIcon />
+            </ListItemIcon>
+            <ListItemText primary="Posts" />
+          </ListItemButton>
+        </ListItem>
+
       </List>
     </>
   );

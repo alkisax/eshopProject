@@ -1,6 +1,16 @@
 import { useContext, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import { Button, List, ListItem, ListItemButton, ListItemText, Pagination, Typography } from "@mui/material";
+import {
+  Button,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Pagination,
+  Typography,
+  ListItemAvatar,
+  Avatar,
+} from "@mui/material";
 import { CartActionsContext } from '../../context/CartActionsContext'
 import type { CommodityType } from "../../types/commerce.types";
 import { UserAuthContext } from "../../context/UserAuthContext";
@@ -63,6 +73,15 @@ const StoreItemList = () => {
                 component={Link}
                 to={`/commodity/${commodity._id}`}
               >
+                {/* 👇 small preview thumbnail if available */}
+                <ListItemAvatar>
+                  <Avatar
+                    variant="square"
+                    src={commodity.images && commodity.images.length > 0 ? commodity.images[0] : "/placeholder.jpg"}
+                    sx={{ width: 56, height: 56, mr: 2 }}
+                  />
+                </ListItemAvatar>
+
                 <ListItemText
                   primary={commodity.name}
                   secondary={`${commodity.price} ${commodity.currency}`}

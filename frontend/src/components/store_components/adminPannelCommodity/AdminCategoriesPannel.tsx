@@ -5,7 +5,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, Typography, IconButton, Chip, Stack, Switch, Tooltip, 
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
+// import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 // import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import CallSplitIcon from "@mui/icons-material/CallSplit";
@@ -22,13 +22,13 @@ const AdminCategoriesPanel = () => {
   const { url, categories, refreshCategories } = useContext(VariablesContext);
   const { setIsLoading } = useContext(UserAuthContext);
 
-  const [expanded, setExpanded] = useState<string | null>(null);
+  // const [expanded, setExpanded] = useState<string | null>(null);
   // το state αυτό δεν είναι ένα απλό boolean, φυλάει και το id αν είναι θετικό
   const [openSetParent, setOpenSetParent] = useState<null | { childId: string }>(null);
   const [openAdd, setOpenAdd] = useState<boolean>(false);
 
   //unused vars
-  console.log(expanded);
+  // console.log(expanded);
   
   // children names via ids
   const childNames = (c: CategoryType): string[] => {
@@ -169,12 +169,7 @@ const AdminCategoriesPanel = () => {
                       {/* Actions inline for small screens */}
                       <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
                         {/* το tooltip μου δείχνει το ενημερωτικό popup label */}
-                        <Tooltip title="Edit">
-                          {/* αλλάζει το state του expanded (το expanded δεν είναι απλό bool φυλάει και το id για να το περάσει στο component) και κάνει trigger το άνοιγμα του σχετικού παραθύρου (παρακάτω) */}
-                          <IconButton size="small" color="primary" onClick={() => setExpanded(id)}>
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+
                         <Tooltip title="Set parent">
                           {/* αλλάζει το state του openSetParent και κάνει trigger το άνοιγμα του σχετικού παραθύρου (παρακάτω) */}
                           <IconButton size="small" onClick={() => setOpenSetParent({ childId: id })}>
