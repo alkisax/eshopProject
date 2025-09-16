@@ -7,6 +7,8 @@ router.post('/', postController.createPost);
 
 router.get('/', postController.getAllPosts);
 
+router.get('/slug/:slug', postController.getPostBySlug);
+
 router.get('/:postId', postController.getPostById);
 
 router.put('/:postId', postController.editPost);

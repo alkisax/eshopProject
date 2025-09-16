@@ -26,6 +26,10 @@ const CustomPageCreatorComponent = ({
   handleNewPageSubmit,
 }: Props) => {
 
+
+console.log("Select value =", selectedPage);
+console.log("Pages =", pages.map(p => p._id));
+
   return (
     <Box sx={{ width: "100%", maxWidth: 400, mx: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
       {/* Dropdown για επιλογή σελίδας */}

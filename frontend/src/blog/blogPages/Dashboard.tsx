@@ -8,7 +8,7 @@
    - Μετά δες EditorJs.tsx → wrapper around EditorJS that loads/saves content.
 */
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import Editor from "../blogUtils/Editor";
 import HeaderDashboard from "../blogComponents/HeaderDashboard";
@@ -23,6 +23,13 @@ interface Props {
   setEditorJsData: (data: EditorJsContent | null) => void;
   editorRef: React.RefObject<EditorJS | null>;
   isEditMode?: boolean;
+  id?: string;
+  title: string;
+  setTitle: React.Dispatch<React.SetStateAction<string>>;
+  selectedPage: string;
+  setSelectedPage: React.Dispatch<React.SetStateAction<string>>;
+  isPinned: boolean;
+  setIsPinned: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function Dashboard({
@@ -30,17 +37,19 @@ function Dashboard({
   setEditorJsData,
   editorRef,
   isEditMode = false,
+  id,
+  title,
+  setTitle,
+  selectedPage,
+  setSelectedPage,
+  isPinned,
+  setIsPinned
 }: Props) {
   
   const { url } = useContext(VariablesContext);
   // Προσθήκη λογικής για custom pages
   const [pages, setPages] = useState<SubPageType[]>([]);
-  const [selectedPage, setSelectedPage] = useState<string>('');
   const [newPage, setNewPage] = useState<string>('');
-  const [isPinned, setIsPinned] = useState<boolean>(false);
-  const [title, setTitle] = useState<string>("");
-
-  const { id } = useParams();
   
   const navigate = useNavigate()
 
@@ -51,15 +60,15 @@ function Dashboard({
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Header */}
-      <AppBar
-        position="static"
-        color="default"
+      <Box
         sx={{
-          boxShadow: 1,
-          borderBottom: "1px solid #ddd",
+          mb: 3,
+          p: 2,
+          width: { xs: "100%", md: "50%" }, // full on mobile, 50% on large
+          mx: "auto", // center horizontally
         }}
       >
-{/* 
+        {/*
 ===ΤΙ ΠΕΡΝΑΜΕ ΣΤΟ HeaderDashboard===
 👉 State που έρχεται από το Dashboard (πατέρας):
 - pages: όλες οι διαθέσιμες σελίδες (SubPages).
@@ -94,35 +103,32 @@ function Dashboard({
 Έτσι κρατάμε το HeaderDashboard "χαζό" (stateless, απλό), 
 ενώ όλη η λογική και το state management μένουν στο Dashboard.
 */}
-        <Toolbar sx={{ gap: 2, overflowX: "auto" }}>
-
-          <HeaderDashboard
-            pages={pages}
-            newPage={newPage}
-            setNewPage={setNewPage}
-            navigateToPosts={navigateToPosts}
-            setEditorJsData={setEditorJsData}
-            editorRef={editorRef}
-            handlePreview={handlePreview}
-            selectedPage={selectedPage}
-            isPinned={isPinned}
-            setIsPinned={setIsPinned}
-            isEditMode={isEditMode}
-            id={id}
-            url={url}
-            title={title}
-            setTitle={setTitle}
-            // ✅ pass the wrappers that bind the extra params
-            handlePageSelect={(pageId) => handlePageSelect(pageId, setSelectedPage)} // wrapper: περνάμε μόνο το pageId και συνδέουμε με το setSelectedPage
-            handleNewPageSubmit={(newPage) =>
-              handleNewPageSubmit(newPage, url, setPages, setSelectedPage, setNewPage)
-            } // wrapper: περνάμε μόνο newPage από το child, και εδώ προσθέτουμε backendUrl + setters
-            handleSubmit={(
-              ref, setData, isEdit, postId, url, page, pinned
-            ) => handleSubmit(ref, setData, isEdit, postId, url ?? "", page, pinned, title)} // 🔑 ensure url is string
-          />
-        </Toolbar>
-      </AppBar>
+        <HeaderDashboard
+          pages={pages}
+          newPage={newPage}
+          setNewPage={setNewPage}
+          navigateToPosts={navigateToPosts}
+          setEditorJsData={setEditorJsData}
+          editorRef={editorRef}
+          handlePreview={handlePreview}
+          selectedPage={selectedPage}
+          isPinned={isPinned}
+          setIsPinned={setIsPinned}
+          isEditMode={isEditMode}
+          id={id}
+          url={url}
+          title={title}
+          setTitle={setTitle}
+          // ✅ pass the wrappers that bind the extra params
+          handlePageSelect={(pageId) => handlePageSelect(pageId, setSelectedPage)} // wrapper: περνάμε μόνο το pageId και συνδέουμε με το setSelectedPage
+          handleNewPageSubmit={(newPage) =>
+            handleNewPageSubmit(newPage, url, setPages, setSelectedPage, setNewPage)
+          } // wrapper: περνάμε μόνο newPage από το child, και εδώ προσθέτουμε backendUrl + setters
+          handleSubmit={(
+            ref, setData, isEdit, postId, url, page, pinned
+          ) => handleSubmit(ref, setData, isEdit, postId, url ?? "", page, pinned, title)} // 🔑 ensure url is string
+        />
+      </Box>
 
       {/* Main Content */}
       <Box
@@ -130,10 +136,11 @@ function Dashboard({
         sx={{
           flexGrow: 1,
           p: 3,
-          width: "100%",
+          width: { xs: "100%", md: "50%" }, // full on mobile, 50% on large
+          mx: "auto", // center horizontally
         }}
       >
-        {/* 
+        {/*
 === ΤΙ ΠΕΡΝΑΜΕ ΣΤΟ <Editor> ===
 
 👉 Props από το Dashboard (state + setters):

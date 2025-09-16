@@ -58,6 +58,16 @@ const getPostById = async (req: Request, res: Response) => {
   }
 };
 
+const getPostBySlug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const post = await postDAO.getPostBySlug(slug);
+    return res.status(200).json({ status: true, data: post });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 // === DELETE ===
 const deletePost = async (req: Request, res: Response) => {
   try {
@@ -74,5 +84,6 @@ export const postController = {
   editPost,
   getAllPosts,
   getPostById,
+  getPostBySlug,
   deletePost,
 };

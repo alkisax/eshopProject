@@ -5,6 +5,15 @@ import RenderedEditorJsContent from "../blogComponents/RenderedEditorJsContent";
 import { getPreviewContent } from "../blogUtils/editorHelper";
 import { VariablesContext } from "../../context/VariablesContext";
 import type { PostType } from "../blogTypes/blogTypes";
+import {
+  Box,
+  Card,
+  CardActionArea,
+  CardContent,
+  CircularProgress,
+  Grid,
+  Typography,
+} from "@mui/material";
 
 const News = () => {
   const { url } = useContext(VariablesContext);
@@ -30,30 +39,76 @@ const News = () => {
     fetchPosts();
   }, [url]);
 
-  return (
-    <div className="p-4 max-w-4xl mx-auto">
-      {loading && <p>Loading...</p>}
-      {!loading && posts.length === 0 && <p>No news posts found</p>}
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" mt={4}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-      <div className="grid gap-6">
-        {!loading &&
-          posts.map((post) => (
-            <Link to={`/posts/${post._id}`} key={post._id}>
-              <div className="bg-slate-100 text-black shadow-md rounded-2xl p-6 border border-gray-300 hover:shadow-lg transition-shadow">
-                <RenderedEditorJsContent
-                  editorJsData={getPreviewContent(post.content)}
-                  subPageName={
-                    typeof post.subPage === "object" ? post.subPage.name : ""
-                  }
-                />
-                <p className="text-sm text-gray-500 mt-4">
-                  {new Date(post.createdAt!).toLocaleString()}
-                </p>
-              </div>
-            </Link>
-          ))}
-      </div>
-    </div>
+  if (!loading && posts.length === 0) {
+    return (
+      <Typography variant="h6" align="center" color="text.secondary" mt={4}>
+        No news posts found
+      </Typography>
+    );
+  }
+
+  return (
+    <Box p={4} maxWidth="lg" mx="auto">
+      <Grid container spacing={3}>
+        {posts.map((post) => (
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={post._id}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                boxShadow: 3,
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <CardActionArea
+                component={Link}
+                to={`/posts/${post._id}`}
+                sx={{ textDecoration: "none" }}
+              >
+                <CardContent>
+                  {/* Title */}
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    fontWeight="bold"
+                    color="primary"
+                  >
+                    {post.title}
+                  </Typography>
+
+                  {/* Preview content */}
+                  <RenderedEditorJsContent
+                    editorJsData={getPreviewContent(post.content)}
+                    subPageName={
+                      typeof post.subPage === "object" ? post.subPage.name : ""
+                    }
+                  />
+
+                  {/* Date */}
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                    mt={2}
+                  >
+                    {new Date(post.createdAt!).toLocaleString()}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 };
 

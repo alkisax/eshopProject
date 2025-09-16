@@ -138,6 +138,73 @@ paths:
                         type: string
                         format: date-time
 
+  /api/posts/slug/{slug}:
+    get:
+      summary: Get a post by slug
+      tags: [Posts]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Single post fetched by slug
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      title:
+                        type: string
+                      slug:
+                        type: string
+                      content:
+                        type: object
+                        properties:
+                          time:
+                            type: integer
+                          blocks:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                data:
+                                  type: object
+                          version:
+                            type: string
+                      subPage:
+                        type: string
+                      pinned:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        '404':
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+
   /api/posts/{postId}:
     get:
       summary: Get a post by ID

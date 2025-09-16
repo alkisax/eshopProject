@@ -51,43 +51,69 @@ const Editor = ({
   // απο εδώ έρχονται τα tags των subpages
   useEffect(() => {
     const getpages = async () => {
-      const res = await axios.get(`${url}/api/subPage`)
-      setPages(res.data.data)
-    }
-    getpages()
+      const res = await axios.get(`${url}/api/subPage`);
+      setPages(res.data.data);
+
+      // if already have a selectedPage id, make sure it matches after pages load
+      if (selectedPage && !res.data.data.some((p: SubPageType) => p._id === selectedPage)) {
+        console.warn("Selected page not found in pages list:", selectedPage);
+      }
+    };
+    getpages();
   }, [url, setPages])
 
   // 🟧 If in edit mode, fetch post and populate editor
   useEffect(() => {
     const fetchPost = async () => {
-      if (isEditMode && id && editorRef.current) {
-        console.log("enter edit mode")        
-        try {
-          const response = await axios.get(`${url}/api/posts/${id}`);
-          const savedData = response.data.content;
-          const savedSubPage = response.data.subPage || '';
-          const editor = editorRef.current;
+      if (!isEditMode || !id || !editorRef.current) return;
 
-          // Clear and render with existing data
-          await editor.isReady;
-          editor.render(savedData);
-          setSelectedPage(savedSubPage);
-          setIsPinned(response.data.pinned || false);
+      try {
+        console.log("enter edit mode");
+        const res = await axios.get(`${url}/api/posts/${id}`);
 
-        } catch (error) {
-          console.error("Failed to load post for editing:", error);
+        // Normalize the post object once
+        const post = (res.data?.data ?? res.data) as {
+          content: EditorJsContent | string;
+          subPage?: string | { _id?: string };
+          pinned?: boolean;
+        };
+
+        // Render editor content
+        const editor = editorRef.current;
+        await editor.isReady;
+        await editor.render(
+          typeof post.content === "string" ? JSON.parse(post.content) : post.content
+        );
+        console.log("Loaded post content:", post.content);
+
+        // Set pinned
+        setIsPinned(!!post.pinned);
+
+        // Only set selectedPage if it's not already set by the parent
+        if (!selectedPage) {
+          const subId =
+            typeof post.subPage === "object" ? post.subPage?._id : post.subPage;
+          setSelectedPage(subId || "");
         }
+      } catch (error) {
+        console.error("Failed to load post for editing:", error);
       }
     };
 
     fetchPost();
+    // deliberately DON'T include selectedPage in deps to avoid loop
   }, [id, isEditMode, url, editorRef, setIsPinned, setSelectedPage]);
+
 
   const selectedPageName = pages?.find?.(p => p._id === selectedPage)?.name || '';
 
+  // Only reset when creating a new post, not when editing
   useEffect(() => {
-    setEditorJsData(null);
-  }, [setEditorJsData]);
+    if (!isEditMode) {
+      setEditorJsData(null);
+      setSelectedPage("");
+    }
+  }, [isEditMode, setEditorJsData]);
 
   return (
     <>

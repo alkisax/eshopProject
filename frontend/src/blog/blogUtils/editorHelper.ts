@@ -14,7 +14,6 @@ import axios from 'axios';
 import type EditorJS from '@editorjs/editorjs';
 import type { EditorJsContent, SubPageType } from '../blogTypes/blogTypes';
 import type { OutputData } from '@editorjs/editorjs';
-import type { title } from 'process';
 
 // handlePageSelect
 export const handlePageSelect = (pageId: string, setSelectedPage: (val: string) => void) => {

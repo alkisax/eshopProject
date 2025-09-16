@@ -1,5 +1,4 @@
 import { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Pagination, Stack, Typography, } from "@mui/material";
 import { VariablesContext } from "../../context/VariablesContext";
@@ -12,7 +11,6 @@ interface Props {
 
 const AdminPostsPanel = ({ onEdit }: Props) => {
   const { url } = useContext(VariablesContext);
-  const navigate = useNavigate();
 
   const [posts, setPosts] = useState<PostType[]>([]);
   const [page, setPage] = useState(1);

@@ -29,6 +29,7 @@ const AdminLayout = () => {
         {activePanel === "uploads" && <AdminLocalUploadsPanel />}
         {activePanel === "categories" && <AdminCategoriesPanel />}
         {activePanel === "comments" && <AdminCommentsPanel />}
+        {/* αυτα χρειάζονται να περάσουν και state το id του post γιατί αν πατήσω update στο posts θα με μεταφέρει σε άλλο panel που θα πρέπει να πάρει το id του post για να κάνει Populate  */}
         {activePanel === "blog" && <AdminBlogPanel editingPostId={editingPostId} />}
         {activePanel === "posts" && <AdminPostsPanel onEdit={(id) => {
           setEditingPostId(id);

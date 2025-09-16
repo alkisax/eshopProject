@@ -1,131 +1,98 @@
+import { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
-import { useState, useEffect, useContext, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  CircularProgress,
-  Stack,
-} from "@mui/material";
 import RenderedEditorJsContent from "../blogComponents/RenderedEditorJsContent";
 import { VariablesContext } from "../../context/VariablesContext";
-import { UserAuthContext } from "../../context/UserAuthContext";
+import {
+  Box,
+  CircularProgress,
+  Container,
+  Paper,
+  Typography,
+} from "@mui/material";
 import type { PostType } from "../blogTypes/blogTypes";
 
 const BlogPost = () => {
+  const { slug } = useParams<{ slug: string }>();
   const { url } = useContext(VariablesContext);
-  const { user, isLoading, setIsLoading } = useContext(UserAuthContext);
 
+  const [loading, setLoading] = useState(true);
   const [post, setPost] = useState<PostType | null>(null);
 
-  const { id } = useParams();
-  const navigate = useNavigate();
-
-  const fetchPost = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get(`${url}/api/posts/${id}`);
-      setPost(response.data.data || response.data); // backend sometimes wraps in {status,data}
-    } catch (error) {
-      console.error("Error fetching post:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [id, url, setIsLoading]);
-
   useEffect(() => {
-    if (id) fetchPost();
-  }, [id, fetchPost]);
-
-  const navigateToDashboard = () => {
-    navigate("/dashboard");
-  };
-
-  const editPost = () => {
-    navigate(`/edit/${id}`);
-  };
-
-  const deletePost = async () => {
-    if (window.confirm("Are you sure you want to delete this post?")) {
+    const fetchPost = async () => {
       try {
-        setIsLoading(true);
-        await axios.delete(`${url}/api/posts/${id}`);
-        alert("Post deleted successfully.");
-        navigate("/");
+        const response = await axios.get(`${url}/api/posts/slug/${slug}`);
+        const postData: PostType = response.data.data || response.data;
+        setPost(postData);
       } catch (error) {
-        console.error("Error deleting post:", error);
-        alert("Failed to delete the post.");
+        console.error("Error fetching post:", error);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
+    };
+
+    if (slug) {
+      fetchPost();
     }
-  };
+  }, [slug, url]);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={4}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!post) {
+    return (
+      <Typography variant="h6" align="center" color="text.secondary" mt={4}>
+        Post not found
+      </Typography>
+    );
+  }
 
   return (
-    <Box sx={{ p: 3, maxWidth: 800, mx: "auto" }}>
-      {isLoading && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
-
-      {!isLoading && !post && (
-        <Typography variant="body1" color="error">
-          Blog post was not found.
-        </Typography>
-      )}
-
-      {!isLoading && post && (
-        <Paper
-          elevation={3}
-          sx={{ p: 3, borderRadius: 2, bgcolor: "grey.50" }}
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Paper
+        elevation={3}
+        sx={{
+          p: { xs: 2, sm: 3, md: 4 },
+          borderRadius: 3,
+        }}
+      >
+        {/* Title */}
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          gutterBottom
+          color="primary"
+          textAlign="center"
         >
-          {/* Εδώ περνάμε και το όνομα του subPage στο RenderedEditorJsContent. Το post.subPage μπορεί να είναι:
-            - Object (αν έχει γίνει populate από το backend, π.χ. { _id, name, slug... })
-            - String / ObjectId (αν δεν έγινε populate)
-          Με το typeof + "name" in ελέγχουμε αν όντως είναι αντικείμενο με name.  Αν είναι → παίρνουμε το όνομα του subPage. Αν όχι → δίνουμε κενό string για να μην σπάσει το component */}
-          <RenderedEditorJsContent 
-            editorJsData={post.content} 
-            subPageName={
-              typeof post.subPage === "object" && "name" in post.subPage
-                ? post.subPage.name
-                : ""
-            }
-          />
+          {post.title}
+        </Typography>
 
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ display: "block", mt: 2 }}
-          >
-            {post.createdAt
-              ? new Date(post.createdAt).toLocaleString()
-              : "No timestamp"}
-          </Typography>
+        {/* Date */}
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          display="block"
+          textAlign="center"
+          mb={3}
+        >
+          {new Date(post.createdAt!).toLocaleString()}
+        </Typography>
 
-          {user && user.roles?.includes("ADMIN") && (
-            <Stack
-              direction="row"
-              spacing={2}
-              justifyContent="center"
-              sx={{ mt: 3 }}
-            >
-              <Button variant="outlined" onClick={navigateToDashboard}>
-                Dashboard
-              </Button>
-              <Button variant="contained" onClick={editPost}>
-                Edit
-              </Button>
-              <Button variant="contained" color="error" onClick={deletePost}>
-                Delete
-              </Button>
-            </Stack>
-          )}
-        </Paper>
-      )}
-    </Box>
+        {/* Content */}
+        <RenderedEditorJsContent
+          editorJsData={post.content}
+          subPageName={
+            typeof post.subPage === "object" ? post.subPage.name : ""
+          }
+        />
+      </Paper>
+    </Container>
   );
 };
 

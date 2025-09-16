@@ -7,18 +7,18 @@
 
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import {  useState, useRef } from "react";
-import type EditorJS from "@editorjs/editorjs";
+// import {  useState, useRef } from "react";
+// import type EditorJS from "@editorjs/editorjs";
 
-import Dashboard from "./Dashboard";
-import type { EditorJsContent } from "../blogTypes/blogTypes";
+// import Dashboard from "./Dashboard";
+// import type { EditorJsContent } from "../blogTypes/blogTypes";
 
 const BlogHome = () => {
   // χρειάζομαι μια μεταβλητή για να φορτωσω το Instance απο τον κειμενογράφο
   // useRef is a React Hook that gives you a mutable object whose .current property persists across renders. useRef(initialValue) returns { current: initialValue }. Unlike useState, updating .current does not trigger a re-render
   // το editorRef.current = new EditorJS γίνετε στο useInitEditor και του βάζουμε μέσα όλον τον Editor. Εδώ απλως φτιάχνουμε το "κουτί" αναμονής
-  const editorRef = useRef<EditorJS | null>(null);
-  const [editorJsData, setEditorJsData] = useState<EditorJsContent | null>(null);
+  // const editorRef = useRef<EditorJS | null>(null);
+  // const [editorJsData, setEditorJsData] = useState<EditorJsContent | null>(null);
 
   const navigate = useNavigate();
 

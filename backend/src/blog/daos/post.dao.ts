@@ -99,9 +99,29 @@ const deletePost = async (postId: string | Types.ObjectId): Promise<PostType> =>
   }
 };
 
+const getPostBySlug = async (slug: string): Promise<PostType> => {
+  try {
+    const post = await Post.findOne({ slug })
+      .populate<{ subPage: SubPageType }>('subPage')
+      .exec();
+
+    if (!post) {
+      throw new NotFoundError('Post not found');
+    }
+
+    return post;
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      throw err;
+    }
+    throw new DatabaseError(`Failed to fetch post by slug: ${(err as Error).message}`);
+  }
+};
+
 export const postDAO = {
   getAllPosts,
   getPostById,
+  getPostBySlug,
   createPost,
   editPost,
   deletePost
