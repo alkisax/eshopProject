@@ -60,6 +60,7 @@ export const handleSubmit = async (
 
       if (isEditMode && id) {
         await axios.put(`${url}/api/posts/${id}`, {
+          title,
           content: outputData,
           subPage: selectedPage,
           pinned: isPinned,

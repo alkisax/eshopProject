@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   Drawer,
-  Toolbar,
   Divider,
   TextField,
   List,
@@ -57,7 +56,7 @@ const StoreSidebar = ({
 
   const drawerContent = (
     <>
-      <Toolbar />
+
       <Divider />
 
       {/* Search box */}
@@ -127,35 +126,50 @@ const StoreSidebar = ({
           flexShrink: 0,
           "& .MuiDrawer-paper": {
             width: 240,
-            boxSizing: "border-box",
-            mt: isMobile ? 0 : "64px",
+            // 👇 full height relative to viewport
+            height: isMobile ? "100vh" : "calc(100vh - 64px)",
+            top: isMobile ? 0 : 64, // start below AppBar on desktop
+            bottom: 0,
             borderRight: "1px solid #ddd",
             backgroundColor: "#f5f5f5",
             boxShadow: "2px 0 8px rgba(0,0,0,0.1)",
-            p: 2,
+            display: "flex",
+            flexDirection: "column",
           },
         }}
       >
-        {/* εδώ μου έρχετε το html/jsx που ορισαμε στην παραπάνω μεταβλητή. θα μπορούσε όλος ο κώδικας να είναι εδώ αλλα έχει χωριστεί για λόγους καθαρότητας */}
-        {drawerContent}
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 2 }}
-          onClick={onApplyFilters}
+        {/* scrollable content */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
+          {drawerContent}
+        </div>
+
+        {/* pinned bottom buttons */}
+        <div
+          style={{
+            padding: "16px",
+            borderTop: "1px solid #ddd",
+            backgroundColor: "#fff",
+            flexShrink: 0,
+          }}
         >
-          Apply Filters
-        </Button>
-        <Button
-          variant="outlined"
-          color="secondary"
-          fullWidth
-          sx={{ mt: 1 }}
-          onClick={onClearFilters}
-        >
-          Clear Filters
-        </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mb: 1 }}
+            onClick={onApplyFilters}
+          >
+            Apply Filters
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            onClick={onClearFilters}
+          >
+            Clear Filters
+          </Button>
+        </div>
       </Drawer>
     </>
   );
