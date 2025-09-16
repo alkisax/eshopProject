@@ -15,7 +15,7 @@ import HeaderDashboard from "../blogComponents/HeaderDashboard";
 import { handlePreview, handleSubmit, handlePageSelect, handleNewPageSubmit } from "../blogUtils/editorHelper";
 import type { EditorJsContent, SubPageType } from "../blogTypes/blogTypes";
 import type EditorJS from "@editorjs/editorjs"; // ✅ class type
-import { AppBar, Box, Paper, Toolbar } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 import { VariablesContext } from "../../context/VariablesContext";
 
 interface Props {
