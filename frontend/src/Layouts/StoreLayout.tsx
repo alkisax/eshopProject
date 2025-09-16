@@ -18,7 +18,7 @@ const StoreLayout = () => {
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 15; // try smaller to test pagination
+  const ITEMS_PER_PAGE = 10; // try smaller to test pagination
 
   // φερνει τα commodities απο το backend
   useEffect(() => {
@@ -84,16 +84,28 @@ const StoreLayout = () => {
     setSelectedCategories((prev) =>
       checked ? [...prev, cat] : prev.filter((c) => c !== cat)
     );
+    setCurrentPage(1);
   };
 
   const handleApplyFilters = () => {
     setFiltersApplied((prev) => !prev); // just toggle to re-trigger effect
+    setCurrentPage(1);
   };
 
   const handleClearFilters = () => {
     setSearch("");
     setSelectedCategories([]);
     setFiltersApplied((prev) => !prev);
+    setCurrentPage(1);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearch((prev) => {
+      if (prev !== query) {
+        setCurrentPage(1); // reset only when query changes
+      }
+      return query;
+    });
   };
 
   // απλό toggle που μπορεί να χρησιμοποιηθεί για re-render ή future side effects
@@ -133,7 +145,7 @@ const StoreLayout = () => {
             search={search}
             allCategories={allCategories}
             selectedCategories={selectedCategories}
-            onSearch={setSearch}
+            onSearch={handleSearch}
             onToggleCategory={handleToggleCategory}
             onApplyFilters={handleApplyFilters}
             onClearFilters={handleClearFilters}
@@ -144,7 +156,18 @@ const StoreLayout = () => {
               - Outlet context = δεν μπορούμε να περάσουμε props γιατί το child το δημιουργεί το router. Οπότε δίνουμε context στο <Outlet> και το child τα παίρνει με useOutletContext().
               */}
             <div style={{ flexGrow: 1 }}>
-              <Outlet context={{ commodities: paginated, pageCount, currentPage, fetchCart,setCurrentPage }} />              
+              {/* TODO */}
+              {/* changed for front end full mount on memory search - Problem see storeSidebar notes */}
+              {/* <Outlet context={{ commodities: paginated, pageCount, currentPage, fetchCart,setCurrentPage }} />  */}
+              <Outlet
+                context={{
+                  commodities: paginated,   // ✅ already sliced
+                  pageCount,
+                  currentPage,
+                  fetchCart,
+                  setCurrentPage,
+                }}
+              />
             </div>
             <CartPreviewFooter 
               hasCart={hasCart}
