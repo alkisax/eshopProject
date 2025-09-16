@@ -10,9 +10,12 @@ import AdminCloudUploadsPanel from "../components/store_components/adminPannelCo
 import AdminClearOldPanel from "../components/store_components/adminPannelCommodity/AdminClearOldPannel";
 import AdminCategoriesPanel from '../components/store_components/adminPannelCommodity/AdminCategoriesPannel'
 import AdminCommentsPanel from "../components/store_components/adminPannelCommodity/AdminCommentsPannel";
+import AdminBlogPanel from "../blog/blogComponents/AdminBlogPanel";
+import AdminPostsPanel from "../blog/blogComponents/AdminPostsPanel";
 
 const AdminLayout = () => {
   const [activePanel, setActivePanel] = useState<string | null>(null);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);  
 
   return (
     <div style={{ display: "flex" }}>
@@ -26,6 +29,11 @@ const AdminLayout = () => {
         {activePanel === "uploads" && <AdminLocalUploadsPanel />}
         {activePanel === "categories" && <AdminCategoriesPanel />}
         {activePanel === "comments" && <AdminCommentsPanel />}
+        {activePanel === "blog" && <AdminBlogPanel editingPostId={editingPostId} />}
+        {activePanel === "posts" && <AdminPostsPanel onEdit={(id) => {
+          setEditingPostId(id);
+          setActivePanel("blog");
+        }} />}
         {activePanel === "clearOld" && <AdminClearOldPanel />}
         {!activePanel && <p>Select a panel from the sidebar</p>}
         <Outlet />

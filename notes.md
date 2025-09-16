@@ -40,6 +40,8 @@
 - if no commodity image show sth ✅
 - local upload ❌
 - missmacth with front comerce type editorJsContent❓❓❓
+- bugs in search categories
+- review if buyer
 - chat gpt criteria optimiser
 
 

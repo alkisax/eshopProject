@@ -42,11 +42,11 @@ const BlogHome = () => {
       </Button>
 
       {/* temporary TO BE REMOVED */}
-      <Dashboard 
+      {/* <Dashboard 
         editorJsData={editorJsData} 
         setEditorJsData={setEditorJsData}
         editorRef={editorRef}
-      />
+      /> */}
     </>
   )
 }

@@ -14,6 +14,7 @@ import axios from 'axios';
 import type EditorJS from '@editorjs/editorjs';
 import type { EditorJsContent, SubPageType } from '../blogTypes/blogTypes';
 import type { OutputData } from '@editorjs/editorjs';
+import type { title } from 'process';
 
 // handlePageSelect
 export const handlePageSelect = (pageId: string, setSelectedPage: (val: string) => void) => {
@@ -48,7 +49,8 @@ export const handleSubmit = async (
   id: string | undefined,
   url: string,
   selectedPage: string,
-  isPinned: boolean
+  isPinned: boolean,
+  title: string
 ) => {
   if (editorRef.current) {
     try {
@@ -67,6 +69,7 @@ export const handleSubmit = async (
         alert('Post updated successfully!');
       } else {
         await axios.post(`${url}/api/posts`, {
+          title,
           content: outputData,
           subPage: selectedPage,
           pinned: isPinned,

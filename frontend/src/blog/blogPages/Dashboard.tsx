@@ -17,6 +17,7 @@ import type { EditorJsContent, SubPageType } from "../blogTypes/blogTypes";
 import type EditorJS from "@editorjs/editorjs"; // ✅ class type
 import { AppBar, Box, Paper, Toolbar } from "@mui/material";
 import { VariablesContext } from "../../context/VariablesContext";
+
 interface Props {
   editorJsData: EditorJsContent | null;
   setEditorJsData: (data: EditorJsContent | null) => void;
@@ -37,6 +38,7 @@ function Dashboard({
   const [selectedPage, setSelectedPage] = useState<string>('');
   const [newPage, setNewPage] = useState<string>('');
   const [isPinned, setIsPinned] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>("");
 
   const { id } = useParams();
   
@@ -107,13 +109,17 @@ function Dashboard({
             setIsPinned={setIsPinned}
             isEditMode={isEditMode}
             id={id}
+            url={url}
+            title={title}
+            setTitle={setTitle}
+            // ✅ pass the wrappers that bind the extra params
             handlePageSelect={(pageId) => handlePageSelect(pageId, setSelectedPage)} // wrapper: περνάμε μόνο το pageId και συνδέουμε με το setSelectedPage
             handleNewPageSubmit={(newPage) =>
               handleNewPageSubmit(newPage, url, setPages, setSelectedPage, setNewPage)
             } // wrapper: περνάμε μόνο newPage από το child, και εδώ προσθέτουμε backendUrl + setters
             handleSubmit={(
               ref, setData, isEdit, postId, url, page, pinned
-            ) => handleSubmit(ref, setData, isEdit, postId, url ?? "", page, pinned)} // 🔑 ensure url is string
+            ) => handleSubmit(ref, setData, isEdit, postId, url ?? "", page, pinned, title)} // 🔑 ensure url is string
           />
         </Toolbar>
       </AppBar>

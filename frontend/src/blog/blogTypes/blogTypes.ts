@@ -1,5 +1,7 @@
 export interface PostType {
   _id?: string;
+  title: string;
+  slug: string;
   content: EditorJsContent;
   subPage: SubPageType;
   pinned: boolean;

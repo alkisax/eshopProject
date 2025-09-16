@@ -8,7 +8,7 @@
 import type { EditorJsContent, SubPageType } from "../blogTypes/blogTypes";
 import type EditorJS from "@editorjs/editorjs"; // ✅ class type
 import CustomPageCreatorComponent from './CustomPageCreatorComponent';
-import { Button, Checkbox, Divider, FormControlLabel, Paper, Stack, Typography } from "@mui/material";
+import { Button, Checkbox, Divider, FormControlLabel, Paper, Stack, TextField, Typography } from "@mui/material";
 
 interface Props {
   navigateToPosts: () => void;
@@ -32,9 +32,12 @@ interface Props {
   handlePageSelect: (pageId: string) => void;
   handleNewPageSubmit: (newPage: string) => void;
 
-  backEndUrl?: string;
+  url?: string;
   isEditMode: boolean;
   id?: string;
+
+  title: string;
+  setTitle: React.Dispatch<React.SetStateAction<string>>;
 
   pages: SubPageType[];
   // setPages: React.Dispatch<React.SetStateAction<SubPageType[]>>;
@@ -54,9 +57,11 @@ const HeaderDashboard = ({
   handleSubmit,
   isEditMode,
   id,
-  backEndUrl,
+  url,
   selectedPage,
   isPinned,
+  title,
+  setTitle,
   setIsPinned,
   handlePageSelect,
   handleNewPageSubmit,
@@ -107,6 +112,13 @@ const HeaderDashboard = ({
         handleNewPageSubmit={handleNewPageSubmit} // ✅ just pass it
       />
 
+      <TextField
+        label="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        size="small"
+        fullWidth
+      />
 
       {/* Action buttons */}
       <Stack direction="column" spacing={1}>
@@ -128,7 +140,7 @@ const HeaderDashboard = ({
               setEditorJsData,
               isEditMode,
               id,
-              backEndUrl,
+              url,
               selectedPage,
               isPinned
             )
