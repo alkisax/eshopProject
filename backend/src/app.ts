@@ -20,6 +20,7 @@ import postRoutes from './blog/routes/post.routes';
 import subPageRoutes from './blog/routes/subPage.routes';
 import { stripeController } from './stripe/controllers/stripe.controller';
 import categoryRoutes from './stripe/routes/category.routes';
+import modarationRoutes from './aiModeration/moderation.routes';
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use('/api/category', categoryRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/subpage', subPageRoutes);
 
+app.use ('/api/moderationAi', modarationRoutes);
 app.use('/api/upload-multer', uploadMulterRoutes);
 
 app.use(express.static('dist')); 

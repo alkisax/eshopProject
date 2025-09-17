@@ -2,7 +2,9 @@
 import { useEffect, useState, useContext, useCallback } from "react";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Typography, IconButton, TablePagination, Tooltip, Stack
+  Paper, Typography, IconButton, TablePagination, Tooltip, Stack,
+  FormControlLabel,
+  Switch
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -10,12 +12,11 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { VariablesContext } from "../../../context/VariablesContext";
 import axios from "axios";
 import type { CommentType } from "../../../types/commerce.types";
-// import type { IUser } from "../../../types/types";
-// import { Types } from "mongoose";
-
+import { AiModerationContext } from "../../../context/AiModerationContext";
 
 const AdminCommentsPanel = () => {
   const { url } = useContext(VariablesContext);
+  const { aiModerationEnabled, setAiModerationEnabled } = useContext(AiModerationContext);
 
   const [comments, setComments] = useState<CommentType[]>([]);
   const [page, setPage] = useState(0);
@@ -97,6 +98,19 @@ const AdminCommentsPanel = () => {
 
   return (
     <Paper sx={{ p: 2 }}>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={aiModerationEnabled}
+            onChange={(e) => {
+              const enabled = e.target.checked;
+              setAiModerationEnabled(enabled);
+              console.log(`🔎 AI Moderation turned ${enabled ? "ON" : "OFF"}`);
+            }}
+          />
+        }
+        label="AI Moderation"
+      />
       <Typography variant="h5" gutterBottom>
         All Comments
       </Typography>

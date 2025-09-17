@@ -123,7 +123,7 @@ const getAllComments = async (_req: Request, res: Response) => {
 // ➕ Add a comment
 const addComment = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { user, text, rating } = req.body;
+  const { user, text, rating, isApproved } = req.body;
 
   if (!id) {
     return res.status(400).json({ status: false, error: 'Commodity ID is required' });
@@ -133,7 +133,12 @@ const addComment = async (req: Request, res: Response) => {
   }
 
   try {
-    const updated = await commodityDAO.addCommentToCommodity(id, { user, text, rating });
+    const updated = await commodityDAO.addCommentToCommodity(id, { 
+      user, 
+      text, 
+      rating,
+      isApproved: isApproved === false ? false : true 
+    });
     console.log(`Added comment to commodity ${id}`);
     return res.status(200).json({ status: true, data: updated });
   } catch (error) {

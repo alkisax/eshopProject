@@ -17,10 +17,12 @@ import { VariablesContext } from "../../context/VariablesContext";
 import { CartActionsContext } from "../../context/CartActionsContext";
 import type { IUser } from "../../types/types";
 import type { Types } from "mongoose";
+import { AiModerationContext } from "../../context/AiModerationContext";
 
 const CommodityPage = () => {
   const { url } = useContext(VariablesContext);
   const { addOneToCart } = useContext(CartActionsContext)!;
+  const { aiModerationEnabled } = useContext(AiModerationContext);
 
   const [commodity, setCommodity] = useState<CommodityType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,9 +55,29 @@ const CommodityPage = () => {
     if (!id || !user) return;
     try {
       const token = localStorage.getItem("token");
+
+      let approvedFlag = true;
+
+      // ✅ If AI moderation is active, pre-check comment
+      if (aiModerationEnabled) {
+        const modRes = await axios.post(
+          `${url}/api/moderationAi`,
+          { commentToCheck: newComment },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        console.log("modRes.data.data", modRes.data.data);
+        
+        // If flagged, store as unapproved
+        if (modRes.data.data === false) {
+          approvedFlag = false;
+        }
+      }
+
+      // always save the comment to DB
       await axios.post(
         `${url}/api/commodity/${id}/comments`,
-        { user: user._id, text: newComment, rating: newRating },
+        { user: user._id, text: newComment, rating: newRating, isApproved: approvedFlag},
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // refresh commodity

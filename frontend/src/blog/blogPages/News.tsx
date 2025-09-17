@@ -71,7 +71,7 @@ const News = () => {
             >
               <CardActionArea
                 component={Link}
-                to={`/posts/${post._id}`}
+                to={`/posts/${post.slug}`}
                 sx={{ textDecoration: "none" }}
               >
                 <CardContent>

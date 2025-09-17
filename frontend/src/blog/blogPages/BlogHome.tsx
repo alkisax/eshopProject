@@ -5,7 +5,7 @@
  - φυλάει το βασικό μου state
  */
 
-import { Button } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 // import {  useState, useRef } from "react";
 // import type EditorJS from "@editorjs/editorjs";
@@ -24,22 +24,61 @@ const BlogHome = () => {
 
   return (
     <>
-      <Button
-        variant="outlined"
-        color="secondary"
-        size="large"
-        onClick={() => navigate("/news")}
-      >
-        📰 News
-      </Button>
-      <Button
-        variant="outlined"
-        color="secondary"
-        size="large"
-        onClick={() => navigate("/announcements")}
-      >
-        📢 Announcements
-      </Button>
+      <Stack direction="column" spacing={2} alignItems="center" sx={{ width: "100%" }}>
+        {/* Νέα */}
+        <Button
+          variant="contained"
+          size="large"
+          onClick={() => navigate("/news")}
+          sx={{
+            px: 5,
+            py: 2,
+            fontWeight: "bold",
+            fontSize: "1.1rem",
+            borderRadius: 3,
+            color: "white",
+            width: "100%",
+            maxWidth: 280,
+            backgroundImage: `url("https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c9572500153c4aa090/view?project=6898d8be0020602b146e")`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            boxShadow: "0 6px 12px rgba(0,0,0,0.25)",
+            "&:hover": {
+              opacity: 0.9,
+              boxShadow: "0 8px 16px rgba(0,0,0,0.35)",
+            },
+          }}
+        >
+          Νεα
+        </Button>
+
+        {/* Ανακοινώσεις */}
+        <Button
+          variant="contained"
+          size="large"
+          onClick={() => navigate("/announcements")}
+          sx={{
+            px: 5,
+            py: 2,
+            fontWeight: "bold",
+            fontSize: "1.1rem",
+            borderRadius: 3,
+            color: "white",
+            width: "100%",
+            maxWidth: 280,
+            backgroundImage: `url("https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c9572b002dab2a4856/view?project=6898d8be0020602b146e")`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            boxShadow: "0 6px 12px rgba(0,0,0,0.25)",
+            "&:hover": {
+              opacity: 0.9,
+              boxShadow: "0 8px 16px rgba(0,0,0,0.35)",
+            },
+          }}
+        >
+          Ανακοινωσεις
+        </Button>
+      </Stack>
 
       {/* temporary TO BE REMOVED */}
       {/* <Dashboard 

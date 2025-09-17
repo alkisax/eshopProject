@@ -95,7 +95,7 @@ const toggleProcessed = async (req: Request, res: Response) => {
     const updatedTransaction = await transactionDAO.updateTransactionById(transactionId, updatedData);
 
     // εδώ στέλνουμε το email
-    await axios.post(`${BACKEND_URL}/api/email/${transactionId}`, {});
+    await axios.post(`${BACKEND_URL}/api/email/${transactionId}`, req.body || {});
 
     return res.status(200).json({ status: true, data: updatedTransaction });
   } catch (error) {

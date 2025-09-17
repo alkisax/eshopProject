@@ -1,16 +1,13 @@
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import { IconButton } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, Tooltip, Badge } from "@mui/material";
+// import HomeIcon from "@mui/icons-material/Home";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import Tooltip from "@mui/material/Tooltip";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { Badge } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { useContext  } from "react";
+import { useContext } from "react";
 import { UserAuthContext } from "../context/UserAuthContext";
-import { handleLogout } from '../authLogin/authFunctions'
+import { handleLogout } from "../authLogin/authFunctions";
 import { VariablesContext } from "../context/VariablesContext";
 import { CartActionsContext } from "../context/CartActionsContext";
 
@@ -20,43 +17,41 @@ const NavbarAppwrite = () => {
   const { cartCount } = useContext(CartActionsContext);
   const navigate = useNavigate();
 
-  // const handleLogin = () => {
-  //   navigate("/login");
-  // };
-
   return (
     <>
-      <AppBar position="fixed">
+      <AppBar
+        position="fixed"
+        sx={{
+          backgroundColor: "#fffdf7", // bright warm white
+          color: "#4a3f35",           // earthy brown text/icons
+          borderBottom: "1px solid #e5e0d8", // λεπτό διακριτικό border
+        }}
+      >
         <Toolbar>
-          {/* Logo / Title */}
-          <Tooltip title="Home">
-            <IconButton component={Link} color="inherit" to="/">
-              <HomeIcon />
-            </IconButton>            
-          </Tooltip>
-
-
-          <Typography
-            variant="h6"
+          {/* Logo */}
+          <Box
             component={Link}
-            to="/protected"
-            sx={{  textDecoration: "none", color: "inherit" }}
+            to="/"
+            sx={{ display: "flex", alignItems: "center", textDecoration: "none", color: "inherit" }}
           >
-            Protected
-          </Typography>
+            <Box
+              component="img"
+              src="/bulb-transp.svg"
+              alt="Έχω μια Ιδέα Logo"
+              sx={{ height: 40, mr: 1 }}
+            />
+            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+              Έχω μια Ιδέα
+            </Typography>
+          </Box>
 
           {/* push everything after this to the right */}
           <Box sx={{ flexGrow: 1 }} />
 
-
           {/* Buttons */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {user && user.roles?.includes("ADMIN") ? (
-              <Button
-                color="inherit"
-                component={Link}
-                to="/admin-panel"
-              >
+              <Button color="inherit" component={Link} to="/admin-panel">
                 Admin Panel
               </Button>
             ) : (
@@ -69,32 +64,32 @@ const NavbarAppwrite = () => {
 
             {user ? (
               <>
-                <Tooltip title="profile">
-                  <IconButton component={Link} to="/profile" color="inherit">
+                <Tooltip title="Profile">
+                  <IconButton component={Link} to="/profile" sx={{ color: "inherit" }}>
                     <AccountCircleIcon />
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="logout">
-                  <IconButton color="inherit" onClick={() => handleLogout(setUser, setHasCart, navigate)}>
+                <Tooltip title="Logout">
+                  <IconButton
+                    sx={{ color: "inherit" }}
+                    onClick={() => handleLogout(setUser, setHasCart, navigate)}
+                  >
                     <LogoutIcon />
                   </IconButton>
                 </Tooltip>
-
               </>
-
             ) : (
-              <Tooltip title="login">
-                <IconButton component={Link} color="inherit" to="/login">
+              <Tooltip title="Login">
+                <IconButton component={Link} to="/login" sx={{ color: "inherit" }}>
                   <LoginIcon />
-                </IconButton>                
+                </IconButton>
               </Tooltip>
-
             )}
 
             {cartCount > 0 && (
               <Tooltip title="Cart">
-                <IconButton component={Link} color="inherit" to="/cart">
+                <IconButton component={Link} to="/cart" sx={{ color: "inherit" }}>
                   <Badge badgeContent={cartCount} color="secondary">
                     <ShoppingCartIcon />
                   </Badge>
@@ -105,7 +100,7 @@ const NavbarAppwrite = () => {
         </Toolbar>
       </AppBar>
       <Toolbar />
-    </>  
+    </>
   );
 };
 

@@ -48,6 +48,9 @@ const postRoutesDocs = yaml.load(
 const subPageRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'subPageRoutes.swagger.yml' )
 );
+const moderatorRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'moderator.swagger.yml' )
+);
 
 const options = {
   definition: {
@@ -90,7 +93,8 @@ const options = {
       ...uploadMulterRoutesDocs.paths,
       ...categoriesRoutesDocs.paths,
       ...postRoutesDocs.paths,
-      ...subPageRoutesDocs.paths, // merge
+      ...subPageRoutesDocs.paths,
+      ...moderatorRoutesDocs.paths, // merge
     },
   },
   apis: []

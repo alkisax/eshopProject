@@ -1,6 +1,8 @@
-import { Box, Button, Stack, TextField } from '@mui/material';
+import { Box, Button, FormControlLabel, Paper, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useCheckout } from "../hooks/useCheckout";
+
+// import BoxNowWidget from "../components/store_components/BoxNowWidget";
 
 const ShippingInfo = () => {
   const [form, setForm] = useState({
@@ -12,7 +14,8 @@ const ShippingInfo = () => {
     postalCode: "",
     country: "",
     phone: "",
-    notes: ""
+    notes: "",
+    shippingMethod: "courier"
   });
 
   const { handleCheckout } = useCheckout();
@@ -22,24 +25,28 @@ const ShippingInfo = () => {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
+    console.log("🚀 Checkout form submitted", form);
     handleCheckout(form); 
   };
 
   return (
     <>
-      <h2>Shipping address</h2>
-      <Box 
+      <Typography variant="h5" gutterBottom>
+        Διεύθυνση Αποστολής
+      </Typography>
+
+      <Box
         component="form"
         sx={{
-          display: 'flex',
-          gap: 5
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" }, // 👈 responsive
+          gap: 4,
         }}
         onSubmit={handleSubmit}
       >
-        <Stack
-          spacing={2}
-        >
+        {/* 🟢 Left column: address fields */}
+        <Stack spacing={2} flex={1}>
           <TextField
             label="Email"
             value={form.shippingEmail}
@@ -51,70 +58,109 @@ const ShippingInfo = () => {
             value={form.fullName}
             onChange={(e) => handleChange("fullName", e.target.value)}
             required
-          >
-            Full name: 
-          </TextField>
+          />
           <TextField
             label="Address Line 1"
             value={form.addressLine1}
             onChange={(e) => handleChange("addressLine1", e.target.value)}
             required
-          >
-            Address Line 1: 
-          </TextField>
+          />
           <TextField
             label="Address Line 2"
             value={form.addressLine2}
             onChange={(e) => handleChange("addressLine2", e.target.value)}
-          >
-            AddressLine 2: 
-          </TextField>
+          />
           <TextField
             label="City"
             value={form.city}
             onChange={(e) => handleChange("city", e.target.value)}
             required
-          >
-            City: 
-          </TextField>
+          />
           <TextField
             label="Postal Code"
             value={form.postalCode}
             onChange={(e) => handleChange("postalCode", e.target.value)}
             required
-          >
-            Postal Code: 
-          </TextField>
+          />
           <TextField
             label="Country"
             value={form.country}
             onChange={(e) => handleChange("country", e.target.value)}
             required
-          >
-            Country: 
-          </TextField>
+          />
           <TextField
             label="Phone"
             value={form.phone}
             onChange={(e) => handleChange("phone", e.target.value)}
-          >
-            Phone: 
-          </TextField>
+          />
           <TextField
             label="Notes"
             value={form.notes}
             onChange={(e) => handleChange("notes", e.target.value)}
             multiline
             rows={4}
-            variant="outlined"
           />
 
-          <Button variant="contained" color="primary" type="submit">
-            Continue to Checkout
-          </Button>
+          <Box sx={{ mt: 3 }}>
+            <Button variant="contained" color="primary" type="submit">
+              Συνεχεια στο Checkout
+            </Button>
+          </Box>
         </Stack>
+
+        {/* 🟢 Right column: shipping methods */}
+        <Paper
+          sx={{
+            flex: 1,
+            p: 2,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            Τρόπος Αποστολής
+          </Typography>
+          <RadioGroup
+            value={form.shippingMethod}
+            onChange={(e) => handleChange("shippingMethod", e.target.value)}
+          >
+            <FormControlLabel
+              value="courier"
+              control={<Radio />}
+              label="Αποστολή με Courier: 3,50 €"
+            />
+            <FormControlLabel
+              value="boxnow"
+              control={<Radio />}
+              label="BOX NOW Lockers | Γρήγορη παράδοση, 24/7: 2,50 €"
+            />
+            <FormControlLabel
+              value="pickup"
+              control={<Radio />}
+              label="Παραλαβή από το κατάστημα: 0 €"
+            />
+          </RadioGroup>
+        </Paper>
+        
       </Box>
+
+      {/* {form.shippingMethod === "boxnow" && (
+        <BoxNowWidget
+          partnerId={123} // 👈 το δικό σου ID
+          onSelect={(locker) => {
+            setForm((prev) => ({
+              ...prev,
+              lockerId: locker.boxnowLockerId,
+              lockerAddress: locker.boxnowLockerAddressLine1,
+              lockerPostalCode: locker.boxnowLockerPostalCode,
+            }));
+          }}
+        />
+      )} */}
+
     </>
+
   )
 }
 export default ShippingInfo
