@@ -11,7 +11,7 @@ import type { CartType } from "../../types/commerce.types";
 // removed for passing first through sipping info
 // import { useCheckout } from "../../hooks/useCheckout";
 
-import { Button, IconButton, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from "@mui/material";
+import { Box, Button, IconButton, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -89,50 +89,83 @@ const CartItemsList = () => {
           {cart.items.map((item) => (
             <ListItem
               key={item.commodity._id.toString()}
-              sx={{ textDecoration: "none", color: "inherit" }}
+              sx={{
+                bgcolor: "#fafafa",
+                mb: 2,
+                borderRadius: 2,
+                boxShadow: 1,
+                minHeight: 120, // 👈 double height
+                alignItems: "center",
+              }}
               disablePadding
               secondaryAction={
-                <Stack direction="row" spacing={0.5}>
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        add(item.commodity._id)
-                      }}
-                    >
-                      <AddIcon fontSize="inherit" />
-                    </IconButton>
+                <Stack direction="row" spacing={1}>
+                  <IconButton
+                    size="medium" // 👈 bigger buttons
+                    color="primary"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      add(item.commodity._id);
+                    }}
+                  >
+                    <AddIcon />
+                  </IconButton>
 
-                    <IconButton
-                      size="small"
-                      color="secondary"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        decrement(item.commodity._id);
-                      }}
-                    >
-                      <RemoveIcon fontSize="inherit" />
-                    </IconButton>
+                  <IconButton
+                    size="medium"
+                    color="secondary"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      decrement(item.commodity._id);
+                    }}
+                  >
+                    <RemoveIcon />
+                  </IconButton>
 
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        remove(item.commodity._id);
-                      }}
-                    >
-                      <DeleteIcon fontSize="inherit" />
-                    </IconButton>
-                  </Stack>
+                  <IconButton
+                    size="medium"
+                    color="error"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      remove(item.commodity._id);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
               }
             >
               <ListItemButton
                 component={Link}
                 to={`/commodity/${item.commodity._id}`}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
+                  py: 2,
+                }}
               >
+                <Box
+                  component="img"
+                  src={item.commodity.images?.[0] || "/placeholder.jpg"}
+                  alt={item.commodity.name}
+                  sx={{
+                    width: 100, 
+                    height: 100,
+                    objectFit: "cover",
+                    borderRadius: 2,
+                    border: "1px solid #ddd",
+                  }}
+                />
                 <ListItemText
+                  slotProps={{
+                    primary: {
+                      sx: { fontWeight: "bold", fontSize: "1.1rem" },
+                    },
+                    secondary: {
+                      sx: { fontSize: "0.95rem", color: "text.secondary" },
+                    },
+                  }}
                   primary={item.commodity.name}
                   secondary={`${item.commodity.price} ${item.commodity.currency} — Qty: ${item.quantity}`}
                 />

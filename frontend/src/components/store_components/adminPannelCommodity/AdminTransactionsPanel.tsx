@@ -1,27 +1,7 @@
 // src/components/AdminTransactionsPanel.tsx
 import { useEffect, useState, useContext, useCallback } from "react";
 import axios from "axios";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  Typography,
-  Switch,
-  FormControlLabel,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  List,
-  ListItem,
-  ListItemText,
-  Box,
-} from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography, Switch, FormControlLabel, Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemText, Box } from "@mui/material";
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
 import type { TransactionType, ParticipantType } from "../../../types/commerce.types";
@@ -55,12 +35,15 @@ const AdminTransactionsPanel = () => {
     fetchTransactions();
   }, [fetchTransactions, url]);
 
-  const markProcessed = async (transactionId: string) => {
+  const markProcessed = async (transactionId: string, transaction: TransactionType) => {
     try {
       const token = localStorage.getItem("token");
+
+      const { emailSubject, emailTextBody } = mailCreator(transaction);
+
       const res = await axios.put<{ status: boolean; data: TransactionType }>(
         `${url}/api/transaction/toggle/${transactionId}`,
-        {},
+        { emailSubject, emailTextBody },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Transaction toggled:", res.data.data);
@@ -68,6 +51,44 @@ const AdminTransactionsPanel = () => {
     } catch (err) {
       console.error("Error toggling transaction:", err);
     }
+  };
+
+  const mailCreator = (transaction: TransactionType) => {
+    const itemsList = transaction.items
+      .map(
+        (i) => `- ${i.commodity.name} × ${i.quantity} (${i.priceAtPurchase}€)`
+      )
+      .join("\n");
+
+    const shipping = transaction.shipping
+      ? `
+  Shipping Info:
+  ${transaction.shipping.fullName}
+  ${transaction.shipping.addressLine1}
+  ${transaction.shipping.addressLine2 || ""}
+  ${transaction.shipping.postalCode}, ${transaction.shipping.city}
+  ${transaction.shipping.country}
+  Phone: ${transaction.shipping.phone}
+  Notes: ${transaction.shipping.notes || "-"}
+  `
+      : "No shipping info provided.";
+
+    const emailSubject = "Your order is being processed";
+    const emailTextBody = `
+  Your transaction is being processed. You will be notified shortly.
+
+  Order Details:
+  ${itemsList}
+
+  ${shipping}
+
+  Best regards,
+  The Team
+  `;
+
+    console.log('emailSubject, emailTextBody', emailSubject, emailTextBody);
+    
+    return { emailSubject, emailTextBody };
   };
 
   const handleOpen = (t: TransactionType) => {
@@ -152,7 +173,7 @@ const AdminTransactionsPanel = () => {
                           size="small"
                           onClick={(e) => {
                             e.stopPropagation(); // prevent row click
-                            markProcessed(t._id!.toString());
+                            markProcessed(t._id!.toString(), t);
                           }}
                         >
                           {t.processed

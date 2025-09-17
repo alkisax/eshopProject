@@ -33,6 +33,7 @@ import AdminAddNewCommodity from "./components/store_components/adminPannelCommo
 import Announcements from "./blog/blogPages/Announcements";
 import News from "./blog/blogPages/News";
 import BlogPost from "./blog/blogPages/BlogPost";
+import Contact from "./pages/minorPages/Contact";
 
 function App() {
   const { user } = useContext(UserAuthContext);
@@ -80,6 +81,8 @@ function App() {
             <Route path="/admin-panel/commodity/new" element={<AdminAddNewCommodity />} />  
           </Route>
         </Route>
+
+        <Route path="/contact" element={<Contact />} />
         
       </Route>
     </Routes>

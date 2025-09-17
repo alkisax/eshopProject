@@ -116,7 +116,7 @@ const Home = () => {
           </Typography>
           <Typography
             variant="body1"
-            paragraph
+            component="p"
             sx={{ maxWidth: 800, mx: "auto", lineHeight: 1.8 }}
           >
             Χειροποίητα κοσμήματα από ασήμι, ορείχαλκο και άλλα υλικά, σχεδιασμένα με
@@ -125,7 +125,7 @@ const Home = () => {
           </Typography>
           <Typography
             variant="body1"
-            paragraph
+            component="p"
             sx={{ maxWidth: 800, mx: "auto", lineHeight: 1.8 }}
           >
             Μείνετε συντονισμένοι με τις <strong>Ανακοινώσεις</strong> μας για νέες
