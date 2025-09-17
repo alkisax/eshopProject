@@ -26,23 +26,34 @@ const LastAnnouncement = () => {
 
   useEffect(() => {
     const fetchAnnouncement = async () => {
-        try {
-        const res = await axios.get(`${url}/api/posts`); // όλα
-        console.log('res', res)
+      try {
+        const res = await axios.get<{ data: Announcement[] }>(`${url}/api/posts`);
         const all = res.data.data;
-        const announcements = all.filter((p: any) => p.subPage?.name === "announcements");
-        const latest = announcements.sort(
-            (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )[0];
-        setAnnouncement(latest);
-        } catch (err) {
+
+        const announcements = all.filter(
+          (p) =>
+            typeof p.subPage === "object" &&
+            p.subPage !== null &&
+            "name" in p.subPage &&
+            p.subPage.name === "announcements"
+        );
+
+        const latest = announcements
+          .slice() // avoid mutating
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )[0];
+
+        setAnnouncement(latest || null);
+      } catch (err) {
         console.error("Error fetching announcements", err);
-        } finally {
+      } finally {
         setLoading(false);
-        }
+      }
     };
     fetchAnnouncement();
-  }, []);
+  }, [url]);
 
   if (loading) {
     return (
