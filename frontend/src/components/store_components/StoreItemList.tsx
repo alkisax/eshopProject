@@ -2,15 +2,17 @@ import { useContext, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import {
   Button,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   Pagination,
-  Typography,
-  ListItemAvatar,
-  Avatar,
+  Typography,  
+  Card,
+  CardActions,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  // Grid
 } from "@mui/material";
+// import { Grid } from "@mui/material/";
+import Grid from "@mui/material/Grid";
 import { CartActionsContext } from "../../context/CartActionsContext";
 import type { CommodityType } from "../../types/commerce.types";
 import { UserAuthContext } from "../../context/UserAuthContext";
@@ -58,16 +60,41 @@ const StoreItemList = () => {
           No commodities found. Try changing search or filters.
         </Typography>
       ) : (
-        <List>
-          {commodities.map((commodity: CommodityType) => (
-            // Η ιδιότητα secondaryAction είναι prop του MUI ListItem. 
-            // Σου επιτρέπει να ορίσεις ένα δεύτερο στοιχείο/κουμπί/εικονίδιο που θα εμφανιστεί στα δεξιά του item. 
-            // Είναι ο τυπικός τρόπος σε MUI lists να βάζεις actions (π.χ. delete, add to cart) χωρίς να χαλάει το layout.
-            <ListItem
-              key={commodity._id.toString()}
-              sx={{ textDecoration: "none", color: "inherit" }}
-              disablePadding
-              secondaryAction={
+      <Grid container spacing={3}>
+        {commodities.map((commodity) => (
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={commodity._id.toString()}>
+            <Card
+              sx={{
+                height: "40vh", // ~2–2.5 items per screen
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                borderRadius: 3,
+                boxShadow: 3,
+              }}
+            >
+              <CardActionArea component={Link} to={`/commodity/${commodity._id}`}>
+                <CardMedia
+                  component="img"
+                  height="160"
+                  image={
+                    commodity.images && commodity.images.length > 0
+                      ? commodity.images[0]
+                      : "/placeholder.jpg"
+                  }
+                  alt={commodity.name}
+                />
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {commodity.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {commodity.price} {commodity.currency}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+
+              <CardActions sx={{ justifyContent: "flex-end", p: 2 }}>
                 <Button
                   variant="contained"
                   size="small"
@@ -80,31 +107,13 @@ const StoreItemList = () => {
                 >
                   + Add One
                 </Button>
-              }
-            >
-              <ListItemButton component={Link} to={`/commodity/${commodity._id}`}>
-                {/* 👇 small preview thumbnail if available */}
-                <ListItemAvatar>
-                  <Avatar
-                    variant="square"
-                    src={
-                      commodity.images && commodity.images.length > 0
-                        ? commodity.images[0]
-                        : "/placeholder.jpg"
-                    }
-                    sx={{ width: 56, height: 56, mr: 2 }}
-                  />
-                </ListItemAvatar>
-
-                <ListItemText
-                  primary={commodity.name}
-                  secondary={`${commodity.price} ${commodity.currency}`}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
       )}
+
 
       {!isLoading && pageCount > 1 && (
         <Pagination
