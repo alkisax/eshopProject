@@ -20,7 +20,7 @@ mongoose.connect(process.env.MONGODB_URI)
     // εδώ είναι το βασικό listen PORT μου
     app.listen(PORT, () => {
       console.log(`Server running on port http://localhost:${PORT}`);
-      console.log(`Visit swaggeer at http://localhost:${PORT}/api-docs`);
+      console.log(`Visit swagger at http://localhost:${PORT}/api-docs`);
     });
   })
   .catch((error) => {

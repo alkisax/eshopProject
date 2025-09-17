@@ -21,6 +21,7 @@ import subPageRoutes from './blog/routes/subPage.routes';
 import { stripeController } from './stripe/controllers/stripe.controller';
 import categoryRoutes from './stripe/routes/category.routes';
 import modarationRoutes from './aiModeration/moderation.routes';
+import rateLimit from 'express-rate-limit';
 
 const app = express();
 
@@ -40,6 +41,16 @@ app.use(express.json());
 //   console.log(`Incoming request: ${req.method} ${req.path}`);
 //   next();
 // });
+
+// global limiter η βιβλιοθήκε αυτή βάζει όριο στο πόσα req θα δεχτεί απο κάθε ip με αποτέλεσμα να εμποδίζει DDOS επιθέσεις
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 200, // 200 requests / 15 min per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(globalLimiter);
 
 app.get('/api/ping', (_req: Request, res: Response) => {
   console.log('someone pinged here');

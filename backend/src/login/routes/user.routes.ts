@@ -2,12 +2,14 @@ import express from 'express';
 const router = express.Router();
 import { userController } from '../controllers/user.controller';
 import { middleware } from '../middleware/verification.middleware';
+import { limiter } from '../../utils/limiter';
 
 // create
 //signup
-router.post('/signup/user', userController.createUser);
+router.post('/signup/user', limiter(15,5), userController.createUser);
+
 //create admin
-router.post('/signup/admin', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.createAdmin);
+router.post('/signup/admin', middleware.verifyToken, middleware.checkRole('ADMIN'), limiter(15,5), userController.createAdmin);
 
 //read
 router.get ('/', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.findAll);
