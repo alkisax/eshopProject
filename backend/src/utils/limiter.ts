@@ -10,7 +10,7 @@ export const limiter = (
   maxTries: number,
   message = 'Too many requests, please try again later.'
 ) => {
-  console.log('limiter loaded with NODE_ENV:', process.env.NODE_ENV);
+  // console.log('limiter loaded with NODE_ENV:', process.env.NODE_ENV);
 
   if (process.env.NODE_ENV?.toLowerCase() === 'test') {
     // no limiting in tests

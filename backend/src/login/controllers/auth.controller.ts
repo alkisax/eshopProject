@@ -14,30 +14,21 @@ import type { Request, Response } from 'express';
 import type { IUser } from '../types/user.types';
 import { AuthRequest } from '../types/user.types';
 import { handleControllerError } from '../services/errorHnadler';
+import { loginSchema } from '../validation/auth.schema';
 
 export const login = async (req: Request, res: Response) => {
   try {
-
-    const username = req.body.username;
-    const password = req.body.password;
-
-    if (!username) {
-      console.log('Login attempt missing username');
-      return res.status(400).json({ status: false, data: 'Username is required'
-      });
-    }
-    
-    if (!password) {
-      console.log('Login attempt missing password');
-      return res.status(400).json({ status: false, data: 'Password is required'
-      });
-    }
+    // const username = req.body.username;
+    // const password = req.body.password;
+    const parsed = loginSchema.parse(req.body);
+    const username = parsed.username;
+    const password = parsed.password;
 
     // Step 1: Find the user by username
-    const user = await userDAO.toServerbyUsername(req.body.username);
+    const user = await userDAO.toServerbyUsername(username);
 
     if(!user){
-      console.log(`Failed login attempt with username: ${req.body.username}`);
+      console.log(`Failed login attempt with username: ${username}`);
       return res.status(401).json({ status: false, data: 'Invalid username or password' });
     }
 
@@ -45,7 +36,7 @@ export const login = async (req: Request, res: Response) => {
     const isMatch = await authService.verifyPassword (password, user.hashedPassword);
 
     if(!isMatch){
-      console.log(`Failed login attempt with username: ${req.body.username}`);
+      console.log(`Failed login attempt with username: ${username}`);
       return res.status(401).json({ status: false, message: 'Invalid username or password' });
     }
 

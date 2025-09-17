@@ -1,33 +1,22 @@
 /* eslint-disable no-console */
 import bcrypt from 'bcrypt';
 import User from '../models/users.models';
-import { z } from 'zod';
 import { handleControllerError } from '../services/errorHnadler';
 import { userDAO } from '../dao/user.dao';
 
 import type { Request, Response } from 'express';
-import type { CreateUser, UpdateUser, AuthRequest } from '../types/user.types';
+import type { UpdateUser, AuthRequest } from '../types/user.types';
 
-const createZodUserSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
-  password: z.string()
-    .min(6, 'Password must be at least 6 characters')
-    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
-    .regex(/[!@#$%^&*(),.?":{}|<>]/, { message: 'Password must contain at least one special character' }),
-  name: z.string().optional(),
-  email: z.email({ message: 'Invalid email address' }).optional(),
-  roles: z.array(z.string()).optional(),
-});
-
-// Make all fields optional for update
-export const updateZodUserSchema = createZodUserSchema.partial();
+import { createZodUserSchema, updateZodUserSchema, createAdminSchema } from '../validation/auth.schema';
 
 // δεν χρειάζετε return type γιατι το κάνει το dao
 // create
 // signup
 export const createUser = async (req: Request, res: Response) => {
   try {
+    // Omit γιατί εδώ έχουμε δημιουργία χρήστη οπότε πετάμε οτι και να μας έστειλε ως ρολο το φροντ και επιβάλουμε hardcoded user (λιγο παρακάτω)
     const data = createZodUserSchema.omit({ roles: true }).parse(req.body);
+
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const existingUser = await User.findOne({ username: data.username });
     if (existingUser) {
@@ -60,7 +49,7 @@ export const createUser = async (req: Request, res: Response) => {
 export const createAdmin = async (req: Request, res: Response) => {
 
   try {
-    const data = createZodUserSchema.parse(req.body) as CreateUser; // Εδώ γίνεται το validation
+    const data = createAdminSchema.parse(req.body); // Εδώ γίνεται το validation
     
     if (!data.username || !data.password){
       return res.status(400).json({ status: false, error: 'Missing required fields' });
@@ -87,12 +76,11 @@ export const createAdmin = async (req: Request, res: Response) => {
       }
     }
 
-
     const newUser = await userDAO.create({
       username,
       name: name ?? '',
       email: email ?? '',
-      roles: roles ?? ['user'],
+      roles: roles ?? ['ADMIN'],
       hashedPassword
     });
 

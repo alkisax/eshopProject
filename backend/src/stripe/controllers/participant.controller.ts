@@ -4,17 +4,19 @@ import { handleControllerError } from '../../utils/errorHnadler';
 import type { Request, Response } from 'express';
 // αντι να φτιάξουμε νέο interface το κάναμε ιμπορτ το ιδιο που είχε και το middleware
 import type { AuthRequest } from '../../login/types/user.types';
+import { createParticipantSchema } from '../validation/commerce.schema';
 
 export const create = async (req: AuthRequest , res: Response) => {
 
+  const parsed = createParticipantSchema.parse(req.body);
+
   // if user comes from middleware use this else use whats comming from front
-  const userId = req.user?.id || req.body.user;
-  const data = req.body;
+  const userId = req.user?.id || parsed.user;
+  const data = parsed;
 
   const name = data.name;
   const surname = data.surname;
   const email = data.email;
-  const transactions = data.transactions;
 
   try {
     const newParticipant = await participantDao.createParticipant({
@@ -22,7 +24,6 @@ export const create = async (req: AuthRequest , res: Response) => {
       surname,
       email,
       user: userId,
-      transactions
     });
 
     console.log(`Created new participant: ${email}`);

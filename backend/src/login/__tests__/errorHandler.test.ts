@@ -26,7 +26,8 @@ describe('handleControllerError', () => {
     expect(statusMock).toHaveBeenCalledWith(400);
     expect(jsonMock).toHaveBeenCalledWith({
       status: false,
-      errors: zodError.issues,
+      message: 'Validation failed',
+      details: zodError.issues,
     });
   });
 

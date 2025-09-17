@@ -86,14 +86,24 @@ describe('Auth controller tests', () => {
       const res = await request(app).post('/api/auth').send({ password: 'Passw0rd!' });
       expect(res.status).toBe(400);
       expect(res.body.status).toBe(false);
-      expect(res.body.data).toMatch(/username is required/i);
+      expect(res.body.message).toMatch(/validation failed/i);
+      expect(res.body.details).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ path: ['username'] }),
+        ])
+      );
     });
 
     it('should fail if password is missing', async () => {
       const res = await request(app).post('/api/auth').send({ username: 'admin1' });
       expect(res.status).toBe(400);
       expect(res.body.status).toBe(false);
-      expect(res.body.data).toMatch(/password is required/i);
+      expect(res.body.message).toMatch(/validation failed/i);
+      expect(res.body.details).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ path: ['password'] }),
+        ])
+      );
     });
 
     it('should fail if user not found', async () => {
@@ -156,7 +166,12 @@ describe('POST /api/auth/appwrite/sync', () => {
     const res = await request(app).post('/api/auth/appwrite/sync').send({ name: 'New User' });
     expect(res.status).toBe(400);
     expect(res.body.status).toBe(false);
-    expect(res.body.data).toMatch(/error fetching user from appwrite/i);
+    expect(res.body.message).toMatch(/validation failed/i);
+    expect(res.body.details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: ['email'] }),
+      ])
+    );
   });
 
   it('should create a new user and return token', async () => {
