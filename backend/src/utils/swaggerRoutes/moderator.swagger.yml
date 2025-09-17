@@ -1,0 +1,62 @@
+paths:
+  /api/moderationAi:
+    post:
+      summary: Run AI moderation on a user comment
+      description: |
+        Sends a user comment to the AI moderation service.  
+        Returns a boolean (`true` or `false`) depending on whether the comment is safe.
+      tags:
+        - Moderation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - commentToCheck
+              properties:
+                commentToCheck:
+                  type: string
+                  example: "This necklace is beautiful, I love the quality!"
+      responses:
+        "200":
+          description: Moderation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: boolean
+                    description: Indicates if the comment is safe.
+                    example: true
+        "400":
+          description: Bad Request – Missing comment text
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Comment not found"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Internal server error"

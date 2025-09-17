@@ -1,17 +1,7 @@
-// src/pages/CheckoutSuccess.tsx
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import {
-  Typography,
-  CircularProgress,
-  Box,
-  Paper,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Stack,
-} from "@mui/material";
+import { Typography, CircularProgress, Box, Paper, Divider, List, ListItem, ListItemText, Stack, Alert, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { VariablesContext } from "../../context/VariablesContext";
 import type { TransactionType } from "../../types/commerce.types";
 
@@ -25,7 +15,7 @@ const CheckoutSuccess = () => {
       if (!globalParticipant?._id) {
         const storedId = localStorage.getItem("guestParticipantId");
         if (storedId) {
-          axios.get(`${url}/api/participant/${storedId}`).then(res => {
+          axios.get(`${url}/api/participant/${storedId}`).then((res) => {
             setGlobalParticipant(res.data.data);
           });
         }
@@ -39,7 +29,6 @@ const CheckoutSuccess = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        // sort transactions by createdAt DESC
         const sorted = res.data.data.sort(
           (a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
         );
@@ -67,71 +56,108 @@ const CheckoutSuccess = () => {
     return <Typography color="error">❌ No participant info found. Please log in again.</Typography>;
   }
 
-  // after sorting, latest is at index 0
   const lastTransaction = transactions[0];
 
   return (
-    <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
-      <Paper sx={{ p: 4, maxWidth: 600, width: "100%" }} elevation={3}>
-        <Typography variant="h4" gutterBottom>
-          ✅ Thank you, {globalParticipant.name || "guest"}!
+    <Box sx={{ mt: 6, display: "flex", justifyContent: "center" }}>
+      <Paper
+        sx={{
+          p: 5,
+          maxWidth: 650,
+          width: "100%",
+          borderRadius: 4,
+          background: "linear-gradient(135deg, #f9f9ff, #ffffff)",
+          boxShadow: "0px 6px 20px rgba(0,0,0,0.1)",
+        }}
+        elevation={0}
+      >
+        <Typography
+          variant="h3"
+          gutterBottom
+          align="center"
+          sx={{ fontWeight: "bold", color: "success.main" }}
+        >
+          ✅ Ευχαριστούμε, {globalParticipant.name || "guest"}!
         </Typography>
-        <Typography variant="body1" gutterBottom>
-          Your payment was successful.
+        <Typography variant="h6" align="center" gutterBottom>
+          Η πληρωμή σας ολοκληρώθηκε με επιτυχία 🎉
         </Typography>
 
         {lastTransaction && (
           <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="h6">Last Purchase</Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            <Divider sx={{ my: 3 }} />
+            <Typography variant="h5" gutterBottom>
+              🛍️ Τελευταία αγορά
+            </Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
               {new Date(lastTransaction.createdAt!).toLocaleString()}
             </Typography>
             <List dense>
               {lastTransaction.items.map((item, idx) => (
-                <ListItem key={idx}>
+                <ListItem key={idx} sx={{ borderBottom: "1px dashed #ddd" }}>
+                  {item.commodity.images && item.commodity.images.length > 0 && (
+                    <Box
+                      component="img"
+                      src={item.commodity.images[0]}
+                      alt={item.commodity.name}
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 2,
+                        mr: 2,
+                        objectFit: "cover",
+                      }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/placeholder.jpg";
+                      }}
+                    />
+                  )}
                   <ListItemText
                     primary={`${item.commodity.name} × ${item.quantity}`}
-                    secondary={`${item.priceAtPurchase}€ each`}
+                    secondary={`${item.priceAtPurchase}€ / τεμ.`}
                   />
                 </ListItem>
+
               ))}
             </List>
-            <Typography variant="subtitle1" sx={{ mt: 1 }}>
-              <strong>Total:</strong> {lastTransaction.amount}€
+            <Typography variant="h6" sx={{ mt: 2, textAlign: "right" }}>
+              Σύνολο: {lastTransaction.amount}€
             </Typography>
-            <Typography variant="body2" sx={{ mt: 1, color: "success.main" }}>
-              ✅ You will receive an email verification soon.
-            </Typography>
+            <Alert severity="success" sx={{ mt: 3, fontWeight: "bold" }}>
+              📧 Θα λάβετε σύντομα επιβεβαίωση με email
+            </Alert>
           </>
         )}
 
         {transactions.length > 1 && (
           <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="h6">Previous Purchases</Typography>
-            <List dense>
-              {/* slice from index 1 onward */}
-              {transactions
-                .slice(1)
-                .map((t) => (
-                  <ListItem key={t._id?.toString()}>
-                    <Stack>
-                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                        {new Date(t.createdAt!).toLocaleString()}
-                      </Typography>
-                      {t.items.map((item, idx) => (
-                        <Typography key={idx} variant="body2">
-                          {item.commodity.name} × {item.quantity} — {item.priceAtPurchase}€
+            <Divider sx={{ my: 3 }} />
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h6">📜 Προηγούμενες Αγορές</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <List dense>
+                  {transactions.slice(1).map((t) => (
+                    <ListItem key={t._id?.toString()}>
+                      <Stack>
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                          {new Date(t.createdAt!).toLocaleString()}
                         </Typography>
-                      ))}
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        <strong>Total:</strong> {t.amount}€
-                      </Typography>
-                    </Stack>
-                  </ListItem>
-                ))}
-            </List>
+                        {t.items.map((item, idx) => (
+                          <Typography key={idx} variant="body2">
+                            {item.commodity.name} × {item.quantity} — {item.priceAtPurchase}€
+                          </Typography>
+                        ))}
+                        <Typography variant="body2" sx={{ mt: 1 }}>
+                          <strong>Σύνολο:</strong> {t.amount}€
+                        </Typography>
+                      </Stack>
+                    </ListItem>
+                  ))}
+                </List>
+              </AccordionDetails>
+            </Accordion>
           </>
         )}
       </Paper>
@@ -140,108 +166,3 @@ const CheckoutSuccess = () => {
 };
 
 export default CheckoutSuccess;
-
-
-// // src/pages/CheckoutSuccess.tsx
-// import { useContext, useEffect, useState } from "react";
-// import axios from "axios";
-// import { VariablesContext } from "../../context/VariablesContext";
-// import type { TransactionType } from "../../types/commerce.types";
-
-// const CheckoutSuccess = () => {
-//   const { url, globalParticipant, setGlobalParticipant } = useContext(VariablesContext);
-//   const [transactions, setTransactions] = useState<TransactionType[]>([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchTransactions = async () => {
-//       if (!globalParticipant?._id) 
-//         {
-//         const storedId = localStorage.getItem("guestParticipantId");
-//         if (storedId) {
-//           axios.get(`${url}/api/participant/${storedId}`).then(res => {
-//             setGlobalParticipant(res.data.data);
-//           });
-//         }
-//         return;
-//       }
-
-//       try {
-//         const token = localStorage.getItem("token");  
-//         const res = await axios.get<{ status: boolean; data: TransactionType[] }>(
-//           `${url}/api/transaction/participant/${globalParticipant._id}`,
-//           { headers: { Authorization: `Bearer ${token}` } }
-//         );
-//         setTransactions(res.data.data);
-//       } catch (err) {
-//         console.error("Error fetching transactions", err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchTransactions();
-//   }, [globalParticipant?._id, setGlobalParticipant, url]);
-
-//   if (loading) return <p>Loading your purchase history...</p>;
-
-//   if (!globalParticipant?._id) {
-//     return <p>❌ No participant info found. Please log in again.</p>;
-//   }
-
-//   const lastTransaction = transactions[transactions.length - 1];
-
-//   return (
-//     <>
-//       <p>Your payment was successful.</p>  
-//       <div style={{ padding: "1rem" }}>
-//         <h2>✅ Thank you, {globalParticipant.name || "customer - guest"}!</h2>
-//         <p>Your payment was successful.</p>
-
-//         {lastTransaction ? (
-//           <>
-//             <h3>Last Purchase:</h3>
-//               <p>
-//                 {new Date(lastTransaction.createdAt!).toLocaleString()}
-//               </p>
-//             <ul>
-
-//             </ul>
-//             <p>
-//               <strong>Total:</strong> {lastTransaction.amount}€
-//             </p>
-//             <p>✅ You will receive an email verification soon.</p>
-//           </>
-//         ) : (
-//           <p>You will receive an email verification soon.</p>
-//         )}
-        
-//         {transactions.length > 1 && (
-//           <>
-//             <h3>Previous Purchases</h3>
-//             <ul>
-//               {transactions
-//                 .slice(0, -1) // everything except last one
-//                 .map((t, i) => (
-//                   <li key={t._id?.toString() || i} style={{ marginBottom: "1rem" }}>
-//                     <p><strong>{new Date(t.createdAt!).toLocaleString()}</strong></p>
-//                     <ul>
-//                       {t.items.map((item, idx) => (
-//                         <li key={idx}>
-//                           {item.commodity.name} × {item.quantity} — {item.priceAtPurchase}€
-//                         </li>
-//                       ))}
-//                     </ul>
-//                     <p><strong>Total:</strong> {t.amount}€</p>
-//                   </li>
-//                 ))}
-//             </ul>
-//           </>
-//         )}
-//       </div>   
-//     </>
-
-//   );
-// };
-
-// export default CheckoutSuccess;

@@ -5,6 +5,7 @@ import { UserProvider } from "./context/UserAuthContext.tsx";
 import { VariablesProvider } from './context/VariablesContext.tsx';
 import App from './App.tsx'
 import { CartActionsProvider } from './context/CartActionsContext.tsx';
+import { AiModerationProvider } from './context/AiModerationContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
@@ -13,7 +14,9 @@ createRoot(document.getElementById('root')!).render(
       <UserProvider>
         <VariablesProvider>
           <CartActionsProvider>
-              <App />    
+            <AiModerationProvider>
+                <App />
+            </AiModerationProvider>
           </CartActionsProvider>
         </VariablesProvider>
       </UserProvider>
