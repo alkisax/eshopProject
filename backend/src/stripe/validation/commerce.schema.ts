@@ -114,7 +114,28 @@ export const updateCommentSchema = z.object({
   isApproved: z.boolean(),
 });
 
+// in stripe controller
+export const checkoutSessionSchema = z.object({
+  participantId: objectId,
+  participantInfo: z.object({
+    name: z.string().min(1).max(100).optional(),
+    email: z.email(),
+  }).strict(),
+  shippingInfo: z.object({
+    fullName: z.string().min(1).max(100),
+    addressLine1: z.string().min(1).max(200),
+    addressLine2: z.string().optional(),
+    city: z.string().min(1).max(100),
+    postalCode: z.string().min(1).max(20),
+    country: z.string().min(2).max(50),
+    phone: z.string().optional(),
+    notes: z.string().max(500).optional(),
+  }).strict(),
+});
+
 // Derived type for TS
+// Stripe checkout
+export type CheckoutSessionInput = z.infer<typeof checkoutSessionSchema>;
 export type CreateCommodityInput = z.infer<typeof createCommoditySchema>;
 export type UpdateCommodityInput = z.infer<typeof updateCommoditySchema>;
 export type CreateCommentInput   = z.infer<typeof createCommentSchema>;

@@ -93,7 +93,7 @@ describe('POST /api/users/signup/user', () => {
 
     expect(res.status).toBe(409);
     expect(res.body.status).toBe(false);
-    expect(res.body.error).toMatch(/username/i);
+    expect(res.body.message).toMatch(/username/i);
   });
 
   it('should fail if email already exists', async () => {
@@ -113,7 +113,7 @@ describe('POST /api/users/signup/user', () => {
 
     expect(res.status).toBe(409);
     expect(res.body.status).toBe(false);
-    expect(res.body.error).toMatch(/email/i);
+    expect(res.body.message).toMatch(/email/i);
   });
 
   it('should fail if password does not meet requirements', async () => {
@@ -141,7 +141,7 @@ describe('POST /api/users/signup/user', () => {
 
     expect(res.status).toBe(500);
     expect(res.body.status).toBe(false);
-    expect(res.body.error).toMatch(/Simulated DAO failure/i);
+    expect(res.body.message).toMatch(/Simulated DAO failure/i);
   });
 
   it('should return 500 if bcrypt.hash throws unexpected error', async () => {
@@ -158,7 +158,7 @@ describe('POST /api/users/signup/user', () => {
 
     expect(res.status).toBe(500);
     expect(res.body.status).toBe(false);
-    expect(res.body.error).toMatch(/Hashing failed/i);
+    expect(res.body.message).toMatch(/Hashing failed/i);
   });
 
   it('should return 400 if request body is totally malformed', async () => {
@@ -218,7 +218,7 @@ describe('POST /api/users/signup/admin', () => {
 
     expect(res.status).toBe(409);
     expect(res.body.status).toBe(false);
-    expect(res.body.error).toMatch(/username/i);
+    expect(res.body.message).toMatch(/username/i);
   });
 
   it('should fail if email already exists', async () => {
@@ -241,7 +241,7 @@ describe('POST /api/users/signup/admin', () => {
 
     expect(res.status).toBe(409);
     expect(res.body.status).toBe(false);
-    expect(res.body.error).toMatch(/email/i);
+    expect(res.body.message).toMatch(/email/i);
   });
 
   it('should fail if password is too weak', async () => {

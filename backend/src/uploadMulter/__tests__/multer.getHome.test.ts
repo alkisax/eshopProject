@@ -72,7 +72,7 @@ describe('handleControllerError utility', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       status: false,
-      error: 'Unknown error',
+      message: 'Unknown error', // ✅ unified key
     });
   });
 
@@ -87,8 +87,7 @@ describe('handleControllerError utility', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       status: false,
-      error: 'Unknown error',
+      message: 'Unknown error', // ✅ unified key
     });
   });
 });
-

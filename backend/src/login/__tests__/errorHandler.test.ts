@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
- 
+
 import { Response } from 'express';
 import { handleControllerError } from '../../utils/error/errorHandler';
 import { ZodError, ZodIssue } from 'zod';
@@ -36,19 +36,19 @@ describe('handleControllerError', () => {
     error.status = 404;
     handleControllerError(res as Response, error);
     expect(statusMock).toHaveBeenCalledWith(404);
-    expect(jsonMock).toHaveBeenCalledWith({ status: false, error: 'Not found' });
+    expect(jsonMock).toHaveBeenCalledWith({ status: false, message: 'Not found' });
   });
 
   it('handles Error without status', () => {
     const error = new Error('Server failed');
     handleControllerError(res as Response, error);
     expect(statusMock).toHaveBeenCalledWith(500);
-    expect(jsonMock).toHaveBeenCalledWith({ status: false, error: 'Server failed' });
+    expect(jsonMock).toHaveBeenCalledWith({ status: false, message: 'Server failed' });
   });
 
   it('handles unknown error', () => {
     handleControllerError(res as Response, 'oops');
     expect(statusMock).toHaveBeenCalledWith(500);
-    expect(jsonMock).toHaveBeenCalledWith({ status: false, error: 'Unknown error' });
+    expect(jsonMock).toHaveBeenCalledWith({ status: false, message: 'Unknown error' });
   });
 });

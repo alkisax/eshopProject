@@ -69,6 +69,13 @@ describe('Stripe Controller', () => {
         .send({
           participantId: mockCart.participant.toString(),
           participantInfo: { email: 'john@example.com' },
+          shippingInfo: {
+            fullName: 'John Doe',
+            addressLine1: '123 Main St',
+            city: 'Athens',
+            postalCode: '12345',
+            country: 'GR'
+          }
         });
 
       expect(res.status).toBe(200);
@@ -81,111 +88,20 @@ describe('Stripe Controller', () => {
 
       const res = await request(app)
         .post('/api/stripe/checkout/cart')
-        .send({ participantId: mockCart.participant.toString() });
-
+        .send({
+          participantId: mockCart.participant.toString(),
+          participantInfo: { email: 'john@example.com' },
+          shippingInfo: {
+            fullName: 'John Doe',
+            addressLine1: '123 Main St',
+            city: 'Athens',
+            postalCode: '12345',
+            country: 'GR',
+          },
+        });
       expect(res.status).toBe(500);
     });
   });
-
-  // describe('GET /api/stripe/success', () => {
-  //   beforeEach(() => {
-  //     // Spy on clearCart to avoid hitting real DB
-  //     jest.spyOn(cartDAO, 'clearCart').mockResolvedValue(null as any);
-  //   });
-
-  //   it('redirects if no session_id', async () => {
-  //     const res = await request(app).get('/api/stripe/success');
-  //     expect(res.status).toBe(302);
-  //     expect(res.headers.location).toMatch(/\/cancel\?error=missingSessionId/);
-  //   });
-
-  //   it('returns 409 if transaction already exists', async () => {
-  //     mockFindBySessionId.mockResolvedValue({ _id: 't1' });
-
-  //     const res = await request(app).get('/api/stripe/success?session_id=abc');
-  //     expect(res.status).toBe(409);
-  //   });
-
-  //   it('redirects if no email in session', async () => {
-  //     mockFindBySessionId.mockResolvedValue(null);
-  //     mockRetrieveSession.mockResolvedValue({ metadata: {}, amount_total: 100, payment_status: 'paid' });
-
-  //     const res = await request(app).get('/api/stripe/success?session_id=abc');
-  //     expect(res.status).toBe(302);
-  //     expect(res.headers.location).toMatch(/\/cancel\?error=noEmailMetadata/);
-  //   });
-
-  //   it('returns 400 if amount is 0', async () => {
-  //     mockFindBySessionId.mockResolvedValue(null);
-  //     mockRetrieveSession.mockResolvedValue({
-  //       metadata: { email: 'a@b.c' },
-  //       amount_total: 0,
-  //       payment_status: 'paid',
-  //     });
-
-  //     const res = await request(app).get('/api/stripe/success?session_id=abc');
-  //     expect(res.status).toBe(400);
-  //   });
-
-  //   it('creates new participant if not found', async () => {
-  //     mockFindBySessionId.mockResolvedValue(null);
-  //     mockRetrieveSession.mockResolvedValue({
-  //       metadata: { email: 'a@b.c' },
-  //       amount_total: 200,
-  //       payment_status: 'paid',
-  //     });
-  //     mockFindParticipantByEmail.mockResolvedValue(null);
-  //     mockCreateParticipant.mockResolvedValue({ _id: new Types.ObjectId(), email: 'a@b.c' });
-  //     mockCreateTransaction.mockResolvedValue({
-  //       _id: 't1',
-  //       amount: 200,
-  //       items: [
-  //         { commodity: new Types.ObjectId(), quantity: 1, priceAtPurchase: 200 }
-  //       ]
-  //     });
-
-  //     const res = await request(app).get('/api/stripe/success?session_id=abc');
-  //     expect(res.status).toBe(302);
-  //     expect(res.headers.location).toMatch(/\/checkout-success\?session_id=abc/);
-  //     expect(mockCreateParticipant).toHaveBeenCalled();
-  //     expect(mockCreateTransaction).toHaveBeenCalled();
-  //     expect(cartDAO.clearCart).toHaveBeenCalled();
-  //   });
-
-  //   it('uses existing participant if found', async () => {
-  //     mockFindBySessionId.mockResolvedValue(null);
-  //     mockRetrieveSession.mockResolvedValue({
-  //       metadata: { email: 'a@b.c' },
-  //       amount_total: 200,
-  //       payment_status: 'paid',
-  //     });
-  //     mockFindParticipantByEmail.mockResolvedValue({ _id: new Types.ObjectId(), email: 'a@b.c' });
-  //     mockCreateTransaction.mockResolvedValue({
-  //       _id: 't1',
-  //       amount: 200,
-  //       items: [
-  //         { commodity: new Types.ObjectId(), quantity: 1, priceAtPurchase: 200 }
-  //       ]
-  //     });
-
-  //     const res = await request(app).get('/api/stripe/success?session_id=abc');
-  //     expect(res.status).toBe(302);
-  //     expect(res.headers.location).toMatch(/\/checkout-success\?session_id=abc/);
-  //     expect(mockFindParticipantByEmail).toHaveBeenCalledWith('a@b.c');
-  //     expect(mockCreateTransaction).toHaveBeenCalled();
-  //     expect(cartDAO.clearCart).toHaveBeenCalled();
-  //   });
-
-  //   it('redirects if stripeService.retrieveSession throws', async () => {
-  //     mockFindBySessionId.mockResolvedValue(null);
-  //     mockRetrieveSession.mockRejectedValue(new Error('unexpected fail'));
-
-  //     const res = await request(app).get('/api/stripe/success?session_id=abc');
-
-  //     expect(res.status).toBe(302);
-  //     expect(res.headers.location).toMatch(/\/cancel\?error=server/);
-  //   });
-  // });
 
   describe('GET /api/stripe/cancel', () => {
     it('returns cancel message', async () => {

@@ -10,13 +10,15 @@ import { Types } from 'mongoose';
 import { fetchCart } from '../daos/stripe.dao';
 import { CartType } from '../types/stripe.types';
 import { cartDAO } from '../daos/cart.dao';
+import { checkoutSessionSchema } from '../validation/commerce.schema';
 
 const createCheckoutSession = async (req: Request, res: Response) => {
-  const participantId = req.body.participantId;
-  const participantInfo = req.body.participantInfo;
-  const shippinginfo = req.body.shippingInfo;
-
   try {
+    const parsed = checkoutSessionSchema.parse(req.body);
+    const participantId = parsed.participantId;
+    const participantInfo = parsed.participantInfo;
+    const shippinginfo = parsed.shippingInfo;
+
     const cart: CartType = await fetchCart(participantId);
     const session = await stripeService.createCheckoutSession(cart, participantInfo, shippinginfo);
     return res.status(200).json({ status: true, data: session });
