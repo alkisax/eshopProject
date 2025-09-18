@@ -48,7 +48,6 @@ export const createCategorySchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be URL-friendly'),
 });
 
-// Category update — same fields but all optional
 export const updateCategorySchema = z.object({
   name: z.string().min(1).max(100).optional(),
   description: z.string().max(500).optional(),
@@ -65,7 +64,61 @@ export const participantParamSchema = z.object({
   participantId: objectId,
 });
 
+// in commodity controller
+
+// Matches Editor.js data structure
+const editorJsDataSchema = z.object({
+  time: z.number(),
+  blocks: z.array(
+    z.object({
+      id: z.string().optional(),
+      type: z.string(),
+      data: z.record(z.string(), z.any())
+    })
+  ),
+  version: z.string(),
+});
+
+export const createCommoditySchema = z.object({
+  name: z.string().min(1, 'Name is required').max(200),
+  description: z.string().max(2000).optional(),
+  category: z.array(z.string()).default([]), // ✅ matches Mongoose
+  price: z.number().min(0, 'Price must be non-negative'),
+  currency: z.string().default('eur'),
+  stripePriceId: z.string().min(1, 'Stripe Price ID is required'),
+  stock: z.number().int().min(0).default(0),
+  active: z.boolean().default(true),
+  images: z.array(z.string()).optional(),
+});
+
+export const updateCommoditySchema = createCommoditySchema.partial();
+
+export const createCommentSchema = z.object({
+  user: objectId,
+  text: z.union([
+    z.string().min(1, 'Comment text is required'),
+    editorJsDataSchema
+  ]),
+  rating: z.union([
+    z.literal(0),
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5),
+  ]).optional(),
+  isApproved: z.boolean().optional().default(true),
+});
+
+export const updateCommentSchema = z.object({
+  isApproved: z.boolean(),
+});
+
 // Derived type for TS
+export type CreateCommodityInput = z.infer<typeof createCommoditySchema>;
+export type UpdateCommodityInput = z.infer<typeof updateCommoditySchema>;
+export type CreateCommentInput   = z.infer<typeof createCommentSchema>;
+export type UpdateCommentInput   = z.infer<typeof updateCommentSchema>;
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 export type CartItemChangeInput = z.infer<typeof cartItemChangeSchema>;

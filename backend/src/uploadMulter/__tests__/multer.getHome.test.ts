@@ -54,7 +54,7 @@ describe('GET /api/upload-multer', () => {
   });
 });
 
-import { handleControllerError } from '../../utils/errorHandler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 import type { Response } from 'express';
 
 describe('handleControllerError utility', () => {

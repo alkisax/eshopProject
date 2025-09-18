@@ -2,12 +2,14 @@
 import type { Request, Response } from 'express';
 import { commodityDAO } from '../daos/commodity.dao';
 import { handleControllerError } from '../../utils/error/errorHandler';
+import { createCommoditySchema, updateCommoditySchema, createCommentSchema, updateCommentSchema } from '../validation/commerce.schema';
 
 // POST create commodity
 const create = async (req: Request, res: Response) => {
-  const data = req.body;
-
   try {
+    const parsed = createCommoditySchema.parse(req.body);
+    const data = parsed;    
+
     const newCommodity = await commodityDAO.createCommodity(data);
 
     console.log(`Created new commodity: ${newCommodity.name}`);
@@ -58,13 +60,14 @@ const getAllCategories = async (_req: Request, res: Response) => {
 // PATCH update commodity
 const updateById = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const updateData = req.body;
 
   if (!id) {
     return res.status(400).json({ status: false, error: 'Commodity ID is required' });
   }
 
   try {
+    const parsed = updateCommoditySchema.parse(req.body);
+    const updateData = parsed;    
     const updatedCommodity = await commodityDAO.updateCommodityById(id, updateData);
 
     console.log(`Updated commodity ${id}`);
@@ -123,16 +126,15 @@ const getAllComments = async (_req: Request, res: Response) => {
 // ➕ Add a comment
 const addComment = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { user, text, rating, isApproved } = req.body;
 
   if (!id) {
     return res.status(400).json({ status: false, error: 'Commodity ID is required' });
   }
-  if (!user || !text) {
-    return res.status(400).json({ status: false, error: 'Comment requires user and text' });
-  }
 
   try {
+    const parsed = createCommentSchema.parse(req.body);
+    const { user, text, rating, isApproved } = parsed;
+    
     const updated = await commodityDAO.addCommentToCommodity(id, { 
       user, 
       text, 
@@ -148,13 +150,15 @@ const addComment = async (req: Request, res: Response) => {
 
 const updateComment = async (req: Request, res: Response) => {
   const { commodityId, commentId } = req.params;
-  const { isApproved } = req.body;
 
   if (!commodityId || !commentId) {
     return res.status(400).json({ status: false, error: 'Commodity ID and Comment ID are required' });
   }
 
   try {
+    const parsed = updateCommentSchema.parse(req.body);
+    const { isApproved } = parsed;
+
     const updated = await commodityDAO.updateCommentInCommodity(commodityId, commentId, { isApproved });
     return res.status(200).json({ status: true, data: updated });
   } catch (error) {
