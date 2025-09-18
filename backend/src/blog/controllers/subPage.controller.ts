@@ -1,6 +1,6 @@
 import { subPageDao } from '../daos/subPage.dao';
 import type { SubPageType } from '../types/blog.types';
-import { handleControllerError } from '../../utils/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 import type { Request, Response } from 'express';
 
 // === CREATE ===

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
  
 import { Response } from 'express';
-import { handleControllerError } from '../../error/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 import { ZodError, ZodIssue } from 'zod';
 
 describe('handleControllerError', () => {

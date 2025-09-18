@@ -8,7 +8,7 @@ import Participant from '../models/participant.models';
 import Commodity from '../models/commodity.models';
 import Cart from '../models/cart.models';
 import { transactionDAO } from '../daos/transaction.dao';
-import { NotFoundError, ValidationError, DatabaseError } from '../../error/errors.types';
+import { NotFoundError, ValidationError, DatabaseError } from '../../utils/error/errors.types';
 // import { DatabaseError } from '../types/errors.types';
 
 beforeAll(async () => {

@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import { participantDao } from '../daos/participant.dao';
-import { handleControllerError } from '../../error/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 import type { Request, Response } from 'express';
 // αντι να φτιάξουμε νέο interface το κάναμε ιμπορτ το ιδιο που είχε και το middleware
 import type { AuthRequest } from '../../login/types/user.types';
 import { createParticipantSchema } from '../validation/commerce.schema';
-import { NotFoundError } from '../../error/errors.types';
+import { NotFoundError } from '../../utils/error/errors.types';
 
 export const create = async (req: AuthRequest , res: Response) => {
   try {

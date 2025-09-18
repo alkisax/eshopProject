@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 import { stripeService } from '../services/stripe.service';
 import { transactionDAO } from '../daos/transaction.dao';
 import type { Request, Response } from 'express';
-import { handleControllerError } from '../../utils/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 import { participantDao } from '../daos/participant.dao';
 import { Types } from 'mongoose';
 import { fetchCart } from '../daos/stripe.dao';

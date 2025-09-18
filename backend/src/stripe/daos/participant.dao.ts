@@ -1,7 +1,7 @@
 import Participant from '../models/participant.models';
 import type { ParticipantType, TransactionType } from '../types/stripe.types';
 import { Types } from 'mongoose';
-import { NotFoundError, ValidationError, DatabaseError } from '../../error/errors.types';
+import { NotFoundError, ValidationError, DatabaseError } from '../../utils/error/errors.types';
 import { IUser } from '../../login/types/user.types';
 
 // create 

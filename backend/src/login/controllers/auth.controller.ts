@@ -13,7 +13,7 @@ import { userDAO } from '../dao/user.dao';
 import type { Request, Response } from 'express';
 import type { IUser } from '../types/user.types';
 import { AuthRequest } from '../types/user.types';
-import { handleControllerError } from '../../error/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 import { loginSchema } from '../validation/auth.schema';
 
 export const login = async (req: Request, res: Response) => {

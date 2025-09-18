@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { commodityDAO } from '../daos/commodity.dao';
-import { ValidationError } from '../../error/errors.types';
+import { ValidationError } from '../../utils/error/errors.types';
 
 // Add this mock at the top of your test file to ensure it doesn't interact with the actual Stripe service during tests.
 jest.mock('stripe', () => {

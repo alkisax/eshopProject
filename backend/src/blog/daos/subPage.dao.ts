@@ -1,7 +1,7 @@
 // backend/src/blog/daos/subPage.dao.ts
 import SubPage from '../models/subPage.model';
 import type { SubPageType } from '../types/blog.types';
-import { DatabaseError, NotFoundError } from '../../error/errors.types';
+import { DatabaseError, NotFoundError } from '../../utils/error/errors.types';
 import { Types } from 'mongoose';
 
 const getAllSubPages = async (): Promise<SubPageType[]> => {

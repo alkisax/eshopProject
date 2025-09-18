@@ -1,7 +1,7 @@
 import { postDAO } from '../daos/post.dao';
 import type { Request, Response } from 'express';
 import type { PostType } from '../types/blog.types';
-import { handleControllerError } from '../../utils/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 
 const createPost = async (req: Request, res: Response) => {
   try {

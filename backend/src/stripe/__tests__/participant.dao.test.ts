@@ -5,7 +5,7 @@ dotenv.config();
 import { hash } from 'bcrypt';
 import Participant from '../models/participant.models';
 import { participantDao } from '../daos/participant.dao';
-import { ValidationError, NotFoundError  } from '../../error/errors.types';
+import { ValidationError, NotFoundError  } from '../../utils/error/errors.types';
 import User from '../../login/models/users.models';
 import Transaction from '../models/transaction.models';
 

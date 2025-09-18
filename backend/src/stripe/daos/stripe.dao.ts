@@ -1,7 +1,7 @@
 import Cart from '../models/cart.models';
 import type { CartType, ParticipantType, CartItemType, CommodityType } from '../types/stripe.types';
 import { Types } from 'mongoose';
-import { ValidationError } from '../../error/errors.types';
+import { ValidationError } from '../../utils/error/errors.types';
 
 
 export const fetchCart = async (participantId: Types.ObjectId | string | ParticipantType): Promise<CartType> => {

@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { transactionDAO } from '../daos/transaction.dao';
 import axios from 'axios';
-import { handleControllerError } from '../../utils/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 // import type { TransactionType } from '../types/stripe.types';
 import { Types } from 'mongoose';
 // const sendThnxEmail = require('../controllers/email.controller') // !!!

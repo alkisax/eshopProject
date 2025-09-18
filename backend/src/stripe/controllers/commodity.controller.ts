@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { Request, Response } from 'express';
 import { commodityDAO } from '../daos/commodity.dao';
-import { handleControllerError } from '../../utils/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 
 // POST create commodity
 const create = async (req: Request, res: Response) => {

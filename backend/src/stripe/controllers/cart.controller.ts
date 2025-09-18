@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { cartDAO } from '../daos/cart.dao';
-import { handleControllerError } from '../../utils/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
+import { cartItemChangeSchema, cartItemUpdateSchema, participantParamSchema } from '../validation/commerce.schema';
 
 // GET cart
 const getCart = async (req: Request, res: Response) => {
@@ -36,10 +37,12 @@ const createCart = async (req: Request, res: Response) => {
 
 // PATCH add/remove item (increment/decrement)
 const addOrRemoveItem = async (req: Request, res: Response) => {
-  const { participantId } = req.params;
-  const { commodityId, quantity } = req.body;
-
   try {
+    const parsedParams = participantParamSchema.parse(req.params);
+    const parsedBody = cartItemChangeSchema.parse(req.body);
+    const { participantId } = parsedParams;
+    const { commodityId, quantity } = parsedBody;
+
     const cart = await cartDAO.addOrRemoveItemToCart(participantId, commodityId, quantity);
     return res.status(200).json({ status: true, data: cart });
   } catch (error) {
@@ -49,10 +52,12 @@ const addOrRemoveItem = async (req: Request, res: Response) => {
 
 // PATCH update quantity directly
 const updateQuantity = async (req: Request, res: Response) => {
-  const { participantId } = req.params;
-  const { commodityId, quantity } = req.body;
-
   try {
+    const parsedParams = participantParamSchema.parse(req.params);
+    const parsedBody = cartItemUpdateSchema.parse(req.body);
+    const { participantId } = parsedParams;
+    const { commodityId, quantity } = parsedBody;
+
     const cart = await cartDAO.updateItemQuantity(participantId, commodityId, quantity);
     return res.status(200).json({ status: true, data: cart });
   } catch (error) {
