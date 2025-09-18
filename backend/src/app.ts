@@ -22,10 +22,27 @@ import { stripeController } from './stripe/controllers/stripe.controller';
 import categoryRoutes from './stripe/routes/category.routes';
 import modarationRoutes from './aiModeration/moderation.routes';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  `${process.env.FRONTEND_URL}`,
+  `${process.env.BACKEND_URL}`,
+  `${process.env.DEPLOY_URL}`,
+];
+// app.use(cors());
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return cb(null, true);
+      }
+      return cb(null, false); // simply reject without crashing
+    },
+    // credentials: true, // set true if you use cookies for auth
+  })
+);
 
 // stripe checkout web hook is implemented here and not in usual routes/contoller type because it has to be raw and not json so its declared before app.use(express.json())
 app.post(
@@ -35,6 +52,11 @@ app.post(
 );
 
 app.use(express.json());
+
+// library for securing. With only helmet() covers: sniffing, clickjacking, HSTS
+app.use(helmet());
+// needs or problems on deploy -helmet-
+app.set('trust proxy', 1);
 
 // app.use((req: Request, _res: Response, next: NextFunction) => {
 //   console.log("Request reached Express!");

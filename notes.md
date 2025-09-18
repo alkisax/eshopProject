@@ -42,6 +42,22 @@
 - chat gpt criteria optimiser
 - τα έξοδα αποστολής να προστήθεντε
 
+# security
+
+so now we have:
+- basic winston logger 
+- cors 
+- helmet 
+- zod input validation 
+- roles 
+- helth api 
+- rate limiter for ddos and login brute 
+- lot of tests that are auto run in github actions 
+- use dao for db communication 
+- use env for all sensitive 
+- size restriction in uploads 
+- jwt and dont store not hashed, or reviealed 
+
 
 # notes
 ### Render setup
