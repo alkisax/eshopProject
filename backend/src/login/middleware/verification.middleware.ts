@@ -49,7 +49,28 @@ const checkRole = (requiredRole: Roles) => {
   };
 };
 
+// middleware/verification.middleware.ts
+const checkSelfOrAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+  const user = req.user;
+  const targetId = req.params.id;
+
+  if (!user) {
+    return res.status(401).json({ status: false, message: 'Unauthorized' });
+  }
+
+  if (user.roles.includes('ADMIN')) {
+    return next();
+  }
+
+  if (user.id.toString() === targetId.toString()) {
+    return next();
+  }
+
+  return res.status(403).json({ status: false, message: 'Forbidden' });
+};
+
 export const middleware = {
   verifyToken,
-  checkRole
+  checkRole,
+  checkSelfOrAdmin
 };

@@ -1,7 +1,7 @@
 import axios from "axios"
 // import { useNavigate } from "react-router-dom";
 import { useState, useContext, useEffect } from "react"
-import { Box, Button, TextField, Typography, Paper, Stack } from "@mui/material"
+import { Box, Button, TextField, Typography, Paper, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Divider } from "@mui/material"
 import { UserAuthContext } from "../context/UserAuthContext";
 import { VariablesContext } from "../context/VariablesContext";
 import { frontendValidatePassword } from "../utils/registerBackend";
@@ -29,6 +29,7 @@ const ProfileUser = ({ userToEdit }: Props) => {
 
   const [userId, setUserId] = useState<string>(targetUser?._id || "");
   const [hasPassword, setHasPassword] = useState<boolean>(!!targetUser?.hasPassword);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   // const navigate = useNavigate();
   // Decide whether we're editing current user or admin target
@@ -137,6 +138,43 @@ const ProfileUser = ({ userToEdit }: Props) => {
       setIsLoading(false);
     }
   }
+
+  const handleDeleteSelf = async () => {
+    if (!userId) return;
+
+    if (!window.confirm("Are you sure you want to delete your account? This cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const res = await axios.delete(`${url}/api/users/self/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (res.data.status) {
+        alert("Your account has been deleted.");
+        localStorage.removeItem("token");
+        // optionally clear user context
+        setUser(null);
+        window.location.href = "/"; // redirect to homepage/login
+      } else {
+        setErrorMessage(res.data.message || "Delete failed");
+      }
+    } catch (err) {
+      console.error("Delete failed", err);
+      setErrorMessage("Error deleting account");
+    }
+  };
+
+  const handleDeleteDialogOpen = () => setOpenDeleteDialog(true);
+  const handleDeleteDialogClose = () => setOpenDeleteDialog(false);
+
+  const handleDeleteConfirm = async () => {
+    setOpenDeleteDialog(false);
+    await handleDeleteSelf();
+  };
 
   return (
     <>
@@ -249,8 +287,43 @@ const ProfileUser = ({ userToEdit }: Props) => {
               </Button>
             </Stack>
           </Box>
+          <Divider />
+
+          <Box sx={{ mt: 4, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Danger Zone
+            </Typography>
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={handleDeleteDialogOpen}
+            >
+              Delete My Account
+            </Button>
+          </Box>          
         </Paper>
+        {/* self delete btn */}
+
       </Box>
+
+
+      {/* JSX dialog box for self delete */}
+      <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
+        <DialogTitle>Delete Account</DialogTitle>
+        <DialogContent>
+          <Typography>
+            This will permanently delete your account and all associated data.
+            Are you absolutely sure?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteDialogClose}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            Yes, Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }

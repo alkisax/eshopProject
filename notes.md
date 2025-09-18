@@ -40,9 +40,21 @@
 - if no commodity image show sth ✅
 - bugs in search categories ✅
 - chat gpt criteria optimiser
+- editor js is not finished in blog
 - τα έξοδα αποστολής να προστήθεντε
 
 # security
+
+⚠️ Still important to consider
+- JWT/session security
+Biggest remaining risk: storing JWT in localStorage.
+Short-term: sanitize user-generated content (you allow free-text comments) with something like dompurify on the frontend.
+Medium-term: switch to httpOnly secure cookies → removes XSS token theft vector.
+
+- Comment / Editor.js content
+You allow Schema.Types.Mixed and editorJsDataSchema.
+Make sure you sanitize HTML when rendering (Editor.js content might include dangerous attributes if someone crafts JSON manually).
+Recommend using a sanitizer (DOMPurify, sanitize-html) before rendering on the frontend.
 
 so now we have:
 - basic winston logger 
@@ -57,7 +69,7 @@ so now we have:
 - use env for all sensitive 
 - size restriction in uploads 
 - jwt and dont store not hashed, or reviealed 
-
+- npm audit
 
 # notes
 ### Render setup

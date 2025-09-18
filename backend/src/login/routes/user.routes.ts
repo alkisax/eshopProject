@@ -24,7 +24,11 @@ router.get('/email/:email', middleware.verifyToken, userController.readByEmail);
 router.put('/:id', middleware.verifyToken, userController.updateById);
 router.put('/toggle-admin/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.toggleRoleById);
 
+// delete self
+router.delete('/self/:id', middleware.verifyToken, middleware.checkSelfOrAdmin, userController.deleteById);
+
 // delete
 router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.deleteById);
+
 
 export default router;
