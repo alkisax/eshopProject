@@ -8,7 +8,7 @@ import Participant from '../models/participant.models';
 import Commodity from '../models/commodity.models';
 
 import { fetchCart } from '../daos/stripe.dao';
-import { ValidationError } from '../types/errors.types';
+import { ValidationError } from '../../error/errors.types';
 
 beforeAll(async () => {
   if (!process.env.MONGODB_TEST_URI) {

@@ -1,7 +1,7 @@
 import Commodity from '../models/commodity.models';
 import mongoose from 'mongoose';
 import type { CommodityType, CommentType } from '../types/stripe.types';
-import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.types';
+import { NotFoundError, ValidationError, DatabaseError } from '../../error/errors.types';
 import { Types } from 'mongoose';
 
 // Create

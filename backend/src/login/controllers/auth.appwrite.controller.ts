@@ -1,5 +1,5 @@
 import { userDAO } from '../dao/user.dao';
-import { handleControllerError } from '../services/errorHnadler';
+import { handleControllerError } from '../../error/errorHnadler';
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';

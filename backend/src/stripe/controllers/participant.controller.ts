@@ -1,24 +1,24 @@
 /* eslint-disable no-console */
 import { participantDao } from '../daos/participant.dao';
-import { handleControllerError } from '../../utils/errorHnadler';
+import { handleControllerError } from '../../error/errorHnadler';
 import type { Request, Response } from 'express';
 // αντι να φτιάξουμε νέο interface το κάναμε ιμπορτ το ιδιο που είχε και το middleware
 import type { AuthRequest } from '../../login/types/user.types';
 import { createParticipantSchema } from '../validation/commerce.schema';
+import { NotFoundError } from '../../error/errors.types';
 
 export const create = async (req: AuthRequest , res: Response) => {
-
-  const parsed = createParticipantSchema.parse(req.body);
-
-  // if user comes from middleware use this else use whats comming from front
-  const userId = req.user?.id || parsed.user;
-  const data = parsed;
-
-  const name = data.name;
-  const surname = data.surname;
-  const email = data.email;
-
   try {
+    const parsed = createParticipantSchema.parse(req.body);
+
+    // if user comes from middleware use this else use whats comming from front
+    const userId = req.user?.id || parsed.user;
+    const data = parsed;
+
+    const name = data.name;
+    const surname = data.surname;
+    const email = data.email;
+
     const newParticipant = await participantDao.createParticipant({
       name,
       surname,
@@ -57,6 +57,9 @@ export const findByEmail = async (req: Request, res: Response) => {
     }
 
     const participant = await participantDao.findParticipantByEmail(email);
+    if (!participant) {
+      return res.status(404).json({ status: false, error: 'Participant not found' });
+    }
     return res.status(200).json({ status: true, data: participant });
   } catch (error) {
     return handleControllerError(res, error);
@@ -73,6 +76,13 @@ export const findById = async (req: Request, res: Response) => {
     const participant = await participantDao.findParticipantById(id);
     return res.status(200).json({ status: true, data: participant });
   } catch (error) {
+    if (
+      error instanceof Error &&
+      typeof (error as { name?: unknown }).name === 'string' &&
+      (error as { name: string }).name === 'CastError'
+    ) {
+      return res.status(500).json({ status: false, error: 'Invalid ID format' });
+    }
     return handleControllerError(res, error);
   }
 };
@@ -92,7 +102,7 @@ export const deleteById = async (req: Request, res: Response) => {
       console.log(`Delete failed: participant ${participantId} not found`);
       return res.status(404).json({
         status: false,
-        error: 'Error deleting participant: not found'
+        error: `Participant ${participantId} not found`
       });
     } else {
 
@@ -100,7 +110,17 @@ export const deleteById = async (req: Request, res: Response) => {
       return res.status(200).json({ status: true, message: `participant ${deleteParticipant.email} deleted successfully` });
 
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    if (error instanceof NotFoundError) {
+      return res.status(404).json({ status: false, error: error.message });
+    }
+    if (
+      error instanceof Error &&
+      typeof (error as { name?: unknown }).name === 'string' &&
+      (error as { name: string }).name === 'CastError'
+    ) {
+      return res.status(500).json({ status: false, error: 'Invalid ID format' });
+    }
     return handleControllerError(res, error);
   }
 };

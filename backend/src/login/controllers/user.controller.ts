@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import bcrypt from 'bcrypt';
 import User from '../models/users.models';
-import { handleControllerError } from '../services/errorHnadler';
+import { handleControllerError } from '../../error/errorHnadler';
 import { userDAO } from '../dao/user.dao';
 
 import type { Request, Response } from 'express';

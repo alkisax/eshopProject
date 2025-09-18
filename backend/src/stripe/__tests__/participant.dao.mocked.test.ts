@@ -1,7 +1,7 @@
 jest.mock('../models/participant.models');
 import Participant from '../models/participant.models';
 import { participantDao } from '../daos/participant.dao';
-import { DatabaseError, ValidationError, NotFoundError } from '../types/errors.types';
+import { DatabaseError, ValidationError, NotFoundError } from '../../error/errors.types';
 import { Types } from 'mongoose';
 
 describe('participantDao.createParticipant error branches (unit)', () => {

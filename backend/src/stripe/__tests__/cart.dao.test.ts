@@ -6,7 +6,7 @@ import Commodity from '../models/commodity.models';
 import Cart from '../models/cart.models';
 import '../models/commodity.models';
 import { cartDAO } from '../daos/cart.dao';
-import { NotFoundError, ValidationError } from '../types/errors.types';
+import { NotFoundError, ValidationError } from '../../error/errors.types';
 
 describe('cartDAO', () => {
   const participantId = new mongoose.Types.ObjectId();
