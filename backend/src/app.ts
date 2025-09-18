@@ -30,6 +30,7 @@ const allowedOrigins = [
   `${process.env.FRONTEND_URL}`,
   `${process.env.BACKEND_URL}`,
   `${process.env.DEPLOY_URL}`,
+  'https://cloud.appwrite.io', 
 ];
 // app.use(cors());
 app.use(
