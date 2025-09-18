@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 /* eslint-disable no-console */
  
 import express from 'express';
@@ -56,6 +57,20 @@ app.use(express.json());
 
 // library for securing. With only helmet() covers: sniffing, clickjacking, HSTS
 app.use(helmet());
+// το helmet() δεν μου επέτρεπε να δω τις εικόνες απο το appwrite ή να μπω στο stripe etc. Εδω προσθέτουμε εξαιρέσεις για αυτό
+// **ΠΡΟΣΟΧΗ** αυτη είναι η πιθανοτερη πηγη δυσλειτουργίας third party
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://js.stripe.com"],
+      frameSrc: ["'self'", "https://js.stripe.com"],
+      imgSrc: ["'self'", "data:", "https://cloud.appwrite.io", "https://fra.cloud.appwrite.io"],
+      connectSrc: ["'self'", "https://cloud.appwrite.io", "https://fra.cloud.appwrite.io"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+    },
+  })
+);
 // needs or problems on deploy -helmet-
 app.set('trust proxy', 1);
 
