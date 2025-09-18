@@ -120,7 +120,7 @@ export const checkoutSessionSchema = z.object({
   participantInfo: z.object({
     name: z.string().min(1).max(100).optional(),
     email: z.email(),
-  }).strict(),
+  }),
   shippingInfo: z.object({
     fullName: z.string().min(1).max(100),
     addressLine1: z.string().min(1).max(200),
@@ -129,8 +129,9 @@ export const checkoutSessionSchema = z.object({
     postalCode: z.string().min(1).max(20),
     country: z.string().min(2).max(50),
     phone: z.string().optional(),
-    notes: z.string().max(500).optional(),
-  }).strict(),
+    notes: z.string().max(500).optional(),       
+    shippingEmail: z.email().optional(), //  this because frontend sends it
+  }).passthrough(), //allow extra keys like `shippingMethod`
 });
 
 // Derived type for TS
