@@ -19,7 +19,7 @@ import { UserAuthContext } from "../../context/UserAuthContext";
 import Loading from "../Loading";
 
 // GA
-import { useAnalytics } from "@keiko-app/react-google-analytics";
+// import { useAnalytics } from "@keiko-app/react-google-analytics";
 
 
 type ContextType = {
@@ -43,22 +43,22 @@ const StoreItemList = () => {
   // turning off add btn while prossecing to avoid axios spamming
 
 
-  // GA
-  const { tracker } = useAnalytics();
-  // GA
-  useEffect(() => {
-    if (commodities.length > 0) {
-      tracker.trackEvent("view_item_list", {
-        item_list_id: "store_grid",
-        items: commodities.map((c) => ({
-          item_id: c._id,
-          item_name: c.name,
-          price: c.price,
-          currency: c.currency,
-        })),
-      });
-    }
-  }, [commodities, tracker]);
+  // // GA
+  // const { tracker } = useAnalytics();
+  // // GA
+  // useEffect(() => {
+  //   if (commodities.length > 0) {
+  //     tracker.trackEvent("view_item_list", {
+  //       item_list_id: "store_grid",
+  //       items: commodities.map((c) => ({
+  //         item_id: c._id,
+  //         item_name: c.name,
+  //         price: c.price,
+  //         currency: c.currency,
+  //       })),
+  //     });
+  //   }
+  // }, [commodities, tracker]);
 
   // MUI pagination
   const handlePageChange = (
@@ -99,12 +99,12 @@ const StoreItemList = () => {
                 component={Link} 
                 to={`/commodity/${commodity._id}`}
                 // GA
-                onClick={() =>
-                  tracker.trackEvent("view_item", {
-                    item_id: commodity._id,
-                    item_name: commodity.name,
-                  })
-                }
+                // onClick={() =>
+                //   tracker.trackEvent("view_item", {
+                //     item_id: commodity._id,
+                //     item_name: commodity.name,
+                //   })
+                // }
               >
                 <CardMedia
                   component="img"
