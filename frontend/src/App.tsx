@@ -46,7 +46,9 @@ function App() {
 
   return (
     <>
+    {/* Google analytics initializer */}
     {/* <GAAnalyticsTracker /> */}
+
     <Routes>
       <Route element={<LayoutWithNavbar />}>
 

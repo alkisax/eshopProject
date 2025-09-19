@@ -17,11 +17,18 @@ import { useAnalytics } from "@keiko-app/react-google-analytics";
 
 const GAAnalyticsTracker = () => {
   const location = useLocation();
-  const { tracker } = useAnalytics();
+  const  analytics  = useAnalytics();
 
   useEffect(() => {
-    tracker.trackPageView({});
-  }, [location, tracker]);
+
+      if (!analytics?.tracker) {
+      console.log("🍾 GAAnalyticsTracker: Google Analytics is disabled (no consent)");
+      return;
+    }
+    console.log("💸 GAAnalyticsTracker: Tracking page view", location.pathname);
+
+    analytics.tracker.trackPageView({});
+  }, [analytics.tracker, location]);
 
   return null;
 };

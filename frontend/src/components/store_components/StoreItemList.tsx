@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+// import { useEffect } from "react"; // GA
 import { Link, useOutletContext } from "react-router-dom";
 import {
   Button,
@@ -98,7 +99,7 @@ const StoreItemList = () => {
               <CardActionArea 
                 component={Link} 
                 to={`/commodity/${commodity._id}`}
-                // GA
+                // // GA
                 // onClick={() =>
                 //   tracker.trackEvent("view_item", {
                 //     item_id: commodity._id,
