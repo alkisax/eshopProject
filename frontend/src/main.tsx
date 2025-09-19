@@ -6,6 +6,7 @@ import { VariablesProvider } from './context/VariablesContext.tsx';
 import App from './App.tsx'
 import { CartActionsProvider } from './context/CartActionsContext.tsx';
 import { AiModerationProvider } from './context/AiModerationContext.tsx';
+import { AnalyticsProvider } from "@keiko-app/react-google-analytics"
 
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
@@ -15,7 +16,11 @@ createRoot(document.getElementById('root')!).render(
         <VariablesProvider>
           <CartActionsProvider>
             <AiModerationProvider>
-                <App />
+              <AnalyticsProvider
+                config={{ measurementId: import.meta.env.VITE_GA_MEASUREMENT_ID }}
+              >
+                  <App />
+              </AnalyticsProvider>
             </AiModerationProvider>
           </CartActionsProvider>
         </VariablesProvider>

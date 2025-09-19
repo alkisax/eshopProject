@@ -40,37 +40,44 @@
 - notes in shipping unresponcive ✅
 - if no commodity image show sth ✅
 - bugs in search categories ✅
+- GAnalytics now tracks commodity impretions and commodity pages ✅ add more, learn dashboard
 - chat gpt criteria optimiser
 - editor js is not finished in blog
 - τα έξοδα αποστολής να προστήθεντε
+- google analitics
 
-# security
+- ## e2e test
 
-⚠️ Still important to consider
-- JWT/session security
-Biggest remaining risk: storing JWT in localStorage.
-Short-term: sanitize user-generated content (you allow free-text comments) with something like dompurify on the frontend.
-Medium-term: switch to httpOnly secure cookies → removes XSS token theft vector.
+# security  
 
-- Comment / Editor.js content
-You allow Schema.Types.Mixed and editorJsDataSchema.
-Make sure you sanitize HTML when rendering (Editor.js content might include dangerous attributes if someone crafts JSON manually).
-Recommend using a sanitizer (DOMPurify, sanitize-html) before rendering on the frontend.
+### ⚠️ Still important to consider
+- 🚨 Replace localStorage with httpOnly cookies → biggest gain.
+- 🚨 Avoid tokens in query params on OAuth success → fix Google/GitHub flow.
 
-so now we have:
-- basic winston logger 
-- cors 
-- helmet 
-- zod input validation 
-- roles 
-- helth api 
-- rate limiter for ddos and login brute 
-- lot of tests that are auto run in github actions 
-- use dao for db communication 
-- use env for all sensitive 
-- size restriction in uploads 
-- jwt and dont store not hashed, or reviealed 
-- npm audit
+### 🔐 Frontend – already done
+
+- DOMPurify for blog/Editor.js rendering
+- React auto-escaping for plain text (comments, commodity descriptions)
+- Frontend validators (password, email, postal, phone) aligned with backend
+- No raw dangerouslySetInnerHTML except sanitized renderer
+- Google Maps iframe hardcoded, not user-provided
+- Role-based protected routes (PrivateRoute, AdminPrivateRoute)
+
+### ⚙️ Backend – already done
+
+- Winston logger
+- CORS with allow-list
+- Helmet with CSP
+- Zod input validation
+- Role-based access control
+- Healthcheck API endpoint
+- Rate limiter (global + login brute-force)
+- Automated tests in GitHub Actions
+- DAO pattern for DB access
+- Environment variables for secrets
+- Upload size restriction
+- JWT authentication, passwords hashed (never stored plain)
+- npm audit for dependency vulnerabilities
 
 # notes
 ### Render setup
@@ -83,143 +90,45 @@ Start Command:
 test success stripe
 `http://localhost:5173/checkout-success?session_id=cs_live_a1PBF9KvFU5WOiYAIA6FyI3zpQfRDR54C1VO7OJTBax1YfytAyK2bygMFj`
 
-
-Here’s a ToDo-style checklist for you:
-
 ✅ Backend Security (Node + Express + Mongo)
 
- Auth & Tokens
-
-Use jsonwebtoken with strong secrets (process.env.JWT_SECRET).
-Short expiry access tokens + long expiry refresh tokens.
-Always verify tokens with middleware.verifyToken.
-Use role-based access (you already do for ADMIN routes ✅).
-
- Password security
-
-Store with bcrypt (min 10–12 rounds).
-Never log passwords.
-Enforce strong password policy (length + complexity).
-
- Rate limiting
-
-Add rate limiting middleware (e.g. express-rate-limit) on login/signup & sensitive routes.
-
- Input validation
-
-Validate request bodies with zod, joi or express-validator.
-Reject invalid IDs (Mongo ObjectId).
-Prevent oversized payloads (express.json({ limit: "1mb" })).
-
- NoSQL injection
-
-Don’t pass untrusted input directly into Mongo queries ({ $where: ... } or string concatenation).
-Use mongoose with schema validation (you already do ✅).
-
- CORS & Headers
-
-Restrict allowed origins (cors).
-Set security headers (helmet).
-
- Error handling
-
-Centralized error handler → never leak stack traces to clients.
-Log errors securely (e.g. Winston), but scrub sensitive info.
-
- Payments
-
-Only use Stripe Checkout/PaymentIntent IDs from Stripe dashboard.
-Never trust price or amount from frontend.
-Verify Stripe webhooks with secret signature.
-
- AI moderation
-
-Don’t trust frontend only — moderation logic should be server-side or double-checked.
-Sanitize GPT responses if you use them in UI.
-
- Database
-
-Use separate Mongo user with least privileges.
-Enable auth & TLS in production DB.
-Backups & restore process.
+ Auth & Tokens → JWT secret in env, verify middleware, role-based access ✅
+ Password security → bcrypt, strong policy with Zod ✅
+ Rate limiting → express-rate-limit global ✅
+ Input validation → Zod everywhere ✅
+ NoSQL injection → Mongoose schemas ✅
+ CORS & Headers → cors with allow-list, helmet ✅
+ Error handling → no centralized error handler yet (stack traces may leak) ⚠️
+ Payments → Stripe Checkout + webhook ✅ (server verifies, prices trusted from dashboard)
+ Database hardening → not shown (least privilege, TLS, backups) ⚠️
 
 ✅ Frontend Security (React)
 
- Auth
-
-Don’t store tokens in localStorage if possible → prefer httpOnly cookies (XSS safer).
-If using localStorage, sanitize all inputs to reduce XSS risk.
-
- Forms & Inputs
-
-Escape user-generated content before rendering.
-Strip HTML tags from comments or use a sanitization lib (like dompurify) if rich text.
-
- Sensitive data
-
-Never expose API keys in frontend.
-Use REACT_APP_API_URL from .env but backend must keep secrets.
-
- Dependencies
-
-Audit with npm audit and update often.
-Avoid abandoned npm packages.
-
- AI toggle
-
-Make sure the “AI moderation enabled” toggle is ADMIN-only.
+ Auth → still storing tokens in localStorage ⚠️ (httpOnly cookies recommended)
+ Forms & Inputs → DOMPurify on blog posts ✅; comments plain text ✅
+ Sensitive data → API keys hidden, only env URLs exposed ✅
+ Dependencies → npm audit✅
 
 ✅ Infra & Deployment
 
- Environment variables
-
-Use .env with dotenv, never commit to GitHub.
-Different .env for dev/test/prod.
-
- HTTPS
-
-Always use TLS (Let’s Encrypt for free).
-Redirect HTTP → HTTPS.
-
- Server hardening
-
-Don’t run Node as root.
-Use process managers (PM2, Docker).
-
- CI/CD
-
-Secrets in GitHub Actions must use GitHub Secrets.
-Run tests before deploy.
-
- Logging & Monitoring
-
-Add Winston logs for key events (login, payment, admin actions).
-Set up alerts (e.g. too many failed logins).
+ Environment variables → using .env, not committed ✅
+ HTTPS → not shown; must be enforced in production ⚠️
+ Server hardening → not shown (run as non-root, PM2/Docker) ⚠️
+ CI/CD → GitHub Actions in use, secrets stored in repo settings ✅
+ Logging & Monitoring → Winston partially
 
 ✅ Legal / Compliance
 
- GDPR
+ GDPR → partial (account deletion exists, but no cookie consent / privacy pages) ⚠️
+ Payments → Stripe only, no card storage ✅
+ Privacy Policy / Terms → not implemented yet ⚠️
 
-Inform users about stored data (comments, profiles, orders).
-Allow account deletion.
-Cookie consent if tracking analytics.
+⚡ Biggest remaining gaps (high severity & easy-ish to fix):
 
- Payments
-
-Don’t store card data yourself (Stripe only).
-Keep Stripe webhook secret private.
-
- Privacy Policy / Terms
-
-Basic pages explaining what you store, how you use it.
-
-👉 If you tick these off one by one, you’ll be 95% secure for a small eShop.
-The biggest gaps I see in your current stack are:
-
-no rate limiting,
-tokens in localStorage,
-input sanitization missing for comments,
-CORS & Helmet setup not shown,
-Stripe payment verification needs to ensure amounts are server-side trusted.
+Tokens in localStorage → move to httpOnly cookies.
+Error handling → centralize error middleware, hide stack traces.
+CSP → tighten imgSrc (currently allows any https image).
+HTTPS enforcement.
+Privacy Policy / Terms pages.
 
 

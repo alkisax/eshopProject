@@ -379,7 +379,7 @@ const ProfileUser = ({ userToEdit }: Props) => {
             {userComments.map((c, idx) => (
               <Paper key={idx} sx={{ p: 2 }} variant="outlined">
                 <Typography variant="body2">
-                  <strong>Commodity:</strong>{c.commodity?.name ?? c.commodity?._id ?? "Unknown commodity"}
+                  <strong>Commodity:</strong>{c.commodityName ?? c.commodityId ?? "Unknown commodity"}
                 </Typography>
                 <Typography variant="body2">
                   <strong>Comment:</strong> {typeof c.text === "string" ? c.text : JSON.stringify(c.text)}

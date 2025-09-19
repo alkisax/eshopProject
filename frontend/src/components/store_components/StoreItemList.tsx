@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import {
   Button,
@@ -17,6 +17,10 @@ import { CartActionsContext } from "../../context/CartActionsContext";
 import type { CommodityType } from "../../types/commerce.types";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import Loading from "../Loading";
+
+// GA
+import { useAnalytics } from "@keiko-app/react-google-analytics";
+
 
 type ContextType = {
   commodities: CommodityType[]; // already paginated in StoreLayout
@@ -37,6 +41,24 @@ const StoreItemList = () => {
 
   const [loadingItemId] = useState<string | null>(null); 
   // turning off add btn while prossecing to avoid axios spamming
+
+
+  // GA
+  const { tracker } = useAnalytics();
+  // GA
+  useEffect(() => {
+    if (commodities.length > 0) {
+      tracker.trackEvent("view_item_list", {
+        item_list_id: "store_grid",
+        items: commodities.map((c) => ({
+          item_id: c._id,
+          item_name: c.name,
+          price: c.price,
+          currency: c.currency,
+        })),
+      });
+    }
+  }, [commodities, tracker]);
 
   // MUI pagination
   const handlePageChange = (
@@ -73,7 +95,17 @@ const StoreItemList = () => {
                 boxShadow: 3,
               }}
             >
-              <CardActionArea component={Link} to={`/commodity/${commodity._id}`}>
+              <CardActionArea 
+                component={Link} 
+                to={`/commodity/${commodity._id}`}
+                // GA
+                onClick={() =>
+                  tracker.trackEvent("view_item", {
+                    item_id: commodity._id,
+                    item_name: commodity.name,
+                  })
+                }
+              >
                 <CardMedia
                   component="img"
                   height="160"
