@@ -8,6 +8,9 @@ import type { Request, Response } from 'express';
 import path from 'path';
 import swaggerSpec from './utils/swagger';
 import swaggerUi from 'swagger-ui-express';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+
 import authRoutes from './login/routes/auth.routes';
 import userRoutes from './login/routes/user.routes';
 import participantRoutes from './stripe/routes/participant.routes';
@@ -22,8 +25,7 @@ import subPageRoutes from './blog/routes/subPage.routes';
 import { stripeController } from './stripe/controllers/stripe.controller';
 import categoryRoutes from './stripe/routes/category.routes';
 import modarationRoutes from './aiModeration/moderation.routes';
-import rateLimit from 'express-rate-limit';
-import helmet from 'helmet';
+import gptEmbeddingsRoutes from './aiEmbedings/gptEmbeddings.routes';
 
 const app = express();
 
@@ -124,6 +126,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/subpage', subPageRoutes);
 
 app.use ('/api/moderationAi', modarationRoutes);
+app.use('/api/ai-embeddings', gptEmbeddingsRoutes);
 app.use('/api/upload-multer', uploadMulterRoutes);
 
 app.use(express.static('dist')); 

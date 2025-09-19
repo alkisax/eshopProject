@@ -35,6 +35,7 @@ export interface CommodityType extends Document {
   active: boolean;
   images?: string[];
   comments?: CommentType[];
+  vector?: number[]; // για προσθήκη vector embedings
 }
 
 export interface CommentType {
