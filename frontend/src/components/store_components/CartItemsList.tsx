@@ -90,12 +90,15 @@ const CartItemsList = () => {
             <ListItem
               key={item.commodity._id.toString()}
               sx={{
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: { xs: "flex-start", sm: "center" },
                 bgcolor: "#fafafa",
+                gap: 2,
                 mb: 2,
                 borderRadius: 2,
                 boxShadow: 1,
                 minHeight: 120, // 👈 double height
-                alignItems: "center",
+                // alignItems: "center",
               }}
               disablePadding
               secondaryAction={
@@ -143,6 +146,7 @@ const CartItemsList = () => {
                   alignItems: "center",
                   gap: 3,
                   py: 2,
+                  pr: 12
                 }}
               >
                 <Box

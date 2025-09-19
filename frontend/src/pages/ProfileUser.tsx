@@ -7,6 +7,7 @@ import { VariablesContext } from "../context/VariablesContext";
 import { frontendValidatePassword } from "../utils/registerBackend";
 import Loading from '../components/Loading'
 import type { UpdateUser, IUser } from "../types/types";
+import type { CommentType } from "../types/commerce.types";
 
 interface Props {
   userToEdit?: IUser;
@@ -30,6 +31,9 @@ const ProfileUser = ({ userToEdit }: Props) => {
   const [userId, setUserId] = useState<string>(targetUser?._id || "");
   const [hasPassword, setHasPassword] = useState<boolean>(!!targetUser?.hasPassword);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openCommentsDialog, setOpenCommentsDialog] = useState(false);
+  const [userComments, setUserComments] = useState<CommentType[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
 
   // const navigate = useNavigate();
   // Decide whether we're editing current user or admin target
@@ -147,6 +151,13 @@ const ProfileUser = ({ userToEdit }: Props) => {
     }
 
     try {
+      // Delete comments first
+      await axios.delete(`${url}/api/commodity/comments/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
       const res = await axios.delete(`${url}/api/users/self/${userId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -174,6 +185,29 @@ const ProfileUser = ({ userToEdit }: Props) => {
   const handleDeleteConfirm = async () => {
     setOpenDeleteDialog(false);
     await handleDeleteSelf();
+  };
+
+    const handleShowComments = async () => {
+    if (!userId) return;
+    setLoadingComments(true);
+    try {
+      const res = await axios.get(`${url}/api/commodity/comments/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (res.data.status) {
+        setUserComments(res.data.data);
+        setOpenCommentsDialog(true);
+      } else {
+        setErrorMessage(res.data.message || "Could not fetch comments");
+      }
+    } catch (err) {
+      console.error("Fetch comments failed", err);
+      setErrorMessage("Error fetching comments");
+    } finally {
+      setLoadingComments(false);
+    }
   };
 
   return (
@@ -285,6 +319,15 @@ const ProfileUser = ({ userToEdit }: Props) => {
               >
                 {isLoading ? "Loading..." : "Update Profile"}
               </Button>
+                  <Button
+                    variant="outlined"
+                    color="info"
+                    size="small"
+                    onClick={handleShowComments}
+                    disabled={loadingComments}
+                  >
+                    {loadingComments ? "Loading comments..." : "View My Comments"}
+                  </Button>
             </Stack>
           </Box>
           <Divider />
@@ -324,6 +367,34 @@ const ProfileUser = ({ userToEdit }: Props) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* jsx dialog box for view comments */}
+      <Dialog open={openCommentsDialog} onClose={() => setOpenCommentsDialog(false)} maxWidth="sm" fullWidth>
+      <DialogTitle>My Comments</DialogTitle>
+      <DialogContent dividers>
+        {userComments.length === 0 ? (
+          <Typography>No comments found.</Typography>
+        ) : (
+          <Stack spacing={2}>
+            {userComments.map((c, idx) => (
+              <Paper key={idx} sx={{ p: 2 }} variant="outlined">
+                <Typography variant="body2">
+                  <strong>Commodity:</strong>{c.commodity?.name ?? c.commodity?._id ?? "Unknown commodity"}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Comment:</strong> {typeof c.text === "string" ? c.text : JSON.stringify(c.text)}
+                </Typography>
+                <Typography variant="body2"><strong>Rating:</strong> {c.rating ?? "—"}</Typography>
+              </Paper>
+            ))}
+          </Stack>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setOpenCommentsDialog(false)}>Close</Button>
+      </DialogActions>
+    </Dialog>
+
     </>
   )
 }

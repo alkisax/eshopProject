@@ -212,6 +212,26 @@ const deleteOldUnapprovedComments = async (_req: Request, res: Response) => {
   }
 };
 
+const deleteAllCommentsByUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  try {
+    const count = await commodityDAO.deleteAllCommentsByUser(userId);
+    return res.status(200).json({ status: true, message: `${count} comments removed` });
+  } catch (err) {
+    return handleControllerError(res, err);
+  }
+};
+
+const getCommentsByUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  try {
+    const comments = await commodityDAO.getCommentsByUser(userId);
+    return res.status(200).json({ status: true, data: comments });
+  } catch (err) {
+    return handleControllerError(res, err);
+  }
+};
+
 export const commodityController = {
   findAll,
   findById,
@@ -225,5 +245,7 @@ export const commodityController = {
   updateComment,
   clearComments,
   deleteComment,
-  deleteOldUnapprovedComments
+  deleteOldUnapprovedComments,
+  deleteAllCommentsByUser,
+  getCommentsByUser
 };

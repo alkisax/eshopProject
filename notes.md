@@ -20,7 +20,8 @@
 - new category schema with supercategory, and allow parent category with arr of categories as child. Also some categories to have an atribute of "tag" ✅
 - comment crud ✅
 - fix email ✅
-- chat gpt profanity comment test. if not pass wait for admin aproval or delete after 5 days
+- chat gpt profanity comment test. if not pass wait for admin aproval ✅
+- cosline similarity commodity search
 
 - create a security risks checklist
 

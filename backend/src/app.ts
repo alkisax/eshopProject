@@ -64,9 +64,13 @@ app.use(
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "https://js.stripe.com"],
-      frameSrc: ["'self'", "https://js.stripe.com"],
+      frameSrc: ["'self'",
+        "https://js.stripe.com",
+        "https://www.google.com",
+        "https://maps.google.com"
+      ],
       // imgSrc: ["'self'", "data:", "https://cloud.appwrite.io", "https://fra.cloud.appwrite.io"], // αυτο λειτουργούσε αλλλα αφαιρέθηκε, **ΝΑ ΠΡΟΣΤΕΘΕΙ ΞΑΝΑ** δες επόμενο σχόλιο
-      imgSrc: ["'self'", "data:", "https:"], // η εφαρμογήμου είχε πολλές φωτογραφίες απο διάφορα url απο το ιντερνετ. βάλαμε αυτό γιατί τις έκοβε το helmet αλλα τώρα δεν είναι ασφαλές
+      imgSrc: ["'self'", "data:", "https:"], // η εφαρμογή μου είχε πολλές φωτογραφίες απο διάφορα url απο το ιντερνετ. βάλαμε αυτό γιατί τις έκοβε το helmet αλλα τώρα δεν είναι ασφαλές
       connectSrc: ["'self'", "https://cloud.appwrite.io", "https://fra.cloud.appwrite.io"],
       styleSrc: ["'self'", "'unsafe-inline'"],
     },

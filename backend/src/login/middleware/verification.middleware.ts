@@ -52,7 +52,7 @@ const checkRole = (requiredRole: Roles) => {
 // middleware/verification.middleware.ts
 const checkSelfOrAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
   const user = req.user;
-  const targetId = req.params.id;
+  const targetId = req.params.userId || req.params.id;
 
   if (!user) {
     return res.status(401).json({ status: false, message: 'Unauthorized' });
@@ -62,7 +62,7 @@ const checkSelfOrAdmin = (req: AuthRequest, res: Response, next: NextFunction) =
     return next();
   }
 
-  if (user.id.toString() === targetId.toString()) {
+  if (targetId && user.id.toString() === targetId.toString()) {
     return next();
   }
 

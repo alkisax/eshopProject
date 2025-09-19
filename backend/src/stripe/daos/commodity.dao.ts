@@ -256,6 +256,33 @@ const getAllComments = async () => {
   return result;
 };
 
+const getCommentsByUser = async (userId: string | Types.ObjectId) => {
+  const result = await Commodity.aggregate([
+    { $unwind: '$comments' },
+    { $match: { 'comments.user': new mongoose.Types.ObjectId(userId) } },
+    {
+      $project: {
+        commodityId: '$_id',
+        commodityName: '$name',
+        text: '$comments.text',
+        rating: '$comments.rating',
+        isApproved: '$comments.isApproved',
+        createdAt: '$comments.createdAt',
+        commentId: '$comments._id'
+      }
+    }
+  ]);
+  return result;
+};
+
+const deleteAllCommentsByUser = async (userId: string | Types.ObjectId) => {
+  const result = await Commodity.updateMany(
+    {},
+    { $pull: { comments: { user: userId } } }
+  );
+  return result.modifiedCount;
+};
+
 export const commodityDAO = {
   createCommodity,
   findAllCommodities,
@@ -269,5 +296,7 @@ export const commodityDAO = {
   clearCommentsFromCommodity,
   deleteCommentFromCommoditybyCommentId,
   deleteOldUnapprovedComments,
-  getAllComments
+  getAllComments,
+  getCommentsByUser,
+  deleteAllCommentsByUser
 };
