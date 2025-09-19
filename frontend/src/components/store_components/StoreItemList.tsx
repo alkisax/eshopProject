@@ -18,9 +18,9 @@ import type { CommodityType } from "../../types/commerce.types";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import Loading from "../Loading";
 
+// all google analytics are commented out and will be added again in future
 // GA
 // import { useAnalytics } from "@keiko-app/react-google-analytics";
-
 
 type ContextType = {
   commodities: CommodityType[]; // already paginated in StoreLayout
