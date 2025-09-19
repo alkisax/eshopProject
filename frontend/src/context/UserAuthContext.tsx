@@ -31,7 +31,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
     const token = localStorage.getItem("token");
     if (token) {
-      console.log('found token:', token);
+      // console.log('found token:', token);
       
       try {
         decodedToken = jwtDecode<GoogleJwtPayload | BackendJwtPayload | GithubJwtPayload>(token);

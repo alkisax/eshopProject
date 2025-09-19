@@ -63,8 +63,14 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://js.stripe.com"],
-      frameSrc: ["'self'",
+      scriptSrc: [
+        "'self'",
+        "https://js.stripe.com",
+        "https://www.googletagmanager.com",   // google analytics
+        "https://www.google-analytics.com"
+      ],
+      frameSrc: [
+        "'self'",
         "https://js.stripe.com",
         "https://www.google.com",
         "https://maps.google.com"

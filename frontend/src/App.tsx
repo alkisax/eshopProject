@@ -9,7 +9,7 @@ import { useInitializer } from "./hooks/useInitializer";
 import { VariablesContext } from "./context/VariablesContext";
 import { UserAuthContext } from "./context/UserAuthContext";
 
-import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
+// import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
 
 import Home from './pages/Home'
 import Login from './authLogin/Login'
@@ -46,7 +46,7 @@ function App() {
 
   return (
     <>
-    <GAAnalyticsTracker />
+    {/* <GAAnalyticsTracker /> */}
     <Routes>
       <Route element={<LayoutWithNavbar />}>
 

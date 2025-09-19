@@ -3,10 +3,10 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { UserProvider } from "./context/UserAuthContext.tsx"; 
 import { VariablesProvider } from './context/VariablesContext.tsx';
-import App from './App.tsx'
 import { CartActionsProvider } from './context/CartActionsContext.tsx';
 import { AiModerationProvider } from './context/AiModerationContext.tsx';
-import { AnalyticsProvider } from "@keiko-app/react-google-analytics"
+import { ConsentProvider } from './context/ConsentContext.tsx';
+import AppWithConsent from './AppWithConsent.tsx';
 
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
@@ -16,11 +16,9 @@ createRoot(document.getElementById('root')!).render(
         <VariablesProvider>
           <CartActionsProvider>
             <AiModerationProvider>
-              <AnalyticsProvider
-                config={{ measurementId: import.meta.env.VITE_GA_MEASUREMENT_ID }}
-              >
-                  <App />
-              </AnalyticsProvider>
+              <ConsentProvider>
+                <AppWithConsent />
+              </ConsentProvider>
             </AiModerationProvider>
           </CartActionsProvider>
         </VariablesProvider>
