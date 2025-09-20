@@ -1,15 +1,6 @@
 import { useContext, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import {
-  Button,
-  Pagination,
-  Typography,  
-  Card,
-  CardActions,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-} from "@mui/material";
+import { Button, Pagination, Typography, Card, CardActions, CardActionArea, CardContent, CardMedia, } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { CartActionsContext } from "../../context/CartActionsContext";
 import type { CommodityType } from "../../types/commerce.types";

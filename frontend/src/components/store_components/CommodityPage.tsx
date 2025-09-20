@@ -31,6 +31,8 @@ const CommodityPage = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState<number | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false); //προστέθηκε αυτό για να μην κάνει autoload το uaggestion και μου ΄καίει' τα λεφτα στο openAI api
+  const [suggested, setSuggested] = useState<CommodityType[]>([]);
   const [commentPage, setCommentPage] = useState(1);
   const commentsPerPage = 3;
 
@@ -136,6 +138,31 @@ const CommodityPage = () => {
     return "Anonymous";
   };
 
+  // χρησιμοποιείτε στην παρακάτω useEffect
+  interface SemanticSearchResult {
+    commodity: CommodityType;
+    score: number;
+  }
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!showSuggestions || !commodity?._id) return;
+
+      try {
+        const res = await axios.get<{ status: boolean; data: SemanticSearchResult[] }>(
+          `${url}/api/ai-embeddings/search`,
+          { params: { query: commodity.name } } // TODO στο μέλλον θα πρέπει το backend να δέχετε vector
+        );
+
+        // flatten to just commodities
+        setSuggested(res.data.data.map(r => r.commodity));
+      } catch (err) {
+        console.error("Error fetching suggestions:", err);
+      }
+    };
+
+    fetchSuggestions();
+  }, [showSuggestions, commodity, url]);
 
   if (loading) {
     return (
@@ -210,8 +237,14 @@ const CommodityPage = () => {
         </Box>
 
         {/* === Price (moved here, more visible) === */}
-        <Typography variant="h5" sx={{ fontWeight: "bold", color: "primary.main" }}>
-          {commodity.price} {commodity.currency}
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: "bold", color: "primary.main" }}
+        >
+          {new Intl.NumberFormat("el-GR", {
+            style: "currency",
+            currency: "EUR",
+          }).format(commodity.price)}
         </Typography>
 
         {/* === Description === */}
@@ -242,6 +275,61 @@ const CommodityPage = () => {
         >
           {commodity.stock === 0 ? "Out of Stock" : "Add to Cart"}
         </Button>
+
+        <Button
+          variant="outlined"
+          sx={{ mt: 2, width: 200 }}
+          onClick={() => setShowSuggestions(prev => !prev)}
+        >
+          {showSuggestions ? "Hide Suggestions" : "Show Suggestions"}
+        </Button>
+
+        {showSuggestions && suggested.length > 0 && (
+          <Paper sx={{ p: 2, mt: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Suggested for you
+            </Typography>
+            <Stack direction="row" spacing={2} sx={{ overflowX: "auto" }}>
+              {suggested
+                .filter(s => s._id !== commodity._id)
+                .slice(0, 2) // only 2 suggestions
+                .map(s => (
+                  <Box
+                    key={s._id}
+                    sx={{
+                      minWidth: 180,
+                      p: 1,
+                      border: "1px solid #ddd",
+                      borderRadius: 2,
+                      cursor: "pointer",
+                      "&:hover": { boxShadow: 2 }
+                    }}
+                    onClick={() => (window.location.href = `/commodity/${s._id}`)}
+                  >
+                    <img
+                      src={s.images?.[0] || "/placeholder.jpg"}
+                      alt={s.name}
+                      style={{
+                        width: "100%",
+                        height: 120,
+                        objectFit: "cover",
+                        borderRadius: 4
+                      }}
+                    />
+                    <Typography variant="subtitle2" sx={{ mt: 1 }}>
+                      {s.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: s.currency.toUpperCase()
+                      }).format(s.price)}
+                    </Typography>
+                  </Box>
+                ))}
+            </Stack>
+          </Paper>
+        )}
 
         {/* === Reviews section placeholder === */}
         <Paper sx={{ p: 2, mt: 4 }}>
