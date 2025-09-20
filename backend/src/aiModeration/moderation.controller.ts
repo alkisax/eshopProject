@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { handleControllerError } from '../utils/errorHnadler';
+import { handleControllerError } from '../utils/error/errorHandler';
 import { getGPTResponse } from './gpt.service';
 
 export const moderationResult = async (

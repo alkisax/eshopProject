@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import { categoriesDao } from '../daos/category.dao';
-import { handleControllerError } from '../../utils/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
+import { createCategorySchema, updateCategorySchema  } from '../validation/commerce.schema';
 
 const createCategory = async (req: Request, res: Response) => {
   try {
-    const category = await categoriesDao.createCategory(req.body);
+    const parsed = createCategorySchema.parse(req.body);
+    const category = await categoriesDao.createCategory(parsed);
     res.status(201).json({ status: true, data: category });
   } catch (error) {
     handleControllerError(res, error);
@@ -34,7 +36,8 @@ const getCategoryById = async (req: Request, res: Response) => {
 
 const updateCategory = async (req: Request, res: Response) => {
   try {
-    const category = await categoriesDao.updateCategory(req.params.id, req.body);
+    const parsed = updateCategorySchema.parse(req.body);
+    const category = await categoriesDao.updateCategory(req.params.id, parsed);
     res.status(200).json({ status: true, data: category });
   } catch (error) {
     handleControllerError(res, error);

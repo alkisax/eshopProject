@@ -38,7 +38,7 @@ const LoginBackend = ({ url }: Props) => {
 
       // store token
       const token = response.data.data.token;
-      console.log("backend login token: ", token);
+      // console.log("backend login token: ", token);
       localStorage.setItem("token", token);
 
       // decode and update context

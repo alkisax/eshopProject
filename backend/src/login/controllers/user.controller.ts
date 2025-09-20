@@ -1,43 +1,32 @@
 /* eslint-disable no-console */
 import bcrypt from 'bcrypt';
 import User from '../models/users.models';
-import { z } from 'zod';
-import { handleControllerError } from '../services/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 import { userDAO } from '../dao/user.dao';
 
 import type { Request, Response } from 'express';
-import type { CreateUser, UpdateUser, AuthRequest } from '../types/user.types';
+import type { UpdateUser, AuthRequest } from '../types/user.types';
 
-const createZodUserSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
-  password: z.string()
-    .min(6, 'Password must be at least 6 characters')
-    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
-    .regex(/[!@#$%^&*(),.?":{}|<>]/, { message: 'Password must contain at least one special character' }),
-  name: z.string().optional(),
-  email: z.email({ message: 'Invalid email address' }).optional(),
-  roles: z.array(z.string()).optional(),
-});
-
-// Make all fields optional for update
-export const updateZodUserSchema = createZodUserSchema.partial();
+import { createZodUserSchema, updateZodUserSchema, createAdminSchema } from '../validation/auth.schema';
 
 // δεν χρειάζετε return type γιατι το κάνει το dao
 // create
 // signup
 export const createUser = async (req: Request, res: Response) => {
   try {
+    // Omit γιατί εδώ έχουμε δημιουργία χρήστη οπότε πετάμε οτι και να μας έστειλε ως ρολο το φροντ και επιβάλουμε hardcoded user (λιγο παρακάτω)
     const data = createZodUserSchema.omit({ roles: true }).parse(req.body);
+
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const existingUser = await User.findOne({ username: data.username });
     if (existingUser) {
-      return res.status(409).json({ status: false, error: 'Username already taken' });
+      return res.status(409).json({ status: false, message: 'Username already taken' });
     }
 
     if (data.email) {
       const existingEmail = await User.findOne({ email: data.email });
       if (existingEmail) {
-        return res.status(409).json({ status: false, error: 'Email already taken' });
+        return res.status(409).json({ status: false, message: 'Email already taken' });
       }
     }
 
@@ -56,14 +45,13 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-//create admin
+// create admin
 export const createAdmin = async (req: Request, res: Response) => {
-
   try {
-    const data = createZodUserSchema.parse(req.body) as CreateUser; // Εδώ γίνεται το validation
+    const data = createAdminSchema.parse(req.body); // Εδώ γίνεται το validation
     
     if (!data.username || !data.password){
-      return res.status(400).json({ status: false, error: 'Missing required fields' });
+      return res.status(400).json({ status: false, message: 'Missing required fields' });
     }
 
     const username = data.username;
@@ -77,22 +65,21 @@ export const createAdmin = async (req: Request, res: Response) => {
 
     const existingUser = await User.findOne({ username: data.username });
     if (existingUser) {
-      return res.status(409).json({ status: false, error: 'Username already taken' });
+      return res.status(409).json({ status: false, message: 'Username already taken' });
     }
 
     if (email) {
       const existingEmail = await User.findOne({ email: data.email });
       if (existingEmail) {
-        return res.status(409).json({ status: false, error: 'Email already taken' });
+        return res.status(409).json({ status: false, message: 'Email already taken' });
       }
     }
-
 
     const newUser = await userDAO.create({
       username,
       name: name ?? '',
       email: email ?? '',
-      roles: roles ?? ['user'],
+      roles: roles ?? ['ADMIN'],
       hashedPassword
     });
 
@@ -116,11 +103,10 @@ export const findAll = async (_req: Request, res: Response) => {
 };
 
 export const readById = async (req: Request, res: Response) => {
-
   try {
     const userId: string | undefined = req.params.id;
     if (!userId) {
-      return res.status(400).json({ status: false, error: 'no Id provided' });
+      return res.status(400).json({ status: false, message: 'no Id provided' });
     }
 
     const user = await userDAO.readById(userId);
@@ -132,11 +118,10 @@ export const readById = async (req: Request, res: Response) => {
 };
 
 export const readByUsername = async (req: Request, res: Response) => {
-
   try {
     const username: string | undefined = req.params.username;
     if (!username) {
-      return res.status(400).json({ status: false, error: 'no username provided' });
+      return res.status(400).json({ status: false, message: 'no username provided' });
     }
 
     const user = await userDAO.readByUsername(username);
@@ -170,16 +155,16 @@ export const toggleRoleById = async (req: AuthRequest, res: Response) => {
   const userIdToUpdate = req.params.id;
   const requestingUser = req.user;
   if (!requestingUser) {
-    return res.status(401).json({ status: false, error: 'Unauthorized' });
+    return res.status(401).json({ status: false, message: 'Unauthorized' });
   }
   if (requestingUser.id === userIdToUpdate) {
-    return res.status(400).json({ status: false, error: 'You cannot remove your own admin role' });
+    return res.status(400).json({ status: false, message: 'You cannot remove your own admin role' });
   }
 
   try {
     const updatedUser = await userDAO.toggleRoleById(userIdToUpdate);
     if (!updatedUser) {
-      return res.status(404).json({ status: false, error: 'User not found' });
+      return res.status(404).json({ status: false, message: 'User not found' });
     }
     return res.status(200).json({ status: true, data: updatedUser });
   } catch (error) {
@@ -188,12 +173,11 @@ export const toggleRoleById = async (req: AuthRequest, res: Response) => {
 };
 
 export const updateById = async (req: AuthRequest, res: Response) => {
-
   const userIdToUpdate = req.params.id;
   const requestingUser = req.user; // <-- This should be set by verifyToken middleware
 
   if (!requestingUser) {
-    return res.status(401).json({ status: false, error: 'Unauthorized' });
+    return res.status(401).json({ status: false, message: 'Unauthorized' });
   }
 
   // Allow if admin OR user updating own profile
@@ -201,7 +185,7 @@ export const updateById = async (req: AuthRequest, res: Response) => {
     !requestingUser.roles.includes('ADMIN') &&
     requestingUser.id !== userIdToUpdate
   ) {
-    return res.status(403).json({ status: false, error: 'Forbidden: Cannot update other users' });
+    return res.status(403).json({ status: false, message: 'Forbidden: Cannot update other users' });
   }
 
   // Validate request body
@@ -222,7 +206,7 @@ export const updateById = async (req: AuthRequest, res: Response) => {
 
   const userId: string | undefined = req.params.id;
   if (!userId) {
-    return res.status(400).json({ status: false, error: 'no Id provided' });
+    return res.status(400).json({ status: false, message: 'no Id provided' });
   }
 
   try {
@@ -231,7 +215,7 @@ export const updateById = async (req: AuthRequest, res: Response) => {
     if (data.username) {
       const existingUser = await User.findOne({ username: data.username });
       if (existingUser && existingUser._id.toString() !== userId) {
-        return res.status(409).json({ status: false, error: 'Username already taken' });
+        return res.status(409).json({ status: false, message: 'Username already taken' });
       }
     }
 
@@ -245,10 +229,9 @@ export const updateById = async (req: AuthRequest, res: Response) => {
 
 // delete
 export const deleteById = async (req: Request, res: Response) => {
-
   const userId = req.params.id;
   if (!userId){
-    return res.status(400).json({ status: false, error: 'User ID is required OR not found' });
+    return res.status(400).json({ status: false, message: 'User ID is required OR not found' });
   }
 
   try {

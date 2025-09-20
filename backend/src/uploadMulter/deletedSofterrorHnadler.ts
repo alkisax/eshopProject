@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 // src/utils/errorHandler.ts
 import type { Response } from 'express';
-import type { AppError } from '../stripe/types/errors.types';
+import type { AppError } from '../utils/error/errors.types';
 
 export function handleControllerError(res: Response, error: unknown) {
 

@@ -16,6 +16,7 @@ const StoreLayout = () => {
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
+  const [semanticResults, setSemanticResults] = useState<CommodityType[]>([]);
   
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10; // try smaller to test pagination
@@ -94,6 +95,7 @@ const StoreLayout = () => {
 
   const handleClearFilters = () => {
     setSearch("");
+    setSemanticResults([]);
     setSelectedCategories([]);
     setFiltersApplied((prev) => !prev);
     setCurrentPage(1);
@@ -110,6 +112,28 @@ const StoreLayout = () => {
 
   // απλό toggle που μπορεί να χρησιμοποιηθεί για re-render ή future side effects
   console.log('filters applied', filtersApplied)
+
+    const handleSemanticSearch = async (query: string) => {
+      if (!query.trim()) {
+        setSemanticResults([]);
+        return;
+      }
+  
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get<{ status: boolean; data: { commodity: CommodityType; score: number }[] }>(
+          `${url}/api/ai-embeddings/search`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { query },
+          }
+        );
+  
+        setSemanticResults(res.data.data.map(r => r.commodity).slice(0, 5));
+      } catch (err) {
+        console.error("Semantic search failed", err);
+      }
+    };
 
   // FOOTER LOGIC
   const { hasCart, globalParticipant } = useContext(VariablesContext);
@@ -149,6 +173,7 @@ const StoreLayout = () => {
             onToggleCategory={handleToggleCategory}
             onApplyFilters={handleApplyFilters}
             onClearFilters={handleClearFilters}
+            onSemanticSearch={handleSemanticSearch}
           />
           <main style={{ display: "flex", flexDirection: "column", flexGrow: 1, padding: "16px" }}>
               {/*
@@ -161,7 +186,7 @@ const StoreLayout = () => {
               {/* <Outlet context={{ commodities: paginated, pageCount, currentPage, fetchCart,setCurrentPage }} />  */}
               <Outlet
                 context={{
-                  commodities: paginated,   // ✅ already sliced
+                  commodities: semanticResults.length > 0 ? semanticResults : paginated, // semantic overrides normal list // already sliced
                   pageCount,
                   currentPage,
                   fetchCart,

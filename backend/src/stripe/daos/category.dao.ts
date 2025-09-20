@@ -1,7 +1,7 @@
 import Category from '../models/category.models';
 import type { CategoryType } from '../types/stripe.types';
 import { Types } from 'mongoose';
-import { NotFoundError, ValidationError } from '../types/errors.types';
+import { NotFoundError, ValidationError } from '../../utils/error/errors.types';
 
 const  createCategory = async (data: Partial<CategoryType>): Promise<CategoryType> => {
   if (!data.name || !data.slug) {

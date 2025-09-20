@@ -2,6 +2,8 @@ import { Router } from 'express';
 const router = Router();
 import { transactionController } from '../controllers/transactionController';
 import { middleware } from '../../login/middleware/verification.middleware';
+import { limiter } from '../../utils/limiter';
+
 
 // GET all transactions (admin only)
 router.get('/', middleware.verifyToken, middleware.checkRole('ADMIN'), transactionController.findAll);
@@ -14,7 +16,7 @@ router.get('/participant/:participantId', middleware.verifyToken, transactionCon
 );
 
 // POST create a new transaction (no auth yet)
-router.post('/', transactionController.create);
+router.post('/', limiter(15,5), transactionController.create);
 
 // DELETE a transaction by ID (admin only)
 router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), transactionController.deleteById);

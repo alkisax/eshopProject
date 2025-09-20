@@ -111,7 +111,7 @@ describe('uploadFile controller error handling', () => {
 
     expect(res.status).toBe(500);
     expect(res.body.status).toBe(false);
-    expect(res.body.error).toBe('DB fail'); // ✅ match handler shape
+    expect(res.body.message).toBe('DB fail'); // ✅ unified: check `message` instead of `error`
 
     spy.mockRestore();
   });

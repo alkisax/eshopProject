@@ -1,12 +1,13 @@
 import axios from "axios"
 // import { useNavigate } from "react-router-dom";
 import { useState, useContext, useEffect } from "react"
-import { Box, Button, TextField, Typography, Paper, Stack } from "@mui/material"
+import { Box, Button, TextField, Typography, Paper, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Divider } from "@mui/material"
 import { UserAuthContext } from "../context/UserAuthContext";
 import { VariablesContext } from "../context/VariablesContext";
 import { frontendValidatePassword } from "../utils/registerBackend";
 import Loading from '../components/Loading'
 import type { UpdateUser, IUser } from "../types/types";
+import type { CommentType } from "../types/commerce.types";
 
 interface Props {
   userToEdit?: IUser;
@@ -29,6 +30,10 @@ const ProfileUser = ({ userToEdit }: Props) => {
 
   const [userId, setUserId] = useState<string>(targetUser?._id || "");
   const [hasPassword, setHasPassword] = useState<boolean>(!!targetUser?.hasPassword);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openCommentsDialog, setOpenCommentsDialog] = useState(false);
+  const [userComments, setUserComments] = useState<CommentType[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
 
   // const navigate = useNavigate();
   // Decide whether we're editing current user or admin target
@@ -137,6 +142,73 @@ const ProfileUser = ({ userToEdit }: Props) => {
       setIsLoading(false);
     }
   }
+
+  const handleDeleteSelf = async () => {
+    if (!userId) return;
+
+    if (!window.confirm("Are you sure you want to delete your account? This cannot be undone.")) {
+      return;
+    }
+
+    try {
+      // Delete comments first
+      await axios.delete(`${url}/api/commodity/comments/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const res = await axios.delete(`${url}/api/users/self/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (res.data.status) {
+        alert("Your account has been deleted.");
+        localStorage.removeItem("token");
+        // optionally clear user context
+        setUser(null);
+        window.location.href = "/"; // redirect to homepage/login
+      } else {
+        setErrorMessage(res.data.message || "Delete failed");
+      }
+    } catch (err) {
+      console.error("Delete failed", err);
+      setErrorMessage("Error deleting account");
+    }
+  };
+
+  const handleDeleteDialogOpen = () => setOpenDeleteDialog(true);
+  const handleDeleteDialogClose = () => setOpenDeleteDialog(false);
+
+  const handleDeleteConfirm = async () => {
+    setOpenDeleteDialog(false);
+    await handleDeleteSelf();
+  };
+
+    const handleShowComments = async () => {
+    if (!userId) return;
+    setLoadingComments(true);
+    try {
+      const res = await axios.get(`${url}/api/commodity/comments/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (res.data.status) {
+        setUserComments(res.data.data);
+        setOpenCommentsDialog(true);
+      } else {
+        setErrorMessage(res.data.message || "Could not fetch comments");
+      }
+    } catch (err) {
+      console.error("Fetch comments failed", err);
+      setErrorMessage("Error fetching comments");
+    } finally {
+      setLoadingComments(false);
+    }
+  };
 
   return (
     <>
@@ -247,10 +319,82 @@ const ProfileUser = ({ userToEdit }: Props) => {
               >
                 {isLoading ? "Loading..." : "Update Profile"}
               </Button>
+                  <Button
+                    variant="outlined"
+                    color="info"
+                    size="small"
+                    onClick={handleShowComments}
+                    disabled={loadingComments}
+                  >
+                    {loadingComments ? "Loading comments..." : "View My Comments"}
+                  </Button>
             </Stack>
           </Box>
+          <Divider />
+
+          <Box sx={{ mt: 4, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Danger Zone
+            </Typography>
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={handleDeleteDialogOpen}
+            >
+              Delete My Account
+            </Button>
+          </Box>          
         </Paper>
+        {/* self delete btn */}
+
       </Box>
+
+
+      {/* JSX dialog box for self delete */}
+      <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
+        <DialogTitle>Delete Account</DialogTitle>
+        <DialogContent>
+          <Typography>
+            This will permanently delete your account and all associated data.
+            Are you absolutely sure?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteDialogClose}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            Yes, Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* jsx dialog box for view comments */}
+      <Dialog open={openCommentsDialog} onClose={() => setOpenCommentsDialog(false)} maxWidth="sm" fullWidth>
+      <DialogTitle>My Comments</DialogTitle>
+      <DialogContent dividers>
+        {userComments.length === 0 ? (
+          <Typography>No comments found.</Typography>
+        ) : (
+          <Stack spacing={2}>
+            {userComments.map((c, idx) => (
+              <Paper key={idx} sx={{ p: 2 }} variant="outlined">
+                <Typography variant="body2">
+                  <strong>Commodity:</strong>{c.commodityName ?? c.commodityId ?? "Unknown commodity"}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Comment:</strong> {typeof c.text === "string" ? c.text : JSON.stringify(c.text)}
+                </Typography>
+                <Typography variant="body2"><strong>Rating:</strong> {c.rating ?? "—"}</Typography>
+              </Paper>
+            ))}
+          </Stack>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setOpenCommentsDialog(false)}>Close</Button>
+      </DialogActions>
+    </Dialog>
+
     </>
   )
 }

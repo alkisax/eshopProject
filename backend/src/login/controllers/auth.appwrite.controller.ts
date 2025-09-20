@@ -1,15 +1,19 @@
 import { userDAO } from '../dao/user.dao';
-import { handleControllerError } from '../services/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { IUser } from '../types/user.types';
+import { syncUserSchema } from '../validation/auth.schema';
 
 const secret = process.env.JWT_SECRET || 'secret';
 
 export const syncUser = async (req: Request, res: Response) => {
   try {
-    const { email } = req.body;
+    // const { email } = req.body;
+    const parsed = syncUserSchema.parse(req.body);
+    const { email } = parsed;
+
     if (!email) {
       return res.status(400).json({ status: false, data: 'error fetching user from appwrite' });
     }

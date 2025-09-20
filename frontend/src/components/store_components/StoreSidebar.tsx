@@ -2,20 +2,7 @@
 // Είχαμε ένα σοβαρό πρόβλημα και για αυτό αφαιρέθηκε το search bar. Εκάνε search μονο στα paginated αντικείμενα. για να μην γίνετε αυτό θα πρέπει το Pagination να οργανωθεί στο backend ή το front end να έχει τα πάντα στην μνήμη του. θα ακολουθήσω αυτό το δεύτερο αλλά αυτό είναι ΛΑΘΟΣ και πρέπει να αλλαχθει αργότερα γιατι αν τα εμπορεύματα είναι πολλά θα κολάει
 
 import { useEffect, useState } from "react";
-import {
-  Drawer,
-  Divider,
-  TextField,
-  List,
-  ListItem,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-  Typography,
-  IconButton,
-  useMediaQuery,
-  Button,
-} from "@mui/material";
+import { Drawer, Divider, TextField, List, ListItem, FormGroup, FormControlLabel, Checkbox, Typography, IconButton, useMediaQuery, Button, } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
 
@@ -27,6 +14,7 @@ interface StoreSidebarProps {
   onToggleCategory: (category: string, checked: boolean) => void;
   onApplyFilters: () => void;
   onClearFilters: () => void;
+  onSemanticSearch: (query: string) => void;
 }
 
 const StoreSidebar = ({
@@ -37,6 +25,7 @@ const StoreSidebar = ({
   onToggleCategory,
   onApplyFilters,
   onClearFilters,
+  onSemanticSearch
 }: StoreSidebarProps) => {
 
   // Είναι React hook από το Material-UI (@mui/material/styles). Σου δίνει πρόσβαση στο theme Το theme είναι κάτι σαν "παγκόσμιο config" για styling. Το ορίζει το ThemeProvider που συνήθως βάζεις γύρω από όλη την app σου. και επειδή εδώ δεν έχουμε είναι default
@@ -47,6 +36,7 @@ const StoreSidebar = ({
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(search);
+  const [semanticQuery, setSemanticQuery] = useState<string>("");
 
   // debounce 1/2
   // αντι να ψάχνει κάθε φορα που γράφφετε ένα γράμμα έχει ένα μικρό delay
@@ -73,6 +63,25 @@ const StoreSidebar = ({
         // onChange={(e) => onSearch(e.target.value)}
         onChange={(e) => setLocalSearch(e.target.value)}
         sx={{ mb: 2, mt: 8 }}
+      />
+
+      <TextField
+        label="Semantic Search - beta"
+        variant="outlined"
+        size="small"
+        fullWidth
+        value={semanticQuery}
+        onChange={(e) => setSemanticQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            if (semanticQuery.trim()) {
+              onSemanticSearch(semanticQuery);
+            } else {
+              onSemanticSearch(""); // clears results
+            }
+          }
+        }}
+        sx={{ mb: 2 }}
       />
 
       {/* Categories */}

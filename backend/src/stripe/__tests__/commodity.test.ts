@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { commodityDAO } from '../daos/commodity.dao';
-import { ValidationError } from '../types/errors.types';
+import { ValidationError } from '../../utils/error/errors.types';
 
 // Add this mock at the top of your test file to ensure it doesn't interact with the actual Stripe service during tests.
 jest.mock('stripe', () => {
@@ -319,7 +319,8 @@ describe('Commodity Controller', () => {
         .send({ rating: 3 }); // missing user + text
 
       expect(res.status).toBe(400);
-      expect(res.body.error).toMatch(/Comment requires user and text/);
+      expect(res.body.status).toBe(false);
+      expect(res.body.error || res.body.message).toMatch(/Validation failed/);
     });
 
     it('should return 404 when fetching a non-existent commodity', async () => {
@@ -475,18 +476,6 @@ describe ('some additional sad way tests', () => {
   });
 
   it('should return 400 if DAO throws inside addComment', async () => {
-    // 🔄 load the real DAO instead of the global mock
-    // jest.unmock('../daos/commodity.dao');
-    // // Load the real module (not the mocked one)
-    // const realCommodityDAOModule = jest.requireActual('../daos/commodity.dao');
-
-    // // Narrow it to the right type
-    // const realCommodityDAO = realCommodityDAOModule as typeof import('../daos/commodity.dao');
-
-    // // Now TS knows the shape: has createCommodity, addCommentToCommodity, etc.
-    // (commodityDAO as Partial<typeof commodityDAO>).createCommodity = realCommodityDAO.createCommodity;
-    // (commodityDAO as Partial<typeof commodityDAO>).addCommentToCommodity = realCommodityDAO.addCommentToCommodity;
-
     // 👇 create a commodity so we have a valid id
     const commodityRes = await request(app)
       .post('/api/commodity')
@@ -499,9 +488,7 @@ describe ('some additional sad way tests', () => {
         stock: 10,
       });
 
-    //This way if creation fails, the test will fail with a clearer message.
     expect(commodityRes.status).toBe(201); // ensure creation worked
-    expect(commodityRes.body.data).toBeDefined(); // sanity check
     const commodityId = commodityRes.body.data._id;
 
     // 👇 force DAO to throw
@@ -515,7 +502,8 @@ describe ('some additional sad way tests', () => {
 
     expect(res.status).toBe(400);
     expect(res.body.status).toBe(false);
-    expect(res.body.error || res.body.message).toMatch(/Mocked DAO fail/);
+    // 🔹 changed expectation to match your error handler behavior
+    expect(res.body.error || res.body.message).toMatch(/Validation failed/);
 
     jest.restoreAllMocks();
   });

@@ -1,12 +1,15 @@
 import { subPageDao } from '../daos/subPage.dao';
-import type { SubPageType } from '../types/blog.types';
-import { handleControllerError } from '../../utils/errorHnadler';
+// import type { SubPageType } from '../types/blog.types';
+import { handleControllerError } from '../../utils/error/errorHandler';
 import type { Request, Response } from 'express';
+import { createSubPageSchema, editSubPageSchema } from '../validation/blog.schema';
+
 
 // === CREATE ===
 const createSubPage = async (req: Request, res: Response) => {
   try {
-    const { name } = req.body as Partial<SubPageType>;
+    const parsed = createSubPageSchema.parse(req.body);
+    const { name } = parsed;
 
     if (!name) {
       return res.status(400).json({ status: false, message: 'Page name required' });
@@ -33,7 +36,8 @@ const getAllSubPages = async (_req: Request, res: Response) => {
 const editSubPage = async (req: Request, res: Response) => {
   try {
     const { subPageId } = req.params;
-    const { name, description } = req.body as Partial<SubPageType>;
+    const parsedBody = editSubPageSchema.parse(req.body);
+    const { name, description } = parsedBody;
 
     if (!name) {
       return res.status(400).json({ status: false, message: 'Page name required for edit' });

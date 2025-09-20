@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { jwtDecode } from "jwt-decode"; 
+// import { jwtDecode } from "jwt-decode"; 
 
 const GoogleSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -13,13 +13,13 @@ const GoogleSuccess = () => {
       // Maybe set some user context state here
       console.log("Logged in user:", email);
 
-      try {
-        // Decode payload (the backend puts id, username, email, roles in there)
-        const decoded: unknown = jwtDecode(token);
-        console.log("Decoded JWT payload:", decoded);
-      } catch (err) {
-        console.error("Failed to decode JWT:", err);
-      }
+      // try {
+      //   // Decode payload (the backend puts id, username, email, roles in there)
+      //   const decoded: unknown = jwtDecode(token);
+      //   console.log("Decoded JWT payload:", decoded);
+      // } catch (err) {
+      //   console.error("Failed to decode JWT:", err);
+      // }
     } else {
       console.warn("No token found in query params");
     }

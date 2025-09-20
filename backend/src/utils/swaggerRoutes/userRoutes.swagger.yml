@@ -421,3 +421,42 @@ paths:
                     example: "User not found"
         '500':
           description: Internal Server Error
+          
+  /api/users/self/{id}:
+    delete:
+      summary: Delete own user account (self)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User ID (must match the logged-in user)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User johndoe deleted successfully"
+        '400':
+          description: Missing or invalid user ID
+        '401':
+          description: Unauthorized (no token or invalid token)
+        '403':
+          description: Forbidden (user ID does not match self, not admin)
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error

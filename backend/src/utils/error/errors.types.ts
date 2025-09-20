@@ -31,3 +31,13 @@ export class DatabaseError extends Error implements AppError {
     this.statusCode = 500;
   }
 }
+
+
+// not still used
+export class EmbeddingError extends Error {
+  status = 502; // Bad gateway
+  constructor(message: string) {
+    super(message);
+    this.name = 'EmbeddingError';
+  }
+}

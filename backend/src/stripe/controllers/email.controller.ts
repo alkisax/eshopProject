@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import nodemailer from 'nodemailer';
 import { transactionDAO } from '../daos/transaction.dao';
-import { handleControllerError } from '../../utils/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 
 
 const sendThnxEmail = async (req: Request, res: Response) => {

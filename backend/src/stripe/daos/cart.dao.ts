@@ -2,7 +2,7 @@ import Cart from '../models/cart.models';
 import Commodity from '../models/commodity.models';
 import type { CartType, CartItemType } from '../types/stripe.types';
 import type { CommodityType } from '../types/stripe.types';
-import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.types';
+import { NotFoundError, ValidationError, DatabaseError } from '../../utils/error/errors.types';
 import { Types } from 'mongoose';
 
 type PopulatedCartItem = Omit<CartItemType, 'commodity'> & { commodity: CommodityType };

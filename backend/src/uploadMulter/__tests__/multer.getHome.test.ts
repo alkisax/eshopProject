@@ -54,7 +54,7 @@ describe('GET /api/upload-multer', () => {
   });
 });
 
-import { handleControllerError } from '../../utils/errorHnadler';
+import { handleControllerError } from '../../utils/error/errorHandler';
 import type { Response } from 'express';
 
 describe('handleControllerError utility', () => {
@@ -72,7 +72,7 @@ describe('handleControllerError utility', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       status: false,
-      error: 'Unknown error',
+      message: 'Unknown error', // ✅ unified key
     });
   });
 
@@ -87,8 +87,7 @@ describe('handleControllerError utility', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       status: false,
-      error: 'Unknown error',
+      message: 'Unknown error', // ✅ unified key
     });
   });
 });
-

@@ -47,6 +47,7 @@ export interface CommodityType {
   stock: number;
   active: boolean;
   images?: string[];
+  vector?: number[]
   comments?: CommentType[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -59,6 +60,8 @@ export interface CommentType {
     _id: string;
     name: string;
   };
+  commodityId?: string;
+  commodityName?: string;
   user: string | IUser;
   text: string | EditorJsData;
   rating?: 0 | 1 | 2 | 3 | 4 | 5;

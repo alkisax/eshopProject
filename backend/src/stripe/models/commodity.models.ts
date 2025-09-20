@@ -70,6 +70,10 @@ const commoditySchema = new Schema({
   comments: {
     type: [commentSchema],
     default: []
+  },   
+  vector: {  // θα προσθέσουμε vector embedings για cosine similarity αναζήτηση. Θα είναι vectorised το όνομα και η περιγραφή
+    type: [Number], // array of floats (1536 long when populated)
+    default: undefined, // stays empty until you generate it
   }
 },
 {

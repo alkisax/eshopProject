@@ -5,7 +5,7 @@ import { promises as fs } from 'fs';  // note: require fs.promises
 import path from 'path';
 import uploadDao from './upload.dao';
 import type { Request, Response } from 'express';
-import { handleControllerError } from '../login/services/errorHnadler';
+import { handleControllerError } from '../utils/error/errorHandler';
 
 import { UPLOAD_DIR } from './multer.service';
 const BACKEND_URL = process.env.BACKEND_URL;

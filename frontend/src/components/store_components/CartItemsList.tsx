@@ -87,90 +87,79 @@ const CartItemsList = () => {
       ) : (
         <List>
           {cart.items.map((item) => (
-            <ListItem
-              key={item.commodity._id.toString()}
-              sx={{
-                bgcolor: "#fafafa",
-                mb: 2,
-                borderRadius: 2,
-                boxShadow: 1,
-                minHeight: 120, // 👈 double height
-                alignItems: "center",
-              }}
-              disablePadding
-              secondaryAction={
-                <Stack direction="row" spacing={1}>
-                  <IconButton
-                    size="medium" // 👈 bigger buttons
-                    color="primary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      add(item.commodity._id);
-                    }}
-                  >
-                    <AddIcon />
-                  </IconButton>
+      <ListItem
+        key={item.commodity._id.toString()}
+        sx={{
+          flexDirection: { xs: "column", sm: "row" },
+          alignItems: { xs: "flex-start", sm: "center" },
+          justifyContent: "space-between",
+          bgcolor: "#fafafa",
+          gap: 2,
+          mb: 2,
+          borderRadius: 2,
+          boxShadow: 1,
+          p: 2,
+        }}
+      >
+        {/* Image + text */}
+        <ListItemButton
+          component={Link}
+          to={`/commodity/${item.commodity._id}`}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            flex: 1,
+            width: "100%", // full width on mobile
+          }}
+        >
+          <Box
+            component="img"
+            src={item.commodity.images?.[0] || "/placeholder.jpg"}
+            alt={item.commodity.name}
+            sx={{
+              width: 80,
+              height: 80,
+              objectFit: "cover",
+              borderRadius: 2,
+              border: "1px solid #ddd",
+            }}
+          />
+        <ListItemText
+          slotProps={{
+            primary: {
+              sx: { fontWeight: "bold", fontSize: "1.1rem" },
+            },
+            secondary: {
+              sx: { fontSize: "0.95rem", color: "text.secondary" },
+            },
+          }}
+          primary={item.commodity.name}
+          secondary={`${item.commodity.price} ${item.commodity.currency} — Qty: ${item.quantity}`}
+        />
+        </ListItemButton>
 
-                  <IconButton
-                    size="medium"
-                    color="secondary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      decrement(item.commodity._id);
-                    }}
-                  >
-                    <RemoveIcon />
-                  </IconButton>
-
-                  <IconButton
-                    size="medium"
-                    color="error"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      remove(item.commodity._id);
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Stack>
-              }
-            >
-              <ListItemButton
-                component={Link}
-                to={`/commodity/${item.commodity._id}`}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 3,
-                  py: 2,
-                }}
-              >
-                <Box
-                  component="img"
-                  src={item.commodity.images?.[0] || "/placeholder.jpg"}
-                  alt={item.commodity.name}
-                  sx={{
-                    width: 100, 
-                    height: 100,
-                    objectFit: "cover",
-                    borderRadius: 2,
-                    border: "1px solid #ddd",
-                  }}
-                />
-                <ListItemText
-                  slotProps={{
-                    primary: {
-                      sx: { fontWeight: "bold", fontSize: "1.1rem" },
-                    },
-                    secondary: {
-                      sx: { fontSize: "0.95rem", color: "text.secondary" },
-                    },
-                  }}
-                  primary={item.commodity.name}
-                  secondary={`${item.commodity.price} ${item.commodity.currency} — Qty: ${item.quantity}`}
-                />
-              </ListItemButton>
-            </ListItem>
+        {/* Buttons */}
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            mt: { xs: 1, sm: 0 },   // margin-top only on mobile
+            alignSelf: { xs: "stretch", sm: "flex-end" }, // full width row on mobile
+            justifyContent: { xs: "center", sm: "flex-end" },
+          }}
+        >
+          <IconButton size="medium" color="primary" onClick={() => add(item.commodity._id)}>
+            <AddIcon />
+          </IconButton>
+          <IconButton size="medium" color="secondary" onClick={() => decrement(item.commodity._id)}>
+            <RemoveIcon />
+          </IconButton>
+          <IconButton size="medium" color="error" onClick={() => remove(item.commodity._id)}>
+            <DeleteIcon />
+          </IconButton>
+        </Stack>
+      </ListItem>
           ))}
         </List>
       )}

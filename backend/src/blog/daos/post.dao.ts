@@ -1,6 +1,6 @@
 import Post from '../models/post.model';
 import type { PostType, SubPageType } from '../types/blog.types';
-import { DatabaseError, NotFoundError } from '../../stripe/types/errors.types';
+import { DatabaseError, NotFoundError } from '../../utils/error/errors.types';
 import { Types } from 'mongoose';
 import { slugify } from '../utils/slugify';
 

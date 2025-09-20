@@ -618,3 +618,97 @@ paths:
           description: Forbidden (requires ADMIN role)
         '500':
           description: Server error
+
+  /api/commodity/comments/user/{userId}:
+    get:
+      summary: Get all comments by a specific user
+      description: Returns all comments created by a given user across all commodities.  
+        Accessible by the user themself or an admin.
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: User ID whose comments to retrieve
+      responses:
+        '200':
+          description: List of comments by the user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        commentId:
+                          type: string
+                        commodity:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            name:
+                              type: string
+                        text:
+                          type: string
+                        rating:
+                          type: integer
+                          minimum: 0
+                          maximum: 5
+                        isApproved:
+                          type: boolean
+                        createdAt:
+                          type: string
+        '401':
+          description: Unauthorized (missing or invalid token)
+        '403':
+          description: Forbidden (not self or admin)
+        '404':
+          description: User or comments not found
+
+    delete:
+      summary: Delete all comments by a specific user
+      description: Deletes every comment made by a given user across all commodities.  
+        Accessible by the user themself or an admin (GDPR right to erasure).
+      security:
+        - bearerAuth: []
+      tags:
+        - Commodities
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: User ID whose comments to delete
+      responses:
+        '200':
+          description: All comments by the user were deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  message:
+                    type: string
+                    example: "All comments by user 68cc2070faf6a7fb15346b03 were deleted"
+        '401':
+          description: Unauthorized (missing or invalid token)
+        '403':
+          description: Forbidden (not self or admin)
+        '404':
+          description: User or comments not found
+        '500':
+          description: Server error

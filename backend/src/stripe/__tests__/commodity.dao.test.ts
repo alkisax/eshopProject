@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import Commodity from '../models/commodity.models';
 // import User from '../../login/models/users.models';
 import { commodityDAO } from '../daos/commodity.dao';
-import { ValidationError, NotFoundError } from '../types/errors.types';
+import { ValidationError, NotFoundError } from '../../utils/error/errors.types';
 
 describe('commodityDAO', () => {
   beforeAll(async () => {

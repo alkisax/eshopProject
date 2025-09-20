@@ -28,9 +28,13 @@ router.get('/:id', commodityController.findById);
 // Admin: commodities
 router.post('/', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.create);
 
+router.get( '/comments/user/:userId', middleware.verifyToken, middleware.checkSelfOrAdmin, commodityController.getCommentsByUser );
+
 router.patch('/sell/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.sellById);
 
 router.patch('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.updateById);
+
+router.delete( '/comments/user/:userId', middleware.verifyToken, middleware.checkSelfOrAdmin, commodityController.deleteAllCommentsByUser );
 
 router.delete('/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.deleteById);
 

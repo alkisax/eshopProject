@@ -4,7 +4,7 @@ import Participant from '../models/participant.models';
 import Cart from '../models/cart.models';
 import { commodityDAO } from '../daos/commodity.dao';
 import type { TransactionType, ParticipantType, CommodityType, ShippingInfoType } from '../types/stripe.types';
-import { NotFoundError, ValidationError, DatabaseError } from '../types/errors.types';
+import { NotFoundError, ValidationError, DatabaseError } from '../../utils/error/errors.types';
 
 import { Types } from 'mongoose';
 

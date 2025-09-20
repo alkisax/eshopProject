@@ -24,6 +24,7 @@ import ArticleIcon from "@mui/icons-material/Article";
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import { CloudUpload } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
+import SsidChartIcon from '@mui/icons-material/SsidChart';
 
 interface AdminSidebarProps {
   onSelect: (panel: string) => void;
@@ -136,6 +137,15 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
               <DynamicFeedIcon />
             </ListItemIcon>
             <ListItemText primary="Posts" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => onSelect("analytics")}>
+            <ListItemIcon>
+              <SsidChartIcon /> 
+            </ListItemIcon>
+            <ListItemText primary="Analytics" />
           </ListItemButton>
         </ListItem>
 
