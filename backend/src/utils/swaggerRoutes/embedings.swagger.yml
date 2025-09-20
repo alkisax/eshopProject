@@ -74,3 +74,82 @@ paths:
           description: Forbidden (user is not ADMIN)
         "500":
           description: Server error
+  /api/ai-embeddings/search:
+    get:
+      summary: Semantic search commodities
+      description: >
+        Performs a semantic search over all commodities that have embeddings.
+        The query string is embedded using OpenAI, and cosine similarity is
+        calculated against each commodity's vector. Returns the top results.
+      security:
+        - bearerAuth: []
+      tags:
+        - Embeddings
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The search query to embed and compare with commodities.
+        - name: topN
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 5
+          description: Number of top results to return.
+      responses:
+        "200":
+          description: Successfully retrieved semantic search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        commodity:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                              example: "68bffe4f5d9091594ae71386"
+                            name:
+                              type: string
+                              example: "Δαχτυλίδι mandala."
+                            description:
+                              type: string
+                              example: "Δαχτυλίδι εμπνευσμένο από γεωμετρικά μοτίβα."
+                            price:
+                              type: number
+                              example: 19.99
+                            currency:
+                              type: string
+                              example: "eur"
+                            images:
+                              type: array
+                              items:
+                                type: string
+                                example: "https://example.com/image.jpg"
+                            vector:
+                              type: array
+                              items:
+                                type: number
+                                example: 0.0325
+                        score:
+                          type: number
+                          description: Cosine similarity score between query and commodity vector
+                          example: 0.87
+        "400":
+          description: Bad request (missing query)
+        "401":
+          description: Unauthorized (missing or invalid JWT)
+        "500":
+          description: Server error

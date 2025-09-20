@@ -44,7 +44,6 @@
 - chat gpt criteria optimiser
 - editor js is not finished in blog
 - τα έξοδα αποστολής να προστήθεντε
-- google analitics
 
 - ## e2e test
 

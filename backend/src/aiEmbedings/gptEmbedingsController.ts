@@ -50,8 +50,8 @@ const vectorizeAllHandler = async (_req: Request, res: Response) => {
 
 const searchHandler = async (req: Request, res: Response) => {
   try {
-    const { q } = req.query as { q: string };
-    if (!q) {
+    const q = req.query.query;
+    if (!q || typeof q !== 'string') {
       return res.status(400).json({ status: false, message: 'Missing query' });
     }
 
