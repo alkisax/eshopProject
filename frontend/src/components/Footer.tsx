@@ -35,16 +35,16 @@ const Footer = () => {
               Πληροφορίες
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <MuiLink href="#" underline="hover" color="inherit" variant="body2">
+              <MuiLink component={RouterLink} to="/payment-methods" underline="hover" color="inherit" variant="body2">
                 Τρόποι Πληρωμής
               </MuiLink>
-              <MuiLink href="#" underline="hover" color="inherit" variant="body2">
+              <MuiLink component={RouterLink} to="/shipping-methods" underline="hover" color="inherit" variant="body2">
                 Τρόποι Αποστολής
               </MuiLink>
               <MuiLink href="#" underline="hover" color="inherit" variant="body2">
                 Συχνές Ερωτήσεις
               </MuiLink>
-              <MuiLink href="#" underline="hover" color="inherit" variant="body2">
+              <MuiLink component={RouterLink} to="/terms" underline="hover" color="inherit" variant="body2">
                 Όροι Χρήσης
               </MuiLink>
             </Box>
@@ -56,8 +56,6 @@ const Footer = () => {
               Εταιρεία
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <MuiLink href="#" underline="hover" color="inherit" variant="body2">Σημεία Πώλησης</MuiLink>
-              <MuiLink href="#" underline="hover" color="inherit" variant="body2">Θέσεις Εργασίας</MuiLink>
               <MuiLink component={RouterLink} to="/contact" underline="hover" color="inherit" variant="body2">
                 Επικοινωνία
               </MuiLink>
@@ -70,9 +68,15 @@ const Footer = () => {
               Πολιτικές
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <MuiLink href="#" underline="hover" color="inherit" variant="body2">Πολιτική Απορρήτου</MuiLink>
-              <MuiLink href="#" underline="hover" color="inherit" variant="body2">Πολιτική Επιστροφών</MuiLink>
-              <MuiLink href="#" underline="hover" color="inherit" variant="body2">Πολιτική Cookies</MuiLink>
+              <MuiLink component={RouterLink} to="/privacy-policy" underline="hover" color="inherit" variant="body2">
+                Πολιτική Απορρήτου
+              </MuiLink>
+              <MuiLink component={RouterLink} to="/return-policy" underline="hover" color="inherit" variant="body2">
+                Πολιτική Επιστροφών
+              </MuiLink>
+              <MuiLink component={RouterLink} to="/cookie-policy" underline="hover" color="inherit" variant="body2">
+                Πολιτική Cookies
+              </MuiLink>
             </Box>
           </Grid>
 

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { generateEmbeddingForOneCommodity } from './gptEmbedingsService';
+import { generateEmbeddingForOneCommodity, semanticSearchCommodities } from './gptEmbedingsService';
 import type { Request, Response } from 'express';
 import { handleControllerError } from '../utils/error/errorHandler';
 import { commodityDAO } from '../stripe/daos/commodity.dao';
@@ -48,7 +48,22 @@ const vectorizeAllHandler = async (_req: Request, res: Response) => {
   }
 };
 
+const searchHandler = async (req: Request, res: Response) => {
+  try {
+    const { q } = req.query as { q: string };
+    if (!q) {
+      return res.status(400).json({ status: false, message: 'Missing query' });
+    }
+
+    const results = await semanticSearchCommodities(q, 5);
+    return res.json({ status: true, data: results });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 export const gptEmbedingsController = {
   vectorizeOneHandler,
-  vectorizeAllHandler
+  vectorizeAllHandler,
+  searchHandler
 };

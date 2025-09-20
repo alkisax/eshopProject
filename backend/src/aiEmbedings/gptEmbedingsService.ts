@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { commodityDAO } from '../stripe/daos/commodity.dao';
 import type { CommodityType } from '../stripe/types/stripe.types';
+import { findAllWithVectors } from './gptEmbedings.commodity.vector.dao';
 
 export const generateEmbeddingForOneCommodity  = async (
   id: string,
@@ -44,4 +45,30 @@ export const getEmbedding = async (
     }
     throw new Error('Error fetching embedding: Unknown error');
   }
+};
+
+// αυτό εδώ είναι η εφαρμογή του τύπου cos(θ) = (A · B) / (||A|| * ||B||) που μου δίνει την συνημιτονοειδη ομοιότητα. δηλαδή πόσο διαφορετικά δείχνουν τα δύο διανύσματα. Απλώς το πείρα απο αλλού. Το αποτέλεσμα είναι μια τιμή απο -1 (αντίθετα), ως 0 (άσχετα) και ως 1 (πολύ όμοια) 
+export const cosineSimilarity = (vecA: number[], vecB: number[]) => {
+  const dot = vecA.reduce((sum, a, i) => sum + a * vecB[i], 0);
+  const normA = Math.sqrt(vecA.reduce((sum, a) => sum + a * a, 0));
+  const normB = Math.sqrt(vecB.reduce((sum, b) => sum + b * b, 0));
+  return dot / (normA * normB);
+};
+
+export const semanticSearchCommodities = async (query: string, topN = 5) => {
+  // 1. μου κάνει vector αυτό που έρχετε απο το search bar χρησιμοποιόντας την παραπάνω συνάρτηση (που καλεί την openAI)
+  const queryVector = await getEmbedding(query);
+
+  // 2. φέρνουμε μονο τα εμπορευματα που έχουν γίνει vector
+  const commodities = await findAllWithVectors();
+
+  // 3. τους κάνουμε συγγριση
+  const ranked = commodities
+    .map(c => ({
+      commodity: c,
+      score: cosineSimilarity(queryVector, c.vector!),
+    }))
+    .sort((a, b) => b.score - a.score);
+
+  return ranked.slice(0, topN);
 };

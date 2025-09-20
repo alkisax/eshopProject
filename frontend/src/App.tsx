@@ -33,6 +33,12 @@ import Announcements from "./blog/blogPages/Announcements";
 import News from "./blog/blogPages/News";
 import BlogPost from "./blog/blogPages/BlogPost";
 import Contact from "./pages/minorPages/Contact";
+import Terms from './pages/minorPages/Terms'
+import PrivacyPolicy from "./pages/minorPages/PrivacyPolicy";
+import PaymentMethods from "./pages/minorPages/PaymentMethods";
+import ShippingMethods from './pages/minorPages/ShippingMethods';
+import ReturnPolicy from './pages/minorPages/ReturnPolicy'
+import CookiePolicy from './pages/minorPages/CookiePolicy'
 
 import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
 
@@ -87,7 +93,13 @@ function App() {
         </Route>
 
         <Route path="/contact" element={<Contact />} />
-        
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/payment-methods" element={<PaymentMethods />} />
+        <Route path="/shipping-methods" element={<ShippingMethods />} />
+        <Route path="/return-policy" element={<ReturnPolicy />} />
+        <Route path="/cookie-policy" element={<CookiePolicy />} />
+
       </Route>
     </Routes>
     </>
