@@ -51,6 +51,9 @@ const subPageRoutesDocs = yaml.load(
 const moderatorRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'moderator.swagger.yml' )
 );
+const embedingsRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'embedings.swagger.yml' )
+);
 
 const options = {
   definition: {
@@ -94,7 +97,8 @@ const options = {
       ...categoriesRoutesDocs.paths,
       ...postRoutesDocs.paths,
       ...subPageRoutesDocs.paths,
-      ...moderatorRoutesDocs.paths, // merge
+      ...moderatorRoutesDocs.paths,
+      ...embedingsRoutesDocs.paths, // merge
     },
   },
   apis: []

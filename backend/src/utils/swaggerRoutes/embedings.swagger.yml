@@ -1,0 +1,76 @@
+openapi: 3.1.0
+info:
+  title: Embeddings API
+  version: 1.0.0
+  description: Endpoints for generating and managing commodity embeddings.
+
+paths:
+  /api/ai-embeddings/vectorize/{id}:
+    post:
+      summary: Generate embedding for one commodity
+      description: >
+        Uses OpenAI Embeddings API to vectorize a single commodity
+        (name + description) and stores the vector in the database.
+      security:
+        - bearerAuth: []
+      tags:
+        - Embeddings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The MongoDB ObjectId of the commodity.
+      responses:
+        "200":
+          description: Successfully vectorized commodity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  commodity:
+                    $ref: "#/components/schemas/Commodity"
+        "400":
+          description: Bad request (invalid id)
+        "401":
+          description: Unauthorized (missing or invalid JWT)
+        "403":
+          description: Forbidden (user is not ADMIN)
+        "500":
+          description: Server error
+
+  /api/ai-embeddings/vectorize/all:
+    post:
+      summary: Generate embeddings for all commodities
+      description: >
+        Iterates through all commodities and generates embeddings for each.
+        Admin-only. Uses pagination internally to handle large datasets.
+      security:
+        - bearerAuth: []
+      tags:
+        - Embeddings
+      responses:
+        "200":
+          description: Successfully vectorized multiple commodities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: integer
+                    description: Number of commodities updated
+        "401":
+          description: Unauthorized (missing or invalid JWT)
+        "403":
+          description: Forbidden (user is not ADMIN)
+        "500":
+          description: Server error
