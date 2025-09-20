@@ -2,9 +2,7 @@
 import { useEffect, useState, useContext, useCallback } from "react";
 import axios from "axios";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, Typography, Pagination, IconButton,
-  Stack
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography, Pagination, IconButton, Stack, Tooltip
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import AddBoxIcon from "@mui/icons-material/AddBox";
@@ -16,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import React from "react";
 import AdminCommodityFooter from "./AdminCommodityFooter";
+import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -132,6 +131,24 @@ const AdminCommoditiesPanel = () => {
     navigate(`/admin-panel/commodity/new`);
   };
 
+  const handleVectorizeCommodity = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${url}/api/ai-embeddings/vectorize/${id}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log('created vector for commodity');
+      await fetchCommodities();
+    } catch (err) {
+      console.error("Error vectorizing commodity:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // edit logic in footer
 
   // pagination slice
@@ -205,6 +222,14 @@ const AdminCommoditiesPanel = () => {
                         >
                           <DeleteIcon />
                         </IconButton>
+                        <Tooltip title="Vectorize">
+                          <IconButton
+                            color={c.vector && c.vector.length > 0 ? "success" : "warning"}
+                            onClick={() => handleVectorizeCommodity(c._id!.toString())}
+                          >
+                            <PrecisionManufacturingIcon />
+                          </IconButton>
+                        </Tooltip>
                       </Stack>
 
                       {/* On small screens → stacked buttons */}
@@ -229,6 +254,15 @@ const AdminCommoditiesPanel = () => {
                           onClick={() => handleDelete(c._id!.toString())}
                         >
                           Delete
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color={c.vector && c.vector.length > 0 ? "success" : "warning"}
+                          onClick={() => handleVectorizeCommodity(c._id!.toString())}
+                          size="small"
+                          startIcon={<PrecisionManufacturingIcon />}
+                        >
+                          Vectorize
                         </Button>
                       </Stack>
                     </TableCell>

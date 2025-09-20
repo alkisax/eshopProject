@@ -47,6 +47,7 @@ export interface CommodityType {
   stock: number;
   active: boolean;
   images?: string[];
+  vector?: number[]
   comments?: CommentType[];
   createdAt?: Date;
   updatedAt?: Date;
