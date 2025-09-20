@@ -130,7 +130,6 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
           name: "",
           surname: "",
           email: guestEmail,
-          user: null,
           transactions: [],
         };
 

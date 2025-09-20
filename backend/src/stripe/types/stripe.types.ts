@@ -1,5 +1,6 @@
 import mongoose, { Types, Document } from 'mongoose';
 import { IUser } from '../../login/types/user.types';
+
 export interface ParticipantType {
   _id?: Types.ObjectId;
   name?: string;
@@ -10,6 +11,7 @@ export interface ParticipantType {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
 export interface TransactionType extends Document {
   _id: Types.ObjectId;
   participant: Types.ObjectId | string | ParticipantType; // links to Participant

@@ -12,8 +12,8 @@ const objectId = z
 // used in participant controller 
 export const createParticipantSchema = z.object({
   user: z.string().optional(), // comes from middleware OR request
-  name: z.string().min(1, 'Name is required').max(100),
-  surname: z.string().min(1, 'Surname is required').max(100),
+  name: z.string().max(100).optional().default(''),
+  surname: z.string().max(100).optional().default(''),
   email: z.email('Invalid email address'),
 });
 
@@ -23,7 +23,7 @@ export const cartItemChangeSchema = z.object({
   quantity: z
     .number()
     .int('Quantity must be an integer')
-    .min(-100, 'Quantity too low') // allow negative for removal
+    .min(-999999, 'Quantity too low') // allow negative for removal
     .max(1000, 'Quantity too high'),
 });
 
