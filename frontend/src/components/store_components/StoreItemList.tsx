@@ -1,5 +1,4 @@
 import { useContext, useState } from "react";
-// import { useEffect } from "react"; // GA
 import { Link, useOutletContext } from "react-router-dom";
 import {
   Button,
@@ -10,18 +9,15 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
-  // Grid
 } from "@mui/material";
-// import { Grid } from "@mui/material/";
 import Grid from "@mui/material/Grid";
 import { CartActionsContext } from "../../context/CartActionsContext";
 import type { CommodityType } from "../../types/commerce.types";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import Loading from "../Loading";
 
-// all google analytics are commented out and will be added again in future
-// GA
-// import { useAnalytics } from "@keiko-app/react-google-analytics";
+import { useEffect } from "react"; // GA
+import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
 
 type ContextType = {
   commodities: CommodityType[]; // already paginated in StoreLayout
@@ -34,6 +30,7 @@ type ContextType = {
 const StoreItemList = () => {
   const { addOneToCart } = useContext(CartActionsContext)!;
   const { isLoading } = useContext(UserAuthContext);
+  const { tracker } = useAnalytics() || {}; //GA
 
   // επειδή αυτό δεν είναι ένα κανονικό παιδί του layout αλλα μπάινει στο outlet του layout, 
   // τα props έρχονται με την useOutletContext (δες και σχόλια στο layout)
@@ -43,23 +40,20 @@ const StoreItemList = () => {
   const [loadingItemId] = useState<string | null>(null); 
   // turning off add btn while prossecing to avoid axios spamming
 
-
-  // // GA
-  // const { tracker } = useAnalytics();
-  // // GA
-  // useEffect(() => {
-  //   if (commodities.length > 0) {
-  //     tracker.trackEvent("view_item_list", {
-  //       item_list_id: "store_grid",
-  //       items: commodities.map((c) => ({
-  //         item_id: c._id,
-  //         item_name: c.name,
-  //         price: c.price,
-  //         currency: c.currency,
-  //       })),
-  //     });
-  //   }
-  // }, [commodities, tracker]);
+  // GA - gogle analitics track if item passes in a list view (δεν το έχει πατήσει απλός πέρασε απο μπροστά του)
+  useEffect(() => {
+    if (commodities.length > 0 && tracker?.trackEvent) {
+      tracker.trackEvent("view_item_list", {
+        item_list_id: "store_grid",
+        items: commodities.map((c) => ({
+          item_id: c._id,
+          item_name: c.name,
+          price: c.price,
+          currency: c.currency,
+        })),
+      });
+    }
+  }, [commodities, tracker]);
 
   // MUI pagination
   const handlePageChange = (
@@ -99,13 +93,13 @@ const StoreItemList = () => {
               <CardActionArea 
                 component={Link} 
                 to={`/commodity/${commodity._id}`}
-                // // GA
-                // onClick={() =>
-                //   tracker.trackEvent("view_item", {
-                //     item_id: commodity._id,
-                //     item_name: commodity.name,
-                //   })
-                // }
+                // GA
+                onClick={() =>
+                  tracker?.trackEvent?.("view_item", {
+                    item_id: commodity._id,
+                    item_name: commodity.name,
+                  })
+                }
               >
                 <CardMedia
                   component="img"

@@ -20,8 +20,8 @@ const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
       
     const participantInfo = { 
       _id: globalParticipant._id,
-      name: globalParticipant.name,
-      surname: globalParticipant.surname,  
+      name: form.fullName,
+      surname: form.fullName,  
       email: globalParticipant.email,
     };
     

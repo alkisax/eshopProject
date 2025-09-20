@@ -23,7 +23,7 @@ createRoot(document.getElementById('root')!).render(
           </CartActionsProvider>
         </VariablesProvider>
       </UserProvider>
-    </BrowserRouter>   
+    </BrowserRouter>
 
   // </StrictMode>,
 )

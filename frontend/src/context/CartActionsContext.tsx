@@ -1,9 +1,10 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-import type { ParticipantType, CartType } from "../types/commerce.types";
+import type { ParticipantType, CartType, CommodityType } from "../types/commerce.types";
 import { VariablesContext } from "./VariablesContext"; // ✅ because you’re using setGlobalParticipant
 import { UserAuthContext } from "./UserAuthContext";
+import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
 
 interface CartActionsContextType {
   addOneToCart: (commodityId: string) => Promise<void>;
@@ -41,6 +42,8 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useContext(UserAuthContext);
 
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
+
+  const { tracker } = useAnalytics() || {}; //GA
 
   // part 1/2
   const fetchParticipantId = async (): Promise<string | null> => {
@@ -202,6 +205,29 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
       await addQuantityCommodityToCart(participantId, commodityId, 1);
       setHasCart(true); // optimistic update
       setLoadingItemId(commodityId); //axios spamming controll
+
+      // GA google analytics
+      if (tracker?.trackEvent) {
+        const commodityResponce = await axios.get<{ status: boolean, data: CommodityType }>(
+          `${url}/api/commodities/${commodityId}`
+        )
+        const commodity = commodityResponce.data.data;
+
+        tracker?.trackEvent("add_to_cart", {
+          currency: commodity.currency,
+          value: commodity.price,
+          items: [
+            {
+              item_id: commodity._id,
+              item_name: commodity.name,
+              price: commodity.price,
+              quantity: 1,
+            },
+          ],
+        }); 
+
+      }
+
 
       // this part is just for logging the cart maybe later remove
       const cartRes = await axios.get<{ status: boolean; data: CartType }>(

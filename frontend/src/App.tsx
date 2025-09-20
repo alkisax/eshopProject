@@ -8,9 +8,6 @@ import { useContext } from "react";
 import { useInitializer } from "./hooks/useInitializer";
 import { VariablesContext } from "./context/VariablesContext";
 import { UserAuthContext } from "./context/UserAuthContext";
-
-// import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
-
 import Home from './pages/Home'
 import Login from './authLogin/Login'
 import GoogleLogin from './authLogin/loginGoogle/GoogleLogin'
@@ -37,6 +34,8 @@ import News from "./blog/blogPages/News";
 import BlogPost from "./blog/blogPages/BlogPost";
 import Contact from "./pages/minorPages/Contact";
 
+import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
+
 function App() {
   const { user } = useContext(UserAuthContext);
   const { setGlobalParticipant, setHasCart } = useContext(VariablesContext);
@@ -47,7 +46,7 @@ function App() {
   return (
     <>
     {/* Google analytics initializer */}
-    {/* <GAAnalyticsTracker /> */}
+    <GAAnalyticsTracker />
 
     <Routes>
       <Route element={<LayoutWithNavbar />}>

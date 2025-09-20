@@ -75,7 +75,9 @@ app.use(
         "'self'",
         "https://js.stripe.com",
         "https://www.google.com",
-        "https://maps.google.com"
+        "https://maps.google.com",
+        "https://analytics.google.com",
+        "https://lookerstudio.google.com",
       ],
       // imgSrc: ["'self'", "data:", "https://cloud.appwrite.io", "https://fra.cloud.appwrite.io"], // αυτο λειτουργούσε αλλλα αφαιρέθηκε, **ΝΑ ΠΡΟΣΤΕΘΕΙ ΞΑΝΑ** δες επόμενο σχόλιο
       imgSrc: ["'self'", "data:", "https:"], // η εφαρμογή μου είχε πολλές φωτογραφίες απο διάφορα url απο το ιντερνετ. βάλαμε αυτό γιατί τις έκοβε το helmet αλλα τώρα δεν είναι ασφαλές

@@ -41,8 +41,6 @@
 - if no commodity image show sth ✅
 - bugs in search categories ✅
 - GAnalytics now tracks commodity impretions and commodity pages ✅ add more, learn dashboard
-- trash on cart not working
-- guest buy dont work
 - chat gpt criteria optimiser
 - editor js is not finished in blog
 - τα έξοδα αποστολής να προστήθεντε

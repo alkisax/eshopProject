@@ -18,6 +18,7 @@ import { CartActionsContext } from "../../context/CartActionsContext";
 import type { IUser } from "../../types/types";
 import type { Types } from "mongoose";
 import { AiModerationContext } from "../../context/AiModerationContext";
+import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
 
 const CommodityPage = () => {
   const { url } = useContext(VariablesContext);
@@ -43,6 +44,20 @@ const CommodityPage = () => {
   const { id } = useParams<{ id: string }>();
 
   const { user } = useContext(UserAuthContext);
+
+  const { tracker } = useAnalytics() || {}; //GA
+
+  // GA google analitics - track specific view of item
+  useEffect(() => {
+    if (commodity && tracker?.trackEvent) {
+      tracker.trackEvent("view_item", {
+        item_id: commodity._id,
+        item_name: commodity.name,
+        price: commodity.price,
+        currency: commodity.currency,
+      });
+    }
+  }, [commodity, tracker]);
 
   const ratings = (commodity?.comments ?? [])
     .map(c => c.rating)
