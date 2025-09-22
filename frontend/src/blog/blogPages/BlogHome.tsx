@@ -24,9 +24,15 @@ const BlogHome = () => {
 
   return (
     <>
-      <Stack direction="column" spacing={2} alignItems="center" sx={{ width: "100%" }}>
+      <Stack
+        direction="column"
+        spacing={2}
+        alignItems="center"
+        sx={{ width: "100%" }}
+      >
         {/* Νέα */}
         <Button
+          id="news-btn"
           variant="contained"
           size="large"
           onClick={() => navigate("/news")}
@@ -54,6 +60,7 @@ const BlogHome = () => {
 
         {/* Ανακοινώσεις */}
         <Button
+          id="announcements-btn"
           variant="contained"
           size="large"
           onClick={() => navigate("/announcements")}

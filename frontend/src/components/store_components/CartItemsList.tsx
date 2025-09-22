@@ -177,6 +177,7 @@ const CartItemsList = () => {
 
       <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
         <Button
+          id="proceed-to-shipping-btn"
           variant="contained"
           color="primary"
           onClick={() => navigate("/shipping-info")}

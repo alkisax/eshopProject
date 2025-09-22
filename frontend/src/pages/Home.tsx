@@ -73,6 +73,7 @@ const Home = () => {
 
           {/* Κατάστημα Button with background image */}
           <Button
+            id="store-btn"
             variant="contained"
             size="large"
             onClick={() => navigate("/store")}

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import rateLimit from 'express-rate-limit';
 import type { Request, Response } from 'express';
 

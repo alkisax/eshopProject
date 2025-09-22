@@ -54,11 +54,12 @@ const StoreSidebar = ({
 
       {/* Search box */}
       <TextField
+        id="normal-search"
         label="Search products"
         variant="outlined"
         size="small"
         fullWidth
-        value={search}
+        value={localSearch}
         // debounce 2/2
         // onChange={(e) => onSearch(e.target.value)}
         onChange={(e) => setLocalSearch(e.target.value)}
@@ -66,6 +67,7 @@ const StoreSidebar = ({
       />
 
       <TextField
+        id="semantic-search"
         label="Semantic Search - beta"
         variant="outlined"
         size="small"
@@ -85,7 +87,11 @@ const StoreSidebar = ({
       />
 
       {/* Categories */}
-      <Typography variant="subtitle1" sx={{ mb: 1 }}>
+      <Typography
+        id="sidebar-title"
+        variant="subtitle1"
+        sx={{ mb: 1 }}
+      >
         Categories
       </Typography>
       <List dense disablePadding>
@@ -93,6 +99,7 @@ const StoreSidebar = ({
           {allCategories.map((cat) => (
             <ListItem key={cat} disablePadding>
               <FormControlLabel
+                id={`cat-${cat}`}
                 control={
                   <Checkbox
                     checked={selectedCategories.includes(cat)}
@@ -165,6 +172,7 @@ const StoreSidebar = ({
           }}
         >
           <Button
+            id="apply-filters-btn"
             variant="contained"
             color="primary"
             fullWidth
@@ -174,6 +182,7 @@ const StoreSidebar = ({
             Apply Filters
           </Button>
           <Button
+            id="clear-filters-btn"
             variant="outlined"
             color="secondary"
             fullWidth

@@ -30,6 +30,7 @@ const NavbarAppwrite = () => {
         <Toolbar>
           {/* Logo */}
           <Box
+            id="navbar-home"
             component={Link}
             to="/"
             sx={{ display: "flex", alignItems: "center", textDecoration: "none", color: "inherit" }}
@@ -81,7 +82,12 @@ const NavbarAppwrite = () => {
               </>
             ) : (
               <Tooltip title="Login">
-                <IconButton component={Link} to="/login" sx={{ color: "inherit" }}>
+                <IconButton
+                id="navbar-login"
+                  component={Link}
+                  to="/login"
+                  sx={{ color: "inherit" }}
+                >
                   <LoginIcon />
                 </IconButton>
               </Tooltip>
@@ -90,7 +96,11 @@ const NavbarAppwrite = () => {
             {cartCount > 0 && (
               <Tooltip title="Cart">
                 <IconButton component={Link} to="/cart" sx={{ color: "inherit" }}>
-                  <Badge badgeContent={cartCount} color="secondary">
+                  <Badge
+                    id="navbar-cart-badge"
+                    badgeContent={cartCount}
+                    color="secondary"
+                  >
                     <ShoppingCartIcon />
                   </Badge>
                 </IconButton>
