@@ -42,7 +42,6 @@
 - bugs in search categories ✅
 - GAnalytics now tracks commodity impretions and commodity pages ✅, learn dashboard
 - chat gpt criteria optimiser ✅
-- editor js is not finished in blog
 - αγαπημένα προιόντα ❤️
 - τα έξοδα αποστολής να προστήθεντε (ως invisible commodities)
 
