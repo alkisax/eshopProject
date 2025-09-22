@@ -40,10 +40,11 @@
 - notes in shipping unresponcive ✅
 - if no commodity image show sth ✅
 - bugs in search categories ✅
-- GAnalytics now tracks commodity impretions and commodity pages ✅ add more, learn dashboard
-- chat gpt criteria optimiser
+- GAnalytics now tracks commodity impretions and commodity pages ✅, learn dashboard
+- chat gpt criteria optimiser ✅
 - editor js is not finished in blog
-- τα έξοδα αποστολής να προστήθεντε
+- αγαπημένα προιόντα ❤️
+- τα έξοδα αποστολής να προστήθεντε (ως invisible commodities)
 
 - ## e2e test
 

@@ -42,19 +42,22 @@ const LatestCommodities = () => {
   };
 
   return (
-    <Slider {...settings}>
-      {latest.map((c) => (
-        <div key={c._id}>
-          <img
-            src={c.images?.[0] || "/placeholder.jpg"}
-            alt={c.name}
-            style={{ maxHeight: 300, margin: "0 auto" }}
-          />
-          <h3>{c.name}</h3>
-          <p>{c.price} {c.currency}</p>
-        </div>
-      ))}
-    </Slider>
+    <div id="home-carousel">
+      <Slider {...settings}>
+        {latest.map((c) => (
+          <div key={c._id}>
+            <img
+              src={c.images?.[0] || "/placeholder.jpg"}
+              alt={c.name}
+              style={{ maxHeight: 300, margin: "0 auto" }}
+            />
+            <h3>{c.name}</h3>
+            <p>{c.price} {c.currency}</p>
+          </div>
+        ))}
+      </Slider>      
+    </div>
+
   );
 };
 

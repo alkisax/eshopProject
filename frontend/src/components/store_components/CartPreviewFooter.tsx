@@ -24,6 +24,7 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
 
   return (
     <Box
+      id="cart-preview-footer"
       sx={{
         borderTop: "1px solid #ddd",
         background: "#fafafa",

@@ -69,6 +69,7 @@ const LastAnnouncement = () => {
 
   return (
     <Card
+      id="last-announcement"
       sx={{ mt: 4, cursor: "pointer" }}
       onClick={() => navigate(`/posts/${announcement.slug || announcement._id}`)}
     >

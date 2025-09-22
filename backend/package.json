@@ -10,6 +10,7 @@
     "build": "tsc && npm run copy-assets",
     "copy-assets": "copyfiles src/**/*.yml build/",
     "dev": "ts-node-dev src/server.ts",
+    "dev:test": "cross-env NODE_ENV=test ts-node-dev src/server.ts",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx} --ignore-pattern build --ignore-pattern dist",
     "start": "node build/src/server.js",
     "test": "cross-env NODE_ENV=test jest --coverage --testTimeout=50000 --runInBand --verbose  --silent --resetModules --clearMocks",

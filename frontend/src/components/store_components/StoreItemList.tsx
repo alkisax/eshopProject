@@ -68,9 +68,16 @@ const StoreItemList = () => {
           No commodities found. Try changing search or filters.
         </Typography>
       ) : (
-      <Grid container spacing={3}>
+      <Grid
+        id="commodity-list"
+        container
+        spacing={3}
+      >
         {commodities.map((commodity) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={commodity._id.toString()}>
+          <Grid
+            size={{ xs: 12, sm: 6, md: 4 }}
+            key={commodity._id.toString()}
+          >
             <Card
               sx={{
                 height: "40vh", // ~2–2.5 items per screen
@@ -103,7 +110,11 @@ const StoreItemList = () => {
                   alt={commodity.name}
                 />
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography
+                    id={`commodity-${commodity._id}`}
+                    variant="h6"
+                    gutterBottom
+                  >
                     {commodity.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -114,6 +125,7 @@ const StoreItemList = () => {
 
               <CardActions sx={{ justifyContent: "flex-end", p: 2 }}>
                 <Button
+                  id="add-one-list-item-btn"
                   variant="contained"
                   size="small"
                   onClick={async (e) => {

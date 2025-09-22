@@ -48,52 +48,61 @@ const ShippingInfo = () => {
         {/* 🟢 Left column: address fields */}
         <Stack spacing={2} flex={1}>
           <TextField
+            id="shipping-email"
             label="Email"
             value={form.shippingEmail}
             onChange={(e) => handleChange("shippingEmail", e.target.value)}
             required
           />
           <TextField
+            id="shipping-full-name"
             label="Full name"
             value={form.fullName}
             onChange={(e) => handleChange("fullName", e.target.value)}
             required
           />
           <TextField
+            id="shipping-address-line-1"
             label="Address Line 1"
             value={form.addressLine1}
             onChange={(e) => handleChange("addressLine1", e.target.value)}
             required
           />
           <TextField
+            id="shipping-address-line-2"
             label="Address Line 2"
             value={form.addressLine2}
             onChange={(e) => handleChange("addressLine2", e.target.value)}
           />
           <TextField
+            id="shipping-city"
             label="City"
             value={form.city}
             onChange={(e) => handleChange("city", e.target.value)}
             required
           />
           <TextField
+            id="shipping-postal-code"
             label="Postal Code"
             value={form.postalCode}
             onChange={(e) => handleChange("postalCode", e.target.value)}
             required
           />
           <TextField
+            id='shipping-country'
             label="Country"
             value={form.country}
             onChange={(e) => handleChange("country", e.target.value)}
             required
           />
           <TextField
+            id='shipping-phone'
             label="Phone"
             value={form.phone}
             onChange={(e) => handleChange("phone", e.target.value)}
           />
           <TextField
+            id='shipping-notes'
             label="Notes"
             value={form.notes}
             onChange={(e) => handleChange("notes", e.target.value)}
@@ -126,16 +135,19 @@ const ShippingInfo = () => {
             onChange={(e) => handleChange("shippingMethod", e.target.value)}
           >
             <FormControlLabel
+              id='shipping-courier-option'
               value="courier"
               control={<Radio />}
               label="Αποστολή με Courier: 3,50 €"
             />
             <FormControlLabel
+              id='shipping-boxnow-option'
               value="boxnow"
               control={<Radio />}
               label="BOX NOW Lockers | Γρήγορη παράδοση, 24/7: 2,50 €"
             />
             <FormControlLabel
+              id='shipping-pickup-option'
               value="pickup"
               control={<Radio />}
               label="Παραλαβή από το κατάστημα: 0 €"
