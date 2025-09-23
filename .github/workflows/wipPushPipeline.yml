@@ -1,10 +1,11 @@
+# 1️⃣ It runs only when a pull request targeting main is opened or updated (synchronized).
 name:  wip pipeline
 
 on: 
   push:
     branches:
       - wip
-
+#  2️⃣ This job runs on Ubuntu. It sets environment variables from GitHub secrets (used in backend).
 jobs:
   wip-pipeline:
     runs-on: ubuntu-latest
@@ -27,6 +28,7 @@ jobs:
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
       
+# 3️⃣ Pulls the repo code into the runner and installs Node 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
