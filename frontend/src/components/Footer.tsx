@@ -96,7 +96,7 @@ const Footer = () => {
 
         <Box sx={{ textAlign: "center", mt: 4, borderTop: "1px solid #d6d2c4", pt: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            © {new Date().getFullYear()} Έχω μια Ιδέα... | Χειροποίητο Κόσμημα
+            © {new Date().getFullYear()} Έχω μια Ιδέα... | Χειροποίητο Κόσμημα.
           </Typography>
         </Box>
       </Container>

@@ -46,6 +46,9 @@ jobs:
       VITE_PUBLIC_STRIPE_KEY: ${{ secrets.VITE_PUBLIC_STRIPE_KEY }}
       VITE_UPLOAD_PASS: ${{ secrets.VITE_UPLOAD_PASS }}
       VITE_UPLOAD_USER: ${{ secrets.VITE_UPLOAD_USER }}
+
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
       
 # 3️⃣ Pulls the repo code into the runner and installs Node 20
     steps:
@@ -119,3 +122,14 @@ jobs:
       - name: Run backend tests
         run: npm run test
         working-directory: ./backend
+
+      # === Deployment ===
+      - name: Trigger deployment
+        env:
+          # CONDITION is true if commit messages contain "#skip"
+          CONDITION: ${{ contains(join(github.event.commits.*.message, ' '), '#skip') }}
+        if: ${{ env.CONDITION == 'false' }}
+        run: |
+          curl -X GET \
+            -H "Accept: application/json" \
+            "https://api.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
