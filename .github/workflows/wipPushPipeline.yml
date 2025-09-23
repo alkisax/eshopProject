@@ -67,10 +67,35 @@ jobs:
         run: npm run build
         working-directory: ./backend
 
-      - name: Check env
-        run: |
-          echo "JWT_SECRET: $JWT_SECRET"
-          echo "MONGODB_TEST_URI: $MONGODB_TEST_URI"
+      # === E2E ===
+      - name: Install E2E dependencies
+        run: npm install
+        working-directory: ./e2e
+
+      - name: Start frontend dev server in background
+        run: npm run dev &
+        working-directory: ./frontend
+
+      - name: Wait for frontend to be ready
+        run: npx wait-on http://localhost:5173
+
+      - name: Start backend server in background
+        run: npm run start &
+        working-directory: ./backend
+        env:
+          MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
+      - name: Wait for backend to be ready
+        run: npx wait-on http://localhost:3001/health
+
+      - name: Run Cypress tests
+        run: npm run cypress:run
+        working-directory: ./e2e
+        env:
+          CYPRESS_BASE_URL: http://localhost:5173
+
+      # === BACKEND TESTS ===
 
       - name: Run backend tests
         run: npm run test

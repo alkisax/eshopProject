@@ -1,7 +1,7 @@
 describe('E-Shop Basic E2E', () => {
   it('visits home page, navigates to minor footer pages', () => {
     cy.clearLocalStorage("ga_consent");
-    cy.visit('http://localhost:5173');
+    cy.visit('/');
 
     // Accept GDPR if shown
     cy.get("body").then($body => {
@@ -48,7 +48,7 @@ describe('E-Shop Basic E2E', () => {
 describe('E-Shop Home Page', () => {
   beforeEach(() => {
     cy.clearLocalStorage("ga_consent");
-    cy.visit('http://localhost:5173');
+    cy.visit('/');
 
     // Accept GDPR if banner shows
     cy.get("body").then($body => {
@@ -88,7 +88,7 @@ describe('E-Shop Home Page', () => {
 describe('Guest route', () => {
   beforeEach(() => {
     cy.clearLocalStorage("ga_consent");
-    cy.visit('http://localhost:5173');
+    cy.visit('/');
 
     // Accept GDPR if banner shows
     cy.get("body").then($body => {
