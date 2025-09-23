@@ -27,6 +27,25 @@ jobs:
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+
+      # Frontend (must be prefixed VITE_)
+      VITE_APPWRITE_ENDPOINT: ${{ secrets.VITE_APPWRITE_ENDPOINT }}
+      VITE_APPWRITE_PROJECT_ID: ${{ secrets.VITE_APPWRITE_PROJECT_ID }}
+      VITE_APPWRITE_API_KEY: ${{ secrets.VITE_APPWRITE_API_KEY }}
+      VITE_APPWRITE_BUCKET_ID: ${{ secrets.VITE_APPWRITE_BUCKET_ID }}
+      VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+      VITE_FRONTEND_URL: ${{ secrets.VITE_FRONTEND_URL }}
+      VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
+      VITE_GA_PROPERTY_ID: ${{ secrets.VITE_GA_PROPERTY_ID }}
+      VITE_GITHUB_CLIENT_ID: ${{ secrets.VITE_GITHUB_CLIENT_ID }}
+      VITE_GITHUB_CLIENT_SECRET: ${{ secrets.VITE_GITHUB_CLIENT_SECRET }}
+      VITE_GITHUB_URI: ${{ secrets.VITE_GITHUB_URI }}
+      VITE_PRICE_ID_050: ${{ secrets.VITE_PRICE_ID_050 }}
+      VITE_PRICE_ID_1E: ${{ secrets.VITE_PRICE_ID_1E }}
+      VITE_PRICE_ID_2E: ${{ secrets.VITE_PRICE_ID_2E }}
+      VITE_PUBLIC_STRIPE_KEY: ${{ secrets.VITE_PUBLIC_STRIPE_KEY }}
+      VITE_UPLOAD_PASS: ${{ secrets.VITE_UPLOAD_PASS }}
+      VITE_UPLOAD_USER: ${{ secrets.VITE_UPLOAD_USER }}
       
 # 3️⃣ Pulls the repo code into the runner and installs Node 20
     steps:
