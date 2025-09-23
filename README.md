@@ -66,12 +66,11 @@ This application demonstrates **modern web dev best practices**, **secure authen
 - **Zod validation** for all input DTOs
 - **bcrypt** password hashing (never plain stored)
 - **Rate limiting** (global + login brute force prevention)
-- **Winston logger** with request/error logging
+- **Winston logger** 
 - **Size restrictions** on file uploads
 - **DOMPurify** for sanitizing Editor.js content (XSS protection)
 - **Role-based protected routes** (frontend + backend middleware)
 - **CSRF-safe Stripe integration** (price IDs only from Stripe dashboard)
-- **Automated security scans** (`npm audit` in pipeline)
 
 ---
 

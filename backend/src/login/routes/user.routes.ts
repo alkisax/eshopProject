@@ -23,6 +23,8 @@ router.get('/email/:email', middleware.verifyToken, userController.readByEmail);
 // update
 router.put('/:id', middleware.verifyToken, userController.updateById);
 router.put('/toggle-admin/:id', middleware.verifyToken, middleware.checkRole('ADMIN'), userController.toggleRoleById);
+router.post('/:id/favorites', middleware.verifyToken, middleware.checkSelfOrAdmin, userController.addTofavorites);
+router.delete('/:id/favorites', middleware.verifyToken, middleware.checkSelfOrAdmin, userController.removeFromFavorites);
 
 // delete self
 router.delete('/self/:id', middleware.verifyToken, middleware.checkSelfOrAdmin, userController.deleteById);

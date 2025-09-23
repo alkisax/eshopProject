@@ -172,6 +172,64 @@ export const toggleRoleById = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const addTofavorites = async (req: AuthRequest, res: Response) => {
+  try {
+    const userIdToUpdate = req.params.id;
+    const commodityId = req.body.commodityId;
+    const existingUser = req.user; //← έρχεται απο το middleware
+    const dbUser = await userDAO.toServerById(userIdToUpdate); 
+    
+    if (!commodityId) {
+      return res.status(400).json({ status: false, message: 'commodityId required' });
+    }
+    if (!existingUser) {
+      return res.status(401).json({ status: false, message: 'Unauthorized' });
+    }
+
+    const currentFavorites = (dbUser.favorites ?? []).map(f => f.toString());
+    const newFavorites = Array.from(new Set([...currentFavorites, commodityId])); // είναι έτσι και οχι σκέτο [...currentFavorites, commodityId] για να το κάνουμε set και να μην επιτρεπουμε διπλα αντικείμενα favorite
+
+    const updateData: UpdateUser = {
+      favorites: newFavorites
+    };
+    const updated = await userDAO.update(userIdToUpdate, updateData);
+
+    return res.status(200).json({ status: true, data: updated });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }  
+};
+
+export const removeFromFavorites = async (req: AuthRequest, res: Response) => {
+  try {
+    const userIdToUpdate = req.params.id;
+    const commodityId = req.body.commodityId;
+    const existingUser = req.user; //← έρχεται απο το middleware
+    const dbUser = await userDAO.toServerById(userIdToUpdate); 
+
+    if (!commodityId) {
+      return res.status(400).json({ status: false, message: 'commodityId required' });
+    }
+
+    if (!existingUser) {
+      return res.status(401).json({ status: false, message: 'Unauthorized' });
+    }
+
+    // fetch fresh user from DB
+    const currentFavorites = (dbUser.favorites ?? []).map(f => f.toString());
+
+    // remove this commodity
+    const newFavorites = currentFavorites.filter((id) => id.toString() !== commodityId);
+
+    const updateData: UpdateUser = { favorites: newFavorites };
+    const updated = await userDAO.update(userIdToUpdate, updateData);
+
+    return res.status(200).json({ status: true, data: updated });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 export const updateById = async (req: AuthRequest, res: Response) => {
   const userIdToUpdate = req.params.id;
   const requestingUser = req.user; // <-- This should be set by verifyToken middleware
@@ -251,5 +309,7 @@ export const userController = {
   readByEmail,
   toggleRoleById,
   updateById,
+  addTofavorites,
+  removeFromFavorites,
   deleteById
 };

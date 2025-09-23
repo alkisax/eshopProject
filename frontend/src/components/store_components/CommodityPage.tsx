@@ -2,14 +2,9 @@
 import { useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import {
-  Typography,
-  CircularProgress,
-  Box,
-  Button,
-  Stack,
-  Paper,
-} from "@mui/material";
+import { Typography, CircularProgress, Box, Button, Stack, Paper, } from "@mui/material";
+// import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+// import FavoriteIcon from "@mui/icons-material/Favorite";
 import { TextField, Rating, Pagination } from "@mui/material";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import type { CommodityType } from "../../types/commerce.types";
@@ -164,6 +159,21 @@ const CommodityPage = () => {
     fetchSuggestions();
   }, [showSuggestions, commodity, url]);
 
+  // const handleAddToFavorites = async () => {
+  //   if (!user || !commodity?._id) return;
+  //   const token = localStorage.getItem("token");
+  //   try {
+  //     await axios.post(
+  //       `${url}/api/users/${user._id}/favorites`,
+  //       { commodityId: commodity._id },
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
+  //     // setHasFavorites(true);
+  //   } catch (err) {
+  //     console.error("Failed to add favorite", err);
+  //   }
+  // };
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
@@ -275,6 +285,16 @@ const CommodityPage = () => {
         >
           {commodity.stock === 0 ? "Out of Stock" : "Add to Cart"}
         </Button>
+
+        {/* <Button
+          variant="outlined"
+          sx={{ mt: 1, width: 200 }}
+          disabled={!user}
+          onClick={handleAddToFavorites}
+          startIcon={<FavoriteBorderIcon />}
+        >
+          Add to Favorites
+        </Button> */}
 
         <Button
           variant="outlined"

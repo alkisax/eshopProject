@@ -1,5 +1,6 @@
 import type { IUser, UserView, CreateUserHash, UpdateUser } from '../types/user.types';
 import User from '../models/users.models';
+// import { string } from 'zod';
 
 // Response DAO (safe to send to client no hashed pass)
 export const toUserDAO = (user: IUser): UserView => {
@@ -9,6 +10,7 @@ export const toUserDAO = (user: IUser): UserView => {
     name: user.name,
     email: user.email,
     roles: user.roles,
+    favorites: user.favorites ?? [],
     createdAt: user.createdAt,
     updatedAt: user.updatedAt
   };

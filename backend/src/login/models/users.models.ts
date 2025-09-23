@@ -23,7 +23,12 @@ const userSchema = new Schema({
   hashedPassword: {
     type: String,
     required: [true, 'password is required'],
-  }
+  },
+  favorites: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Commodity',
+    required: false
+  }],
 },
 {
   collection: 'users',

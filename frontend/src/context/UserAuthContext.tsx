@@ -26,10 +26,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const fetchUser = async () => {
     let provider: "appwrite" | "google" | "backend" | "github" | "none" = "none";
-    let decodedToken: GoogleJwtPayload | BackendJwtPayload | GithubJwtPayload  |null = null;
+    let decodedToken: GoogleJwtPayload | BackendJwtPayload | GithubJwtPayload | null = null;
     let appwriteUser: AppwriteUser | null = null;
 
     const token = localStorage.getItem("token");
+    // αν έχει τοκεν παίρνουμε απο εκέι τον Provider
     if (token) {
       // console.log('found token:', token);
       
@@ -43,11 +44,13 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     } else {
       console.log('did not found token');
       
-      // 2️⃣ No token, check Appwrite session
+      //το apppwrite είναι ειδική περίπτωση ορίζουμε το provider appwrite εδώ. στα άλλα το κάναμε στο backend
+      // No token, check Appwrite session
       try {
         const sessionUser = await account.get();
         provider = "appwrite";
         appwriteUser = {
+          //
           $id: sessionUser.$id,
           email: sessionUser.email,
           name: sessionUser.name || "",
@@ -68,7 +71,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           return;
         }
         try {
-          // 🔄 Sync roles from backend
+          // Sync roles from backend
           const syncRes = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/appwrite/sync`, {
             email: appwriteUser.email,
           });
