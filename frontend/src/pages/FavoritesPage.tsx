@@ -21,7 +21,8 @@ const FavoritesPage = () => {
         const res = await axios.get(`${url}/api/users/${user._id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setFavoriteIds(res.data.data.favorites || []);
+        const favs: string[] = res.data.data.favorites || []
+        setFavoriteIds(favs);
         setHasFavorites(favs.length > 0);
       } catch (err) {
         console.error("Failed to fetch favorites", err);
