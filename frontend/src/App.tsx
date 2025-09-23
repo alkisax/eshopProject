@@ -24,6 +24,7 @@ import AdminLayout from "./Layouts/AdminLayout"
 import ProfileUser from './pages/ProfileUser'
 import Store from './pages/Store'
 import Cart from "./pages/Cart";
+import FavoritesPage from './pages/FavoritesPage'
 import ShippingInfo from "./pages/ShippingInfo";
 import CheckoutSuccess from "./components/store_components/CheckoutSuccess";
 import CommodityPage from "./components/store_components/CommodityPage";
@@ -71,6 +72,7 @@ function App() {
         <Route path="/commodity/:id" element={<CommodityPage />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/shipping-info" element={<ShippingInfo />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
         
         <Route path="/login" element={<Login url={url} />} />
         <Route path="/signup" element={<GoogleLogin url={url} />} />

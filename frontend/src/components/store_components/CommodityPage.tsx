@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { Typography, CircularProgress, Box, Button, Stack, Paper, } from "@mui/material";
-// import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-// import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import { TextField, Rating, Pagination } from "@mui/material";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import type { CommodityType } from "../../types/commerce.types";
@@ -16,7 +16,7 @@ import { AiModerationContext } from "../../context/AiModerationContext";
 import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
 
 const CommodityPage = () => {
-  const { url } = useContext(VariablesContext);
+  const { url, setHasFavorites } = useContext(VariablesContext);
   const { addOneToCart } = useContext(CartActionsContext)!;
   const { aiModerationEnabled } = useContext(AiModerationContext);
 
@@ -28,6 +28,7 @@ const CommodityPage = () => {
   const [newRating, setNewRating] = useState<number | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false); //προστέθηκε αυτό για να μην κάνει autoload το uaggestion και μου ΄καίει' τα λεφτα στο openAI api
   const [suggested, setSuggested] = useState<CommodityType[]>([]);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [commentPage, setCommentPage] = useState(1);
   const commentsPerPage = 3;
 
@@ -159,20 +160,60 @@ const CommodityPage = () => {
     fetchSuggestions();
   }, [showSuggestions, commodity, url]);
 
-  // const handleAddToFavorites = async () => {
-  //   if (!user || !commodity?._id) return;
-  //   const token = localStorage.getItem("token");
-  //   try {
-  //     await axios.post(
-  //       `${url}/api/users/${user._id}/favorites`,
-  //       { commodityId: commodity._id },
-  //       { headers: { Authorization: `Bearer ${token}` } }
-  //     );
-  //     // setHasFavorites(true);
-  //   } catch (err) {
-  //     console.error("Failed to add favorite", err);
-  //   }
-  // };
+  // favorites logic. πρώτα φέρνω ενα arr με τα id τους και έλεγχω αν το commodity._id είναι ήδη μεσα σε αυτα. Μετα δύο useEffect για να προσθέσω αφαιρέσω
+  useEffect(() => {
+    const fetchFavoritesStatus = async () => {
+      if (!user?._id || !commodity?._id) return;
+      const token = localStorage.getItem("token");
+      try {
+        const res = await axios.get(`${url}/api/users/${user._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const favs: string[] = res.data.data.favorites || [];
+        setIsFavorite(favs.includes(commodity._id.toString()));
+      } catch (err) {
+        console.error("Failed to check favorites", err);
+      }
+    };
+    fetchFavoritesStatus();
+  }, [user, commodity, url]);
+
+  const handleAddToFavorites = async () => {
+    if (!user || !commodity?._id) return;
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(
+        `${url}/api/users/${user._id}/favorites`,
+        { commodityId: commodity._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setHasFavorites(true);
+      setIsFavorite(true);
+    } catch (err) {
+      console.error("Failed to add favorite", err);
+    }
+  };
+
+  const handleRemoveFromFavorites = async () => {
+    if (!user || !commodity?._id) return;
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`${url}/api/users/${user._id}/favorites`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { commodityId: commodity._id }, // DELETE needs data in axios
+      });
+      setIsFavorite(false);
+        // ✅ re-check favorites count
+      const res = await axios.get(`${url}/api/users/${user._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const favs = res.data.data.favorites || [];
+      setHasFavorites(favs.length > 0);
+    } catch (err) {
+      console.error("Failed to remove favorite", err);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -286,15 +327,15 @@ const CommodityPage = () => {
           {commodity.stock === 0 ? "Out of Stock" : "Add to Cart"}
         </Button>
 
-        {/* <Button
+        <Button
           variant="outlined"
           sx={{ mt: 1, width: 200 }}
           disabled={!user}
-          onClick={handleAddToFavorites}
-          startIcon={<FavoriteBorderIcon />}
+          onClick={isFavorite ? handleRemoveFromFavorites : handleAddToFavorites}
+          startIcon={isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
         >
-          Add to Favorites
-        </Button> */}
+          {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+        </Button>
 
         <Button
           variant="outlined"
