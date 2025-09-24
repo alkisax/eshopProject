@@ -1,3 +1,4 @@
+# 1️⃣ It runs only when a pull request targeting main is opened or updated (synchronized).
 name:  wip pipeline
 
 on: 
@@ -5,6 +6,7 @@ on:
     branches:
       - wip
 
+#  2️⃣ This job runs on Ubuntu. It sets environment variables from GitHub secrets (used in backend).
 jobs:
   wip-pipeline:
     runs-on: ubuntu-latest
@@ -26,7 +28,30 @@ jobs:
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+
+      # Frontend (must be prefixed VITE_)
+      VITE_APPWRITE_ENDPOINT: ${{ secrets.VITE_APPWRITE_ENDPOINT }}
+      VITE_APPWRITE_PROJECT_ID: ${{ secrets.VITE_APPWRITE_PROJECT_ID }}
+      VITE_APPWRITE_API_KEY: ${{ secrets.VITE_APPWRITE_API_KEY }}
+      VITE_APPWRITE_BUCKET_ID: ${{ secrets.VITE_APPWRITE_BUCKET_ID }}
+      VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+      VITE_FRONTEND_URL: ${{ secrets.VITE_FRONTEND_URL }}
+      VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
+      VITE_GA_PROPERTY_ID: ${{ secrets.VITE_GA_PROPERTY_ID }}
+      VITE_GITHUB_CLIENT_ID: ${{ secrets.VITE_GITHUB_CLIENT_ID }}
+      VITE_GITHUB_CLIENT_SECRET: ${{ secrets.VITE_GITHUB_CLIENT_SECRET }}
+      VITE_GITHUB_URI: ${{ secrets.VITE_GITHUB_URI }}
+      VITE_PRICE_ID_050: ${{ secrets.VITE_PRICE_ID_050 }}
+      VITE_PRICE_ID_1E: ${{ secrets.VITE_PRICE_ID_1E }}
+      VITE_PRICE_ID_2E: ${{ secrets.VITE_PRICE_ID_2E }}
+      VITE_PUBLIC_STRIPE_KEY: ${{ secrets.VITE_PUBLIC_STRIPE_KEY }}
+      VITE_UPLOAD_PASS: ${{ secrets.VITE_UPLOAD_PASS }}
+      VITE_UPLOAD_USER: ${{ secrets.VITE_UPLOAD_USER }}
+
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
       
+# 3️⃣ Pulls the repo code into the runner and installs Node 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -65,11 +90,62 @@ jobs:
         run: npm run build
         working-directory: ./backend
 
-      - name: Check env
-        run: |
-          echo "JWT_SECRET: $JWT_SECRET"
-          echo "MONGODB_TEST_URI: $MONGODB_TEST_URI"
+      # === E2E ===
+      - name: Install E2E dependencies
+        run: npm install
+        working-directory: ./e2e
 
+      - name: Start frontend dev server in background
+        run: npm run dev &
+        working-directory: ./frontend
+
+      - name: Wait for frontend to be ready
+        run: npx wait-on http://localhost:5173
+
+      - name: Start backend server in background
+        run: npm run start &
+        working-directory: ./backend
+        env:
+          MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
+      - name: Wait for backend to be ready
+        run: npx wait-on http://localhost:3001/health
+
+      - name: Run Cypress tests
+        run: npm run cypress:run
+        working-directory: ./e2e
+        env:
+          CYPRESS_BASE_URL: http://localhost:5173
+
+      # === BACKEND TESTS ===
       - name: Run backend tests
         run: npm run test
         working-directory: ./backend
+
+      # === Deployment ===
+      - name: Trigger_deployment
+        env:
+          # CONDITION is true if commit messages contain "#skip"
+          CONDITION: ${{ contains(join(github.event.commits.*.message, ' '), '#skip') }}
+        if: ${{ env.CONDITION == 'false' }}
+        run: |
+          curl -X GET \
+            -H "Accept: application/json" \
+            "https://api.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
+
+  all-clear:
+    needs: [wip-pipeline]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - name: Confirm all checks passed
+        run: echo "✅ All ok. Proceed to merge."
+
+  notify-on-failure:
+    if: failure()
+    needs: [wip-pipeline]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify failure
+        run: echo "❌ Deployment failed!"

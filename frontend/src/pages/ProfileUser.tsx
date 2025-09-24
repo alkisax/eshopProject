@@ -158,6 +158,13 @@ const ProfileUser = ({ userToEdit }: Props) => {
         },
       });
 
+      // Delete Appwrite user session (logs out)
+      await axios.delete(`${url}/api/users/appwrite-delete`, {
+        data: { email: user!.email },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+
+      // Delete Mongo user
       const res = await axios.delete(`${url}/api/users/self/${userId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -165,6 +172,7 @@ const ProfileUser = ({ userToEdit }: Props) => {
       });
 
       if (res.data.status) {
+
         alert("Your account has been deleted.");
         localStorage.removeItem("token");
         // optionally clear user context
@@ -187,7 +195,7 @@ const ProfileUser = ({ userToEdit }: Props) => {
     await handleDeleteSelf();
   };
 
-    const handleShowComments = async () => {
+  const handleShowComments = async () => {
     if (!userId) return;
     setLoadingComments(true);
     try {

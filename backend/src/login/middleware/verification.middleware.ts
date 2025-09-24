@@ -1,5 +1,5 @@
 // middleware/verification.middleware.js
-import type { Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service';
 import type { Roles, AuthRequest  } from '../types/user.types';
 
@@ -69,8 +69,17 @@ const checkSelfOrAdmin = (req: AuthRequest, res: Response, next: NextFunction) =
   return res.status(403).json({ status: false, message: 'Forbidden' });
 };
 
+const allowAppwriteSelfDelete = (req: Request, res: Response, next: NextFunction): void => {
+  if (!req.body || !req.body.email) {
+    res.status(400).json({ status: false, message: 'Email required' });
+  }
+  // optionally: check JWT payload if you attach email there
+  next();
+};
+
 export const middleware = {
   verifyToken,
   checkRole,
-  checkSelfOrAdmin
+  checkSelfOrAdmin,
+  allowAppwriteSelfDelete
 };

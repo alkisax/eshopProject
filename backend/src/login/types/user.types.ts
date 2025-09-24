@@ -1,5 +1,6 @@
 import { Document, Types } from 'mongoose';
 import type { Request } from 'express';
+import { CommodityType } from '../../stripe/types/stripe.types';
 
 // full mongose obj
 export interface IUser extends Document {
@@ -10,6 +11,7 @@ export interface IUser extends Document {
   roles: string[];
   hashedPassword: string;
   hasPassword?: boolean;
+  favorites?: Types.ObjectId[] | string[]  | CommodityType[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +25,7 @@ export interface UserView {
   name?: string | undefined;
   email?: string | undefined;
   roles: string[];
+  favorites?: Types.ObjectId[] | string[]  | CommodityType[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,6 +55,7 @@ export interface UpdateUser {
   roles?: string[];
   password?: string; // optional, will be hashed if present
   hashedPassword?: string;
+  favorites?: Types.ObjectId[] | string[] | CommodityType[];
 }
 
 // φτιαχτηκε γιατί το middleware δεν επέτρεπε req: Request

@@ -1,0 +1,142 @@
+name: Deployment pipeline
+
+on:
+  # push:
+  #   branches:
+  #     - main
+  #     - wip
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize]
+
+jobs:
+  ci-pipeline:
+    runs-on: ubuntu-latest
+    env:
+      MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # - name: Always fail (for testing)
+      #   run: exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # === FRONTEND ===
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./frontend
+
+      - name: Lint frontend
+        run: npm run lint
+        working-directory: ./frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend
+
+      # === BACKEND ===
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: ./backend
+
+      - name: Lint backend
+        run: npm run lint
+        working-directory: ./backend
+
+      - name: Build backend
+        run: npm run build
+        working-directory: ./backend
+
+      - name: Run backend tests
+        run: npm run test
+        working-directory: ./backend
+
+      # === E2E ===
+      - name: Install E2E dependencies
+        run: npm install
+        working-directory: ./e2e
+
+      - name: Start frontend dev server in background
+        run: npm run dev &
+        working-directory: ./frontend
+
+      - name: Wait for frontend to be ready
+        run: npx wait-on http://localhost:5173
+
+      - name: Start backend server in background
+        run: npm run start &
+        working-directory: ./backend
+        env:
+          MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
+      - name: Wait for backend to be ready
+        run: npx wait-on http://localhost:3001/health
+
+      - name: Run Cypress tests
+        run: npm run cypress:run
+        working-directory: ./e2e
+
+      - name: Trigger deployment
+        env:
+          CONDITION: ${{ contains(join(github.event.commits.*.message, ' '), '#skip') }}
+        if: ${{ github.event_name == 'pull_request' && env.CONDITION == 'false'}}
+        run: |
+          curl -X GET \
+            -H "Accept: application/json" \
+            "https://api.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
+
+      - name: Notify success
+        if: success()
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK }}" -H "Content-Type: application/json" -d '{"content": "✅ 11.20 Deployment succeeded!- by alkisax"}'
+
+      # - name: Check the deployed service URL
+      #   uses: jtalk/url-health-check-action@v4
+      #   with:
+      #     url: https://one1-20simpletodo.onrender.com
+      #     follow-redirect: true
+      #     max-attempts: 5
+      #     retry-delay: 10s
+
+  tag_release:
+    needs: [ci-pipeline]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: '0'  
+    - name: Bump version and push tag
+      env:
+        CONDITION: ${{ contains(join(github.event.commits.*.message, ' '), '#skip') }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEFAULT_BUMP: patch
+      if: ${{ github.event_name == 'pull_request'  && env.CONDITION == 'false'}}
+      uses: anothrNick/github-tag-action@e528bc2b9628971ce0e6f823f3052d1dcd9d512c
+
+  all-clear:
+    needs: [tag_release]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - name: Confirm all checks passed
+        run: echo "✅ All ok. Proceed to merge."
+
+  notify-on-failure:
+    if: failure()
+    needs: [ci-pipeline]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify failure
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK }}" -H "Content-Type: application/json" -d '{"content": "❌ 11.20 Deployment failed!"}'

@@ -460,3 +460,100 @@ paths:
           description: User not found
         '500':
           description: Internal server error
+
+  /api/users/{id}/favorites:
+    post:
+      summary: Add a commodity to user favorites
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - commodityId
+              properties:
+                commodityId:
+                  type: string
+                  description: Commodity ID to add to favorites
+                  example: "68bffe4f5d9091594ae71386"
+      responses:
+        '200':
+          description: Commodity added to favorites successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: commodityId required
+        '401':
+          description: Unauthorized (missing or invalid token)
+        '403':
+          description: Forbidden (not self or not admin)
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Remove a commodity from user favorites
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - commodityId
+              properties:
+                commodityId:
+                  type: string
+                  description: Commodity ID to remove from favorites
+                  example: "68bffe4f5d9091594ae71386"
+      responses:
+        '200':
+          description: Commodity removed from favorites successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: commodityId required
+        '401':
+          description: Unauthorized (missing or invalid token)
+        '403':
+          description: Forbidden (not self or not admin)
+        '500':
+          description: Internal server error

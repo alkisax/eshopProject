@@ -123,6 +123,7 @@ const RegisterPageAppwrite = () => {
             <Stack spacing={2}>
               <TextField
                 label="Username"
+                id="appwrite-singup-username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -130,6 +131,7 @@ const RegisterPageAppwrite = () => {
               />
               <TextField
                 label="Full Name"
+                id="appwrite-singup-fullname"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -137,6 +139,7 @@ const RegisterPageAppwrite = () => {
               />
               <TextField
                 label="Email"
+                id="appwrite-singup-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -145,6 +148,7 @@ const RegisterPageAppwrite = () => {
               />
               <TextField
                 label="Password"
+                id="appwrite-singup-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -153,6 +157,7 @@ const RegisterPageAppwrite = () => {
               />
               <TextField
                 label="Confirm Password"
+                id="appwrite-singup-confirm-password"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -167,6 +172,7 @@ const RegisterPageAppwrite = () => {
               )}
 
               <Button
+                id="appwrite-singup-submit-btn"
                 type="submit"
                 variant="contained"
                 color="primary"
@@ -177,7 +183,7 @@ const RegisterPageAppwrite = () => {
               </Button>
 
               <Typography variant="body2" align="center">
-                Already have an account? <Link to="/login-backend">Login</Link>
+                Already have an account? <Link to="/login">Login</Link>
               </Typography>
             </Stack>
           </Box>

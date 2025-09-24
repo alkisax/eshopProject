@@ -2,14 +2,9 @@
 import { useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import {
-  Typography,
-  CircularProgress,
-  Box,
-  Button,
-  Stack,
-  Paper,
-} from "@mui/material";
+import { Typography, CircularProgress, Box, Button, Stack, Paper, } from "@mui/material";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import { TextField, Rating, Pagination } from "@mui/material";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import type { CommodityType } from "../../types/commerce.types";
@@ -21,7 +16,7 @@ import { AiModerationContext } from "../../context/AiModerationContext";
 import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
 
 const CommodityPage = () => {
-  const { url } = useContext(VariablesContext);
+  const { url, setHasFavorites } = useContext(VariablesContext);
   const { addOneToCart } = useContext(CartActionsContext)!;
   const { aiModerationEnabled } = useContext(AiModerationContext);
 
@@ -33,6 +28,7 @@ const CommodityPage = () => {
   const [newRating, setNewRating] = useState<number | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false); //προστέθηκε αυτό για να μην κάνει autoload το uaggestion και μου ΄καίει' τα λεφτα στο openAI api
   const [suggested, setSuggested] = useState<CommodityType[]>([]);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [commentPage, setCommentPage] = useState(1);
   const commentsPerPage = 3;
 
@@ -164,6 +160,61 @@ const CommodityPage = () => {
     fetchSuggestions();
   }, [showSuggestions, commodity, url]);
 
+  // favorites logic. πρώτα φέρνω ενα arr με τα id τους και έλεγχω αν το commodity._id είναι ήδη μεσα σε αυτα. Μετα δύο useEffect για να προσθέσω αφαιρέσω
+  useEffect(() => {
+    const fetchFavoritesStatus = async () => {
+      if (!user?._id || !commodity?._id) return;
+      const token = localStorage.getItem("token");
+      try {
+        const res = await axios.get(`${url}/api/users/${user._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const favs: string[] = res.data.data.favorites || [];
+        setIsFavorite(favs.includes(commodity._id.toString()));
+      } catch (err) {
+        console.error("Failed to check favorites", err);
+      }
+    };
+    fetchFavoritesStatus();
+  }, [user, commodity, url]);
+
+  const handleAddToFavorites = async () => {
+    if (!user || !commodity?._id) return;
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(
+        `${url}/api/users/${user._id}/favorites`,
+        { commodityId: commodity._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setHasFavorites(true);
+      setIsFavorite(true);
+    } catch (err) {
+      console.error("Failed to add favorite", err);
+    }
+  };
+
+  const handleRemoveFromFavorites = async () => {
+    if (!user || !commodity?._id) return;
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`${url}/api/users/${user._id}/favorites`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { commodityId: commodity._id }, // DELETE needs data in axios
+      });
+      setIsFavorite(false);
+        // ✅ re-check favorites count
+      const res = await axios.get(`${url}/api/users/${user._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const favs = res.data.data.favorites || [];
+      setHasFavorites(favs.length > 0);
+    } catch (err) {
+      console.error("Failed to remove favorite", err);
+    }
+  };
+
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
@@ -238,6 +289,7 @@ const CommodityPage = () => {
 
         {/* === Price (moved here, more visible) === */}
         <Typography
+          id="item-price"
           variant="h5"
           sx={{ fontWeight: "bold", color: "primary.main" }}
         >
@@ -248,19 +300,30 @@ const CommodityPage = () => {
         </Typography>
 
         {/* === Description === */}
-        <Typography variant="body1" paragraph>
+        <Typography
+          id="item-descrition"
+          variant="body1"
+          component="p"
+          // paragraph → depricated
+        >
           {commodity.description || "No description available."}
         </Typography>
 
         {/* === Categories === */}
         {commodity.category?.length > 0 && (
-          <Typography variant="body2">
+          <Typography 
+            id="item-categories"
+            variant="body2"
+          >
             Categories: {commodity.category.join(", ")}
           </Typography>
         )}
 
         {/* === Stock === */}
-        <Typography variant="body2">
+        <Typography 
+          id="item-stock"
+          variant="body2"
+        >
           {commodity.stock > 0
             ? `In stock (${commodity.stock} available)`
             : "Out of stock"}
@@ -268,6 +331,7 @@ const CommodityPage = () => {
 
         {/* === Add to Cart === */}
         <Button
+          id="item-add-to-cart-btn"
           variant="contained"
           sx={{ mt: 2, width: 200 }}
           disabled={commodity.stock === 0}
@@ -277,6 +341,18 @@ const CommodityPage = () => {
         </Button>
 
         <Button
+          id="item-favorites"
+          variant="outlined"
+          sx={{ mt: 1, width: 200 }}
+          disabled={!user}
+          onClick={isFavorite ? handleRemoveFromFavorites : handleAddToFavorites}
+          startIcon={isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+        >
+          {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+        </Button>
+
+        <Button
+          id="item-suggestions"
           variant="outlined"
           sx={{ mt: 2, width: 200 }}
           onClick={() => setShowSuggestions(prev => !prev)}
@@ -289,12 +365,18 @@ const CommodityPage = () => {
             <Typography variant="h6" gutterBottom>
               Suggested for you
             </Typography>
-            <Stack direction="row" spacing={2} sx={{ overflowX: "auto" }}>
+            <Stack
+              id="item-suggestion-stack"
+              direction="row"
+              spacing={2}
+              sx={{ overflowX: "auto" }}
+            >
               {suggested
                 .filter(s => s._id !== commodity._id)
                 .slice(0, 2) // only 2 suggestions
                 .map(s => (
                   <Box
+                    id={`item-suggestion-${s._id}`}
                     key={s._id}
                     sx={{
                       minWidth: 180,
@@ -346,6 +428,7 @@ const CommodityPage = () => {
           {user && (
             <Box sx={{ mt: 2 }}>
               <TextField
+                id="item-user-review-textfield"
                 label="Write a review"
                 fullWidth
                 multiline
@@ -355,10 +438,12 @@ const CommodityPage = () => {
               />
               <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
                 <Rating
+                  id="item-user-rating"
                   value={newRating}
                   onChange={(_, val) => setNewRating(val)}
                 />
                 <Button
+                  id="item-user-submit-rating-btn"
                   variant="contained"
                   sx={{ ml: 2 }}
                   disabled={!newComment.trim()}
@@ -373,6 +458,7 @@ const CommodityPage = () => {
           {paginatedComments && paginatedComments.length > 0 ? (
             paginatedComments.map((c, idx) => (
               <Box
+                id={`item-comments-${c._id}`}
                 key={c._id?.toString() || idx}
                 sx={{ mt: 2, p: 2, border: "1px solid #ddd", borderRadius: 2 }}
               >

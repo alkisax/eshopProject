@@ -2,10 +2,7 @@ const { defineConfig } = require("cypress");
 
 module.exports = defineConfig({
   e2e: {
-    baseUrl: process.env.CYPRESS_BASE_URL || "http://localhost:5173",
-    chromeWebSecurity: false,  // needed because of iframes
     setupNodeEvents(on, config) {
-      process.env.NODE_ENV = 'test';
       // implement node event listeners here
     },
   },

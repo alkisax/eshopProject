@@ -4,6 +4,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { UserAuthContext } from "../context/UserAuthContext";
@@ -12,7 +13,7 @@ import { VariablesContext } from "../context/VariablesContext";
 import { CartActionsContext } from "../context/CartActionsContext";
 
 const NavbarAppwrite = () => {
-  const { setHasCart } = useContext(VariablesContext);
+  const { setHasCart, hasFavorites } = useContext(VariablesContext);
   const { user, setUser } = useContext(UserAuthContext);
   const { cartCount } = useContext(CartActionsContext);
   const navigate = useNavigate();
@@ -52,7 +53,11 @@ const NavbarAppwrite = () => {
           {/* Buttons */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {user && user.roles?.includes("ADMIN") ? (
-              <Button color="inherit" component={Link} to="/admin-panel">
+              <Button
+                id="navbar-admin-btn"
+                color="inherit"
+                component={Link} to="/admin-panel"
+              >
                 Admin Panel
               </Button>
             ) : (
@@ -66,13 +71,18 @@ const NavbarAppwrite = () => {
             {user ? (
               <>
                 <Tooltip title="Profile">
-                  <IconButton component={Link} to="/profile" sx={{ color: "inherit" }}>
+                  <IconButton
+                    id="navbar-profile-btn"
+                    component={Link} to="/profile"
+                    sx={{ color: "inherit" }}
+                  >
                     <AccountCircleIcon />
                   </IconButton>
                 </Tooltip>
 
                 <Tooltip title="Logout">
                   <IconButton
+                    id="navbar-logout"
                     sx={{ color: "inherit" }}
                     onClick={() => handleLogout(setUser, setHasCart, navigate)}
                   >
@@ -83,12 +93,24 @@ const NavbarAppwrite = () => {
             ) : (
               <Tooltip title="Login">
                 <IconButton
-                id="navbar-login"
+                  id="navbar-login"
                   component={Link}
                   to="/login"
                   sx={{ color: "inherit" }}
                 >
                   <LoginIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+
+            {hasFavorites && (
+              <Tooltip title="Favorites">
+                <IconButton
+                  id="navbar-favorites-icon"
+                  component={Link} to="/favorites"
+                  sx={{ color: "inherit" }}
+                >
+                  <FavoriteIcon color="error" />
                 </IconButton>
               </Tooltip>
             )}

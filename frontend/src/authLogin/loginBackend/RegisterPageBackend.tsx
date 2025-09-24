@@ -94,6 +94,7 @@ const RegisterPageBackend = ({ url }: Props) => {
         <Box component="form" onSubmit={handleRegisterBackend} noValidate>
           <Stack spacing={2}>
             <TextField
+              id="backend-form-username"
               label="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -101,6 +102,7 @@ const RegisterPageBackend = ({ url }: Props) => {
               fullWidth
             />
             <TextField
+              id="backend-form-fullname"
               label="Full Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -108,6 +110,7 @@ const RegisterPageBackend = ({ url }: Props) => {
               fullWidth
             />
             <TextField
+              id="backend-form-email"
               label="Email"
               type="email"
               value={email}
@@ -116,6 +119,7 @@ const RegisterPageBackend = ({ url }: Props) => {
               fullWidth
             />
             <TextField
+              id="backend-form-password"
               label="Password"
               type="password"
               value={password}
@@ -124,6 +128,7 @@ const RegisterPageBackend = ({ url }: Props) => {
               fullWidth
             />
             <TextField
+              id="backend-form-confirm-password"
               label="Confirm Password"
               type="password"
               value={confirmPassword}
@@ -139,6 +144,7 @@ const RegisterPageBackend = ({ url }: Props) => {
             )}
 
             <Button
+              id="backend-form-submit-btn"
               type="submit"
               variant="contained"
               color="primary"
@@ -149,7 +155,7 @@ const RegisterPageBackend = ({ url }: Props) => {
             </Button>
 
             <Typography variant="body2" align="center">
-              Already have an account? <Link to="/login-backend">Login</Link>
+              Already have an account? <Link to="/login">Login</Link>
             </Typography>
           </Stack>
         </Box>

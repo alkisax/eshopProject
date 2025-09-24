@@ -75,6 +75,7 @@ const LoginBackend = ({ url }: Props) => {
       }}
     >
       <TextField
+        id="backend-login-username"
         label="Username"
         variant="outlined"
         value={username}
@@ -84,6 +85,7 @@ const LoginBackend = ({ url }: Props) => {
       />
 
       <TextField
+        id="backend-login-password"
         label="Password"
         type={showPassword ? "text" : "password"}
         variant="outlined"
@@ -104,12 +106,14 @@ const LoginBackend = ({ url }: Props) => {
         }}
       />
 
-      <Button type="submit" variant="contained" color="primary">
+      <Button
+        id="backend-form-submit-btn"
+        type="submit" variant="contained" color="primary">
         Login
       </Button>
 
       <Typography variant="body2" align="center">
-        Don’t have an account? <Link to="/register-backend">Register</Link>
+        Don’t have an account? <Link id="backend-form-register-link" to="/register-backend">Register</Link>
       </Typography>
       <Typography variant="caption" align="center">
         Powered by MongoDB

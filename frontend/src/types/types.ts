@@ -13,6 +13,7 @@ export interface IUser {
   hasPassword: boolean
   roles: string[]
   provider?: "appwrite" | "google" | "backend" | "github"
+  favorites?: string[];
 }
 
 export interface AppwriteUser {
@@ -23,6 +24,7 @@ export interface AppwriteUser {
   roles?: string[];
   hasPassword: true
   provider?: "appwrite" | "google" | "backend" | "github";
+  favorites?: string[];
 }
 
 export interface GoogleJwtPayload extends JwtPayload {
@@ -43,6 +45,7 @@ export interface BackendJwtPayload extends JwtPayload {
   roles: string[];
   hasPassword: boolean
   provider?: "backend";
+  favorites?: string[];
 }
 
 export interface GithubJwtPayload extends JwtPayload {
@@ -60,7 +63,7 @@ export interface UserAuthContextType {
   setUser: (user: IUser | null) => void
   isLoading: boolean
   setIsLoading: (loading: boolean) => void
-  refreshUser?: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 // Props type for the provider
@@ -75,4 +78,5 @@ export interface UpdateUser {
   roles?: string[];
   password?: string; // optional, will be hashed if present
   hashedPassword?: string;
+  favorites?: string[];
 }

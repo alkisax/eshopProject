@@ -1,34 +1,51 @@
-import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-// import { jwtDecode } from "jwt-decode"; 
+import { useEffect, useContext  } from "react";
+import { useSearchParams  } from "react-router-dom";
+import { UserAuthContext } from "../../context/UserAuthContext"; 
+import { jwtDecode } from "jwt-decode";
+import type { GoogleJwtPayload } from "../../types/types";
 
 const GoogleSuccess = () => {
   const [searchParams] = useSearchParams();
+  const { setUser } = useContext(UserAuthContext);
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const token = searchParams.get("token");
-    const email = searchParams.get("email");
+    // const email = searchParams.get("email");
+
     if (token) {
       localStorage.setItem("token", token);
-      // Maybe set some user context state here
-      console.log("Logged in user:", email);
-
-      // try {
-      //   // Decode payload (the backend puts id, username, email, roles in there)
-      //   const decoded: unknown = jwtDecode(token);
-      //   console.log("Decoded JWT payload:", decoded);
-      // } catch (err) {
-      //   console.error("Failed to decode JWT:", err);
-      // }
     } else {
       console.warn("No token found in query params");
+      return;
     }
 
-  }, [searchParams]);
+    try {
+      const decoded = jwtDecode<GoogleJwtPayload>(token);
+
+      setUser({
+        _id: decoded.id,
+        username: decoded.username || decoded.email.split("@")[0],
+        name: decoded.name,
+        email: decoded.email,
+        roles: decoded.roles,
+        hasPassword: false,
+        provider: "google",
+      });
+    } catch (err) {
+      console.error("Failed to decode Google token", err);
+    }
+
+    // refreshUser().finally(() => {
+    //   navigate("/");
+    // });
+    window.location.href = "/"; // TODO hard reload
+
+  }, [searchParams, setUser]); 
 
   return(
     <>
-      <p>Login successful! You may close this window.</p>  
+      <p>Login successful! Redirecting...</p>  
     </>
   ) 
 };
