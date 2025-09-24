@@ -187,3 +187,201 @@ describe('Guest route', () => {
 
 });
 
+describe('login test', () => {
+  beforeEach(() => {
+    cy.clearLocalStorage("ga_consent");
+    cy.visit('/');
+
+    // Accept GDPR if banner shows
+    cy.get("body").then($body => {
+      if ($body.find("button:contains('Accept')").length > 0) {
+        cy.contains("Accept").click();
+      }
+    });
+  });
+
+  it('signs up user via Appwrite', () => {
+    cy.get('#navbar-login', { timeout: 10000 }).should('exist').click();
+    cy.url().should('include', '/login');
+
+    cy.get('#tab-appwrite-login').click();
+    cy.get('#appwrite-register-link').click();
+    cy.url().should('include', '/register-appwrite');
+
+    cy.get('#appwrite-singup-username').type('cypressUser1');
+    cy.get('#appwrite-singup-fullname').type('Cypress Test User');
+    cy.get('#appwrite-singup-email').type('cypressUser@example.com');
+    cy.get('#appwrite-singup-password').type('Password123!');
+    cy.get('#appwrite-singup-confirm-password').type('Password123!');
+
+    // ✅ Catch success alert
+    cy.on('window:alert', (txt) => {
+      expect(txt).to.contain('Account Created Successfully 🚀');
+    });
+
+    cy.get('#appwrite-singup-submit-btn').click();
+
+    // ✅ Just assert redirect to home
+    cy.url({ timeout: 20000 }).should('eq', 'http://localhost:5173/');
+  });
+
+  it('logs in with existing Appwrite user', () => {
+    cy.get('#navbar-login', { timeout: 10000 }).should('exist').click();
+    cy.url().should('include', '/login');
+
+    cy.get('#tab-appwrite-login').click();
+
+    cy.get('#appwrite-login-field-email').type('cypressUser@example.com');
+    cy.get('#appwrite-login-field-password').type('Password123!');
+
+    cy.get('#appwrite-login-btn').click();
+
+    // ✅ Instead of waiting for Mongo profile, just assert we’re back home
+    cy.url({ timeout: 20000 }).should('eq', 'http://localhost:5173/');
+
+    // ✅ Make sure user is logged in already
+    cy.url({ timeout: 20000 }).should('include', 'http://localhost:5173/');
+
+    // ✅ Go to profile
+    cy.get('#navbar-profile-btn', { timeout: 20000 })
+      .should('exist')
+      .and('be.visible')
+      .click();
+
+    cy.url().should('include', '/profile');
+    // cy.contains('Update user info').should('be.visible');
+
+    // ✅ Open delete dialog
+    cy.contains('Delete My Account').click();
+
+    // ✅ Confirm deletion
+    cy.contains('Yes, Delete').click();
+
+    // ✅ Catch and verify alert
+    cy.on('window:alert', (txt) => {
+      expect(txt).to.contain('Your account has been deleted.');
+    });
+
+    // ✅ After deletion, should redirect to home
+    cy.url({ timeout: 20000 }).should('eq', 'http://localhost:5173/');
+
+    // ✅ Assert that login button shows again (user is logged out)
+    cy.get('#navbar-login', { timeout: 10000 }).should('exist').and('be.visible');
+  });
+});
+
+// describe('Backend auth tests', () => {
+//   beforeEach(() => {
+//     cy.clearLocalStorage("ga_consent");
+//     cy.visit('/');
+
+//     // ✅ Accept GDPR banner if present
+//     cy.get("body").then($body => {
+//       if ($body.find("button:contains('Accept')").length > 0) {
+//         cy.contains("Accept").click();
+//       }
+//     });
+//   });
+
+  // it('should register a new backend user', () => {
+  //   cy.get('#navbar-login', { timeout: 10000 }).should('exist').click();
+  //   cy.url().should('include', '/login');
+
+  //   // ✅ Switch to backend login tab
+  //   cy.get('#tab-backend-login').click();
+
+  //   // ✅ Go to register link
+  //   cy.get('#backend-form-register-link').click();
+  //   cy.url().should('include', '/register-backend');
+
+  //   // ✅ Fill out form
+  //   cy.get('#backend-form-username').type('cypressBackendUser');
+  //   cy.get('#backend-form-fullname').type('Cypress Backend Tester');
+  //   cy.get('#backend-form-email').type('cypressBackend@example.com');
+  //   cy.get('#backend-form-password').type('Password123!');
+  //   cy.get('#backend-form-confirm-password').type('Password123!');
+
+  //   // ✅ Submit
+  //   cy.get('#backend-form-submit-btn').click();
+
+  //   // ✅ Expect success alert
+  //   cy.on('window:alert', (txt) => {
+  //     expect(txt).to.contain('Account created'); // adjust exact wording from your backend response
+  //   });
+
+  //   // ✅ Redirects to home
+  //   cy.url({ timeout: 20000 }).should('eq', 'http://localhost:5173/');
+  // });
+
+  // it('should login with backend user', () => {
+  //   cy.get('#navbar-login', { timeout: 10000 }).should('exist').click();
+  //   cy.url().should('include', '/login');
+
+  //   // ✅ Switch to backend login tab
+  //   cy.get('#tab-backend-login').click();
+
+  //   // ✅ Fill login form
+  //   cy.get('#backend-login-username').type('cypressBackendUser');
+  //   cy.get('#backend-login-password').type('Password123!');
+
+  //   // ✅ Submit login
+  //   cy.get('#backend-form-submit-btn').click();
+
+  //   // ✅ After login, check profile button exists
+  //   cy.get('#navbar-profile-btn', { timeout: 20000 })
+  //     .should('exist')
+  //     .and('be.visible');
+  // });
+
+  // it('should navigate to a commodity page as logged-in user', () => {
+  //   // ✅ login first
+  //   cy.get('#navbar-login', { timeout: 10000 }).should('exist').click();
+  //   cy.url().should('include', '/login');
+
+  //   cy.get('#tab-backend-login').click();
+  //   cy.get('#backend-login-username').type('cypressBackendUser');
+  //   cy.get('#backend-login-password').type('Password123!');
+  //   cy.get('#backend-form-submit-btn').click();
+
+  //   // ✅ profile btn confirms logged in
+  //   cy.get('#navbar-profile-btn', { timeout: 20000 })
+  //     .should('exist')
+  //     .and('be.visible');
+
+  //   // Go to store
+  //   cy.get('#store-btn').click();
+  //   cy.url().should('include', '/store');
+
+  //   // Click first commodity link
+  //   cy.get('#commodity-list a').first().click();
+
+  //   // Assert URL is /commodity/:id
+  //   cy.url().should('match', /\/commodity\/[a-f0-9]{24}$/);
+
+  //   // Assert title and price
+  //   cy.get('h4').should('exist').and('not.be.empty');       // title
+  //   cy.get('#item-price').should('exist').and('contain', '€'); // price format
+
+  //   // Assert description + stock
+  //   cy.get('#item-descrition').should('exist');
+  //   cy.get('#item-stock').should('exist');
+
+  //   // Assert Add to Cart button works
+  //   cy.get('#item-add-to-cart-btn')
+  //     .should('exist')
+  //     .and('not.be.disabled')
+  //     .click();
+
+  //   // Assert Favorites button exists
+  //   cy.get('#item-favorites').should('exist');
+
+  //   // Toggle suggestions
+  //   cy.get('#item-suggestions').click();
+  //   cy.get('#item-suggestion-stack').should('exist');
+
+  //   // (Optional) Review form is visible for logged-in user
+  //   cy.get('#item-user-review-textfield').should('exist');
+  // });
+
+// });
+

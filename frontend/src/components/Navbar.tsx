@@ -53,7 +53,11 @@ const NavbarAppwrite = () => {
           {/* Buttons */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {user && user.roles?.includes("ADMIN") ? (
-              <Button color="inherit" component={Link} to="/admin-panel">
+              <Button
+                id="navbar-admin-btn"
+                color="inherit"
+                component={Link} to="/admin-panel"
+              >
                 Admin Panel
               </Button>
             ) : (
@@ -67,13 +71,18 @@ const NavbarAppwrite = () => {
             {user ? (
               <>
                 <Tooltip title="Profile">
-                  <IconButton component={Link} to="/profile" sx={{ color: "inherit" }}>
+                  <IconButton
+                    id="navbar-profile-btn"
+                    component={Link} to="/profile"
+                    sx={{ color: "inherit" }}
+                  >
                     <AccountCircleIcon />
                   </IconButton>
                 </Tooltip>
 
                 <Tooltip title="Logout">
                   <IconButton
+                    id="navbar-logout"
                     sx={{ color: "inherit" }}
                     onClick={() => handleLogout(setUser, setHasCart, navigate)}
                   >
@@ -84,7 +93,7 @@ const NavbarAppwrite = () => {
             ) : (
               <Tooltip title="Login">
                 <IconButton
-                id="navbar-login"
+                  id="navbar-login"
                   component={Link}
                   to="/login"
                   sx={{ color: "inherit" }}

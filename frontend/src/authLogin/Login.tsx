@@ -44,8 +44,14 @@ const Login = ({ url }: Params) => {
 
         {/* Tabs */}
         <Tabs value={tab} onChange={handleTabChange} centered>
-          <Tab label="Login" />
-          <Tab label="Appwrite alt" />
+          <Tab
+            id="tab-backend-login"
+            label="Login"
+          />
+          <Tab
+            id="tab-appwrite-login"
+            label="Appwrite alt"
+          />
         </Tabs>
 
         <Divider />

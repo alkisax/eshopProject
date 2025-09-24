@@ -98,6 +98,7 @@ const LoginAppwriteLogin = ({ url }: params) => {
       >
 
         <TextField
+          id="appwrite-login-field-email"
           label="Email"
           type="email"
           variant="outlined"
@@ -108,6 +109,7 @@ const LoginAppwriteLogin = ({ url }: params) => {
         />
 
         <TextField
+          id="appwrite-login-field-password"
           label="Password"
           type={showPassword ? "text" : "password"}
           variant="outlined"
@@ -128,12 +130,17 @@ const LoginAppwriteLogin = ({ url }: params) => {
           }}
         />
 
-        <Button type="submit" variant="contained" color="primary">
+        <Button 
+          id="appwrite-login-btn"
+          type="submit"
+          variant="contained"
+          color="primary"
+        >
           Login
         </Button>
 
         <Typography variant="body2" align="center">
-          Don’t have an account? <Link to="/register-appwrite">Register</Link>
+          Don’t have an account? <Link id="appwrite-register-link" to="/register-appwrite">Register</Link>
         </Typography>
         <Typography variant="caption" align="center">
           Powered by Appwrite

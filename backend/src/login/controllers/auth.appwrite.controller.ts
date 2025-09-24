@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { IUser } from '../types/user.types';
 import { syncUserSchema } from '../validation/auth.schema';
+import { appwriteUsers } from '../lib/appwrite.client';
 
 const secret = process.env.JWT_SECRET || 'secret';
 
@@ -55,6 +56,34 @@ export const syncUser = async (req: Request, res: Response) => {
   }
 };
 
+export const deleteAppwriteUser = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body; // safer to pass email (or appwriteId)
+    if (!email) {
+      return res.status(400).json({ status: false, message: 'Email required' });
+    }
+
+    // Find Appwrite user by email
+    const list = await appwriteUsers.list({
+      search: email,
+    });
+
+    if (list.total === 0) {
+      return res.status(404).json({ status: false, message: 'Appwrite user not found' });
+    }
+
+    const appwriteId = list.users[0].$id;
+
+    // Delete the Appwrite user
+    await appwriteUsers.delete(appwriteId);
+
+    return res.status(200).json({ status: true, message: 'Appwrite user deleted' });
+  } catch (err) {
+    return handleControllerError(res, err);
+  }
+};
+
 export const authAppwriteController = {
-  syncUser
+  syncUser,
+  deleteAppwriteUser
 };

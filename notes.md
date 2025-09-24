@@ -21,7 +21,8 @@
 - comment crud ✅
 - fix email ✅
 - chat gpt profanity comment test. if not pass wait for admin aproval ✅
-- cosline similarity commodity search
+- cosline similarity commodity search✅
+- appwrite delete swagger jest
 
 - create a security risks checklist
 
@@ -42,8 +43,11 @@
 - bugs in search categories ✅
 - GAnalytics now tracks commodity impretions and commodity pages ✅, learn dashboard
 - chat gpt criteria optimiser ✅
-- αγαπημένα προιόντα ❤️
+- αγαπημένα προιόντα ❤️ ✅
 - τα έξοδα αποστολής να προστήθεντε (ως invisible commodities)
+- αρχική σελιδα με κεντρικές κατηγορίες
+- μονο παρεντ κατεγκορισ
+- έχει το admin delete το ίδιο πρόβλημα με το appwrite
 
 - ## e2e test
 

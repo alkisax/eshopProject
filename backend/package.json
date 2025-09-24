@@ -52,6 +52,7 @@
     "mongoose": "^8.17.1",
     "mongoose-to-swagger": "^1.5.1",
     "multer": "^2.0.2",
+    "node-appwrite": "^19.1.0",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.5",
     "querystring": "^0.2.1",

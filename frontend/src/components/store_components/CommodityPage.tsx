@@ -289,6 +289,7 @@ const CommodityPage = () => {
 
         {/* === Price (moved here, more visible) === */}
         <Typography
+          id="item-price"
           variant="h5"
           sx={{ fontWeight: "bold", color: "primary.main" }}
         >
@@ -299,19 +300,30 @@ const CommodityPage = () => {
         </Typography>
 
         {/* === Description === */}
-        <Typography variant="body1" paragraph>
+        <Typography
+          id="item-descrition"
+          variant="body1"
+          component="p"
+          // paragraph → depricated
+        >
           {commodity.description || "No description available."}
         </Typography>
 
         {/* === Categories === */}
         {commodity.category?.length > 0 && (
-          <Typography variant="body2">
+          <Typography 
+            id="item-categories"
+            variant="body2"
+          >
             Categories: {commodity.category.join(", ")}
           </Typography>
         )}
 
         {/* === Stock === */}
-        <Typography variant="body2">
+        <Typography 
+          id="item-stock"
+          variant="body2"
+        >
           {commodity.stock > 0
             ? `In stock (${commodity.stock} available)`
             : "Out of stock"}
@@ -319,6 +331,7 @@ const CommodityPage = () => {
 
         {/* === Add to Cart === */}
         <Button
+          id="item-add-to-cart-btn"
           variant="contained"
           sx={{ mt: 2, width: 200 }}
           disabled={commodity.stock === 0}
@@ -328,6 +341,7 @@ const CommodityPage = () => {
         </Button>
 
         <Button
+          id="item-favorites"
           variant="outlined"
           sx={{ mt: 1, width: 200 }}
           disabled={!user}
@@ -338,6 +352,7 @@ const CommodityPage = () => {
         </Button>
 
         <Button
+          id="item-suggestions"
           variant="outlined"
           sx={{ mt: 2, width: 200 }}
           onClick={() => setShowSuggestions(prev => !prev)}
@@ -350,12 +365,18 @@ const CommodityPage = () => {
             <Typography variant="h6" gutterBottom>
               Suggested for you
             </Typography>
-            <Stack direction="row" spacing={2} sx={{ overflowX: "auto" }}>
+            <Stack
+              id="item-suggestion-stack"
+              direction="row"
+              spacing={2}
+              sx={{ overflowX: "auto" }}
+            >
               {suggested
                 .filter(s => s._id !== commodity._id)
                 .slice(0, 2) // only 2 suggestions
                 .map(s => (
                   <Box
+                    id={`item-suggestion-${s._id}`}
                     key={s._id}
                     sx={{
                       minWidth: 180,
@@ -407,6 +428,7 @@ const CommodityPage = () => {
           {user && (
             <Box sx={{ mt: 2 }}>
               <TextField
+                id="item-user-review-textfield"
                 label="Write a review"
                 fullWidth
                 multiline
@@ -416,10 +438,12 @@ const CommodityPage = () => {
               />
               <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
                 <Rating
+                  id="item-user-rating"
                   value={newRating}
                   onChange={(_, val) => setNewRating(val)}
                 />
                 <Button
+                  id="item-user-submit-rating-btn"
                   variant="contained"
                   sx={{ ml: 2 }}
                   disabled={!newComment.trim()}
@@ -434,6 +458,7 @@ const CommodityPage = () => {
           {paginatedComments && paginatedComments.length > 0 ? (
             paginatedComments.map((c, idx) => (
               <Box
+                id={`item-comments-${c._id}`}
                 key={c._id?.toString() || idx}
                 sx={{ mt: 2, p: 2, border: "1px solid #ddd", borderRadius: 2 }}
               >
