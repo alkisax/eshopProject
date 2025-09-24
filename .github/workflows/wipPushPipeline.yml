@@ -1,4 +1,4 @@
-# 1️⃣ Runs on push to wip branch
+# 1️⃣ Runs only when pushing to the wip branch
 name: wip pipeline
 
 on: 
@@ -7,11 +7,12 @@ on:
       - wip
 
 jobs:
-  # === CI job: build, lint, test ===
+  # === CI job: lint + build (no backend tests here) ===
   ci:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
+      # Backend secrets
       MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       MONGODB_URI: ${{ secrets.MONGODB_URI }}
@@ -82,15 +83,11 @@ jobs:
         run: npm run build
         working-directory: ./backend
 
-      # === BACKEND TESTS ===
-      - name: Run backend tests
-        run: npm run test
-        working-directory: ./backend
 
-  # === E2E job: Cypress tests ===
+  # === E2E job: run Cypress tests (after ci) ===
   e2e:
     runs-on: ubuntu-latest
-    needs: ci   # ✅ only run if ci passes
+    needs: ci   # ✅ only run after lint + build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -135,10 +132,33 @@ jobs:
         env:
           CYPRESS_BASE_URL: http://localhost:5173
 
-  # === Deployment job ===
+
+  # === Backend tests AFTER E2E ===
+  backend-tests:
+    runs-on: ubuntu-latest
+    needs: e2e   # ✅ only run if E2E passes
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: ./backend
+
+      - name: Run backend unit tests
+        run: npm run test
+        working-directory: ./backend
+
+
+  # === Deployment AFTER backend tests ===
   deploy:
     runs-on: ubuntu-latest
-    needs: [ci, e2e]   # ✅ only deploy if both jobs pass
+    needs: backend-tests
     steps:
       - name: Trigger deployment
         env:
@@ -149,18 +169,20 @@ jobs:
             -H "Accept: application/json" \
             "https://api.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
 
+
   # === Success notification ===
   all-clear:
-    needs: [deploy]
+    needs: deploy
     runs-on: ubuntu-latest
     if: success()
     steps:
       - name: Confirm all checks passed
         run: echo "✅ Wip pipeline succeeded!"
 
+
   # === Failure notification ===
   notify-on-failure:
-    needs: [ci, e2e, deploy]
+    needs: [ci, e2e, backend-tests, deploy]
     runs-on: ubuntu-latest
     if: failure()
     steps:
