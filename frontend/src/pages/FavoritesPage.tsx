@@ -92,6 +92,7 @@ const FavoritesPage = () => {
               <Card>
                 <CardActionArea component={Link} to={`/commodity/${c._id}`}>
                   <CardMedia
+                    id={`favorites-listpage-media-${c._id}`}
                     component="img"
                     height="160"
                     image={c.images?.[0] || "/placeholder.jpg"}
@@ -105,6 +106,7 @@ const FavoritesPage = () => {
 
                 <CardActions sx={{ justifyContent: "flex-end" }}>
                   <Button
+                    id={`favorites-listpage-remove-btn-${c._id}`}
                     size="small"
                     color="error"
                     onClick={() => handleRemoveFavorite(c._id.toString())}

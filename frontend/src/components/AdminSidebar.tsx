@@ -42,7 +42,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
 
       <List>
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("users")}>
+          <ListItemButton id="admin-sidebar-users" onClick={() => onSelect("users")}>
             <ListItemIcon>
               <PeopleIcon />
             </ListItemIcon>
@@ -51,7 +51,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("participants")}>
+          <ListItemButton id="admin-sidebar-participants" onClick={() => onSelect("participants")}>
             <ListItemIcon>
               <GroupIcon />
             </ListItemIcon>
@@ -60,7 +60,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("transactions")}>
+          <ListItemButton id="admin-sidebar-transactions" onClick={() => onSelect("transactions")}>
             <ListItemIcon>
               <ReceiptIcon />
             </ListItemIcon>
@@ -69,7 +69,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("commodities")}>
+          <ListItemButton id="admin-sidebar-commodities" onClick={() => onSelect("commodities")}>
             <ListItemIcon>
               <Inventory2Icon />
             </ListItemIcon>
@@ -78,7 +78,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("cloudUploads")}>
+          <ListItemButton id="admin-sidebar-cloud-uploads" onClick={() => onSelect("cloudUploads")}>
             <ListItemIcon>
               <CloudUpload />
             </ListItemIcon>
@@ -87,7 +87,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("uploads")}>
+          <ListItemButton id="admin-sidebar-local-uploads" onClick={() => onSelect("uploads")}>
             <ListItemIcon>
               <UploadIcon />
             </ListItemIcon>
@@ -96,7 +96,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("clearOld")}>
+          <ListItemButton id="admin-sidebar-clear-old" onClick={() => onSelect("clearOld")}>
             <ListItemIcon>
               <DeleteSweepIcon />
             </ListItemIcon>
@@ -105,7 +105,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("categories")}>
+          <ListItemButton id="admin-sidebar-categories" onClick={() => onSelect("categories")}>
             <ListItemIcon>
               <CategoryIcon />
             </ListItemIcon>
@@ -114,7 +114,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("comments")}>
+          <ListItemButton id="admin-sidebar-comments" onClick={() => onSelect("comments")}>
             <ListItemIcon>
               <CommentIcon />
             </ListItemIcon>
@@ -123,7 +123,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("blog")}>
+          <ListItemButton id="admin-sidebar-create-posts" onClick={() => onSelect("blog")}>
             <ListItemIcon>
               <ArticleIcon />
             </ListItemIcon>
@@ -132,7 +132,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("posts")}>
+          <ListItemButton id="admin-sidebar-posts" onClick={() => onSelect("posts")}>
             <ListItemIcon>
               <DynamicFeedIcon />
             </ListItemIcon>
@@ -141,7 +141,7 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
         </ListItem>
 
         <ListItem disablePadding>
-          <ListItemButton onClick={() => onSelect("analytics")}>
+          <ListItemButton id="admin-sidebar-analytics" onClick={() => onSelect("analytics")}>
             <ListItemIcon>
               <SsidChartIcon /> 
             </ListItemIcon>

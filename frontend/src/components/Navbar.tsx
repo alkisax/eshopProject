@@ -105,7 +105,11 @@ const NavbarAppwrite = () => {
 
             {hasFavorites && (
               <Tooltip title="Favorites">
-                <IconButton component={Link} to="/favorites" sx={{ color: "inherit" }}>
+                <IconButton
+                  id="navbar-favorites-icon"
+                  component={Link} to="/favorites"
+                  sx={{ color: "inherit" }}
+                >
                   <FavoriteIcon color="error" />
                 </IconButton>
               </Tooltip>

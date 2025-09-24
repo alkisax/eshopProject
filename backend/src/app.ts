@@ -116,7 +116,7 @@ app.set('trust proxy', 1);
 // global limiter η βιβλιοθήκε αυτή βάζει όριο στο πόσα req θα δεχτεί απο κάθε ip με αποτέλεσμα να εμποδίζει DDOS επιθέσεις
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
-  max: 20000, // TODO CHANGE BACK!!!// 200 requests / 15 min per IP
+  max: 200, // TODO CHANGE BACK!!!// 200 requests / 15 min per IP
   standardHeaders: true,
   legacyHeaders: false,
 });
