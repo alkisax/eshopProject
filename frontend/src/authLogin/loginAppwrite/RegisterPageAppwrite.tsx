@@ -177,7 +177,7 @@ const RegisterPageAppwrite = () => {
               </Button>
 
               <Typography variant="body2" align="center">
-                Already have an account? <Link to="/login-backend">Login</Link>
+                Already have an account? <Link to="/login">Login</Link>
               </Typography>
             </Stack>
           </Box>

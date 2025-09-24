@@ -124,16 +124,15 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }}
           );
           const res = response.data.data
-          console.log("Full response:", response);
-          console.log("response after googlelogin test:", res);
+          // console.log("Full response:", response);
+          // console.log("response after googlelogin test:", res);
           
-
           setUser({
             _id: res._id,
-            username: res.username,
-            name: res.name,
-            email: res.email,
-            roles: res.roles,
+      username: res.username ?? googleUser.username ?? googleUser.email.split("@")[0],
+      name: res.name ?? googleUser.name,
+      email: res.email ?? googleUser.email,
+      roles: res.roles?.length ? res.roles : googleUser.roles,
             hasPassword: !!res.hashedPassword,
             provider: "google",
           });
