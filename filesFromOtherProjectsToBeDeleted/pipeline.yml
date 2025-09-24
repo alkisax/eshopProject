@@ -139,4 +139,4 @@ jobs:
     steps:
       - name: Notify failure
         run: |
-          curl -X POST "${{ secrets.DISCORD_WEBHOOK }}" -H "Content-Type: application/json" -d '{"content": "❌ 11.20 Deployment failed!- by alkisax"}'
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK }}" -H "Content-Type: application/json" -d '{"content": "❌ 11.20 Deployment failed!"}'
