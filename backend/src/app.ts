@@ -69,7 +69,9 @@ app.use(
         "'self'",
         "https://js.stripe.com",
         "https://www.googletagmanager.com",   // google analytics
-        "https://www.google-analytics.com"
+        "https://www.google-analytics.com",
+        "https://www.youtube.com",
+        "https://s.ytimg.com"        
       ],
       frameSrc: [
         "'self'",
@@ -79,16 +81,24 @@ app.use(
         "https://analytics.google.com",
         "https://lookerstudio.google.com",
         "https://www.youtube.com",
-        "https://youtube.com", 
+        "https://youtube.com",
+        "https://www.youtube-nocookie.com" 
       ],
       // imgSrc: ["'self'", "data:", "https://cloud.appwrite.io", "https://fra.cloud.appwrite.io"], // αυτο λειτουργούσε αλλλα αφαιρέθηκε, **ΝΑ ΠΡΟΣΤΕΘΕΙ ΞΑΝΑ** δες επόμενο σχόλιο
-      imgSrc: ["'self'", "data:", "https:"], // η εφαρμογή μου είχε πολλές φωτογραφίες απο διάφορα url απο το ιντερνετ. βάλαμε αυτό γιατί τις έκοβε το helmet αλλα τώρα δεν είναι ασφαλές
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https://i.ytimg.com",
+        "https:"], // η εφαρμογή μου είχε πολλές φωτογραφίες απο διάφορα url απο το ιντερνετ. βάλαμε αυτό γιατί τις έκοβε το helmet αλλα τώρα δεν είναι ασφαλές
       connectSrc: [
         "'self'",
         "https://cloud.appwrite.io",
         "https://fra.cloud.appwrite.io",
         "https://region1.google-analytics.com",
         "https://www.google-analytics.com",
+        "https://www.youtube.com",
+        "https://youtube.com",
+        "https://*.googlevideo.com"
       ],
       styleSrc: ["'self'", "'unsafe-inline'"],
     },
