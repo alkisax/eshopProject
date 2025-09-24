@@ -1,18 +1,17 @@
-# 1️⃣ Runs only when pushing to the wip branch
-name: wip pipeline
+# 1️⃣ It runs only when a pull request targeting main is opened or updated (synchronized).
+name:  wip pipeline
 
 on: 
   push:
     branches:
       - wip
 
+#  2️⃣ This job runs on Ubuntu. It sets environment variables from GitHub secrets (used in backend).
 jobs:
-  # === CI job: lint + build (no backend tests here) ===
-  ci:
+  wip-pipeline:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: test
-      # Backend secrets
       MONGODB_TEST_URI: ${{ secrets.MONGODB_TEST_URI }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       MONGODB_URI: ${{ secrets.MONGODB_URI }}
@@ -29,6 +28,7 @@ jobs:
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+
       # Frontend (must be prefixed VITE_)
       VITE_APPWRITE_ENDPOINT: ${{ secrets.VITE_APPWRITE_ENDPOINT }}
       VITE_APPWRITE_PROJECT_ID: ${{ secrets.VITE_APPWRITE_PROJECT_ID }}
@@ -48,10 +48,17 @@ jobs:
       VITE_UPLOAD_PASS: ${{ secrets.VITE_UPLOAD_PASS }}
       VITE_UPLOAD_USER: ${{ secrets.VITE_UPLOAD_USER }}
 
+      RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      
+# 3️⃣ Pulls the repo code into the runner and installs Node 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # - name: Always fail (for testing)
+      #   run: exit 1
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -83,28 +90,7 @@ jobs:
         run: npm run build
         working-directory: ./backend
 
-
-  # === E2E job: run Cypress tests (after ci) ===
-  e2e:
-    runs-on: ubuntu-latest
-    needs: ci   # ✅ only run after lint + build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install frontend dependencies
-        run: npm install
-        working-directory: ./frontend
-
-      - name: Install backend dependencies
-        run: npm install
-        working-directory: ./backend
-
+      # === E2E ===
       - name: Install E2E dependencies
         run: npm install
         working-directory: ./e2e
@@ -132,36 +118,15 @@ jobs:
         env:
           CYPRESS_BASE_URL: http://localhost:5173
 
-
-  # === Backend tests AFTER E2E ===
-  backend-tests:
-    runs-on: ubuntu-latest
-    needs: e2e   # ✅ only run if E2E passes
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install backend dependencies
-        run: npm install
-        working-directory: ./backend
-
-      - name: Run backend unit tests
+      # === BACKEND TESTS ===
+      - name: Run backend tests
         run: npm run test
         working-directory: ./backend
 
-
-  # === Deployment AFTER backend tests ===
-  deploy:
-    runs-on: ubuntu-latest
-    needs: backend-tests
-    steps:
-      - name: Trigger deployment
+      # === Deployment ===
+      - name: Trigger_deployment
         env:
+          # CONDITION is true if commit messages contain "#skip"
           CONDITION: ${{ contains(join(github.event.commits.*.message, ' '), '#skip') }}
         if: ${{ env.CONDITION == 'false' }}
         run: |
@@ -169,22 +134,18 @@ jobs:
             -H "Accept: application/json" \
             "https://api.render.com/deploy/${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
 
-
-  # === Success notification ===
   all-clear:
-    needs: deploy
+    needs: [wip-pipeline]
     runs-on: ubuntu-latest
-    if: success()
+    if: ${{ github.event_name == 'push' }}
     steps:
       - name: Confirm all checks passed
-        run: echo "✅ Wip pipeline succeeded!"
+        run: echo "✅ All ok. Proceed to merge."
 
-
-  # === Failure notification ===
   notify-on-failure:
-    needs: [ci, e2e, backend-tests, deploy]
-    runs-on: ubuntu-latest
     if: failure()
+    needs: [wip-pipeline]
+    runs-on: ubuntu-latest
     steps:
       - name: Notify failure
         run: echo "❌ Deployment failed!"
