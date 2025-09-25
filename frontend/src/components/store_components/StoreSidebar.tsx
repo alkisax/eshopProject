@@ -100,7 +100,7 @@ const StoreSidebar = ({
           {allCategories.map((cat) => (
             <ListItem key={cat._id} disablePadding>
               <FormControlLabel
-                id={`cat-${cat._id}`}
+                id={`cat-${cat.name}`}
                 control={
                   <Checkbox
                     checked={selectedCategories.includes(cat.name)}
