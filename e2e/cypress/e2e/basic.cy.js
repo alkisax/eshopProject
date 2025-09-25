@@ -433,6 +433,44 @@ describe('Backend auth tests', () => {
     // Don’t submit because Stripe redirect will break Cypress
     // cy.get('form').submit();
   });
+
+  it('should delete the backend test user', () => {
+    cy.get('#navbar-login', { timeout: 10000 }).should('exist').click();
+    cy.url().should('include', '/login');
+
+    // Switch to backend login tab
+    cy.get('#tab-backend-login').click();
+
+    // Login with backend test user created earlier
+    cy.get('#backend-login-username').type('cypressBackendUser');
+    cy.get('#backend-login-password').type('Password123!');
+    cy.get('#backend-form-submit-btn').click();
+
+    // Go to profile
+    cy.get('#navbar-profile-btn', { timeout: 20000 })
+      .should('exist')
+      .and('be.visible')
+      .click();
+
+    cy.url().should('include', '/profile');
+
+    // Click delete button
+    cy.contains('Delete My Account').click();
+
+    // Confirm deletion
+    cy.contains('Yes, Delete').click();
+
+    // Catch and verify alert
+    cy.on('window:alert', (txt) => {
+      expect(txt).to.contain('Your account has been deleted.');
+    });
+
+    // After deletion, should redirect to home
+    cy.url({ timeout: 20000 }).should('eq', 'http://localhost:5173/');
+
+    // Assert login button shows again (user is logged out)
+    cy.get('#navbar-login', { timeout: 10000 }).should('exist').and('be.visible');
+  });
 });
 
 describe('Admin login and panel access', () => {

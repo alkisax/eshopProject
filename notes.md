@@ -22,9 +22,7 @@
 - fix email ✅
 - chat gpt profanity comment test. if not pass wait for admin aproval ✅
 - cosline similarity commodity search✅
-- appwrite delete swagger jest
-
-- create a security risks checklist
+- create a security risks checklist ✅
 
 # frontend
 - minimal shop ✅
@@ -46,8 +44,7 @@
 - αγαπημένα προιόντα ❤️ ✅
 - τα έξοδα αποστολής να προστήθεντε (ως invisible commodities)
 - αρχική σελιδα με κεντρικές κατηγορίες
-- μονο παρεντ κατεγκορισ
-- έχει το admin delete το ίδιο πρόβλημα με το appwrite
+- μονο παρεντ κατεγκορισ✅
 
 - ## e2e test
 
@@ -81,6 +78,7 @@
 - Upload size restriction
 - JWT authentication, passwords hashed (never stored plain)
 - npm audit for dependency vulnerabilities
+ Dependencies → npm audit✅
 
 # notes
 ### Render setup
@@ -93,46 +91,7 @@ Start Command:
 test success stripe
 `http://localhost:5173/checkout-success?session_id=cs_live_a1PBF9KvFU5WOiYAIA6FyI3zpQfRDR54C1VO7OJTBax1YfytAyK2bygMFj`
 
-✅ Backend Security (Node + Express + Mongo)
 
- Auth & Tokens → JWT secret in env, verify middleware, role-based access ✅
- Password security → bcrypt, strong policy with Zod ✅
- Rate limiting → express-rate-limit global ✅
- Input validation → Zod everywhere ✅
- NoSQL injection → Mongoose schemas ✅
- CORS & Headers → cors with allow-list, helmet ✅
- Error handling → no centralized error handler yet (stack traces may leak) ⚠️
- Payments → Stripe Checkout + webhook ✅ (server verifies, prices trusted from dashboard)
- Database hardening → not shown (least privilege, TLS, backups) ⚠️
-
-✅ Frontend Security (React)
-
- Auth → still storing tokens in localStorage ⚠️ (httpOnly cookies recommended)
- Forms & Inputs → DOMPurify on blog posts ✅; comments plain text ✅
- Sensitive data → API keys hidden, only env URLs exposed ✅
- Dependencies → npm audit✅
-
-✅ Infra & Deployment
-
- Environment variables → using .env, not committed ✅
- HTTPS → not shown; must be enforced in production ⚠️
- Server hardening → not shown (run as non-root, PM2/Docker) ⚠️
- CI/CD → GitHub Actions in use, secrets stored in repo settings ✅
- Logging & Monitoring → Winston partially
-
-✅ Legal / Compliance
-
- GDPR → partial (account deletion exists, but no cookie consent / privacy pages) ⚠️
- Payments → Stripe only, no card storage ✅
- Privacy Policy / Terms → not implemented yet ⚠️
-
-⚡ Biggest remaining gaps (high severity & easy-ish to fix):
-
-Tokens in localStorage → move to httpOnly cookies.
-Error handling → centralize error middleware, hide stack traces.
-CSP → tighten imgSrc (currently allows any https image).
-HTTPS enforcement.
-Privacy Policy / Terms pages.
 
 
 

@@ -39,7 +39,7 @@ export interface CommodityType {
   _id: string;
   name: string;
   description?: string;
-  category: string[];
+  category: string | string[] | { _id: string; name: string; slug: string };
   price: number;
   currency: string;
   stripePriceId: string;
