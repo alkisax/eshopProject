@@ -59,6 +59,7 @@ app.use(express.json());
 
 // library for securing. With only helmet() covers: sniffing, clickjacking, HSTS
 // app.use(helmet());
+
 // το helmet() δεν μου επέτρεπε να δω τις εικόνες απο το appwrite ή να μπω στο stripe etc. Εδω προσθέτουμε εξαιρέσεις για αυτό
 // **ΠΡΟΣΟΧΗ** αυτη είναι η πιθανοτερη πηγη δυσλειτουργίας third party
 app.use(
