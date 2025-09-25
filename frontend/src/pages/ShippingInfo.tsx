@@ -1,11 +1,12 @@
 import { Box, Button, FormControlLabel, Paper, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useCheckout } from "../hooks/useCheckout";
+import type { ShippingInfoType } from '../types/commerce.types';
 
 // import BoxNowWidget from "../components/store_components/BoxNowWidget";
 
 const ShippingInfo = () => {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<ShippingInfoType>({
     shippingEmail: "",
     fullName: "",
     addressLine1: "",
@@ -15,7 +16,7 @@ const ShippingInfo = () => {
     country: "",
     phone: "",
     notes: "",
-    shippingMethod: "courier"
+    shippingMethod: "pickup" 
   });
 
   const { handleCheckout } = useCheckout();

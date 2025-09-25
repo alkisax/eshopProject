@@ -83,6 +83,7 @@ export interface ShippingInfoType {
   shippingEmail: string;
   phone?: string;
   notes?: string;
+  shippingMethod?: 'courier' | 'boxnow' | 'pickup';
 }
 
 export interface CategoryType extends Document {

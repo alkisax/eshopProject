@@ -25,6 +25,7 @@ export interface TransactionType {
 }
 
 export interface ShippingInfoType {
+  shippingEmail: string;
   fullName: string;
   addressLine1: string;
   addressLine2?: string;
@@ -33,6 +34,7 @@ export interface ShippingInfoType {
   country: string;
   phone?: string;
   notes?: string;
+  shippingMethod?: 'courier' | 'boxnow' | 'pickup';
 }
 
 export interface CommodityType {

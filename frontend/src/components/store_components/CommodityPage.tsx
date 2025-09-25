@@ -287,7 +287,7 @@ const CommodityPage = () => {
           )}
         </Box>
 
-        {/* === Price (moved here, more visible) === */}
+        {/* === Price === */}
         <Typography
           id="item-price"
           variant="h5"
