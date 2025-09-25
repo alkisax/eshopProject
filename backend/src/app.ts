@@ -104,6 +104,10 @@ app.use(
         "https://*.googlevideo.com",
         "https://*.ytimg.com",
       ],
+      mediaSrc: [
+        "'self'",
+        "https://*.googlevideo.com",
+      ],
       styleSrc: ["'self'", "'unsafe-inline'"],
     },
   })
