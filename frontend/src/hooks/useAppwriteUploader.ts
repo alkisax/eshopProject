@@ -1,6 +1,6 @@
 // src/hooks/useAppwriteUploader.ts
 import { useEffect, useState, useCallback } from "react";
-import { Client, Storage, Account, ID } from "appwrite";
+import { Client, Storage, Account, ID, Query, type Models } from "appwrite";
 
 const client = new Client()
   .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT!)
@@ -55,11 +55,29 @@ export function useAppwriteUploader() {
     return res; // returns file metadata
   }, [ready]);
 
-  const listFiles = useCallback(async () => {
-    if (!ready) throw new Error("Uploader not ready");
-    const res = await storage.listFiles(BUCKET_ID);
-    return res.files;
-  }, [ready]);
+  // listFiles with pagination
+  const listFiles = useCallback(
+    async (page: number, limit = 10): Promise<{ files: Models.File[]; total: number }> => {
+      if (!ready) throw new Error("Uploader not ready");
+
+      // skip items from previous pages
+      const offset = (page - 1) * limit;
+      // queries: limit + offset + sort
+      const queries = [
+        Query.limit(limit),
+        Query.offset(offset),
+        Query.orderDesc("$createdAt")
+      ];
+
+      const res = await storage.listFiles(BUCKET_ID, queries);
+
+      return {
+        files: res.files,   // current page files
+        total: res.total,   // total count in bucket
+      };
+    },
+    [ready]
+  );
 
   const deleteFile = useCallback(async (fileId: string) => {
     if (!ready) throw new Error("Uploader not ready");

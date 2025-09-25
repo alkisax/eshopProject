@@ -1,9 +1,10 @@
 // src/components/admin/AdminAddNewCommodity.tsx
-import { useState, useContext, useMemo } from "react";
+import { useState, useContext, useMemo, useEffect } from "react";
 import {
   TextField, Button, Typography, Paper, Stack,
-  Autocomplete
+  Autocomplete, Box, IconButton
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
 import axios from "axios";
@@ -29,8 +30,11 @@ const AdminAddNewCommodity = () => {
     images: [] as string[], // for now array of URLs
   });
 
+  // εχουμε ανάγκη ένα state για να φυλαμε τα αρχεια για το suggestion
+  const [files, setFiles] = useState<string[]>([]);
+
   // επαναχρησιμοποιούμε τις λειτουργιες upload που μεταφέραμε στο hook. **Αυτό είναι ένα συμαντικό αρχείο**, έχει όλη την λογική μας
-  const { ready, uploadFile, getFileUrl } = useAppwriteUploader();
+  const { ready, uploadFile, getFileUrl, listFiles } = useAppwriteUploader();
 
   const handleChange = (field: string, value: string | number | boolean | string[]) => {
     // το διατηρεί όλο ίδιο εκτός απο το οτι αλλαζει την τιμή του field που μας έρχετε απο τα params
@@ -122,6 +126,21 @@ const AdminAddNewCommodity = () => {
     [categories]
   );
 
+  // φέρνει τα 5 πιο προσφατα αρχεία. η listfiles έιναι συνα΄ρτηση του cloudupload 
+  useEffect(() => {
+    const loadRecentFiles = async () => {
+      if (!ready) return;
+      try {
+        const res = await listFiles(1, 5);
+        const urls = res.files.map((f) => getFileUrl(f.$id));
+        setFiles(urls);
+      } catch (err) {
+        console.error("Failed to fetch recent files:", err);
+      }
+    };
+    loadRecentFiles();
+  }, [ready, getFileUrl, listFiles]);
+
   return (
     <Paper sx={{ p: 3, maxWidth: 600 }}>
       <Typography variant="h5" gutterBottom>
@@ -202,13 +221,23 @@ const AdminAddNewCommodity = () => {
         <>
           <Typography variant="subtitle1">Images</Typography>
 
-          {/* Paste URLs manually */}
-          <TextField
-            label="Image URLs (comma separated)"
-            value={form.images.join(", ")}
-            onChange={(e) =>
-              handleChange("images", e.target.value.split(",").map((s) => s.trim()))
-            }
+          {/* Paste URLs manually with suggestions */}
+          <Autocomplete
+            freeSolo
+            multiple
+            openOnFocus
+            filterSelectedOptions
+            options={files}
+            getOptionLabel={(option) => option}
+            value={form.images}
+            onChange={(_e, value) => handleChange("images", value)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Image URLs"
+                placeholder="Paste or type URL"
+              />
+            )}
           />
 
           {/* Upload file */}
@@ -243,17 +272,42 @@ const AdminAddNewCommodity = () => {
             disabled={!ready}
           />
 
-          {/* Preview list */}
+          {/* Preview list with X buttons */}
           <Stack direction="row" spacing={2} flexWrap="wrap">
             {form.images.map((url, idx) => (
-              <img
+              <Box
                 key={idx}
-                src={url}
-                alt={`preview-${idx}`}
-                style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 4 }}
-              />
+                sx={{ position: "relative", display: "inline-block" }}
+              >
+                <img
+                  src={url}
+                  alt={`preview-${idx}`}
+                  style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 4 }}
+                />
+                <IconButton
+                  size="small"
+                  onClick={() =>
+                    setForm((prev) => ({
+                      ...prev,
+                      images: prev.images.filter((_, i) => i !== idx),
+                    }))
+                  }
+                  sx={{
+                    position: "absolute",
+                    top: -8,
+                    right: -8,
+                    bgcolor: "white",
+                    border: "1px solid #ccc",
+                    borderRadius: "50%",
+                    padding: "2px",
+                    "&:hover": { bgcolor: "error.light" },
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Box>
             ))}
-          </Stack>        
+          </Stack>
         </>
 
         <Stack direction="row" spacing={2}>
