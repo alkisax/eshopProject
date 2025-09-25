@@ -89,6 +89,9 @@ app.use(
         "'self'",
         "data:",
         "https://i.ytimg.com",
+        "https://s.ytimg.com",
+        "https://cloud.appwrite.io",
+        "https://fra.cloud.appwrite.io",        
         "https:"], // η εφαρμογή μου είχε πολλές φωτογραφίες απο διάφορα url απο το ιντερνετ. βάλαμε αυτό γιατί τις έκοβε το helmet αλλα τώρα δεν είναι ασφαλές
       connectSrc: [
         "'self'",
@@ -98,7 +101,8 @@ app.use(
         "https://www.google-analytics.com",
         "https://www.youtube.com",
         "https://youtube.com",
-        "https://*.googlevideo.com"
+        "https://*.googlevideo.com",
+        "https://*.ytimg.com",
       ],
       styleSrc: ["'self'", "'unsafe-inline'"],
     },

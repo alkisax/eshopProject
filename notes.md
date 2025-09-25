@@ -42,7 +42,7 @@
 - GAnalytics now tracks commodity impretions and commodity pages ✅, learn dashboard
 - chat gpt criteria optimiser ✅
 - αγαπημένα προιόντα ❤️ ✅
-- τα έξοδα αποστολής να προστήθεντε (ως invisible commodities)
+- τα έξοδα αποστολής να προστήθεντε (ως invisible commodities)✅
 - αρχική σελιδα με κεντρικές κατηγορίες
 - μονο παρεντ κατεγκορισ✅
 
