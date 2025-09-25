@@ -195,7 +195,7 @@ const AdminCommoditiesPanel = () => {
                 <React.Fragment key={c._id?.toString()}>
                   <TableRow>
                     <TableCell>{c.name}</TableCell>
-                    <TableCell>{c.category.join(", ")}</TableCell>
+                    <TableCell>{(c.category as string[]).join(", ")}</TableCell>
                     <TableCell>
                       {c.price} {c.currency}
                     </TableCell>

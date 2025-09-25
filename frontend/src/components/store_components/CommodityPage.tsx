@@ -310,12 +310,12 @@ const CommodityPage = () => {
         </Typography>
 
         {/* === Categories === */}
-        {commodity.category?.length > 0 && (
+        {(commodity.category as string[])?.length > 0 && (
           <Typography 
             id="item-categories"
             variant="body2"
           >
-            Categories: {commodity.category.join(", ")}
+            Categories: {(commodity.category as string[]).join(", ")}
           </Typography>
         )}
 

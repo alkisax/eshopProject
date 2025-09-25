@@ -26,7 +26,7 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
     name: commodity.name || "",
     description: commodity.description || "",
     // ΠΡΟΣΟΧΗ: εδώ πια δουλεύουμε με categories ως λίστα ονομάτων (string[])
-    category: commodity.category || [],
+    category: (commodity.category as string[]) || [],
     price: commodity.price || 0,
     currency: commodity.currency || "eur",
     stripePriceId: commodity.stripePriceId || "",
