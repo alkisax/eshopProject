@@ -45,6 +45,9 @@
 - τα έξοδα αποστολής να προστήθεντε (ως invisible commodities)✅
 - αρχική σελιδα με κεντρικές κατηγορίες
 - μονο παρεντ κατεγκορισ✅
+- seo
+- favorites in initialiser
+- no refresh in toggle proccesed
 
 - ## e2e test
 
