@@ -216,6 +216,7 @@ const StoreLayout = () => {
                   currentPage,
                   fetchCart,
                   setCurrentPage,
+                  selectedCategories,
                 }}
               />
             </div>

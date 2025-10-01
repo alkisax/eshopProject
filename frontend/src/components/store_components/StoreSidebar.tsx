@@ -177,7 +177,17 @@ const StoreSidebar = ({
             variant="contained"
             color="primary"
             fullWidth
-            sx={{ mb: 1 }}
+            // sx={{ mb: 1 }}
+            sx={{
+              mb: 1,
+              backgroundColor: "#48C4Cf",
+              color: "#fff",
+              fontWeight: "bold",
+              "&:hover": {
+                backgroundColor: "#FFd500",
+                color: "#4a3f35",
+              },
+            }}
             onClick={onApplyFilters}
           >
             Apply Filters

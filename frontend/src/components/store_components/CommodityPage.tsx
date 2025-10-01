@@ -333,7 +333,16 @@ const CommodityPage = () => {
         <Button
           id="item-add-to-cart-btn"
           variant="contained"
-          sx={{ mt: 2, width: 200 }}
+          sx={{
+            mt: 2,
+            width: 200,
+              color: "#fff",
+              fontWeight: "bold",
+              "&:hover": {
+                backgroundColor: "#FFd500",
+                color: "#4a3f35",
+              },
+          }}
           disabled={commodity.stock === 0}
           onClick={() => addOneToCart(commodity._id)}
         >
@@ -343,7 +352,10 @@ const CommodityPage = () => {
         <Button
           id="item-favorites"
           variant="outlined"
-          sx={{ mt: 1, width: 200 }}
+          sx={{ 
+            mt: 1,
+            width: 200,
+          }}
           disabled={!user}
           onClick={isFavorite ? handleRemoveFromFavorites : handleAddToFavorites}
           startIcon={isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
