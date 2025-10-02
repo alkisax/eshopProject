@@ -23,6 +23,7 @@
 - chat gpt profanity comment test. if not pass wait for admin aproval ✅
 - cosline similarity commodity search✅
 - create a security risks checklist ✅
+- sitemap for dynamic pages in backend
 
 # frontend
 - minimal shop ✅
