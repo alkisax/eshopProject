@@ -1,5 +1,6 @@
 import { Box, Button, FormControlLabel, Paper, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
+import { Helmet } from "react-helmet-async";
 import { useCheckout } from "../hooks/useCheckout";
 import type { ShippingInfoType } from '../types/commerce.types';
 
@@ -33,7 +34,24 @@ const ShippingInfo = () => {
 
   return (
     <>
-      <Typography variant="h5" gutterBottom>
+
+      <Helmet>
+        <title>Στοιχεία Αποστολής | Έχω μια Ιδέα.</title>
+        <meta
+          name="description"
+          content="Συμπληρώστε τη διεύθυνση αποστολής και επιλέξτε τρόπο παράδοσης για να ολοκληρώσετε την αγορά σας από το κατάστημά μας."
+        />
+        <link
+          rel="canonical"
+          href={window.location.origin + window.location.pathname}
+        />
+      </Helmet>
+
+      <Typography
+        component="h1"
+        variant="h5"
+        gutterBottom
+      >
         Διεύθυνση Αποστολής
       </Typography>
 

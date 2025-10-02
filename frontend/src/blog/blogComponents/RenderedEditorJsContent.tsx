@@ -178,7 +178,9 @@ const RenderedEditorJsContent = ({ editorJsData, subPageName }: Props) => {
                 <Box
                   component="img"
                   src={block.data.file.url}
-                  alt={block.data.caption || ""}
+                  alt={block.data.caption  || "Blog image"}
+                  title={block.data.caption || "Blog image"}
+                  loading="lazy"
                   sx={{
                     maxWidth: "100%",
                     maxHeight: 400,          // <-- Εδώ το πρόσθεσα

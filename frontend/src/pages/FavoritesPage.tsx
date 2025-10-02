@@ -5,6 +5,7 @@ import { VariablesContext } from "../context/VariablesContext";
 import { Typography, Grid, Card, CardContent, CardMedia, CardActionArea, CardActions, Button } from "@mui/material";
 import type { CommodityType } from "../types/commerce.types";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const FavoritesPage = () => {
   const { user } = useContext(UserAuthContext);
@@ -79,8 +80,26 @@ const FavoritesPage = () => {
   if (!user) return <Typography>Please log in to see favorites.</Typography>;
 
   return (
-    <div>
-      <Typography variant="h4" gutterBottom>My Favorites</Typography>
+    <>
+      <Helmet>
+        <title>Αγαπημένα | Έχω μια Ιδέα</title>
+        <meta
+          name="description"
+          content="Δείτε τα αγαπημένα σας προϊόντα από το κατάστημα Έχω μια Ιδέα. Προσθέστε, αφαιρέστε και επιστρέψτε εύκολα στις αγορές σας."
+        />
+        <link
+          rel="canonical"
+          href={window.location.origin + window.location.pathname}
+        />
+      </Helmet>
+
+      <Typography 
+        component="h1"
+        variant="h4"
+        gutterBottom
+      >
+        Αγαπημένα
+      </Typography>
       <Grid
         id="favorites-list"
         container
@@ -99,6 +118,8 @@ const FavoritesPage = () => {
                     height="160"
                     image={c.images?.[0] || "/placeholder.jpg"}
                     alt={c.name}
+                    title={c.name}
+                    loading="lazy"
                   />
                   <CardContent>
                     <Typography variant="h6">{c.name}</Typography>
@@ -120,7 +141,7 @@ const FavoritesPage = () => {
           </Grid>
         ))}
       </Grid>
-    </div>
+    </>
   );
 };
 

@@ -74,8 +74,12 @@ const CartItemsList = () => {
 
   return (
     <>
-      <Typography variant="h4" gutterBottom>
-        Cart Items
+      <Typography
+        component="h2"
+        variant="h4"
+        gutterBottom
+      >
+        Τα προϊόντα σας
       </Typography>
 
       {isLoading ? (
@@ -117,6 +121,8 @@ const CartItemsList = () => {
             component="img"
             src={item.commodity.images?.[0] || "/placeholder.jpg"}
             alt={item.commodity.name}
+            title={item.commodity.name}
+            loading="lazy"
             sx={{
               width: 80,
               height: 80,
