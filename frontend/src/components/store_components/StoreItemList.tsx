@@ -136,6 +136,7 @@ const StoreItemList = () => {
                 }}
               >
                 <Button
+                  id="add-one-list-item-btn"
                   variant="contained"
                   size="small"
                   onClick={async (e) => {
