@@ -5,6 +5,7 @@ import RenderedEditorJsContent from "../blogComponents/RenderedEditorJsContent";
 import { getPreviewContent } from "../blogUtils/editorHelper";
 import { VariablesContext } from "../../context/VariablesContext";
 import type { PostType } from "../blogTypes/blogTypes";
+import { Helmet } from "react-helmet-async";
 import {
   Box,
   Card,
@@ -56,59 +57,87 @@ const News = () => {
   }
 
   return (
-    <Box p={4} maxWidth="lg" mx="auto">
-      <Grid container spacing={3}>
-        {posts.map((post) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={post._id}>
-            <Card
-              sx={{
-                borderRadius: 3,
-                boxShadow: 3,
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <CardActionArea
-                component={Link}
-                to={`/posts/${post.slug}`}
-                sx={{ textDecoration: "none" }}
+    <>
+      <Helmet>
+        <title>Νέα | Έχω μια Ιδέα</title>
+        <meta
+          name="description"
+          content="Διαβάστε τα τελευταία νέα από το εργαστήρι μας: εκδηλώσεις, παρουσιάσεις και ενημερώσεις για χειροποίητα κοσμήματα."
+        />
+        <link
+          rel="canonical"
+          href={window.location.origin + window.location.pathname}
+        />
+      </Helmet>
+
+      <Typography
+        component='h1'
+        variant="h3"
+        gutterBottom
+        sx={{
+          fontSize: { xs: "1.8rem", md: "2.5rem" },
+          fontWeight: "bold",
+          textAlign: "center",
+          mb: 4,
+        }}
+      >
+        Νέα από το Εργαστήρι
+      </Typography>
+
+      <Box p={4} maxWidth="lg" mx="auto">
+        <Grid container spacing={3}>
+          {posts.map((post) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={post._id}>
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  boxShadow: 3,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
               >
-                <CardContent>
-                  {/* Title */}
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    fontWeight="bold"
-                    color="primary"
-                  >
-                    {post.title}
-                  </Typography>
+                <CardActionArea
+                  component={Link}
+                  to={`/posts/${post.slug}`}
+                  sx={{ textDecoration: "none" }}
+                >
+                  <CardContent>
+                    {/* Title */}
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      fontWeight="bold"
+                      color="primary"
+                    >
+                      {post.title}
+                    </Typography>
 
-                  {/* Preview content */}
-                  <RenderedEditorJsContent
-                    editorJsData={getPreviewContent(post.content)}
-                    subPageName={
-                      typeof post.subPage === "object" ? post.subPage.name : ""
-                    }
-                  />
+                    {/* Preview content */}
+                    <RenderedEditorJsContent
+                      editorJsData={getPreviewContent(post.content)}
+                      subPageName={
+                        typeof post.subPage === "object" ? post.subPage.name : ""
+                      }
+                    />
 
-                  {/* Date */}
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    display="block"
-                    mt={2}
-                  >
-                    {new Date(post.createdAt!).toLocaleString()}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+                    {/* Date */}
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                      mt={2}
+                    >
+                      {new Date(post.createdAt!).toLocaleString()}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>    
+    </>
   );
 };
 

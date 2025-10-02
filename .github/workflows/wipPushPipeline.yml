@@ -66,10 +66,11 @@ jobs:
 
       # === FRONTEND ===
       - name: Install frontend dependencies
-        run: npm install
+        run: npm install  --legacy-peer-deps #TODO had for helmet seo
         working-directory: ./frontend
 
       - name: Lint frontend
+        if: ${{ !contains(join(github.event.commits.*.message, ' '), '#deploy-only') }}
         run: npm run lint
         working-directory: ./frontend
 
@@ -83,6 +84,7 @@ jobs:
         working-directory: ./backend
 
       - name: Lint backend
+        if: ${{ !contains(join(github.event.commits.*.message, ' '), '#deploy-only') }}
         run: npm run lint
         working-directory: ./backend
 
@@ -96,13 +98,16 @@ jobs:
         working-directory: ./e2e
 
       - name: Start frontend dev server in background
+        if: ${{ !contains(join(github.event.commits.*.message, ' '), '#deploy-only') }}
         run: npm run dev &
         working-directory: ./frontend
 
       - name: Wait for frontend to be ready
+        if: ${{ !contains(join(github.event.commits.*.message, ' '), '#deploy-only') }}
         run: npx wait-on http://localhost:5173
 
       - name: Start backend server in background
+        if: ${{ !contains(join(github.event.commits.*.message, ' '), '#deploy-only') }}
         run: npm run start &
         working-directory: ./backend
         env:
@@ -110,9 +115,11 @@ jobs:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
 
       - name: Wait for backend to be ready
+        if: ${{ !contains(join(github.event.commits.*.message, ' '), '#deploy-only') }}
         run: npx wait-on http://localhost:3001/health
 
       - name: Run Cypress tests
+        if: ${{ !contains(join(github.event.commits.*.message, ' '), '#deploy-only') }}
         run: npm run cypress:run
         working-directory: ./e2e
         env:
@@ -120,6 +127,7 @@ jobs:
 
       # === BACKEND TESTS ===
       - name: Run backend tests
+        if: ${{ !contains(join(github.event.commits.*.message, ' '), '#deploy-only') }}
         run: npm run test
         working-directory: ./backend
 

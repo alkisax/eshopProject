@@ -4,7 +4,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { VariablesContext } from "../context/VariablesContext";
 import { UserAuthContext } from "../context/UserAuthContext";
-import type { CartType, CommodityType } from "../types/commerce.types";
+import type { CartType, CategoryType, CommodityType } from "../types/commerce.types";
 import CartPreviewFooter from "../components/store_components/CartPreviewFooter";
 
 const StoreLayout = () => {
@@ -13,7 +13,7 @@ const StoreLayout = () => {
 
   const [search, setSearch] = useState("");
   const [filtersApplied, setFiltersApplied] = useState(false);
-  const [allCategories, setAllCategories] = useState<string[]>([]);
+  const [allCategories, setAllCategories] = useState<CategoryType[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   const [semanticResults, setSemanticResults] = useState<CommodityType[]>([]);
@@ -47,13 +47,16 @@ const StoreLayout = () => {
   // φέρνει όλες τις κατηγορίες για το filtering. θα μπορούσα να το έκανα και εδώ απο το commodities αλλα αφου έχω dedicated endpoint είναι μάλλον καλύτερα
   useEffect(() => {
     const fetchCategories = async () => {
-      const res = await axios.get(`${url}/api/commodity/categories`);
+      const res = await axios.get(`${url}/api/category`);
       if (res.data.status) {
-        setAllCategories(res.data.data);
+        // only top-level categories
+        const parentCats = (res.data.data as CategoryType[]).filter(c => !c.parent && !c.isTag);  // exclude tagged categories
+        setAllCategories(parentCats);
       }
     };
     fetchCategories();
   }, [url]);
+  const parentCategories = allCategories.filter(cat => !cat.parent);
  
   // 1/3
   const filterBySearch = (items: CommodityType[], searchText: string) => {
@@ -65,10 +68,32 @@ const StoreLayout = () => {
 
   // 2/3
   const filterByCategory = (items: CommodityType[]) => {
-    if (selectedCategories.length === 0) return items; // no categories seected
-    return items.filter(c => selectedCategories.some(cat => c.category.includes(cat)));
+    if (selectedCategories.length === 0) return items;
+
+    return items.filter((c) => {
+      const cat = c.category as unknown;
+
+      // case 1: single string id
+      if (typeof cat === "string") {
+        return selectedCategories.includes(cat);
+      }
+
+      // case 2: array of string ids
+      if (Array.isArray(cat) && cat.every((x) => typeof x === "string")) {
+        return cat.some((id) => selectedCategories.includes(id));
+      }
+
+      // case 3: populated object
+      if (typeof cat === "object" && cat && "_id" in cat) {
+        return selectedCategories.includes((cat as { _id: string })._id);
+      }
+
+      return false;
+    });
   };
 
+  // console.log("selectedCategories", selectedCategories);
+  // console.log("commodity categories", commodities.map(c => c.category));
   // 3/3 συνένωση των δυο παραπάνω
   const filtered = filterBySearch(filterByCategory(commodities), search);
 
@@ -113,27 +138,27 @@ const StoreLayout = () => {
   // απλό toggle που μπορεί να χρησιμοποιηθεί για re-render ή future side effects
   console.log('filters applied', filtersApplied)
 
-    const handleSemanticSearch = async (query: string) => {
-      if (!query.trim()) {
-        setSemanticResults([]);
-        return;
-      }
-  
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get<{ status: boolean; data: { commodity: CommodityType; score: number }[] }>(
-          `${url}/api/ai-embeddings/search`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            params: { query },
-          }
-        );
-  
-        setSemanticResults(res.data.data.map(r => r.commodity).slice(0, 5));
-      } catch (err) {
-        console.error("Semantic search failed", err);
-      }
-    };
+  const handleSemanticSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSemanticResults([]);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get<{ status: boolean; data: { commodity: CommodityType; score: number }[] }>(
+        `${url}/api/ai-embeddings/search`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { query },
+        }
+      );
+
+      setSemanticResults(res.data.data.map(r => r.commodity).slice(0, 5));
+    } catch (err) {
+      console.error("Semantic search failed", err);
+    }
+  };
 
   // FOOTER LOGIC
   const { hasCart, globalParticipant } = useContext(VariablesContext);
@@ -167,7 +192,7 @@ const StoreLayout = () => {
         <div style={{ display: "flex", flexGrow: 1 }}>
           <StoreSidebar
             search={search}
-            allCategories={allCategories}
+            allCategories={parentCategories}
             selectedCategories={selectedCategories}
             onSearch={handleSearch}
             onToggleCategory={handleToggleCategory}
@@ -191,6 +216,7 @@ const StoreLayout = () => {
                   currentPage,
                   fetchCart,
                   setCurrentPage,
+                  selectedCategories,
                 }}
               />
             </div>

@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { PostType } from "../blogTypes/blogTypes";
+import { Helmet } from "react-helmet-async";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -54,45 +55,67 @@ const BlogPost = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper
-        elevation={3}
-        sx={{
-          p: { xs: 2, sm: 3, md: 4 },
-          borderRadius: 3,
-        }}
-      >
-        {/* Title */}
-        <Typography
-          variant="h4"
-          fontWeight="bold"
-          gutterBottom
-          color="primary"
-          textAlign="center"
-        >
-          {post.title}
-        </Typography>
+    <>
 
-        {/* Date */}
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          display="block"
-          textAlign="center"
-          mb={3}
-        >
-          {new Date(post.createdAt!).toLocaleString()}
-        </Typography>
-
-        {/* Content */}
-        <RenderedEditorJsContent
-          editorJsData={post.content}
-          subPageName={
-            typeof post.subPage === "object" ? post.subPage.name : ""
+      <Helmet>
+        <title>{post.title} | Έχω μια Ιδέα</title>
+        <meta
+          name="description"
+          content={
+            (post.content?.blocks?.[0]?.type === "paragraph" ||
+            post.content?.blocks?.[0]?.type === "header" ||
+            post.content?.blocks?.[0]?.type === "quote")
+              ? (post.content.blocks[0].data as { text: string }).text.slice(0, 150)
+              : post.title
           }
         />
-      </Paper>
-    </Container>
+        <link
+          rel="canonical"
+          href={`${window.location.origin}/posts/${post.slug}`}
+        />
+      </Helmet>   
+
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Paper
+          elevation={3}
+          sx={{
+            p: { xs: 2, sm: 3, md: 4 },
+            borderRadius: 3,
+          }}
+        >
+          {/* Title */}
+          <Typography
+            component="h1"
+            variant="h4"
+            fontWeight="bold"
+            gutterBottom
+            color="primary"
+            textAlign="center"
+          >
+            {post.title}
+          </Typography>
+
+          {/* Date */}
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            display="block"
+            textAlign="center"
+            mb={3}
+          >
+            {new Date(post.createdAt!).toLocaleString()}
+          </Typography>
+
+          {/* Content */}
+          <RenderedEditorJsContent
+            editorJsData={post.content}
+            subPageName={
+              typeof post.subPage === "object" ? post.subPage.name : ""
+            }
+          />
+        </Paper>
+      </Container>    
+    </>
   );
 };
 

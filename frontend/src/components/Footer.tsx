@@ -31,7 +31,12 @@ const Footer = () => {
 
           {/* Πληροφορίες */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+            <Typography 
+              variant="h6"
+              component="h4"
+              gutterBottom
+              sx={{ fontWeight: "bold" }}
+            >
               Πληροφορίες
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -52,7 +57,12 @@ const Footer = () => {
 
           {/* Εταιρεία */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+            <Typography
+              variant="h6"
+              component="h4"
+              gutterBottom
+              sx={{ fontWeight: "bold" }}
+            >
               Εταιρεία
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -64,7 +74,12 @@ const Footer = () => {
 
           {/* Πολιτικές */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+            <Typography
+              variant="h6"
+              component="h4"
+              gutterBottom
+              sx={{ fontWeight: "bold" }}
+            >
               Πολιτικές
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -82,7 +97,12 @@ const Footer = () => {
 
           {/* Social */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+            <Typography
+              variant="h6"
+              component="h4"
+              gutterBottom
+              sx={{ fontWeight: "bold" }}
+              >
               Ακολουθήστε μας
             </Typography>
             <Box>

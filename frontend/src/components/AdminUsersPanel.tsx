@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { useCallback, useContext, useEffect, useState } from "react"
 import axios from 'axios'
 import React from "react";
 import { VariablesContext } from "../context/VariablesContext";
@@ -24,24 +24,23 @@ const AdminPanel = () => {
     const [viewUser, setViewUser] = useState<IUser | null>(null);
 
 
+    const fetchAllUsers = useCallback (async () => {
+      try {
+      const token = localStorage.getItem("token");
+      const users = await axios.get(`${url}/api/users/`, {
+        headers: { Authorization: `Bearer ${token}`},
+      })
+      console.log(users);
+      
+      setUsers(users.data.data)
+      } catch {
+        console.log('error fetching all users');        
+      }
+    },[url]);
 
     useEffect(() => {
-      const fetchAllUsers = async () => {
-        try {
-        const token = localStorage.getItem("token");
-        const users = await axios.get(`${url}/api/users/`, {
-          headers: { Authorization: `Bearer ${token}`},
-        })
-        console.log(users);
-        
-        setUsers(users.data.data)
-        } catch {
-          console.log('error fetching all users');        
-        }
-      }
-
       fetchAllUsers()
-    }, [url])
+    }, [fetchAllUsers, url])
 
     
     const handleDelete = async (user: IUser) => {
@@ -54,10 +53,32 @@ const AdminPanel = () => {
 
       try {
         const token = localStorage.getItem("token");
+
+        // 1. Delete comments
+        try {
+          await axios.delete(`${url}/api/commodity/comments/user/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          // 2. Delete Appwrite user (ignore if not found)
+          await axios.delete(`${url}/api/users/appwrite-delete`, {
+            data: { email: user.email },
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        } catch (err: unknown) {
+          if (axios.isAxiosError(err) && err.response?.status === 404) {
+            console.warn("No Appwrite account for this user, skipping");
+          } else {
+            throw err; // only rethrow if it's a real error
+          }
+        }
+
+        // 3. Delete Mongo user
         await axios.delete(`${url}/api/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setUsers(users.filter(user => user._id !== userId));
+        await fetchAllUsers();
+        // setUsers(users.filter(u => u._id !== userId));
         alert("User deleted");
       } catch (err) {
         console.error("Delete failed:", err);

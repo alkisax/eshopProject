@@ -5,6 +5,7 @@ import { VariablesContext } from "../context/VariablesContext";
 import { Typography, Grid, Card, CardContent, CardMedia, CardActionArea, CardActions, Button } from "@mui/material";
 import type { CommodityType } from "../types/commerce.types";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const FavoritesPage = () => {
   const { user } = useContext(UserAuthContext);
@@ -15,10 +16,11 @@ const FavoritesPage = () => {
   // κανονικά εδώ θα έπρεπε να γυρίσω και να κάνω Populate το backend μου. αλλα δεν θέλω και για αυτό με ένα get θα φέρω πρώτα τα id των favorites και μετα με αυτα θα κάνω ένα δεύτερο loop με get για να φέρω client side τα favorites μου. αλλωστε δεν θα είναι και πάρα πολλά.
   useEffect(() => {
     const fetchFavorites = async () => {
-      if (!user?._id) return;
+      const userId = user?.id || user?._id;
+      if (!userId) return;
       const token = localStorage.getItem("token");
       try {
-        const res = await axios.get(`${url}/api/users/${user._id}`, {
+        const res = await axios.get(`${url}/api/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const favs: string[] = res.data.data.favorites || []
@@ -55,10 +57,11 @@ const FavoritesPage = () => {
   }, [favoriteIds, url]);
 
   const handleRemoveFavorite = async (commodityId: string) => {
-    if (!user?._id) return;
+    const userId = user?.id || user?._id;
+    if (!userId) return;
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(`${url}/api/users/${user._id}/favorites`, {
+      await axios.delete(`${url}/api/users/${userId}/favorites`, {
         headers: { Authorization: `Bearer ${token}` },
         data: { commodityId },
       });
@@ -77,8 +80,26 @@ const FavoritesPage = () => {
   if (!user) return <Typography>Please log in to see favorites.</Typography>;
 
   return (
-    <div>
-      <Typography variant="h4" gutterBottom>My Favorites</Typography>
+    <>
+      <Helmet>
+        <title>Αγαπημένα | Έχω μια Ιδέα</title>
+        <meta
+          name="description"
+          content="Δείτε τα αγαπημένα σας προϊόντα από το κατάστημα Έχω μια Ιδέα. Προσθέστε, αφαιρέστε και επιστρέψτε εύκολα στις αγορές σας."
+        />
+        <link
+          rel="canonical"
+          href={window.location.origin + window.location.pathname}
+        />
+      </Helmet>
+
+      <Typography 
+        component="h1"
+        variant="h4"
+        gutterBottom
+      >
+        Αγαπημένα
+      </Typography>
       <Grid
         id="favorites-list"
         container
@@ -97,6 +118,8 @@ const FavoritesPage = () => {
                     height="160"
                     image={c.images?.[0] || "/placeholder.jpg"}
                     alt={c.name}
+                    title={c.name}
+                    loading="lazy"
                   />
                   <CardContent>
                     <Typography variant="h6">{c.name}</Typography>
@@ -118,7 +141,7 @@ const FavoritesPage = () => {
           </Grid>
         ))}
       </Grid>
-    </div>
+    </>
   );
 };
 

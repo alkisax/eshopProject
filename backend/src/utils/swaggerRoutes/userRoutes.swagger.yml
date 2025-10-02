@@ -557,3 +557,94 @@ paths:
           description: Forbidden (not self or not admin)
         '500':
           description: Internal server error
+
+  /api/users/appwrite-delete:
+    delete:
+      summary: Delete a user account from Appwrite (by email)
+      description: |
+        Deletes a user from the Appwrite authentication provider by searching their email.
+        This is typically used when cleaning up accounts (e.g., admin deletes a user, or user self-deletes).
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email of the Appwrite user to delete
+                  example: johndoe@example.com
+      responses:
+        '200':
+          description: Appwrite user deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Appwrite user deleted
+        '400':
+          description: Email missing in request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Email required
+        '401':
+          description: Unauthorized (missing or invalid token)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Unauthorized
+        '404':
+          description: Appwrite user not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Appwrite user not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Unexpected server error

@@ -98,28 +98,26 @@ describe('Guest route', () => {
     });
   });
 
-  it('filters commodities by category (bauhause)', () => {
+  it('filters commodities by category (Κολιέ)', () => {
     cy.get('#store-btn').click();
     cy.url().should('include', '/store');
 
     // Assert list has items
-    // Find all <img> elements inside the element with id="commodity-list"
     cy.get('#commodity-list img[alt]').its('length').should('be.greaterThan', 0);
 
     // Assert sidebar visible
     cy.get('#sidebar-title').should('contain.text', 'Categories');
 
-    // Check Bauhaus checkbox
-    // .check() means: mark this checkbox as checked
-    cy.get('#cat-Bauhaus input[type="checkbox"]').check();
+    // Check Κολιέ checkbox
+    cy.get('#cat-Κολιέ input[type="checkbox"]').check();
 
-    // Assert that at least one Bauhaus item appears
-    // img[alt="Bauhaus"] → exactly equals "Bauhaus". img[alt*="Bauhaus"] → alt contains the word "Bauhaus" anywhere.
-    cy.get('#commodity-list img[alt*="Bauhaus"]').should('have.length.greaterThan', 0);
+    // Assert that at least one Κολιέ item appears
+    cy.get('#commodity-list img[alt*="Κολιέ"]').should('have.length.greaterThan', 0);
 
-    // Assert that every item has Bauhaus in its name
-    // i→insensitive
-    cy.get('#commodity-list img[alt]').should('have.attr', 'alt').and('match', /bauhaus/i);
+    // Assert that every item has Κολιέ in its name
+    cy.get('#commodity-list img[alt]').first()
+      .should('have.attr', 'alt')
+      .and('match', /κολιέ/i);
 
     cy.get ('#clear-filters-btn').click()
   });
@@ -129,18 +127,17 @@ describe('Guest route', () => {
     cy.url().should('include', '/store');
 
     // Type into normal search
-    cy.get('#normal-search').type('bauhaus');
+    cy.get('#normal-search').type('κολιέ');
 
-    // Assert that only commodities with 'bauhause' in alt text remain
+    // Assert that only commodities with 'Κολιέ' in alt text remain
     cy.get('#commodity-list img[alt]').each($img => {
       cy.wrap($img)
         .should('have.attr', 'alt')
-        .and('match', /bauhaus/i);
+        .and('match', /κολιέ/i);
     });
   });
 
-  it('should add to cart, view item (Δαχτυλίδι mandala) and do buy', () => {
-
+  it('should add to cart, view item (Κολιέ Bauhaus) and do buy', () => {
     // ✅ Hook BEFORE the app loads, so we can stub redirect safely
     cy.on('window:before:load', (win) => {
       cy.stub(win.location, 'assign').as('locationAssign');
@@ -149,8 +146,8 @@ describe('Guest route', () => {
     cy.get('#store-btn').click();
     cy.url().should('include', '/store');
 
-    cy.get('#normal-search').type('Δαχτυλίδι mandala');
-    cy.get('#commodity-list').should('contain.text', 'Δαχτυλίδι mandala');
+    cy.get('#normal-search').type('Κολιέ Bauhaus');
+    cy.get('#commodity-list').should('contain.text', 'Κολιέ Bauhaus');
     cy.get('#commodity-list #add-one-list-item-btn').first().click();
 
     // ✅ Wait up to 10s for footer to appear and contain text
@@ -184,7 +181,6 @@ describe('Guest route', () => {
 
     // TODO if submit leaves cypress and enters stripe and test stops
   });
-
 });
 
 describe('login test', () => {
@@ -432,6 +428,44 @@ describe('Backend auth tests', () => {
 
     // Don’t submit because Stripe redirect will break Cypress
     // cy.get('form').submit();
+  });
+
+  it('should delete the backend test user', () => {
+    cy.get('#navbar-login', { timeout: 10000 }).should('exist').click();
+    cy.url().should('include', '/login');
+
+    // Switch to backend login tab
+    cy.get('#tab-backend-login').click();
+
+    // Login with backend test user created earlier
+    cy.get('#backend-login-username').type('cypressBackendUser');
+    cy.get('#backend-login-password').type('Password123!');
+    cy.get('#backend-form-submit-btn').click();
+
+    // Go to profile
+    cy.get('#navbar-profile-btn', { timeout: 20000 })
+      .should('exist')
+      .and('be.visible')
+      .click();
+
+    cy.url().should('include', '/profile');
+
+    // Click delete button
+    cy.contains('Delete My Account').click();
+
+    // Confirm deletion
+    cy.contains('Yes, Delete').click();
+
+    // Catch and verify alert
+    cy.on('window:alert', (txt) => {
+      expect(txt).to.contain('Your account has been deleted.');
+    });
+
+    // After deletion, should redirect to home
+    cy.url({ timeout: 20000 }).should('eq', 'http://localhost:5173/');
+
+    // Assert login button shows again (user is logged out)
+    cy.get('#navbar-login', { timeout: 10000 }).should('exist').and('be.visible');
   });
 });
 

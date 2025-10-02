@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { Button, Pagination, Typography, Card, CardActions, CardActionArea, CardContent, CardMedia, } from "@mui/material";
 import Grid from "@mui/material/Grid";
@@ -16,6 +16,7 @@ type ContextType = {
   currentPage: number;
   setCurrentPage: (p: number) => void;
   fetchCart: () => Promise<void>;
+  selectedCategories: string[];
 };
 
 const StoreItemList = () => {
@@ -25,10 +26,9 @@ const StoreItemList = () => {
 
   // επειδή αυτό δεν είναι ένα κανονικό παιδί του layout αλλα μπάινει στο outlet του layout, 
   // τα props έρχονται με την useOutletContext (δες και σχόλια στο layout)
-  const { commodities, pageCount, currentPage, setCurrentPage, fetchCart } =
-    useOutletContext<ContextType>();
+  const { commodities, pageCount, currentPage, setCurrentPage, fetchCart, selectedCategories } = useOutletContext<ContextType>();
 
-  const [loadingItemId] = useState<string | null>(null); 
+  // const [loadingItemId] = useState<string | null>(null); 
   // turning off add btn while prossecing to avoid axios spamming
 
   // GA - gogle analitics track if item passes in a list view (δεν το έχει πατήσει απλός πέρασε απο μπροστά του)
@@ -56,16 +56,31 @@ const StoreItemList = () => {
 
   return (
     <>
-      <Typography variant="h4" gutterBottom>
-        Commodity List
+      <Typography
+        variant="h4"
+        component="h1" // seo reads h1 renders h4
+        gutterBottom
+      >
+        Χειροποίητα Κοσμήματα
       </Typography>
+
+      {selectedCategories.length > 0 && (
+        <Typography 
+          variant="subtitle1"
+          component="h2"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+        >
+          {selectedCategories.join(", ")}
+        </Typography>
+      )}
 
       {isLoading ? (
         <Loading />
       ) : commodities.length === 0 ? (
         // UX improvement: empty state message
         <Typography variant="body1" sx={{ mt: 2 }}>
-          No commodities found. Try changing search or filters.
+          No items found. Try changing search or filters.
         </Typography>
       ) : (
       <Grid
@@ -80,41 +95,42 @@ const StoreItemList = () => {
           >
             <Card
               sx={{
-                height: "40vh", // ~2–2.5 items per screen
+                height: "100%", // let the grid control height
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "space-between",
                 borderRadius: 3,
                 boxShadow: 3,
               }}
             >
-              <CardActionArea 
-                component={Link} 
+              <CardActionArea
+                component={Link}
                 to={`/commodity/${commodity._id}`}
-                // GA
-                onClick={() =>
-                  tracker?.trackEvent?.("view_item", {
-                    item_id: commodity._id,
-                    item_name: commodity.name,
-                  })
-                }
+                sx={{
+                  flexGrow: 1,              // 👈 take all vertical space
+                  display: "flex",
+                  flexDirection: "column",  // stack image + content
+                  alignItems: "stretch",    // stretch full width
+                }}
               >
                 <CardMedia
                   component="img"
                   height="160"
                   image={
-                    commodity.images && commodity.images.length > 0
-                      ? commodity.images[0]
-                      : "/placeholder.jpg"
+                    commodity.images?.[0] || "/placeholder.jpg"
                   }
                   alt={commodity.name}
+                  title={commodity.name}
+                  loading="lazy"
                 />
-                <CardContent>
-                  <Typography
-                    id={`commodity-${commodity._id}`}
-                    variant="h6"
-                    gutterBottom
-                  >
+                <CardContent
+                  sx={{
+                    flexGrow: 1,           // 👈 stretch so all cards equalize
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <Typography variant="h6" gutterBottom>
                     {commodity.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -123,19 +139,33 @@ const StoreItemList = () => {
                 </CardContent>
               </CardActionArea>
 
-              <CardActions sx={{ justifyContent: "flex-end", p: 2 }}>
+              {/* Always pinned bottom */}
+              <CardActions
+                sx={{
+                  justifyContent: "center", // center button horizontally
+                  p: 2,
+                }}
+              >
                 <Button
                   id="add-one-list-item-btn"
                   variant="contained"
                   size="small"
                   onClick={async (e) => {
-                    e.preventDefault(); // prevent navigation when clicking Add
+                    e.preventDefault();
                     await addOneToCart(commodity._id);
                     await fetchCart();
                   }}
-                  disabled={loadingItemId === commodity._id}
+                  sx={{
+                    backgroundColor: "#48C4Cf",
+                    color: "#fff",
+                    fontWeight: "bold",
+                    "&:hover": {
+                      backgroundColor: "#FFd500",
+                      color: "#4a3f35",
+                    },
+                  }}
                 >
-                  + Add One
+                  + Add One to cart
                 </Button>
               </CardActions>
             </Card>

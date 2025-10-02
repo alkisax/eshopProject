@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+// import Footer from "../components/Footer";
 import { Box } from "@mui/material";
 
 const LayoutWithNavbar = () => {
@@ -21,7 +21,7 @@ const LayoutWithNavbar = () => {
       </Box>
 
       {/* Footer στο τέλος */}
-      <Footer />
+      {/* <Footer /> */}
     </Box>
   );
 };

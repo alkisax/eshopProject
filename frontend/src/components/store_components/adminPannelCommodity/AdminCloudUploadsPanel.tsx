@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  Typography, Button, List, ListItem, ListItemText, Box
+  Typography, Button, List, ListItem, ListItemText, Box,
+  Pagination
 } from "@mui/material";
 import { useAppwriteUploader } from "../../../hooks/useAppwriteUploader";
 
@@ -16,33 +17,53 @@ const AdminCloudUploadsPanel = () => {
   const { ready, uploadFile, listFiles, deleteFile, getFileUrl } = useAppwriteUploader();
   const [files, setFiles] = useState<CloudFile[]>([]);
   const [file, setFile] = useState<File | null>(null);
+  //pagination state
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 10; // files per page
+
+  const loadPage = useCallback (async (pageNum: number) => {
+    const res = await listFiles(pageNum, limit);
+    setFiles(res.files);
+    setTotal(res.total);
+  }, [listFiles]);
 
   useEffect(() => {
-    if (ready) {
-      listFiles().then(setFiles);
-    }
-  }, [ready, listFiles]);
+    if (ready) loadPage(page);
+  }, [ready, page, loadPage]);
 
   const handleUpload = async () => {
     if (!file) return;
     await uploadFile(file);
     setFile(null);
-    listFiles().then(setFiles);
+    loadPage(page); // reload current page
   };
 
   const handleDelete = async (id: string) => {
     await deleteFile(id);
-    listFiles().then(setFiles);
+    loadPage(page); // reload current page
   };
 
   return (
       <Box>
-      <Typography variant="h5" gutterBottom>
+      <Typography
+        variant="h5"
+        gutterBottom
+      >
         Cloud Uploads (Appwrite)
       </Typography>
 
-      <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-      <Button variant="contained" onClick={handleUpload} disabled={!file || !ready} sx={{ ml: 2 }}>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setFile(e.target.files?.[0] || null)}
+      />
+      <Button
+        variant="contained"
+        onClick={handleUpload} 
+        disabled={!file || !ready} 
+        sx={{ ml: 2 }}
+      >
         Upload
       </Button>
 
@@ -85,6 +106,14 @@ const AdminCloudUploadsPanel = () => {
           </ListItem>
         ))}
       </List>
+
+      {/* Pagination control */}
+      <Pagination
+        count={Math.ceil(total / limit)} // total pages
+        page={page}
+        onChange={(_, value) => setPage(value)}
+        sx={{ mt: 2 }}
+      />      
     </Box>
   );
 };

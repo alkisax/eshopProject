@@ -1,8 +1,9 @@
 // src/components/admin/AdminCommodityFooter.tsx
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   TableRow, TableCell, Button, TextField,
-  Stack, IconButton, Typography, Autocomplete
+  Stack, IconButton, Typography, Autocomplete,
+  Box
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { CommodityType } from "../../../types/commerce.types";
@@ -26,7 +27,7 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
     name: commodity.name || "",
     description: commodity.description || "",
     // ΠΡΟΣΟΧΗ: εδώ πια δουλεύουμε με categories ως λίστα ονομάτων (string[])
-    category: commodity.category || [],
+    category: (commodity.category as string[]) || [],
     price: commodity.price || 0,
     currency: commodity.currency || "eur",
     stripePriceId: commodity.stripePriceId || "",
@@ -35,10 +36,13 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
     images: commodity.images || [],
   });
 
+  // εχουμε ανάγκη ένα state για να φυλαμε τα αρχεια για το suggestion
+  const [files, setFiles] = useState<string[]>([]);
+
   const [restockQty, setRestockQty] = useState("");
 
   // επαναχρησιμοποιούμε τις λειτουργιες upload που μεταφέραμε στο hook. **Αυτό είναι ένα συμαντικό αρχείο**, έχει όλη την λογική μας
-  const { ready, uploadFile, getFileUrl } = useAppwriteUploader();
+  const { ready, uploadFile, getFileUrl, listFiles } = useAppwriteUploader();
 
   // VariablesContext → έχει την παγκόσμια λίστα κατηγοριών + helper για refresh
   const { url, categories, refreshCategories } = useContext(VariablesContext);
@@ -85,6 +89,23 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
     () => categories.map((c) => c.name),
     [categories]
   );
+
+  // φέρνει τα 5 πιο προσφατα αρχεία. η listfiles έιναι συνα΄ρτηση του cloudupload 
+  useEffect(() => {
+    const loadRecentFiles = async () => {
+      if (!ready) return;
+      try {
+        // call your paginated listFiles (page=1, limit=5)
+        const res = await listFiles(1, 5); 
+        // convert to URLs
+        const urls = res.files.map((f) => getFileUrl(f.$id));
+        setFiles(urls);
+      } catch (err) {
+        console.error("Failed to fetch recent files:", err);
+      }
+    };
+    loadRecentFiles();
+  }, [ready, getFileUrl, listFiles]);
 
   return (
     <>
@@ -195,16 +216,30 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
                 <Typography variant="subtitle1">Images</Typography>
 
                 {/* Manual URLs */}
-                <TextField
-                  label="Image URLs (comma separated)"
-                  size="small"
-                  value={form.images.join(", ")}
-                  onChange={(e) =>
-                    handleChange(
-                      "images",
-                      e.target.value.split(",").map((s) => s.trim())
-                    )
-                  }
+                <Autocomplete
+                  freeSolo
+                  multiple
+                  openOnFocus
+                  filterSelectedOptions
+                  options={files} // e.g. ["https://.../file1.png", "https://.../file2.png"]
+                  getOptionLabel={(option) => {
+                    console.log("Autocomplete option:", option);
+                    return option;
+                  }}
+                  value={form.images}
+                  onChange={(_e, value) => {
+                    console.log("Autocomplete new value:", value);
+                    handleChange("images", value);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Image URLs"
+                      size="small"
+                      placeholder="Paste or type URL"
+                      onFocus={() => console.log("Input focused, options:", files)}
+                    />
+                  )}
                 />
 
                 {/* Upload file(s) με Appwrite */}
@@ -217,6 +252,7 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
                     if (!e.target.files) return;
                     // μετατρέπουμε το ψευδο-arr σε arr
                     const files = Array.from(e.target.files);
+                    console.log("Files selected for upload:", files);
 
                     const uploadedUrls: string[] = [];
                     // εδώ ξεκινάει η for loop μας για τα αρχεια που θα τα ανεβάσει στο appwrite και θα μας επιστρέψει το url. Χρησιμοπποιεί τις functions απο το Hook
@@ -224,6 +260,7 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
                       try {
                         const res = await uploadFile(file);
                         const url = getFileUrl(res.$id);
+                        console.log("Uploaded file → URL:", url);
                         uploadedUrls.push(url);
                       } catch (err) {
                         console.error("Upload failed:", err);
@@ -231,24 +268,66 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
                     }
 
                     // ανανεώνουμε το state διατηρόντας το ίδιο και προσθέτοντας το arr με τα urls
-                    setForm((prev) => ({
-                      ...prev,
-                      images: [...prev.images, ...uploadedUrls],
-                    }));
+                    setForm((prev) => {
+                      const updated = {
+                        ...prev,
+                        images: [...prev.images, ...uploadedUrls],
+                      };
+                      console.log("Form.images updated:", updated.images);
+                      return updated;
+                    });
                   }}
                   disabled={!ready}
                 />
 
                 {/* Preview thumbnails */}
                 <Stack direction="row" spacing={1} flexWrap="wrap">
-                  {form.images.map((url, idx) => (
-                    <img
-                      key={idx}
-                      src={url}
-                      alt={`preview-${idx}`}
-                      style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 4 }}
-                    />
-                  ))}
+                  {form.images.map((url, idx) => {
+                    console.log("Rendering thumbnail:", idx, url);
+                    return (
+                      <Box
+                        key={idx}
+                        sx={{
+                          position: "relative",
+                          display: "inline-block",
+                          overflow: "visible"
+                        }}
+                      >
+                        <img
+                          src={url}
+                          alt={`preview-${idx}`}
+                          style={{
+                            width: 60,
+                            height: 60,
+                            objectFit: "cover",
+                            borderRadius: 4 
+                          }}
+                        />
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            console.log("Deleting image at index:", idx);
+                            setForm((prev) => ({
+                              ...prev,
+                              images: prev.images.filter((_, i) => i !== idx),
+                            }));
+                          }}
+                          sx={{
+                            position: "absolute",
+                            top: -8,
+                            right: -8,
+                            bgcolor: "white",
+                            border: "1px solid #ccc",
+                            borderRadius: "50%",
+                            padding: "2px",
+                            "&:hover": { bgcolor: "error.light" },
+                          }}
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    );
+                  })}
                 </Stack>
               </>
 

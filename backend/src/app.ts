@@ -58,7 +58,8 @@ app.post(
 app.use(express.json());
 
 // library for securing. With only helmet() covers: sniffing, clickjacking, HSTS
-app.use(helmet());
+// app.use(helmet());
+
 // το helmet() δεν μου επέτρεπε να δω τις εικόνες απο το appwrite ή να μπω στο stripe etc. Εδω προσθέτουμε εξαιρέσεις για αυτό
 // **ΠΡΟΣΟΧΗ** αυτη είναι η πιθανοτερη πηγη δυσλειτουργίας third party
 app.use(
@@ -89,6 +90,9 @@ app.use(
         "'self'",
         "data:",
         "https://i.ytimg.com",
+        "https://s.ytimg.com",
+        "https://cloud.appwrite.io",
+        "https://fra.cloud.appwrite.io",        
         "https:"], // η εφαρμογή μου είχε πολλές φωτογραφίες απο διάφορα url απο το ιντερνετ. βάλαμε αυτό γιατί τις έκοβε το helmet αλλα τώρα δεν είναι ασφαλές
       connectSrc: [
         "'self'",
@@ -98,7 +102,12 @@ app.use(
         "https://www.google-analytics.com",
         "https://www.youtube.com",
         "https://youtube.com",
-        "https://*.googlevideo.com"
+        "https://*.googlevideo.com",
+        "https://*.ytimg.com",
+      ],
+      mediaSrc: [
+        "'self'",
+        "https://*.googlevideo.com",
       ],
       styleSrc: ["'self'", "'unsafe-inline'"],
     },

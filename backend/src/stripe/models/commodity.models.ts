@@ -1,3 +1,5 @@
+// TODO add slug to commodity so as to have slug urls
+
 import mongoose from 'mongoose';
 import type { CommodityType } from '../types/stripe.types';
 

@@ -1,11 +1,14 @@
-import { AppBar, Toolbar, Typography, Button, Box, IconButton, Tooltip, Badge } from "@mui/material";
+import { AppBar, Toolbar, Typography, Box, IconButton, Tooltip, Badge } from "@mui/material";
 // import HomeIcon from "@mui/icons-material/Home";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { Link, useNavigate } from "react-router-dom";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import BadgeIcon from "@mui/icons-material/Badge";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { UserAuthContext } from "../context/UserAuthContext";
 import { handleLogout } from "../authLogin/authFunctions";
@@ -13,10 +16,14 @@ import { VariablesContext } from "../context/VariablesContext";
 import { CartActionsContext } from "../context/CartActionsContext";
 
 const NavbarAppwrite = () => {
-  const { setHasCart, hasFavorites } = useContext(VariablesContext);
+  const { setHasCart, hasFavorites, setHasFavorites } = useContext(VariablesContext);
   const { user, setUser } = useContext(UserAuthContext);
-  const { cartCount } = useContext(CartActionsContext);
+  const { cartCount, setCartCount } = useContext(CartActionsContext);
   const navigate = useNavigate();
+
+  // console.log("👤 User in Navbar:", user?.email);
+  // console.log("🛒 hasCart from context:", hasCart);
+  // console.log("🔢 cartCount from context:", cartCount);
 
   return (
     <>
@@ -52,19 +59,50 @@ const NavbarAppwrite = () => {
 
           {/* Buttons */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+
+          {/* Store Button */}
+          <Tooltip title="Store" arrow>
+            <IconButton
+              id="navbar-store-btn"
+              component={NavLink}
+              to="/store"
+              sx={{
+                color: "inherit",
+                borderRadius: "50%",
+                "&.active": {
+                  backgroundColor: "#48C4Cf", 
+                  color: "#fff",  
+                },
+              }}
+            >
+              <StorefrontIcon />
+            </IconButton>
+          </Tooltip>
             {user && user.roles?.includes("ADMIN") ? (
-              <Button
-                id="navbar-admin-btn"
-                color="inherit"
-                component={Link} to="/admin-panel"
-              >
-                Admin Panel
-              </Button>
+              <Tooltip title="Admin Panel" arrow>
+                <IconButton
+                  id="navbar-admin-btn"
+                  component={NavLink}
+                  to="/admin-panel"
+                  sx={{
+                    color: "inherit",
+                    borderRadius: "50%",
+                    "&.active": {
+                      backgroundColor: "#48C4Cf", 
+                      color: "#fff", 
+                    },
+                  }}
+                >
+                  <AdminPanelSettingsIcon />
+                </IconButton>
+              </Tooltip>
             ) : (
               user && (
-                <Typography variant="body1" sx={{ color: "inherit" }}>
-                  Roles: {user.roles?.join(", ")}
-                </Typography>
+                <Tooltip title={`Roles: ${user.roles?.join(", ")}`} arrow>
+                  <IconButton sx={{ color: "inherit" }}>
+                    <BadgeIcon />
+                  </IconButton>
+                </Tooltip>
               )
             )}
 
@@ -73,8 +111,16 @@ const NavbarAppwrite = () => {
                 <Tooltip title="Profile">
                   <IconButton
                     id="navbar-profile-btn"
-                    component={Link} to="/profile"
-                    sx={{ color: "inherit" }}
+                    component={NavLink}
+                    to="/profile"
+                    sx={{
+                      color: "inherit",
+                      borderRadius: "50%",
+                      "&.active": {
+                        backgroundColor: "#48C4Cf", 
+                        color: "#fff", 
+                      },
+                    }}
                   >
                     <AccountCircleIcon />
                   </IconButton>
@@ -84,7 +130,7 @@ const NavbarAppwrite = () => {
                   <IconButton
                     id="navbar-logout"
                     sx={{ color: "inherit" }}
-                    onClick={() => handleLogout(setUser, setHasCart, navigate)}
+                    onClick={() => handleLogout(setUser, setHasCart, setCartCount, setHasFavorites, navigate)}
                   >
                     <LogoutIcon />
                   </IconButton>
@@ -107,26 +153,51 @@ const NavbarAppwrite = () => {
               <Tooltip title="Favorites">
                 <IconButton
                   id="navbar-favorites-icon"
-                  component={Link} to="/favorites"
-                  sx={{ color: "inherit" }}
+                  component={NavLink}
+                  to="/favorites"
+                  sx={{
+                    color: "inherit",
+                    borderRadius: "50%",
+                    "&.active": {
+                      backgroundColor: "#48C4Cf", 
+                      color: "#fff", 
+                    },
+                  }}
                 >
-                  <FavoriteIcon color="error" />
+                  <FavoriteIcon />
                 </IconButton>
               </Tooltip>
             )}
 
             {cartCount > 0 && (
-              <Tooltip title="Cart">
-                <IconButton component={Link} to="/cart" sx={{ color: "inherit" }}>
-                  <Badge
-                    id="navbar-cart-badge"
-                    badgeContent={cartCount}
-                    color="secondary"
-                  >
-                    <ShoppingCartIcon />
-                  </Badge>
-                </IconButton>
-              </Tooltip>
+            <Tooltip title="Cart">
+              <IconButton
+                id="navbar-cart-btn"
+                component={NavLink}
+                to="/cart"
+                sx={{
+                  color: "inherit",
+                  borderRadius: "50%",
+                  "&.active": {
+                    backgroundColor: "#48C4Cf", 
+                    color: "#fff",
+                  },
+                }}
+              >
+                <Badge
+                  id="navbar-cart-badge"
+                  badgeContent={cartCount}
+                  sx={{
+                    "& .MuiBadge-badge": {
+                      backgroundColor: "#FFD500",
+                      color: "#4a3f35", 
+                    },
+                  }}
+                >
+                  <ShoppingCartIcon />
+                </Badge>
+              </IconButton>
+            </Tooltip>
             )}
           </Box>
         </Toolbar>

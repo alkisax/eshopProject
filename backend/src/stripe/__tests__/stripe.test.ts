@@ -1,13 +1,18 @@
-import request from 'supertest';
-import app from '../../app';
-import { Types } from 'mongoose';
-import type { CartType } from '../types/stripe.types';
 
+process.env.APPWRITE_ENDPOINT = 'http://dummy';
+process.env.APPWRITE_PROJECT_ID = 'dummy';
+process.env.APPWRITE_API_KEY = 'dummy';
 // Mock appwrite (to avoid env crashes)
 jest.mock('../../utils/appwrite.ts', () => ({
   account: {},
   OAuthProvider: { Google: 'google' },
 }));
+
+
+import request from 'supertest';
+import app from '../../app';
+import { Types } from 'mongoose';
+import type { CartType } from '../types/stripe.types';
 
 // Mock services + DAOs (except cartDAO, which we spy on)
 const mockCreateCheckoutSession = jest.fn();

@@ -42,13 +42,16 @@ import ReturnPolicy from './pages/minorPages/ReturnPolicy'
 import CookiePolicy from './pages/minorPages/CookiePolicy'
 
 import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
+import LayoutWithNavbarAndFooter from "./Layouts/LayoutWithNavbarAndFooter";
+import { CartActionsContext } from "./context/CartActionsContext";
 
 function App() {
   const { user } = useContext(UserAuthContext);
-  const { setGlobalParticipant, setHasCart } = useContext(VariablesContext);
+  const { setGlobalParticipant, setHasCart, setHasFavorites } = useContext(VariablesContext);
+  const { setCartCount } = useContext(CartActionsContext); 
   const url: string = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
 
-  useInitializer(user, url, setHasCart, setGlobalParticipant);
+  useInitializer(user, url, setHasCart, setHasFavorites, setGlobalParticipant, setCartCount);
 
   return (
     <>
@@ -56,7 +59,7 @@ function App() {
     <GAAnalyticsTracker />
 
     <Routes>
-      <Route element={<LayoutWithNavbar />}>
+      <Route element={<LayoutWithNavbarAndFooter />}>
 
         <Route path="/" element={<Home />} />
         <Route path="/news" element={<News />} />
@@ -87,13 +90,6 @@ function App() {
           <Route path="/profile" element={<ProfileUser />} />
         </Route>
 
-        <Route element={<AdminPrivateRoute />}>
-          <Route element={<AdminLayout />}>
-            <Route path="/admin-panel" element={<AdminPanel />} />
-            <Route path="/admin-panel/commodity/new" element={<AdminAddNewCommodity />} />  
-          </Route>
-        </Route>
-
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -103,7 +99,17 @@ function App() {
         <Route path="/cookie-policy" element={<CookiePolicy />} />
 
       </Route>
-    </Routes>
+
+        {/* Admin routes → Navbar only, no Footer */}
+        <Route element={<AdminPrivateRoute />}>
+          <Route element={<LayoutWithNavbar />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin-panel" element={<AdminPanel />} />
+              <Route path="/admin-panel/commodity/new" element={<AdminAddNewCommodity />} />  
+            </Route>
+          </Route>
+        </Route>
+      </Routes>
     </>
   )
 }

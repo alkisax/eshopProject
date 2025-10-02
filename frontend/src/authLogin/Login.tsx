@@ -4,6 +4,7 @@ import LoginBackend from "./loginBackend/LoginBackend";
 import LoginAppwriteLogin from "./loginAppwrite/LoginAppwrite";
 import GoogleLogin from "./loginGoogle/GoogleLogin";
 import GithubLogin from "./loginGithub/LoginGithub";
+import { Helmet } from "react-helmet-async";
 
 interface Params {
   url: string;
@@ -17,63 +18,83 @@ const Login = ({ url }: Params) => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#f5f5f5",
-        p: 2,
-      }}
-    >
-      <Paper
-        elevation={6}
+    <>
+      <Helmet>
+        <title>Σύνδεση | Έχω μια Ιδέα</title>
+        <meta
+          name="description"
+          content="Συνδεθείτε στον λογαριασμό σας στο Έχω μια Ιδέα για να δείτε τις παραγγελίες σας και να αποθηκεύσετε αγαπημένα."
+        />
+        <meta name="robots" content="noindex,nofollow" />
+        <link
+          rel="canonical"
+          href={window.location.origin + window.location.pathname}
+        />
+      </Helmet>
+
+      <Box
         sx={{
-          width: 400,
-          p: 3,
+          minHeight: "100vh",
           display: "flex",
-          flexDirection: "column",
-          gap: 0,
-          textAlign: "center",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#f5f5f5",
+          p: 2,
         }}
       >
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          Login
-        </Typography>
+        <Paper
+          elevation={6}
+          sx={{
+            width: 400,
+            p: 3,
+            display: "flex",
+            flexDirection: "column",
+            gap: 0,
+            textAlign: "center",
+          }}
+        >
+          <Typography
+            variant="h5"
+            component="h1"
+            sx={{ mb: 2 }}
+          >
+            Login
+          </Typography>
 
-        {/* Tabs */}
-        <Tabs value={tab} onChange={handleTabChange} centered>
-          <Tab
-            id="tab-backend-login"
-            label="Login"
-          />
-          <Tab
-            id="tab-appwrite-login"
-            label="Appwrite alt"
-          />
-        </Tabs>
+          {/* Tabs */}
+          <Tabs value={tab} onChange={handleTabChange} centered>
+            <Tab
+              id="tab-backend-login"
+              label="Login"
+            />
+            <Tab
+              id="tab-appwrite-login"
+              label="Appwrite alt"
+            />
+          </Tabs>
 
-        <Divider />
+          <Divider />
 
-        {/* Conditional rendering of login forms */}
-        {tab === 0 && <LoginBackend url={url} />}
-        {tab === 1 && <LoginAppwriteLogin url={url} />}
+          {/* Conditional rendering of login forms */}
+          {tab === 0 && <LoginBackend url={url} />}
+          {tab === 1 && <LoginAppwriteLogin url={url} />}
 
-        <Divider sx={{ my: 0 }} />
+          <Divider sx={{ my: 0 }} />
 
-        <Box sx={{ maxWidth: 400, margin: "auto", display: "flex", flexDirection: "column", gap: 0 }}>
-          <Box sx={{ display: "flex", gap: 0 }}>
-            <Box sx={{ flex: 1 }}>
-              <GoogleLogin url={url} /> 
+          <Box sx={{ maxWidth: 400, margin: "auto", display: "flex", flexDirection: "column", gap: 0 }}>
+            <Box sx={{ display: "flex", gap: 0 }}>
+              <Box sx={{ flex: 1 }}>
+                <GoogleLogin url={url} /> 
+              </Box>
+            </Box>
+            <Box sx={{ width: "100%" }}>
+              <GithubLogin />
             </Box>
           </Box>
-          <Box sx={{ width: "100%" }}>
-            <GithubLogin />
-          </Box>
-        </Box>
-      </Paper>
-    </Box>
+        </Paper>
+      </Box>    
+    </>
+
   );
 };
 

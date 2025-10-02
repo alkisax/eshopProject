@@ -49,13 +49,21 @@ const LatestCommodities = () => {
             <img
               src={c.images?.[0] || "/placeholder.jpg"}
               alt={c.name}
-              style={{ maxHeight: 300, margin: "0 auto" }}
+              title={c.name}
+              loading="lazy"
+              style={{ 
+                maxHeight: 300,
+                width: "50%",
+                height: "auto",
+                objectFit: "cover",
+                margin: "0 auto"
+              }}
             />
             <h3>{c.name}</h3>
             <p>{c.price} {c.currency}</p>
           </div>
         ))}
-      </Slider>      
+      </Slider>
     </div>
 
   );

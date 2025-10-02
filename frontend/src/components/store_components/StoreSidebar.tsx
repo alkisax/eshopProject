@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import { Drawer, Divider, TextField, List, ListItem, FormGroup, FormControlLabel, Checkbox, Typography, IconButton, useMediaQuery, Button, } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
+import type { CategoryType } from "../../types/commerce.types";
 
 interface StoreSidebarProps {
   search: string;
-  allCategories: string[];
+  allCategories: CategoryType[];
   selectedCategories: string[];
   onSearch: (query: string) => void;
   onToggleCategory: (category: string, checked: boolean) => void;
@@ -97,16 +98,16 @@ const StoreSidebar = ({
       <List dense disablePadding>
         <FormGroup>
           {allCategories.map((cat) => (
-            <ListItem key={cat} disablePadding>
+            <ListItem key={cat._id} disablePadding>
               <FormControlLabel
-                id={`cat-${cat}`}
+                id={`cat-${cat.name}`}
                 control={
                   <Checkbox
-                    checked={selectedCategories.includes(cat)}
-                    onChange={(e) => onToggleCategory(cat, e.target.checked)}
+                    checked={selectedCategories.includes(cat.name)}
+                    onChange={(e) => onToggleCategory(cat.name, e.target.checked)}
                   />
                 }
-                label={cat}
+                label={cat.name}
               />
             </ListItem>
           ))}
@@ -176,7 +177,17 @@ const StoreSidebar = ({
             variant="contained"
             color="primary"
             fullWidth
-            sx={{ mb: 1 }}
+            // sx={{ mb: 1 }}
+            sx={{
+              mb: 1,
+              backgroundColor: "#48C4Cf",
+              color: "#fff",
+              fontWeight: "bold",
+              "&:hover": {
+                backgroundColor: "#FFd500",
+                color: "#4a3f35",
+              },
+            }}
             onClick={onApplyFilters}
           >
             Apply Filters

@@ -158,11 +158,19 @@ const ProfileUser = ({ userToEdit }: Props) => {
         },
       });
 
-      // Delete Appwrite user session (logs out)
-      await axios.delete(`${url}/api/users/appwrite-delete`, {
-        data: { email: user!.email },
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      // Delete Appwrite user session (ignore 404)
+      try {
+        await axios.delete(`${url}/api/users/appwrite-delete`, {
+          data: { email: user!.email },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err) && err.response?.status === 404) {
+          console.warn("No Appwrite account for this user, skipping");
+        } else {
+          throw err; // only rethrow if it's a real error
+        }
+      }
 
       // Delete Mongo user
       const res = await axios.delete(`${url}/api/users/self/${userId}`, {

@@ -34,10 +34,11 @@ const createCheckoutSession = async (
     country: shippingInfo.country || '',
     phone: shippingInfo.phone || '',
     notes: shippingInfo.notes || '',
+    shippingMethod: (shippingInfo as ShippingInfoType).shippingMethod || 'pickup',
   };
   console.log('Creating checkout session with metadata:', metadata);
 
-  const line_items: lineItemsType[] = buildLineItems(cart);
+  const line_items: lineItemsType[] = buildLineItems(cart, shippingInfo.shippingMethod);
 
   //Stripe will still show  Google Pay / Revolut if you have them enabled in your dashboard.
   return await stripe.checkout.sessions.create({
