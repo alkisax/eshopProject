@@ -48,6 +48,7 @@
 - seo
 - favorites in initialiser ✅
 - no refresh in toggle proccesed ❓(tested and now working... did not touch)
+- add slug to commodity so as to have slug urls
 
 - ## e2e test
 
