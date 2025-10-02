@@ -12,6 +12,7 @@ import { VariablesContext } from "../../context/VariablesContext";
 import { CartActionsContext } from "../../context/CartActionsContext";
 import type { IUser } from "../../types/types";
 import type { Types } from "mongoose";
+import { Helmet } from "react-helmet-async";
 import { AiModerationContext } from "../../context/AiModerationContext";
 import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
 
@@ -238,279 +239,307 @@ const CommodityPage = () => {
   }
 
   return (
-    <Box sx={{ mt: 4 }}>
-      <Stack spacing={3}>
-        {/* === Title === */}
-        <Typography variant="h4" gutterBottom>
-          {commodity.name}
-        </Typography>
+    <>
+      <Helmet>
+        <title>{`${commodity.name} | Έχω μια Ιδέα`}</title>
+        <meta 
+          name="description" 
+          content={
+            commodity.description 
+              ? commodity.description.slice(0, 150) // keep under 160 chars
+              : "Δείτε λεπτομέρειες για το προϊόν μας."
+          } 
+        />
+        <link rel="canonical" href={`${window.location.origin}/commodity/${commodity._id}`} />
+      </Helmet>
 
-        {/* === Image gallery === */}
-        <Box sx={{ display: "flex", gap: 2 }}>
-          {/* Main image */}
-          <Box
-            sx={{
-              flex: 1,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+      <Box sx={{ mt: 4 }}>
+        <Stack spacing={3}>
+          {/* === Title === */}
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
           >
-          <img
-            src={selectedImage ? selectedImage : "/placeholder.jpg"}
-            alt={commodity.name || "No image"}
-            style={{
-              width: "100%",
-              maxHeight: 400,
-              borderRadius: 8,
-              objectFit: "contain",
-              backgroundColor: "#fafafa",
-            }}
-            onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.jpg" }}
-          />
+            {commodity.name}
+          </Typography>
+
+          {/* === Image gallery === */}
+          <Box sx={{ display: "flex", gap: 2 }}>
+            {/* Main image */}
+            <Box
+              sx={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+            <img
+              src={selectedImage ? selectedImage : "/placeholder.jpg"}
+              alt={commodity.name || "No image"}
+              title={commodity.name || "No image"}
+              loading="lazy"
+              style={{
+                width: "100%",
+                maxHeight: 400,
+                borderRadius: 8,
+                objectFit: "contain",
+                backgroundColor: "#fafafa",
+              }}
+              onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.jpg" }}
+            />
+            </Box>
+
+            {/* Thumbnails */}
+            {(commodity.images?.length ?? 0) > 1 && (
+              <Stack spacing={1}>
+                {commodity.images!.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`thumb-${idx}`}
+                    title={`thumb-${idx}`}
+                    loading="lazy"
+                    style={{
+                      width: 80,
+                      height: 80,
+                      objectFit: "cover",
+                      borderRadius: 4,
+                      cursor: "pointer",
+                      border: img === selectedImage ? "2px solid #1976d2" : "1px solid #ccc", // highlight selected
+                    }}
+                    onClick={() => setSelectedImage(img)} // 👈 change main image
+                  />
+                ))}
+              </Stack>
+            )}
           </Box>
 
-          {/* Thumbnails */}
-          {(commodity.images?.length ?? 0) > 1 && (
-            <Stack spacing={1}>
-              {commodity.images!.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt={`thumb-${idx}`}
-                  style={{
-                    width: 80,
-                    height: 80,
-                    objectFit: "cover",
-                    borderRadius: 4,
-                    cursor: "pointer",
-                    border: img === selectedImage ? "2px solid #1976d2" : "1px solid #ccc", // highlight selected
-                  }}
-                  onClick={() => setSelectedImage(img)} // 👈 change main image
-                />
-              ))}
-            </Stack>
+          {/* === Price === */}
+          <Typography
+            id="item-price"
+            variant="body1"
+            component="p"
+            sx={{
+              fontWeight: "bold",
+              color: "primary.main",
+              fontSize: "1.25rem"
+            }}
+          >
+            {new Intl.NumberFormat("el-GR", {
+              style: "currency",
+              currency: "EUR",
+            }).format(commodity.price)}
+          </Typography>
+
+          {/* === Description === */}
+          <Typography
+            id="item-descrition"
+            variant="body1"
+            component="p"
+            // paragraph → depricated
+          >
+            {commodity.description || "No description available."}
+          </Typography>
+
+          {/* === Categories === */}
+          {(commodity.category as string[])?.length > 0 && (
+            <Typography 
+              id="item-categories"
+              variant="body2"
+            >
+              Categories: {(commodity.category as string[]).join(", ")}
+            </Typography>
           )}
-        </Box>
 
-        {/* === Price === */}
-        <Typography
-          id="item-price"
-          variant="h5"
-          sx={{ fontWeight: "bold", color: "primary.main" }}
-        >
-          {new Intl.NumberFormat("el-GR", {
-            style: "currency",
-            currency: "EUR",
-          }).format(commodity.price)}
-        </Typography>
-
-        {/* === Description === */}
-        <Typography
-          id="item-descrition"
-          variant="body1"
-          component="p"
-          // paragraph → depricated
-        >
-          {commodity.description || "No description available."}
-        </Typography>
-
-        {/* === Categories === */}
-        {(commodity.category as string[])?.length > 0 && (
+          {/* === Stock === */}
           <Typography 
-            id="item-categories"
+            id="item-stock"
             variant="body2"
           >
-            Categories: {(commodity.category as string[]).join(", ")}
+            {commodity.stock > 0
+              ? `In stock (${commodity.stock} available)`
+              : "Out of stock"}
           </Typography>
-        )}
 
-        {/* === Stock === */}
-        <Typography 
-          id="item-stock"
-          variant="body2"
-        >
-          {commodity.stock > 0
-            ? `In stock (${commodity.stock} available)`
-            : "Out of stock"}
-        </Typography>
+          {/* === Add to Cart === */}
+          <Button
+            id="item-add-to-cart-btn"
+            variant="contained"
+            sx={{
+              mt: 2,
+              width: 200,
+                color: "#fff",
+                fontWeight: "bold",
+                "&:hover": {
+                  backgroundColor: "#FFd500",
+                  color: "#4a3f35",
+                },
+            }}
+            disabled={commodity.stock === 0}
+            onClick={() => addOneToCart(commodity._id)}
+          >
+            {commodity.stock === 0 ? "Out of Stock" : "Add to Cart"}
+          </Button>
 
-        {/* === Add to Cart === */}
-        <Button
-          id="item-add-to-cart-btn"
-          variant="contained"
-          sx={{
-            mt: 2,
-            width: 200,
-              color: "#fff",
-              fontWeight: "bold",
-              "&:hover": {
-                backgroundColor: "#FFd500",
-                color: "#4a3f35",
-              },
-          }}
-          disabled={commodity.stock === 0}
-          onClick={() => addOneToCart(commodity._id)}
-        >
-          {commodity.stock === 0 ? "Out of Stock" : "Add to Cart"}
-        </Button>
+          <Button
+            id="item-favorites"
+            variant="outlined"
+            sx={{ 
+              mt: 1,
+              width: 200,
+            }}
+            disabled={!user}
+            onClick={isFavorite ? handleRemoveFromFavorites : handleAddToFavorites}
+            startIcon={isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+          >
+            {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+          </Button>
 
-        <Button
-          id="item-favorites"
-          variant="outlined"
-          sx={{ 
-            mt: 1,
-            width: 200,
-          }}
-          disabled={!user}
-          onClick={isFavorite ? handleRemoveFromFavorites : handleAddToFavorites}
-          startIcon={isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-        >
-          {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
-        </Button>
+          <Button
+            id="item-suggestions"
+            variant="outlined"
+            sx={{ mt: 2, width: 200 }}
+            onClick={() => setShowSuggestions(prev => !prev)}
+          >
+            {showSuggestions ? "Hide Suggestions" : "Show Suggestions"}
+          </Button>
 
-        <Button
-          id="item-suggestions"
-          variant="outlined"
-          sx={{ mt: 2, width: 200 }}
-          onClick={() => setShowSuggestions(prev => !prev)}
-        >
-          {showSuggestions ? "Hide Suggestions" : "Show Suggestions"}
-        </Button>
-
-        {showSuggestions && suggested.length > 0 && (
-          <Paper sx={{ p: 2, mt: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Suggested for you
-            </Typography>
-            <Stack
-              id="item-suggestion-stack"
-              direction="row"
-              spacing={2}
-              sx={{ overflowX: "auto" }}
-            >
-              {suggested
-                .filter(s => s._id !== commodity._id)
-                .slice(0, 2) // only 2 suggestions
-                .map(s => (
-                  <Box
-                    id={`item-suggestion-${s._id}`}
-                    key={s._id}
-                    sx={{
-                      minWidth: 180,
-                      p: 1,
-                      border: "1px solid #ddd",
-                      borderRadius: 2,
-                      cursor: "pointer",
-                      "&:hover": { boxShadow: 2 }
-                    }}
-                    onClick={() => (window.location.href = `/commodity/${s._id}`)}
-                  >
-                    <img
-                      src={s.images?.[0] || "/placeholder.jpg"}
-                      alt={s.name}
-                      style={{
-                        width: "100%",
-                        height: 120,
-                        objectFit: "cover",
-                        borderRadius: 4
-                      }}
-                    />
-                    <Typography variant="subtitle2" sx={{ mt: 1 }}>
-                      {s.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: s.currency.toUpperCase()
-                      }).format(s.price)}
-                    </Typography>
-                  </Box>
-                ))}
-            </Stack>
-          </Paper>
-        )}
-
-        {/* === Reviews section placeholder === */}
-        <Paper sx={{ p: 2, mt: 4 }}>
-          <Typography variant="h6">Customer Reviews</Typography>
-
-          {averageRating && (
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-              <Rating value={Number(averageRating)} precision={0.5} readOnly />
-              <Typography sx={{ ml: 1 }}>({averageRating} / 5)</Typography>
-            </Box>
-          )}    
-
-          {/* Only logged-in users can add */}
-          {user && (
-            <Box sx={{ mt: 2 }}>
-              <TextField
-                id="item-user-review-textfield"
-                label="Write a review"
-                fullWidth
-                multiline
-                minRows={2}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-              />
-              <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                <Rating
-                  id="item-user-rating"
-                  value={newRating}
-                  onChange={(_, val) => setNewRating(val)}
-                />
-                <Button
-                  id="item-user-submit-rating-btn"
-                  variant="contained"
-                  sx={{ ml: 2 }}
-                  disabled={!newComment.trim()}
-                  onClick={handleAddComment}
-                >
-                  Post
-                </Button>
-              </Box>
-            </Box>
-          )}
-
-          {paginatedComments && paginatedComments.length > 0 ? (
-            paginatedComments.map((c, idx) => (
-              <Box
-                id={`item-comments-${c._id}`}
-                key={c._id?.toString() || idx}
-                sx={{ mt: 2, p: 2, border: "1px solid #ddd", borderRadius: 2 }}
+          {showSuggestions && suggested.length > 0 && (
+            <Paper sx={{ p: 2, mt: 4 }}>
+              <Typography variant="h6" gutterBottom>
+                Suggested for you
+              </Typography>
+              <Stack
+                id="item-suggestion-stack"
+                direction="row"
+                spacing={2}
+                sx={{ overflowX: "auto" }}
               >
-                <Typography variant="body2">
-                  <strong>User:</strong> {getCommentUserLabel(c.user)}
-                </Typography>
-                <Typography variant="body2">
-                  {typeof c.text === "string" ? c.text : JSON.stringify(c.text)}
-                </Typography>
-                {typeof c.rating === "number" ? (
-                  <Typography variant="body2">
-                    ⭐ {c.rating}/5
-                  </Typography>
-                ) : null}
-              </Box>
-            ))
-          ) : (
-            <Typography variant="body2">No reviews yet.</Typography>
+                {suggested
+                  .filter(s => s._id !== commodity._id)
+                  .slice(0, 2) // only 2 suggestions
+                  .map(s => (
+                    <Box
+                      id={`item-suggestion-${s._id}`}
+                      key={s._id}
+                      sx={{
+                        minWidth: 180,
+                        p: 1,
+                        border: "1px solid #ddd",
+                        borderRadius: 2,
+                        cursor: "pointer",
+                        "&:hover": { boxShadow: 2 }
+                      }}
+                      onClick={() => (window.location.href = `/commodity/${s._id}`)}
+                    >
+                      <img
+                        src={s.images?.[0] || "/placeholder.jpg"}
+                        alt={s.name}
+                        style={{
+                          width: "100%",
+                          height: 120,
+                          objectFit: "cover",
+                          borderRadius: 4
+                        }}
+                      />
+                      <Typography variant="subtitle2" sx={{ mt: 1 }}>
+                        {s.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: s.currency.toUpperCase()
+                        }).format(s.price)}
+                      </Typography>
+                    </Box>
+                  ))}
+              </Stack>
+            </Paper>
           )}
 
-          {/* Pagination */}
-          {totalComments > commentsPerPage && (
-            <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
-              <Pagination
-                count={Math.ceil(totalComments / commentsPerPage)}
-                page={commentPage}
-                onChange={(_, val) => setCommentPage(val)}
-                color="primary"
-              />
-            </Box>
-          )}
-        </Paper>
-      </Stack>
-    </Box>
+          {/* === Reviews section placeholder === */}
+          <Paper sx={{ p: 2, mt: 4 }}>
+            <Typography variant="h6">Customer Reviews</Typography>
+
+            {averageRating && (
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Rating value={Number(averageRating)} precision={0.5} readOnly />
+                <Typography sx={{ ml: 1 }}>({averageRating} / 5)</Typography>
+              </Box>
+            )}    
+
+            {/* Only logged-in users can add */}
+            {user && (
+              <Box sx={{ mt: 2 }}>
+                <TextField
+                  id="item-user-review-textfield"
+                  label="Write a review"
+                  fullWidth
+                  multiline
+                  minRows={2}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                />
+                <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                  <Rating
+                    id="item-user-rating"
+                    value={newRating}
+                    onChange={(_, val) => setNewRating(val)}
+                  />
+                  <Button
+                    id="item-user-submit-rating-btn"
+                    variant="contained"
+                    sx={{ ml: 2 }}
+                    disabled={!newComment.trim()}
+                    onClick={handleAddComment}
+                  >
+                    Post
+                  </Button>
+                </Box>
+              </Box>
+            )}
+
+            {paginatedComments && paginatedComments.length > 0 ? (
+              paginatedComments.map((c, idx) => (
+                <Box
+                  id={`item-comments-${c._id}`}
+                  key={c._id?.toString() || idx}
+                  sx={{ mt: 2, p: 2, border: "1px solid #ddd", borderRadius: 2 }}
+                >
+                  <Typography variant="body2">
+                    <strong>User:</strong> {getCommentUserLabel(c.user)}
+                  </Typography>
+                  <Typography variant="body2">
+                    {typeof c.text === "string" ? c.text : JSON.stringify(c.text)}
+                  </Typography>
+                  {typeof c.rating === "number" ? (
+                    <Typography variant="body2">
+                      ⭐ {c.rating}/5
+                    </Typography>
+                  ) : null}
+                </Box>
+              ))
+            ) : (
+              <Typography variant="body2">No reviews yet.</Typography>
+            )}
+
+            {/* Pagination */}
+            {totalComments > commentsPerPage && (
+              <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+                <Pagination
+                  count={Math.ceil(totalComments / commentsPerPage)}
+                  page={commentPage}
+                  onChange={(_, val) => setCommentPage(val)}
+                  color="primary"
+                />
+              </Box>
+            )}
+          </Paper>
+        </Stack>
+      </Box>    
+    </>
   );
 };
 

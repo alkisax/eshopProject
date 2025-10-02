@@ -46,8 +46,8 @@
 - αρχική σελιδα με κεντρικές κατηγορίες
 - μονο παρεντ κατεγκορισ✅
 - seo
-- favorites in initialiser
-- no refresh in toggle proccesed
+- favorites in initialiser ✅
+- no refresh in toggle proccesed ❓(tested and now working... did not touch)
 
 - ## e2e test
 

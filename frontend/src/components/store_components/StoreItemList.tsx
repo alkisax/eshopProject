@@ -56,12 +56,21 @@ const StoreItemList = () => {
 
   return (
     <>
-      <Typography variant="h4" gutterBottom>
+      <Typography
+        variant="h4"
+        component="h1" // seo reads h1 renders h4
+        gutterBottom
+      >
         Χειροποίητα Κοσμήματα
       </Typography>
 
       {selectedCategories.length > 0 && (
-        <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography 
+          variant="subtitle1"
+          component="h2"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+        >
           {selectedCategories.join(", ")}
         </Typography>
       )}
@@ -110,6 +119,8 @@ const StoreItemList = () => {
                     commodity.images?.[0] || "/placeholder.jpg"
                   }
                   alt={commodity.name}
+                  title={commodity.name}
+                  loading="lazy"
                 />
                 <CardContent
                   sx={{

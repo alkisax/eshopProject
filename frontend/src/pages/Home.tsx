@@ -3,12 +3,23 @@ import { useNavigate } from "react-router-dom";
 import BlogHome from "../blog/blogPages/BlogHome";
 import LastAnnouncement from "../blog/blogComponents/LastAnnouncement";
 import LatestCommodities from "../components/store_components/LatestCommodities";
+import { Helmet } from "react-helmet-async";
 
 const Home = () => {
   const navigate = useNavigate();
 
   return (
     <>
+      <Helmet>
+        {/* για να μην μπει href="http://localhost:5173/"*/}
+        <link rel="canonical" href={window.location.origin + window.location.pathname} />
+        <title>Shop | Έχω μια Ιδέα</title>
+        <meta
+          name="description"
+          content="Ανακαλύψτε μοναδικά χειροποίητα κοσμήματα από το εργαστήρι μας. Δαχτυλίδια, σκουλαρίκια και δημιουργίες που αφηγούνται ιστορίες.y"
+        />
+      </Helmet>
+
       <Box
         sx={{
           width: "100%",
@@ -22,8 +33,20 @@ const Home = () => {
           color: "white",
           textAlign: "center",
         }}
-      />
-      
+      >
+        {/* αυτό είναι ένα αόρατο h1 που προστέθηκε για λόγους seo */}
+        <Typography
+          variant="h1"
+          sx={{
+            fontSize: { xs: "1.8rem", md: "3rem" },
+            fontWeight: "bold",
+            textShadow: "0 2px 6px rgba(0,0,0,0.6)", 
+            display: { xs: "none" }, // hide for users if you want
+          }}
+        >
+          Έχω μια Ιδέα  – Χειροποίητα Κοσμήματα
+        </Typography>   
+      </Box>
 
       <Box
         sx={{
@@ -50,20 +73,32 @@ const Home = () => {
 
             {/* Subtext */}
             <Typography
-              variant="h6"
+              variant="body1"
               color="text.secondary"
-              paragraph
-              sx={{ maxWidth: 700, mx: "auto", lineHeight: 1.6 }}
+              component="p"
+              sx={{
+                maxWidth: 700,
+                mx: "auto",
+                lineHeight: 1.6,
+                fontSize: "1.25rem",
+                fontWeight: 400
+              }}
             >
               Ένα μικρό εργαστήρι γεμάτο φαντασία, όπου κάθε κόσμημα φτιάχνεται στο χέρι με
               αγάπη και μεράκι. Κάθε δημιουργία είναι μοναδική και αφηγείται τη δική της
               ιστορία.
             </Typography>
             <Typography
-              variant="h6"
+              variant="body1"
               color="text.secondary"
-              paragraph
-              sx={{ maxWidth: 700, mx: "auto", lineHeight: 1.6 }}
+              component="p"
+              sx={{
+                maxWidth: 700,
+                mx: "auto",
+                lineHeight: 1.6,
+                fontSize: "1.25rem",
+                fontWeight: 400
+              }}
             >
               Σας καλωσορίζουμε στον κόσμο μας, με νέες συλλογές, δημιουργικότητα και
               κοσμήματα που ξεχωρίζουν.
@@ -116,16 +151,30 @@ const Home = () => {
           {/* Info Section */}
           <Box mt={8} textAlign="center">
             <Typography
-              variant="h5"
-              gutterBottom
-              sx={{ fontWeight: "bold", color: "secondary.main" }}
+              variant="body1"
+              color="text.secondary"
+              component="p"
+              sx={{
+                maxWidth: 700,
+                mx: "auto",
+                lineHeight: 1.6,
+                fontSize: "1.25rem",
+                fontWeight: 400
+              }}
             >
               Τι θα βρείτε στο εργαστήρι μας
             </Typography>
             <Typography
               variant="body1"
+              color="text.secondary"
               component="p"
-              sx={{ maxWidth: 800, mx: "auto", lineHeight: 1.8 }}
+              sx={{
+                maxWidth: 700,
+                mx: "auto",
+                lineHeight: 1.6,
+                fontSize: "1.25rem",
+                fontWeight: 400
+              }}
             >
               Χειροποίητα κοσμήματα από ασήμι, ορείχαλκο και άλλα υλικά, σχεδιασμένα με
               δημιουργικότητα και φροντίδα. Κάθε κομμάτι είναι φτιαγμένο για να σας
@@ -133,8 +182,15 @@ const Home = () => {
             </Typography>
             <Typography
               variant="body1"
+              color="text.secondary"
               component="p"
-              sx={{ maxWidth: 800, mx: "auto", lineHeight: 1.8 }}
+              sx={{
+                maxWidth: 700,
+                mx: "auto",
+                lineHeight: 1.6,
+                fontSize: "1.25rem",
+                fontWeight: 400
+              }}
             >
               Μείνετε συντονισμένοι με τις <strong>Ανακοινώσεις</strong> μας για νέες
               συλλογές και ειδικές προσφορές και δείτε τα <strong>Νέα</strong> μας για
