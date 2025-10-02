@@ -16,10 +16,14 @@ import { VariablesContext } from "../context/VariablesContext";
 import { CartActionsContext } from "../context/CartActionsContext";
 
 const NavbarAppwrite = () => {
-  const { setHasCart, hasFavorites } = useContext(VariablesContext);
+  const { setHasCart, hasFavorites, setHasFavorites } = useContext(VariablesContext);
   const { user, setUser } = useContext(UserAuthContext);
-  const { cartCount } = useContext(CartActionsContext);
+  const { cartCount, setCartCount } = useContext(CartActionsContext);
   const navigate = useNavigate();
+
+  // console.log("👤 User in Navbar:", user?.email);
+  // console.log("🛒 hasCart from context:", hasCart);
+  // console.log("🔢 cartCount from context:", cartCount);
 
   return (
     <>
@@ -126,7 +130,7 @@ const NavbarAppwrite = () => {
                   <IconButton
                     id="navbar-logout"
                     sx={{ color: "inherit" }}
-                    onClick={() => handleLogout(setUser, setHasCart, navigate)}
+                    onClick={() => handleLogout(setUser, setHasCart, setCartCount, setHasFavorites, navigate)}
                   >
                     <LogoutIcon />
                   </IconButton>

@@ -43,13 +43,15 @@ import CookiePolicy from './pages/minorPages/CookiePolicy'
 
 import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
 import LayoutWithNavbarAndFooter from "./Layouts/LayoutWithNavbarAndFooter";
+import { CartActionsContext } from "./context/CartActionsContext";
 
 function App() {
   const { user } = useContext(UserAuthContext);
-  const { setGlobalParticipant, setHasCart } = useContext(VariablesContext);
+  const { setGlobalParticipant, setHasCart, setHasFavorites } = useContext(VariablesContext);
+  const { setCartCount } = useContext(CartActionsContext); 
   const url: string = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
 
-  useInitializer(user, url, setHasCart, setGlobalParticipant);
+  useInitializer(user, url, setHasCart, setHasFavorites, setGlobalParticipant, setCartCount);
 
   return (
     <>

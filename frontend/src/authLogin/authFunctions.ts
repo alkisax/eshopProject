@@ -3,10 +3,14 @@ import type { IUser } from "../types/types"
 
 type SetUser = (user: IUser | null) => void;
 type SetHasCart = (value: boolean) => void;
+type SetCartCount = (value: number) => void;
+type SetHasFavorites = (value: boolean) => void;
 
 export const handleLogout = async (
   setUser: SetUser,
   setHasCart: SetHasCart,
+  setCartCount: SetCartCount,
+  setHasFavorites: SetHasFavorites,
   navigate: (path: string) => void
 ) => {
 
@@ -25,6 +29,8 @@ export const handleLogout = async (
     // Clear React state
     setUser(null);
     setHasCart(false)
+    setCartCount(0);
+    setHasFavorites(false);
 
     // Redirect
     navigate("/");

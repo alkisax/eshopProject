@@ -15,10 +15,11 @@ const FavoritesPage = () => {
   // κανονικά εδώ θα έπρεπε να γυρίσω και να κάνω Populate το backend μου. αλλα δεν θέλω και για αυτό με ένα get θα φέρω πρώτα τα id των favorites και μετα με αυτα θα κάνω ένα δεύτερο loop με get για να φέρω client side τα favorites μου. αλλωστε δεν θα είναι και πάρα πολλά.
   useEffect(() => {
     const fetchFavorites = async () => {
-      if (!user?._id) return;
+      const userId = user?.id || user?._id;
+      if (!userId) return;
       const token = localStorage.getItem("token");
       try {
-        const res = await axios.get(`${url}/api/users/${user._id}`, {
+        const res = await axios.get(`${url}/api/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const favs: string[] = res.data.data.favorites || []
@@ -55,10 +56,11 @@ const FavoritesPage = () => {
   }, [favoriteIds, url]);
 
   const handleRemoveFavorite = async (commodityId: string) => {
-    if (!user?._id) return;
+    const userId = user?.id || user?._id;
+    if (!userId) return;
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(`${url}/api/users/${user._id}/favorites`, {
+      await axios.delete(`${url}/api/users/${userId}/favorites`, {
         headers: { Authorization: `Bearer ${token}` },
         data: { commodityId },
       });

@@ -163,10 +163,12 @@ const CommodityPage = () => {
   // favorites logic. πρώτα φέρνω ενα arr με τα id τους και έλεγχω αν το commodity._id είναι ήδη μεσα σε αυτα. Μετα δύο useEffect για να προσθέσω αφαιρέσω
   useEffect(() => {
     const fetchFavoritesStatus = async () => {
-      if (!user?._id || !commodity?._id) return;
+      const userId = user?.id || user?._id;
+      if (!userId || !commodity?._id) return;
+
       const token = localStorage.getItem("token");
       try {
-        const res = await axios.get(`${url}/api/users/${user._id}`, {
+        const res = await axios.get(`${url}/api/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const favs: string[] = res.data.data.favorites || [];
@@ -179,11 +181,13 @@ const CommodityPage = () => {
   }, [user, commodity, url]);
 
   const handleAddToFavorites = async () => {
-    if (!user || !commodity?._id) return;
+    const userId = user?.id || user?._id;
+    if (!userId || !commodity?._id) return;
+
     const token = localStorage.getItem("token");
     try {
       await axios.post(
-        `${url}/api/users/${user._id}/favorites`,
+        `${url}/api/users/${userId}/favorites`,
         { commodityId: commodity._id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -195,16 +199,18 @@ const CommodityPage = () => {
   };
 
   const handleRemoveFromFavorites = async () => {
-    if (!user || !commodity?._id) return;
+    const userId = user?.id || user?._id;
+    if (!userId || !commodity?._id) return;
+    
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(`${url}/api/users/${user._id}/favorites`, {
+      await axios.delete(`${url}/api/users/${userId}/favorites`, {
         headers: { Authorization: `Bearer ${token}` },
         data: { commodityId: commodity._id }, // DELETE needs data in axios
       });
       setIsFavorite(false);
         // ✅ re-check favorites count
-      const res = await axios.get(`${url}/api/users/${user._id}`, {
+      const res = await axios.get(`${url}/api/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const favs = res.data.data.favorites || [];
