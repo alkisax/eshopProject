@@ -1,4 +1,4 @@
-// https://www.youtube.com/watch?v=wWeG8rWkMsM seo helmet
+// https://www.youtube.com/watch?v=wWeG8rWkMsM seo ➡️ helmet/sitmap.txt/google search console
 
 // import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'

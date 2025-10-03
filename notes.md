@@ -46,7 +46,7 @@
 - τα έξοδα αποστολής να προστήθεντε (ως invisible commodities)✅
 - αρχική σελιδα με κεντρικές κατηγορίες
 - μονο παρεντ κατεγκορισ✅
-- seo
+- seo ✅
 - favorites in initialiser ✅
 - no refresh in toggle proccesed ❓(tested and now working... did not touch)
 - add slug to commodity so as to have slug urls
