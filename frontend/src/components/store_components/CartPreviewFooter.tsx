@@ -18,9 +18,13 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
     useContext(CartActionsContext);
   const { globalParticipant } = useContext(VariablesContext);
 
-  if (!hasCart || !cart || cart.items.length === 0) {
+  // 🧱 Defensive check: skip render if cart missing or empty
+  if (!hasCart || !cart || !Array.isArray(cart.items) || cart.items.length === 0) {
     return null;
   }
+
+  // 🧩 filter out malformed/null commodity references (can happen in CI or slow backend)
+  const safeItems = cart.items.filter((i) => i && i.commodity);
 
   return (
     <Box
@@ -34,9 +38,10 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
       <Typography variant="h6" gutterBottom>
         Your Cart
       </Typography>
-      {cart.items.map((item) => (
+
+      {safeItems.map((item) => (
         <Box
-          key={item.commodity._id.toString()}
+          key={item.commodity?._id?.toString() || Math.random().toString()}
           sx={{
             display: "flex",
             alignItems: "center",
@@ -45,7 +50,7 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
           }}
         >
           <Typography sx={{ flexGrow: 1 }}>
-            {item.commodity.name} ({item.priceAtPurchase}€)
+            {item.commodity?.name ?? "Unknown item"} ({item.priceAtPurchase}€)
           </Typography>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -54,12 +59,8 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
               size="small"
               onClick={async () => {
                 const pid = await fetchParticipantId();
-                if (pid) {
-                  await addQuantityCommodityToCart(
-                    pid,
-                    item.commodity._id.toString(),
-                    -1
-                  );
+                if (pid && item.commodity?._id) {
+                  await addQuantityCommodityToCart(pid, item.commodity._id.toString(), -1);
                   await fetchCart();
                 }
               }}
@@ -75,12 +76,8 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
               size="small"
               onClick={async () => {
                 const pid = await fetchParticipantId();
-                if (pid) {
-                  await addQuantityCommodityToCart(
-                    pid,
-                    item.commodity._id.toString(),
-                    1
-                  );
+                if (pid && item.commodity?._id) {
+                  await addQuantityCommodityToCart(pid, item.commodity._id.toString(), 1);
                   await fetchCart();
                 }
               }}
@@ -93,7 +90,7 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
               size="small"
               onClick={async () => {
                 const pid = globalParticipant?._id?.toString();
-                if (pid) {
+                if (pid && item.commodity?._id) {
                   await removeItemFromCart(pid, item.commodity._id.toString());
                   await fetchCart();
                 }
@@ -104,10 +101,11 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
           </Box>
         </Box>
       ))}
+
       <Divider sx={{ my: 1 }} />
       <Typography>
         <strong>Total:</strong>{" "}
-        {cart.items.reduce(
+        {safeItems.reduce(
           (sum, item) => sum + item.priceAtPurchase * item.quantity,
           0
         )}{" "}
