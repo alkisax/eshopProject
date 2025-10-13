@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import path from 'path';
 import swaggerSpec from './utils/swagger';
 import swaggerUi from 'swagger-ui-express';
-import rateLimit from 'express-rate-limit';
+// import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
 import authRoutes from './login/routes/auth.routes';
@@ -122,15 +122,15 @@ app.set('trust proxy', 1);
 //   next();
 // });
 
-// global limiter η βιβλιοθήκε αυτή βάζει όριο στο πόσα req θα δεχτεί απο κάθε ip με αποτέλεσμα να εμποδίζει DDOS επιθέσεις
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 200, // TODO CHANGE BACK!!!// 200 requests / 15 min per IP
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// // global limiter η βιβλιοθήκε αυτή βάζει όριο στο πόσα req θα δεχτεί απο κάθε ip με αποτέλεσμα να εμποδίζει DDOS επιθέσεις
+// const globalLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, 
+//   max: 200, // TODO CHANGE BACK!!!// 200 requests / 15 min per IP
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// });
 
-app.use(globalLimiter);
+// app.use(globalLimiter);
 
 app.get('/api/ping', (_req: Request, res: Response) => {
   console.log('someone pinged here');

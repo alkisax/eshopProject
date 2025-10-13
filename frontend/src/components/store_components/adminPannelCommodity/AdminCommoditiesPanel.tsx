@@ -2,7 +2,7 @@
 import { useEffect, useState, useContext, useCallback } from "react";
 import axios from "axios";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography, Pagination, IconButton, Stack, Tooltip
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography, Pagination, IconButton, Stack, Tooltip, TextField
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import AddBoxIcon from "@mui/icons-material/AddBox";
@@ -23,8 +23,10 @@ const AdminCommoditiesPanel = () => {
   const { setIsLoading, isLoading } = useContext(UserAuthContext);
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [pageCount, setPageCount] = useState(0);
-  const [expanded, setExpanded] = useState<string | null>('')
+  const [expanded, setExpanded] = useState<string | null>('');
+  const [search, setSearch] = useState(""); // 🔍 added search state
 
   // 📍 React Router hook that gives info about the current URL (path, query, state).
   // Here we use it to detect { state: { refresh: true } } when navigating back from "Add Commodity"
@@ -47,7 +49,7 @@ const AdminCommoditiesPanel = () => {
     } finally {
       setIsLoading(false);
     }
-  },[setIsLoading, url])
+  }, [setIsLoading, url]);
 
   useEffect(() => {
     fetchCommodities();
@@ -93,7 +95,7 @@ const AdminCommoditiesPanel = () => {
       setIsLoading(false);
     }
   };
-  
+
   const handleRestockCommodity = async (id: string, qty: number) => {
     try {
       setIsLoading(true);
@@ -151,8 +153,21 @@ const AdminCommoditiesPanel = () => {
 
   // edit logic in footer
 
+  // 🔍 client-side filter for small datasets (<100)
+  const filtered = commodities.filter((c) => {
+    const lower = search.toLowerCase();
+    return (
+      c.name?.toLowerCase().includes(lower) ||
+      c.description?.toLowerCase().includes(lower) ||
+      (Array.isArray(c.category) &&
+        c.category.some(cat => typeof cat === "string" && cat.toLowerCase().includes(lower)))
+    );
+  });
+
+  const dynamicPageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+
   // pagination slice
-  const paginated = commodities.slice(
+  const paginated = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
@@ -163,12 +178,27 @@ const AdminCommoditiesPanel = () => {
         Commodities
       </Typography>
 
+      {/* 🔍 Search bar for small admin datasets */}
+      <TextField
+        id="admin-commodity-search"
+        label="Search commodities"
+        variant="outlined"
+        size="small"
+        fullWidth
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setCurrentPage(1);
+        }}
+        sx={{ mb: 2, maxWidth: 300 }}
+      />
+
       <Button
         variant="contained"
         color="primary"
         startIcon={<AddBoxIcon />}
         onClick={handleAdd}
-        sx={{ mb: 2 }}
+        sx={{ mb: 2, ml: 2 }}
       >
         Add Commodity
       </Button>
@@ -284,9 +314,9 @@ const AdminCommoditiesPanel = () => {
         </TableContainer>
       )}
 
-      {pageCount > 1 && (
+      {dynamicPageCount > 1 && (
         <Pagination
-          count={pageCount}
+          count={dynamicPageCount}
           page={currentPage}
           onChange={(_e, p) => setCurrentPage(p)}
           sx={{ mt: 2, display: "flex", justifyContent: "center" }}
