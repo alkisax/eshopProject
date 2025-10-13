@@ -1,6 +1,6 @@
 # backend
-- **security issue:** if a user is logged in passes middleware. can access sensitive info of others? Θα πρέπει να φτιαχτούν διαφορετικά endpoints για τον guest που να κάνουν την ίδια δουλειά αλλα να μην έχουν verification middliware
-- problems in github login
+- **security issue:** if a user is logged in passes middleware. can access sensitive info of others? Θα πρέπει να φτιαχτούν διαφορετικά endpoints για τον guest που να κάνουν την ίδια δουλειά αλλα να μην έχουν verification middliware - εγινε με checkSelfOrAdmin ✅
+- problems in github login ✅
 - delete only one comment ✅
 - bind participant to user ✅
 - transfer email message to .env ✅
@@ -44,7 +44,7 @@
 - chat gpt criteria optimiser ✅
 - αγαπημένα προιόντα ❤️ ✅
 - τα έξοδα αποστολής να προστήθεντε (ως invisible commodities)✅
-- αρχική σελιδα με κεντρικές κατηγορίες
+- αρχική σελιδα με κεντρικές κατηγορίες ✅
 - μονο παρεντ κατεγκορισ✅
 - seo ✅
 - favorites in initialiser ✅
