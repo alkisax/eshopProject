@@ -24,7 +24,7 @@ const AdminCommoditiesPanel = () => {
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [pageCount, setPageCount] = useState(0);
+  const [_pageCount, setPageCount] = useState(0);
   const [expanded, setExpanded] = useState<string | null>('');
   const [search, setSearch] = useState(""); // 🔍 added search state
 
