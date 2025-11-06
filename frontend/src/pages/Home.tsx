@@ -209,14 +209,14 @@ const Home = () => {
             <Suspense fallback={<LatestCommoditiesSkeleton />}>
               <Box sx={{ width: { xs: "100%", md: "50%" } }}>
                 <LatestCommodities />
-              </Box>            
+              </Box>
             </Suspense>
 
             <Suspense fallback={<LastAnnouncementSkeleton />}>
               <Box sx={{ width: { xs: "100%", md: "50%" } }}>
                 <LastAnnouncement />
-              </Box>            
-            </Suspense>            
+              </Box>
+            </Suspense>
           </Stack>
 
         </Container>

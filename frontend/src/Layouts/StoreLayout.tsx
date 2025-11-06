@@ -22,6 +22,7 @@ const StoreLayout = () => {
   const ITEMS_PER_PAGE = 10; // try smaller to test pagination
 
   // φερνει τα commodities απο το backend
+  // TODO  ⚠️⚠️⚠️ this fetches all commodities
   useEffect(() => {
     const fetchAllCommodities = async () => {
       try {

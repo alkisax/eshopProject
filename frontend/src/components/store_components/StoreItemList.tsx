@@ -5,10 +5,11 @@ import Grid from "@mui/material/Grid";
 import { CartActionsContext } from "../../context/CartActionsContext";
 import type { CommodityType } from "../../types/commerce.types";
 import { UserAuthContext } from "../../context/UserAuthContext";
-import Loading from "../Loading";
+// import Loading from "../Loading";
 
 import { useEffect } from "react"; // GA
 import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
+import StoreItemListSkeleton from "../skeletons/StoreItemListSkeleton";
 
 type ContextType = {
   commodities: CommodityType[]; // already paginated in StoreLayout
@@ -76,7 +77,7 @@ const StoreItemList = () => {
       )}
 
       {isLoading ? (
-        <Loading />
+        <StoreItemListSkeleton />
       ) : commodities.length === 0 ? (
         // UX improvement: empty state message
         <Typography variant="body1" sx={{ mt: 2 }}>

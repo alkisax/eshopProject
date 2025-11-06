@@ -5,9 +5,10 @@ import RenderedEditorJsContent from "../blogComponents/RenderedEditorJsContent";
 import { getPreviewContent } from "../blogUtils/editorHelper";
 import { VariablesContext } from "../../context/VariablesContext";
 import type { PostType } from "../blogTypes/blogTypes";
-import { Box, Card, CardActionArea, CardContent, CircularProgress, Grid, Typography } from "@mui/material";
+import { Box, Card, CardActionArea, CardContent, Grid, Typography } from "@mui/material";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import { Helmet } from "react-helmet-async";
+import AnnouncementsSkeleton from "../../components/skeletons/AnnouncementsSkeleton";
 
 const Announcements = () => {
   const { isLoading, setIsLoading } = useContext(UserAuthContext);
@@ -17,6 +18,7 @@ const Announcements = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get(`${url}/api/posts`);
         const allPosts: PostType[] = response.data.data || response.data;
         // ✅ keep only posts whose subPage.name is "announcements"
@@ -35,9 +37,10 @@ const Announcements = () => {
 
     if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" mt={4}>
-        <CircularProgress />
-      </Box>
+      // <Box display="flex" justifyContent="center" alignItems="center" mt={4}>
+      //   <CircularProgress />
+      // </Box>
+      <AnnouncementsSkeleton />
     );
   }
 

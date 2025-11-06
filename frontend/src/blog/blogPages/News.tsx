@@ -11,10 +11,10 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  CircularProgress,
   Grid,
   Typography,
 } from "@mui/material";
+import NewsSkeleton from "../../components/skeletons/NewsSkeleton";
 
 const News = () => {
   const { url } = useContext(VariablesContext);
@@ -24,6 +24,8 @@ const News = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
+        setLoading(true);
+
         const response = await axios.get(`${url}/api/posts`);
         const allPosts: PostType[] = response.data.data || response.data;
         // ✅ keep only posts whose subPage.name is "news"
@@ -42,9 +44,7 @@ const News = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" mt={4}>
-        <CircularProgress />
-      </Box>
+      <NewsSkeleton />
     );
   }
 

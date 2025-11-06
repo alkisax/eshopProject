@@ -4,14 +4,13 @@ import axios from "axios";
 import RenderedEditorJsContent from "../blogComponents/RenderedEditorJsContent";
 import { VariablesContext } from "../../context/VariablesContext";
 import {
-  Box,
-  CircularProgress,
   Container,
   Paper,
   Typography,
 } from "@mui/material";
 import type { PostType } from "../blogTypes/blogTypes";
 import { Helmet } from "react-helmet-async";
+import BlogPostSkeleton from "../../components/skeletons/BlogPostSkeleton";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -23,6 +22,8 @@ const BlogPost = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
+        setLoading(true);
+
         const response = await axios.get(`${url}/api/posts/slug/${slug}`);
         const postData: PostType = response.data.data || response.data;
         setPost(postData);
@@ -40,9 +41,7 @@ const BlogPost = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" mt={4}>
-        <CircularProgress />
-      </Box>
+      <BlogPostSkeleton />
     );
   }
 
