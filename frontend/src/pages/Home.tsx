@@ -4,6 +4,9 @@ import BlogHome from "../blog/blogPages/BlogHome";
 import LastAnnouncement from "../blog/blogComponents/LastAnnouncement";
 import LatestCommodities from "../components/store_components/LatestCommodities";
 import { Helmet } from "react-helmet-async";
+import { Suspense } from "react";
+import LatestCommoditiesSkeleton from '../components/skeletons/LatestCommoditiesSkeleton'
+import LastAnnouncementSkeleton from "../components/skeletons/LastAnnouncementSkeleton ";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -203,12 +206,17 @@ const Home = () => {
             spacing={4}
             sx={{ mt: 6, alignItems: "center" }}
           >
-            <Box sx={{ width: { xs: "100%", md: "50%" } }}>
-              <LatestCommodities />
-            </Box>
-            <Box sx={{ width: { xs: "100%", md: "50%" } }}>
-              <LastAnnouncement />
-            </Box>
+            <Suspense fallback={<LatestCommoditiesSkeleton />}>
+              <Box sx={{ width: { xs: "100%", md: "50%" } }}>
+                <LatestCommodities />
+              </Box>            
+            </Suspense>
+
+            <Suspense fallback={<LastAnnouncementSkeleton />}>
+              <Box sx={{ width: { xs: "100%", md: "50%" } }}>
+                <LastAnnouncement />
+              </Box>            
+            </Suspense>            
           </Stack>
 
         </Container>

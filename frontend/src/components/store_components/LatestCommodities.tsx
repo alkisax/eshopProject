@@ -7,6 +7,8 @@ import type { CommodityType } from "../../types/commerce.types";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import LatestCommoditiesSkeleton from '../skeletons/LatestCommoditiesSkeleton';
+
 
 const LatestCommodities = () => {
   const { url } = useContext(VariablesContext);
@@ -29,7 +31,8 @@ const LatestCommodities = () => {
     fetchLatest();
   }, [url]);
 
-  if (latest.length === 0) return null;
+  // if (latest.length === 0) return null;
+  if (latest.length === 0) return <LatestCommoditiesSkeleton />;
 
   const settings = {
     dots: true,
@@ -65,7 +68,6 @@ const LatestCommodities = () => {
         ))}
       </Slider>
     </div>
-
   );
 };
 
