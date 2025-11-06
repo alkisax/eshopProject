@@ -1,11 +1,13 @@
 // TODO
 // Είχαμε ένα σοβαρό πρόβλημα και για αυτό αφαιρέθηκε το search bar. Εκάνε search μονο στα paginated αντικείμενα. για να μην γίνετε αυτό θα πρέπει το Pagination να οργανωθεί στο backend ή το front end να έχει τα πάντα στην μνήμη του. θα ακολουθήσω αυτό το δεύτερο αλλά αυτό είναι ΛΑΘΟΣ και πρέπει να αλλαχθει αργότερα γιατι αν τα εμπορεύματα είναι πολλά θα κολάει
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Drawer, Divider, TextField, List, ListItem, FormGroup, FormControlLabel, Checkbox, Typography, IconButton, useMediaQuery, Button, } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
 import type { CategoryType } from "../../types/commerce.types";
+import StoreSidebarSkeleton from "../skeletons/StoreSidebarSkeleton";
+import { useDebouncedCallback } from 'use-debounce';
 
 interface StoreSidebarProps {
   search: string;
@@ -39,14 +41,21 @@ const StoreSidebar = ({
   const [localSearch, setLocalSearch] = useState(search);
   const [semanticQuery, setSemanticQuery] = useState<string>("");
 
-  // debounce 1/2
-  // αντι να ψάχνει κάθε φορα που γράφφετε ένα γράμμα έχει ένα μικρό delay
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onSearch(localSearch);
-    }, 50); 
-    return () => clearTimeout(timeout);
-  }, [localSearch, onSearch]);
+  // // debounce 1/2
+  // // αντι να ψάχνει κάθε φορα που γράφφετε ένα γράμμα έχει ένα μικρό delay
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     onSearch(localSearch);
+  //   }, 50); 
+  //   return () => clearTimeout(timeout);
+  // }, [localSearch, onSearch]);
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    onSearch(value);
+  }, 300);
+
+  if (!allCategories || allCategories.length === 0) {
+    return <StoreSidebarSkeleton />;
+  }
 
   const drawerContent = (
     <>
@@ -63,7 +72,10 @@ const StoreSidebar = ({
         value={localSearch}
         // debounce 2/2
         // onChange={(e) => onSearch(e.target.value)}
-        onChange={(e) => setLocalSearch(e.target.value)}
+        onChange={(e) => {
+          setLocalSearch(e.target.value);
+          debouncedSearch(e.target.value); // trigger debounce
+        }} // using react debounce (before was custom)
         sx={{ mb: 2, mt: 8 }}
       />
 

@@ -48,13 +48,21 @@ const CommodityPage = () => {
 
   // GA google analitics - track specific view of item
   useEffect(() => {
+    console.log("useEffect triggered, commodity:", commodity, "tracker:", tracker);
     if (commodity && tracker?.trackEvent) {
       tracker.trackEvent("view_item", {
-        item_id: commodity._id,
-        item_name: commodity.name,
-        price: commodity.price,
         currency: commodity.currency,
+        value: commodity.price,
+        items: [
+          {
+            item_id: commodity._id,
+            item_name: commodity.name,
+            price: commodity.price,
+            quantity: 1,
+          },
+        ],
       });
+      console.log("GA event sent: view_item", commodity.name, commodity._id);
     }
   }, [commodity, tracker]);
 

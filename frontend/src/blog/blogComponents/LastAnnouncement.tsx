@@ -1,12 +1,14 @@
 // src/components/LastAnnouncement.tsx
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { Card, CardContent, Typography, CircularProgress, Box } from "@mui/material";
+// import { CircularProgress, Box } from "@mui/material";
+import { Card, CardContent, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { VariablesContext } from "../../context/VariablesContext";
 import RenderedEditorJsContent from "./RenderedEditorJsContent";
 import { getPreviewContent } from "../blogUtils/editorHelper";
 import type { EditorJsContent } from "../blogTypes/blogTypes";
+import LastAnnouncementSkeleton from "../../components/skeletons/LastAnnouncementSkeleton ";
 
 
 type Announcement = {
@@ -57,9 +59,10 @@ const LastAnnouncement = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-        <CircularProgress size={24} />
-      </Box>
+      // <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+      //   <CircularProgress size={24} />
+      // </Box>
+      <LastAnnouncementSkeleton />
     );
   }
 
