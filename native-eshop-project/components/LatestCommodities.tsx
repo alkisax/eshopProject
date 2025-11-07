@@ -1,20 +1,13 @@
 // native-eshop-project\components\LatestCommodities.tsx
 
 import React, { useEffect, useState, useContext } from 'react';
-import { Text, Image, FlatList, Dimensions, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Text, Image, Dimensions, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { VariablesContext } from '../context/VariablesContext';
+import { CommodityType } from '../types/commerce.types'
 
 const { width } = Dimensions.get('window');
-
-interface CommodityType {
-  _id: string;
-  name: string;
-  price: number;
-  currency: string;
-  images?: string[];
-}
 
 const LatestCommodities = () => {
   const router = useRouter();
@@ -46,21 +39,28 @@ const LatestCommodities = () => {
   }
 
   return (
-    <FlatList
-      data={latest}
-      keyExtractor={(item) => item._id}
+    <ScrollView
       horizontal
       pagingEnabled
       showsHorizontalScrollIndicator={false}
+      nestedScrollEnabled={true}
+      scrollEventThrottle={16}
+      directionalLockEnabled={true}
       style={styles.carousel}
-      renderItem={({ item }) => (
+    >
+      {latest.map((item) => (
         <TouchableOpacity
+          key={item._id}
           style={[styles.card, { width: width * 0.8 }]}
-          onPress={() => router.push(`/commodity/${item._id}`)}
           activeOpacity={0.8}
+          onPress={() => router.push(`/commodity/${item._id}`)}
         >
           <Image
-            source={{ uri: item.images?.[0] || 'https://via.placeholder.com/300x300?text=No+Image' }}
+            source={{
+              uri:
+                item.images?.[0] ||
+                'https://via.placeholder.com/300x300?text=No+Image',
+            }}
             style={styles.image}
           />
           <Text style={styles.name}>{item.name}</Text>
@@ -68,8 +68,8 @@ const LatestCommodities = () => {
             {item.price} {item.currency}
           </Text>
         </TouchableOpacity>
-      )}
-    />
+      ))}
+    </ScrollView>
   );
 };
 

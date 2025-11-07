@@ -10,66 +10,77 @@ const Home = () => {
   const router = useRouter();
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Hero section */}
-      <ImageBackground
-        source={{
-          uri: 'https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c955c9001658ee7294/view?project=6898d8be0020602b146e',
-        }}
-        style={styles.hero}
-        resizeMode="cover"
-      />
 
-      {/* Welcome section */}
-      <View style={styles.sectionOuter}>
-        <View style={styles.sectionInner}>
-          <Text style={styles.text}>
-            Ένα μικρό εργαστήρι γεμάτο φαντασία, όπου κάθε κόσμημα φτιάχνεται στο χέρι με αγάπη και μεράκι.
-            Κάθε δημιουργία είναι μοναδική και αφηγείται τη δική της ιστορία.
-          </Text>
-          <Text style={styles.text}>
-            Σας καλωσορίζουμε στον κόσμο μας, με νέες συλλογές, δημιουργικότητα και κοσμήματα που ξεχωρίζουν.
-          </Text>
-
-          <TouchableOpacity
-            style={styles.storeButtonContainer}
-            activeOpacity={0.85}
-            onPress={() => router.push('/store')}
-          >
-            <ImageBackground
-              source={{
-                uri: 'https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c958130031815f8bce/view?project=6898d8be0020602b146e',
-              }}
-              style={styles.storeButtonBg}
-              imageStyle={styles.storeButtonBgImage}
-            >
-              <Text style={styles.storeButtonText}>Κατάστημα</Text>
-            </ImageBackground>
-          </TouchableOpacity>
-          
-          {/* Other two buttons */}
-          <BlogHome />
+    <>
+      <ScrollView
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        directionalLockEnabled={false}
+        nestedScrollEnabled
+        scrollEventThrottle={16}
+      >
+        {/* Hero section */}
+        <View pointerEvents="none">
+          <ImageBackground
+            source={{
+              uri: 'https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c955c9001658ee7294/view?project=6898d8be0020602b146e',
+            }}
+            style={styles.hero}
+            resizeMode="cover"
+          />          
         </View>
-      </View>
 
-      {/* Info section */}
-      <View style={styles.section}>
-        <Text style={styles.title}>Τι θα βρείτε στο εργαστήρι μας</Text>
-        <Text style={styles.text}>
-          Χειροποίητα κοσμήματα από ασήμι, ορείχαλκο και άλλα υλικά, σχεδιασμένα με δημιουργικότητα και φροντίδα.
-        </Text>
-        <Text style={styles.text}>
-          Μείνετε συντονισμένοι με τις <Text style={styles.bold}>Ανακοινώσεις</Text> μας για νέες συλλογές και δείτε τα <Text style={styles.bold}>Νέα</Text> μας.
-        </Text>
-      </View>
+        {/* Welcome section */}
+        <View style={styles.sectionOuter}>
+          <View style={styles.sectionInner}>
+            <Text style={styles.text}>
+              Ένα μικρό εργαστήρι γεμάτο φαντασία, όπου κάθε κόσμημα φτιάχνεται στο χέρι με αγάπη και μεράκι.
+              Κάθε δημιουργία είναι μοναδική και αφηγείται τη δική της ιστορία.
+            </Text>
+            <Text style={styles.text}>
+              Σας καλωσορίζουμε στον κόσμο μας, με νέες συλλογές, δημιουργικότητα και κοσμήματα που ξεχωρίζουν.
+            </Text>
 
-      {/* last items carusel */}
-      <View style={{ alignItems: 'center', marginTop: 24 }}>
-        <LatestCommodities />
-      </View>
+            <TouchableOpacity
+              style={styles.storeButtonContainer}
+              activeOpacity={0.85}
+              onPress={() => router.push('/store')}
+            >
+              <ImageBackground
+                source={{
+                  uri: 'https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c958130031815f8bce/view?project=6898d8be0020602b146e',
+                }}
+                style={styles.storeButtonBg}
+                imageStyle={styles.storeButtonBgImage}
+              >
+                <Text style={styles.storeButtonText}>Κατάστημα</Text>
+              </ImageBackground>
+            </TouchableOpacity>
+            
+            {/* Other two buttons */}
+            <BlogHome />
+          </View>
+        </View>
 
-      <Footer />
-    </ScrollView>
+        {/* Info section */}
+        <View style={styles.section}>
+          <Text style={styles.title}>Τι θα βρείτε στο εργαστήρι μας</Text>
+          <Text style={styles.text}>
+            Χειροποίητα κοσμήματα από ασήμι, ορείχαλκο και άλλα υλικά, σχεδιασμένα με δημιουργικότητα και φροντίδα.
+          </Text>
+          <Text style={styles.text}>
+            Μείνετε συντονισμένοι με τις <Text style={styles.bold}>Ανακοινώσεις</Text> μας για νέες συλλογές και δείτε τα <Text style={styles.bold}>Νέα</Text> μας.
+          </Text>
+        </View>
+
+        {/* last items carusel */}
+        <View style={{ height: 300 }}>
+          <LatestCommodities />
+        </View>
+
+        <Footer />
+      </ScrollView>    
+    </>
   );
 }
 
