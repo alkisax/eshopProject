@@ -12,6 +12,9 @@ npx expo install react-native-paper react-native-vector-icons
 npm install axios jwt-decode
 npx expo install expo-secure-store
 npx expo install react-native-appwrite react-native-url-polyfill
+npx expo install react-native-vector-icons
+npx expo install react-native-webview
+
 ```
 
 ```bash

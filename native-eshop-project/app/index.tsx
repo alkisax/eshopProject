@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import BlogHome from '../components/BlogHome';
 import Footer from '../components/Footer'
 import LatestCommodities from '@/components/LatestCommodities';
+import LastAnnouncement from '@/components/LastAnnouncement';
 
 const Home = () => {
   const router = useRouter();
@@ -76,6 +77,10 @@ const Home = () => {
         {/* last items carusel */}
         <View style={{ height: 300 }}>
           <LatestCommodities />
+        </View>
+
+        <View style={styles.announcementSection}>
+          <LastAnnouncement />
         </View>
 
         <Footer />
@@ -183,6 +188,14 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
     alignItems: 'center',
+  },
+  announcementSection: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 24,
+    marginBottom: 16,
+    paddingHorizontal: 16,
   },
 });
 

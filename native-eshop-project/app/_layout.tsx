@@ -32,6 +32,7 @@ const RootLayout = () => {
 
             <Stack.Screen name="news/index" options={{ title: 'Νέα' }} />
             <Stack.Screen name="announcements/index" options={{ title: 'Ανακοινώσεις' }} />
+            <Stack.Screen name="posts/[id]" options={{ title: 'Ανακοίνωση' }} />           
 
             <Stack.Screen name="(minor-pages)/payment-methods/index" options={{ title: 'Τρόποι Πληρωμής' }} />
             <Stack.Screen name="(minor-pages)/shipping-methods/index" options={{ title: 'Τρόποι Αποστολής' }} />
