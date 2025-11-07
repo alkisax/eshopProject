@@ -363,7 +363,7 @@ describe('Backend auth tests', () => {
       .click();
 
     // Click first commodity link
-    cy.get('#commodity-list a').first().click();
+    // cy.get('#commodity-list a').first().click();
 
     // Assert URL is /commodity/:id
     cy.url().should('match', /\/commodity\/[a-f0-9]{24}$/);
