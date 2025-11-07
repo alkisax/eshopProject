@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { Typography, CircularProgress, Box, Button, Stack, Paper, } from "@mui/material";
+import { Typography, Box, Button, Stack, Paper, } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { TextField, Rating, Pagination } from "@mui/material";
@@ -15,6 +15,20 @@ import type { Types } from "mongoose";
 import { Helmet } from "react-helmet-async";
 import { AiModerationContext } from "../../context/AiModerationContext";
 import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
+import CommodityPageSkeleton from '../skeletons/CommodityPageSkeleton'
+import { Suspense, lazy } from 'react'
+import GalleryCommodityPageSkeleton from '../skeletons/GalleryCommodityPageSkeleton'
+
+/* suspence
+React.lazy() is a built-in React function that allows you to dynamically import a component only when it’s needed. Normally, when you do: 
+import GalleryCommodityPage from '../store_components/GalleryCommodityPage'
+That file is eagerly loaded — bundled together with your main app.
+With React.lazy:
+const GalleryCommodityPage = lazy(() => import('../store_components/GalleryCommodityPage'))
+React will not load that file until this component is actually rendered for the first time.
+That means smaller initial bundle, faster page load.
+*/
+const GalleryCommodityPage = lazy(() => import('../store_components/GalleryCommodityPage'))
 
 const CommodityPage = () => {
   const { url, setHasFavorites } = useContext(VariablesContext);
@@ -24,10 +38,11 @@ const CommodityPage = () => {
   const [commodity, setCommodity] = useState<CommodityType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_selectedImage, setSelectedImage] = useState<string | null>(null);
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState<number | null>(null);
-  const [showSuggestions, setShowSuggestions] = useState(false); //προστέθηκε αυτό για να μην κάνει autoload το uaggestion και μου ΄καίει' τα λεφτα στο openAI api
+  const [showSuggestions, setShowSuggestions] = useState(false); //προστέθηκε αυτό για να μην κάνει autoload το suggestion και μου ΄καίει' τα λεφτα στο openAI api
   const [suggested, setSuggested] = useState<CommodityType[]>([]);
   const [isFavorite, setIsFavorite] = useState(false);
   const [commentPage, setCommentPage] = useState(1);
@@ -229,11 +244,10 @@ const CommodityPage = () => {
     }
   };
 
-
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-        <CircularProgress />
+        <CommodityPageSkeleton  />
       </Box>
     );
   }
@@ -263,65 +277,12 @@ const CommodityPage = () => {
 
       <Box sx={{ mt: 4 }}>
         <Stack spacing={3}>
-          {/* === Title === */}
-          <Typography
-            variant="h4"
-            component="h1"
-            gutterBottom
-          >
-            {commodity.name}
-          </Typography>
 
           {/* === Image gallery === */}
           <Box sx={{ display: "flex", gap: 2 }}>
-            {/* Main image */}
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-            <img
-              src={selectedImage ? selectedImage : "/placeholder.jpg"}
-              alt={commodity.name || "No image"}
-              title={commodity.name || "No image"}
-              loading="lazy"
-              style={{
-                width: "100%",
-                maxHeight: 400,
-                borderRadius: 8,
-                objectFit: "contain",
-                backgroundColor: "#fafafa",
-              }}
-              onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.jpg" }}
-            />
-            </Box>
-
-            {/* Thumbnails */}
-            {(commodity.images?.length ?? 0) > 1 && (
-              <Stack spacing={1}>
-                {commodity.images!.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={img}
-                    alt={`thumb-${idx}`}
-                    title={`thumb-${idx}`}
-                    loading="lazy"
-                    style={{
-                      width: 80,
-                      height: 80,
-                      objectFit: "cover",
-                      borderRadius: 4,
-                      cursor: "pointer",
-                      border: img === selectedImage ? "2px solid #1976d2" : "1px solid #ccc", // highlight selected
-                    }}
-                    onClick={() => setSelectedImage(img)} // 👈 change main image
-                  />
-                ))}
-              </Stack>
-            )}
+            <Suspense fallback={<GalleryCommodityPageSkeleton />}>
+              <GalleryCommodityPage commodity={commodity} />
+            </Suspense>
           </Box>
 
           {/* === Price === */}
@@ -378,12 +339,12 @@ const CommodityPage = () => {
             sx={{
               mt: 2,
               width: 200,
-                color: "#fff",
-                fontWeight: "bold",
-                "&:hover": {
-                  backgroundColor: "#FFd500",
-                  color: "#4a3f35",
-                },
+              color: "#fff",
+              fontWeight: "bold",
+              "&:hover": {
+                backgroundColor: "#FFd500",
+                color: "#4a3f35",
+              },
             }}
             disabled={commodity.stock === 0}
             onClick={() => addOneToCart(commodity._id)}

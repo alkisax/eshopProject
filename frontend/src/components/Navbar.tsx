@@ -24,6 +24,7 @@ import { UserAuthContext } from "../context/UserAuthContext";
 import { handleLogout } from "../authLogin/authFunctions";
 import { VariablesContext } from "../context/VariablesContext";
 import { CartActionsContext } from "../context/CartActionsContext";
+import bannerIdea from '../assets/banner-idea.png'
 
 const NavbarAppwrite = () => {
   const { setHasCart, hasFavorites, setHasFavorites } = useContext(VariablesContext);
@@ -55,7 +56,8 @@ const NavbarAppwrite = () => {
           >
             <Box
               component="img"
-              src="/bulb-transp.svg"
+              // src="/bulb-transp.svg"
+              src={bannerIdea}
               alt="Έχω μια Ιδέα Logo"
               sx={{ height: 40, mr: 1 }}
             />

@@ -2,6 +2,7 @@ import { Box, Container, IconButton, Link as MuiLink, Typography } from "@mui/ma
 import Grid from "@mui/material/Grid";
 import { Facebook, Instagram, Email, Phone } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
+import bannerIdea from '../assets/banner-idea.png'
 
 const Footer = () => {
   return (
@@ -22,7 +23,8 @@ const Footer = () => {
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box
                 component="img"
-                src="/bulb-transp.svg"
+                // src="/bulb-transp.svg"
+                src={bannerIdea}
                 alt="Έχω μια Ιδέα Logo"
                 sx={{ height: 100, mr: 2 }} // 👈 πιο μεγάλο
               />
