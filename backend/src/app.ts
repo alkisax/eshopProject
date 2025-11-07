@@ -33,7 +33,12 @@ const allowedOrigins = [
   `${process.env.FRONTEND_URL}`,
   `${process.env.BACKEND_URL}`,
   `${process.env.DEPLOY_URL}`,
-  'https://cloud.appwrite.io', 
+  'https://cloud.appwrite.io',
+
+  'http://localhost:19006', // Expo web dev
+  'http://127.0.0.1:19006',
+  'http://localhost:8081', // sometimes used by Expo web
+  'https://eshop.portfolio-projects.space', // deployed frontend
 ];
 // app.use(cors());
 app.use(
@@ -96,6 +101,7 @@ app.use(
         "https:"], // η εφαρμογή μου είχε πολλές φωτογραφίες απο διάφορα url απο το ιντερνετ. βάλαμε αυτό γιατί τις έκοβε το helmet αλλα τώρα δεν είναι ασφαλές
       connectSrc: [
         "'self'",
+        "https://eshop.portfolio-projects.space",
         "https://cloud.appwrite.io",
         "https://fra.cloud.appwrite.io",
         "https://region1.google-analytics.com",

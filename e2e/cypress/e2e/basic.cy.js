@@ -128,6 +128,8 @@ describe('Guest route', () => {
 
     // Type into normal search
     cy.get('#normal-search').type('κολιέ');
+    // Wait for debounce (300 ms) + fetch/render time (~700 ms)
+    cy.wait(1000);
 
     // Assert that only commodities with 'Κολιέ' in alt text remain
     cy.get('#commodity-list img[alt]').each($img => {
@@ -354,6 +356,12 @@ describe('Backend auth tests', () => {
     cy.get('#store-btn').click();
     cy.url().should('include', '/store');
 
+    // Debuging add - Wait for commodities to load (up to 10s)
+    cy.get('#commodity-list a', { timeout: 10000 })
+      .should('have.length.greaterThan', 0)
+      .first()
+      .click();
+
     // Click first commodity link
     cy.get('#commodity-list a').first().click();
 
@@ -523,7 +531,8 @@ describe('Admin login and panel access', () => {
 
     // Commodities
     cy.get('#admin-sidebar-commodities').click();
-    cy.contains('Name').should('be.visible');
+    // debugg add wait for the commodity table to appear
+    cy.contains('Name', { timeout: 10000 }).should('be.visible');
     cy.contains('Price').should('be.visible');
     cy.contains('Stock').should('be.visible');
 
