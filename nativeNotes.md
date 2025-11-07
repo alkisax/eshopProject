@@ -14,6 +14,7 @@ npx expo install expo-secure-store
 npx expo install react-native-appwrite react-native-url-polyfill
 npx expo install react-native-vector-icons
 npx expo install react-native-webview
+npm install --save-dev babel-plugin-module-resolver
 
 ```
 

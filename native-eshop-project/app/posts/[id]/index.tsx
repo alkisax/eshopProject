@@ -11,8 +11,7 @@ import axios from 'axios';
 import { useLocalSearchParams } from 'expo-router';
 import { VariablesContext } from '@/context/VariablesContext';
 import RenderedEditorJsContent from '@/components/RenderedEditorJsContent';
-import type { PostType } from '@/types/blogTypes';
-import type { EditorJsContent } from '@/types/blogTypes';
+import type { PostType, EditorJsContent } from '../../../types/blogTypes';
 
 /*
   📄 Native version of BlogPost (from web)
