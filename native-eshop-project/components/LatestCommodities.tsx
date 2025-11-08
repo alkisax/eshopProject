@@ -1,20 +1,13 @@
 // native-eshop-project\components\LatestCommodities.tsx
 
-import React, { useEffect, useState, useContext } from 'react';
-import { Text, Image, FlatList, Dimensions, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useContext, useRef } from 'react';
+import { Text, Image, Dimensions, StyleSheet, TouchableOpacity, ScrollView, Animated, View } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { VariablesContext } from '../context/VariablesContext';
+import { CommodityType } from '../types/commerce.types'
 
 const { width } = Dimensions.get('window');
-
-interface CommodityType {
-  _id: string;
-  name: string;
-  price: number;
-  currency: string;
-  images?: string[];
-}
 
 const LatestCommodities = () => {
   const router = useRouter();
@@ -41,26 +34,31 @@ const LatestCommodities = () => {
     fetchLatest();
   }, [url]);
 
-  if (loading) {
-    return <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#4a3f35" />;
-  }
+  if (loading) return <LatestCommoditiesSkeleton />;
 
   return (
-    <FlatList
-      data={latest}
-      keyExtractor={(item) => item._id}
+    <ScrollView
       horizontal
       pagingEnabled
       showsHorizontalScrollIndicator={false}
+      nestedScrollEnabled={true}
+      scrollEventThrottle={16}
+      directionalLockEnabled={true}
       style={styles.carousel}
-      renderItem={({ item }) => (
+    >
+      {latest.map((item) => (
         <TouchableOpacity
+          key={item._id}
           style={[styles.card, { width: width * 0.8 }]}
-          onPress={() => router.push(`/commodity/${item._id}`)}
           activeOpacity={0.8}
+          onPress={() => router.push(`/commodity/${item._id}`)}
         >
           <Image
-            source={{ uri: item.images?.[0] || 'https://via.placeholder.com/300x300?text=No+Image' }}
+            source={{
+              uri:
+                item.images?.[0] ||
+                'https://via.placeholder.com/300x300?text=No+Image',
+            }}
             style={styles.image}
           />
           <Text style={styles.name}>{item.name}</Text>
@@ -68,8 +66,35 @@ const LatestCommodities = () => {
             {item.price} {item.currency}
           </Text>
         </TouchableOpacity>
-      )}
-    />
+      ))}
+    </ScrollView>
+  );
+};
+
+/* ✅ Skeleton Component */
+const LatestCommoditiesSkeleton = () => {
+  const shimmer = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmer, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(shimmer, { toValue: 0, duration: 1000, useNativeDriver: true }),
+      ])
+    ).start();
+  }, [shimmer]);
+
+  const backgroundColor = shimmer.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#eee', '#ddd'],
+  });
+
+  return (
+    <View style={styles.skeletonContainer}>
+      {[...Array(3)].map((_, i) => (
+        <Animated.View key={i} style={[styles.skeletonCard, { backgroundColor }]} />
+      ))}
+    </View>
   );
 };
 
@@ -106,6 +131,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#777',
     marginTop: 4,
+  },
+  /* --- skeleton styles --- */
+  skeletonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 200,
+  },
+  skeletonCard: {
+    width: width * 0.7,
+    height: 200,
+    borderRadius: 12,
+    marginHorizontal: 10,
   },
 });
 

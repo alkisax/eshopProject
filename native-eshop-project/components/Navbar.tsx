@@ -1,16 +1,23 @@
-// native-eshop-project\components\Navbar.tsx
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+// native-eshop-project/components/Navbar.tsx
+import React, { useContext } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Appbar, Badge, IconButton } from 'react-native-paper';
+import { UserAuthContext } from '@/context/UserAuthContext';
 
- const Navbar = () => {
+const Navbar = () => {
   const router = useRouter();
+  const { user, logout } = useContext(UserAuthContext);
 
-  // TODO: later, get from context or Appwrite state
+  // TODO: replace later with real cart + favorites from context
   const cartCount = 2;
   const hasFavorites = true;
-  const user = null; // placeholder until login system integrated
+
+  const handleLogout = async () => {
+    console.log('🧹 Logging out...');
+    await logout();
+    router.replace('/login');
+  };
 
   return (
     <Appbar.Header style={styles.header}>
@@ -27,54 +34,41 @@ import { Appbar, Badge, IconButton } from 'react-native-paper';
         <Text style={styles.title}>Έχω μια Ιδέα</Text>
       </TouchableOpacity>
 
-      {/* Spacer */}
       <View style={{ flex: 1 }} />
 
       {/* Store */}
-      <IconButton
-        icon="storefront-outline"
-        size={26}
-        onPress={() => router.push('/store')}
-      />
+      <IconButton icon="storefront-outline" size={26} onPress={() => router.push('/store')} />
 
       {/* Cart */}
       <View>
-        <IconButton
-          icon="cart-outline"
-          size={26}
-          onPress={() => router.push('/cart')}
-        />
-        {cartCount > 0 && (
-          <Badge style={styles.badge}>{cartCount}</Badge>
-        )}
+        <IconButton icon="cart-outline" size={26} onPress={() => router.push('/cart')} />
+        {cartCount > 0 && <Badge style={styles.badge}>{cartCount}</Badge>}
       </View>
 
       {/* Favorites */}
       {hasFavorites && (
-        <IconButton
-          icon="heart-outline"
-          size={26}
-          onPress={() => router.push('/favorites')}
-        />
+        <IconButton icon="heart-outline" size={26} onPress={() => router.push('/favorites')} />
       )}
 
-      {/* Profile or Login */}
+      {/* Profile / Login */}
       {user ? (
-        <IconButton
-          icon="account-circle-outline"
-          size={26}
-          onPress={() => router.push('/profile')}
-        />
+        <>
+          <IconButton
+            icon="logout"
+            size={26}
+            onPress={() => {
+              console.log('log out pressed');
+              handleLogout();
+            }}
+          />
+          <IconButton icon="account-circle-outline" size={26} onPress={() => router.push('/profile')} />
+        </>
       ) : (
-        <IconButton
-          icon="login"
-          size={26}
-          onPress={() => router.push('/login')}
-        />
+        <IconButton icon="login" size={26} onPress={() => router.push('/login')} />
       )}
     </Appbar.Header>
   );
-}
+};
 
 const styles = StyleSheet.create({
   header: {
@@ -108,4 +102,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Navbar
+export default Navbar;

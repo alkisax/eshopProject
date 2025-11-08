@@ -1,75 +1,104 @@
 // native-eshop-project\app\index.tsx
-import React from 'react';
+import { useContext, useEffect } from 'react';
 import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import BlogHome from '../components/BlogHome';
 import Footer from '../components/Footer'
 import LatestCommodities from '@/components/LatestCommodities';
+import LastAnnouncement from '@/components/LastAnnouncement';
+import { UserAuthContext } from '@/context/UserAuthContext';
 
 const Home = () => {
   const router = useRouter();
 
+  const { user } = useContext(UserAuthContext);
+ 
   return (
-    <ScrollView style={styles.container}>
-      {/* Hero section */}
-      <ImageBackground
-        source={{
-          uri: 'https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c955c9001658ee7294/view?project=6898d8be0020602b146e',
-        }}
-        style={styles.hero}
-        resizeMode="cover"
-      />
 
-      {/* Welcome section */}
-      <View style={styles.sectionOuter}>
-        <View style={styles.sectionInner}>
-          <Text style={styles.text}>
-            Ένα μικρό εργαστήρι γεμάτο φαντασία, όπου κάθε κόσμημα φτιάχνεται στο χέρι με αγάπη και μεράκι.
-            Κάθε δημιουργία είναι μοναδική και αφηγείται τη δική της ιστορία.
-          </Text>
-          <Text style={styles.text}>
-            Σας καλωσορίζουμε στον κόσμο μας, με νέες συλλογές, δημιουργικότητα και κοσμήματα που ξεχωρίζουν.
-          </Text>
+    <>
+      {user ? (
+        <Text style={{ fontSize: 16, color: '#333', textAlign: 'center', marginTop: 8 }}>
+          Συνδεδεμένος ως: {user.username || user.email}
+        </Text>
+      ) : (
+        <Text style={{ fontSize: 16, color: '#999', textAlign: 'center', marginTop: 8 }}>
+          Δεν είστε συνδεδεμένος
+        </Text>
+      )}
 
-          <TouchableOpacity
-            style={styles.storeButtonContainer}
-            activeOpacity={0.85}
-            onPress={() => router.push('/store')}
-          >
-            <ImageBackground
-              source={{
-                uri: 'https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c958130031815f8bce/view?project=6898d8be0020602b146e',
-              }}
-              style={styles.storeButtonBg}
-              imageStyle={styles.storeButtonBgImage}
-            >
-              <Text style={styles.storeButtonText}>Κατάστημα</Text>
-            </ImageBackground>
-          </TouchableOpacity>
-          
-          {/* Other two buttons */}
-          <BlogHome />
+      <ScrollView
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        directionalLockEnabled={false}
+        nestedScrollEnabled
+        scrollEventThrottle={16}
+      >
+        {/* Hero section */}
+        <View pointerEvents="none">
+          <ImageBackground
+            source={{
+              uri: 'https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c955c9001658ee7294/view?project=6898d8be0020602b146e',
+            }}
+            style={styles.hero}
+            resizeMode="cover"
+          />          
         </View>
-      </View>
 
-      {/* Info section */}
-      <View style={styles.section}>
-        <Text style={styles.title}>Τι θα βρείτε στο εργαστήρι μας</Text>
-        <Text style={styles.text}>
-          Χειροποίητα κοσμήματα από ασήμι, ορείχαλκο και άλλα υλικά, σχεδιασμένα με δημιουργικότητα και φροντίδα.
-        </Text>
-        <Text style={styles.text}>
-          Μείνετε συντονισμένοι με τις <Text style={styles.bold}>Ανακοινώσεις</Text> μας για νέες συλλογές και δείτε τα <Text style={styles.bold}>Νέα</Text> μας.
-        </Text>
-      </View>
+        {/* Welcome section */}
+        <View style={styles.sectionOuter}>
+          <View style={styles.sectionInner}>
+            <Text style={styles.text}>
+              Ένα μικρό εργαστήρι γεμάτο φαντασία, όπου κάθε κόσμημα φτιάχνεται στο χέρι με αγάπη και μεράκι.
+              Κάθε δημιουργία είναι μοναδική και αφηγείται τη δική της ιστορία.
+            </Text>
+            <Text style={styles.text}>
+              Σας καλωσορίζουμε στον κόσμο μας, με νέες συλλογές, δημιουργικότητα και κοσμήματα που ξεχωρίζουν.
+            </Text>
 
-      {/* last items carusel */}
-      <View style={{ alignItems: 'center', marginTop: 24 }}>
-        <LatestCommodities />
-      </View>
+            <TouchableOpacity
+              style={styles.storeButtonContainer}
+              activeOpacity={0.85}
+              onPress={() => router.push('/store')}
+            >
+              <ImageBackground
+                source={{
+                  uri: 'https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c958130031815f8bce/view?project=6898d8be0020602b146e',
+                }}
+                style={styles.storeButtonBg}
+                imageStyle={styles.storeButtonBgImage}
+              >
+                <Text style={styles.storeButtonText}>Κατάστημα</Text>
+              </ImageBackground>
+            </TouchableOpacity>
+            
+            {/* Other two buttons */}
+            <BlogHome />
+          </View>
+        </View>
 
-      <Footer />
-    </ScrollView>
+        {/* Info section */}
+        <View style={styles.section}>
+          <Text style={styles.title}>Τι θα βρείτε στο εργαστήρι μας</Text>
+          <Text style={styles.text}>
+            Χειροποίητα κοσμήματα από ασήμι, ορείχαλκο και άλλα υλικά, σχεδιασμένα με δημιουργικότητα και φροντίδα.
+          </Text>
+          <Text style={styles.text}>
+            Μείνετε συντονισμένοι με τις <Text style={styles.bold}>Ανακοινώσεις</Text> μας για νέες συλλογές και δείτε τα <Text style={styles.bold}>Νέα</Text> μας.
+          </Text>
+        </View>
+
+        {/* last items carusel */}
+        <View style={{ height: 300 }}>
+          <LatestCommodities />
+        </View>
+
+        <View style={styles.announcementSection}>
+          <LastAnnouncement />
+        </View>
+
+        <Footer />
+      </ScrollView>    
+    </>
   );
 }
 
@@ -172,6 +201,14 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
     alignItems: 'center',
+  },
+  announcementSection: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 24,
+    marginBottom: 16,
+    paddingHorizontal: 16,
   },
 });
 

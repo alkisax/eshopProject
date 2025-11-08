@@ -1,24 +1,59 @@
-import { View, Text, StyleSheet } from 'react-native';
+// native-eshop-project/app/login/index.tsx
+import React, { useContext, useEffect } from 'react';
+import { Text, StyleSheet, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
+import LoginBackendNative from '../../components/LoginBackendNative';
+import { UserAuthContext } from '@/context/UserAuthContext';
 
 const LoginScreen = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>🛒 This is the Login screen (placeholder)</Text>
-    </View>
-  );
-}
+  const { user } = useContext(UserAuthContext);
+  const router = useRouter();
 
-export default LoginScreen
+  // If already logged in, don't show login screen
+  useEffect(() => {
+    if (user) {
+      router.replace('/');
+    }
+  }, [user, router]);
+
+  return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
+      <Text style={styles.title}>Σύνδεση</Text>
+      <Text style={styles.subtitle}>
+        Συνδεθείτε για να δείτε παραγγελίες και αγαπημένα.
+      </Text>
+
+      <LoginBackendNative />
+    </ScrollView>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fffdf7',
+    backgroundColor: '#f5f7fa',
   },
-  text: {
-    fontSize: 18,
-    color: '#333',
+  content: {
+    paddingTop: 32,
+    paddingBottom: 40,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#4a3f35',
+  },
+  subtitle: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#777',
+    textAlign: 'center',
+    paddingHorizontal: 24,
   },
 });
+
+export default LoginScreen;

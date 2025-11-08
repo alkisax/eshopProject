@@ -873,5 +873,6 @@ sudo systemctl reload nginx
 
 ## deploy latest commit
 ```bash
-cd /var/www && cd eshopProject && git pull origin main && cd frontend && npm install --legacy-peer-deps && npm run build && cd ../backend && npm install && npm run build && pm2 list && pm2 restart eshop-backend --update-env && nginx -t && systemctl reload nginx && curl http://localhost:3004/api/ping; echo
+cd /var/www && cd eshopProject && git pull origin main && cd frontend && npm install --legacy-peer-deps && npm run build && cd ../backend && npm install && npm run build && pm2 list && pm2 restart eshop-backend --update-env && nginx -t && systemctl reload nginx && sleep 5 && curl http://localhost:3004/api/ping; echo
 ```
+
