@@ -8,7 +8,6 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-  ScrollView,
 } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
@@ -102,15 +101,16 @@ const AnnouncementsScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Ανακοινώσεις</Text>
+    <View style={styles.container}>
+      <Text style={styles.header}>Νέα από το Εργαστήρι</Text>
       <FlatList
         data={posts}
         renderItem={renderItem}
-        keyExtractor={(item) => item._id!}
+        keyExtractor={(item, index) => item._id ?? String(index)}
         contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false}
       />
-    </ScrollView>
+    </View>
   );
 };
 

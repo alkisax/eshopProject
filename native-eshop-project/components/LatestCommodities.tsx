@@ -1,7 +1,7 @@
 // native-eshop-project\components\LatestCommodities.tsx
 
-import React, { useEffect, useState, useContext } from 'react';
-import { Text, Image, Dimensions, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState, useContext, useRef } from 'react';
+import { Text, Image, Dimensions, StyleSheet, TouchableOpacity, ScrollView, Animated, View } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { VariablesContext } from '../context/VariablesContext';
@@ -34,9 +34,7 @@ const LatestCommodities = () => {
     fetchLatest();
   }, [url]);
 
-  if (loading) {
-    return <ActivityIndicator style={{ marginVertical: 20 }} size="large" color="#4a3f35" />;
-  }
+  if (loading) return <LatestCommoditiesSkeleton />;
 
   return (
     <ScrollView
@@ -73,6 +71,33 @@ const LatestCommodities = () => {
   );
 };
 
+/* ✅ Skeleton Component */
+const LatestCommoditiesSkeleton = () => {
+  const shimmer = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmer, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(shimmer, { toValue: 0, duration: 1000, useNativeDriver: true }),
+      ])
+    ).start();
+  }, [shimmer]);
+
+  const backgroundColor = shimmer.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#eee', '#ddd'],
+  });
+
+  return (
+    <View style={styles.skeletonContainer}>
+      {[...Array(3)].map((_, i) => (
+        <Animated.View key={i} style={[styles.skeletonCard, { backgroundColor }]} />
+      ))}
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   carousel: {
     marginTop: 24,
@@ -106,6 +131,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#777',
     marginTop: 4,
+  },
+  /* --- skeleton styles --- */
+  skeletonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 200,
+  },
+  skeletonCard: {
+    width: width * 0.7,
+    height: 200,
+    borderRadius: 12,
+    marginHorizontal: 10,
   },
 });
 

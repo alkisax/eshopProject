@@ -7,7 +7,6 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-  ScrollView,
 } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
@@ -101,15 +100,16 @@ const NewsScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Νέα από το Εργαστήρι</Text>
-      <FlatList
-        data={posts}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => item._id ?? String(index)} // ✅ safe fallback
-        contentContainerStyle={{ padding: 16 }}
-      />
-    </ScrollView>
+  <View style={styles.container}>
+    <Text style={styles.header}>Νέα από το Εργαστήρι</Text>
+    <FlatList
+      data={posts}
+      renderItem={renderItem}
+      keyExtractor={(item, index) => item._id ?? String(index)}
+      contentContainerStyle={{ padding: 16 }}
+      showsVerticalScrollIndicator={false}
+    />
+  </View>
   );
 };
 

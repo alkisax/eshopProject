@@ -1,6 +1,6 @@
 // native-eshop-project/components/LastAnnouncement.tsx
-import { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { VariablesContext } from '../context/VariablesContext';
@@ -65,15 +65,7 @@ const LastAnnouncement = () => {
     fetchAnnouncement();
   }, [url]);
 
-  if (loading) {
-    return (
-      <ActivityIndicator
-        size="large"
-        color="#4a3f35"
-        style={{ marginVertical: 20 }}
-      />
-    );
-  }
+  if (loading) return <LastAnnouncementSkeleton />;
 
   if (!announcement) {
     return (
@@ -132,6 +124,35 @@ const LastAnnouncement = () => {
         </View>
       </ScrollView>
     </TouchableOpacity>
+  );
+};
+
+/* ✅ Skeleton shimmer */
+const LastAnnouncementSkeleton = () => {
+  const shimmer = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmer, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(shimmer, { toValue: 0, duration: 1000, useNativeDriver: true }),
+      ])
+    ).start();
+  }, [shimmer]);
+
+  const backgroundColor = shimmer.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#eee', '#ddd'],
+  });
+
+  return (
+    <Animated.View style={[styles.card, { backgroundColor }]}>
+      <View style={{ height: 180, borderRadius: 12, backgroundColor: '#e0e0e0' }} />
+      <View style={{ padding: 16 }}>
+        <View style={{ height: 20, width: '70%', backgroundColor: '#e0e0e0', borderRadius: 4, marginBottom: 10 }} />
+        <View style={{ height: 14, width: '90%', backgroundColor: '#e0e0e0', borderRadius: 4 }} />
+      </View>
+    </Animated.View>
   );
 };
 

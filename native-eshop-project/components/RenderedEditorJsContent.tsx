@@ -1,9 +1,10 @@
 // native-eshop-project/components/RenderedEditorJsContent.tsx
 import React from 'react';
-import { View, Text, Image, StyleSheet, Linking } from 'react-native';
+import { View, Text, Image, StyleSheet, Linking, Platform, TouchableOpacity } from 'react-native';
 import { Checkbox, Card } from 'react-native-paper';
 import { WebView } from 'react-native-webview';
 import type { EditorJsContent } from '../types/blogTypes';
+import * as WebBrowser from 'expo-web-browser';
 
 /*
   📌 Native adaptation of RenderedEditorJsContent
@@ -105,19 +106,82 @@ const RenderedEditorJsContent = ({ editorJsData, subPageName }: Props) => {
               </Card>
             );
 
-          case 'embed':
+          case 'embed': {
+            const url = block.data.embed;
+            const isYouTube =
+              typeof url === 'string' &&
+              (url.includes('youtube.com') || url.includes('youtu.be'));
+
+            if (isYouTube) {
+              let openableUrl = url;
+
+              if (url.includes('embed/')) {
+                const videoId = url.split('embed/')[1]?.split(/[?&]/)[0];
+                if (videoId) openableUrl = `https://www.youtube.com/watch?v=${videoId}`;
+              } else if (url.includes('youtu.be/')) {
+                const videoId = url.split('youtu.be/')[1]?.split(/[?&]/)[0];
+                if (videoId) openableUrl = `https://www.youtube.com/watch?v=${videoId}`;
+              }
+
+              const openYouTube = async () => {
+                try {
+                  await WebBrowser.openBrowserAsync(openableUrl, {
+                    presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
+                    readerMode: false,
+                    toolbarColor: '#000', // optional
+                  });
+                } catch (err) {
+                  console.warn('Failed to open browser', err);
+                }
+              };
+
+              return (
+                <View key={i} style={styles.embedBox}>
+                  <TouchableOpacity onPress={openYouTube} activeOpacity={0.8}>
+                    <View style={styles.embedPlaceholder}>
+                      <Text style={styles.embedTitle}>▶️ Παρακολούθησε στο YouTube</Text>
+                      <Text style={styles.embedUrl} numberOfLines={1}>
+                        {openableUrl}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                  {block.data.caption && (
+                    <Text style={styles.caption}>{block.data.caption}</Text>
+                  )}
+                </View>
+              );
+            }
+
+            // 🧩 For non-YouTube embeds (like Vimeo, maps, etc.)
+            if (Platform.OS === 'web') {
+              return (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => Linking.openURL(url)}
+                  activeOpacity={0.8}
+                  style={styles.embedPlaceholder}
+                >
+                  <Text style={styles.embedTitle}>🔗 Άνοιγμα ενσωματωμένου περιεχομένου</Text>
+                  <Text style={styles.embedUrl} numberOfLines={1}>{url}</Text>
+                </TouchableOpacity>
+              );
+            }
+
+            // 📱 Native non-YouTube → use WebView
             return (
               <View key={i} style={styles.embedBox}>
                 <WebView
-                  source={{ uri: block.data.embed }}
+                  source={{ uri: url }}
                   style={{ height: block.data.height || 315, width: '100%' }}
                   allowsFullscreenVideo
+                  javaScriptEnabled
                 />
                 {block.data.caption && (
                   <Text style={styles.caption}>{block.data.caption}</Text>
                 )}
               </View>
             );
+          }
 
           case 'attaches':
             return (
@@ -220,6 +284,25 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 4,
   },
+    embedPlaceholder: {
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#fafafa',
+    padding: 14,
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  embedTitle: {
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  embedUrl: {
+    color: '#666',
+    fontSize: 12,
+  },
+
 });
 
 export default RenderedEditorJsContent;
