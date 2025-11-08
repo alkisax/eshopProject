@@ -7,10 +7,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
 } from 'react-native'
-
-import { useRouter } from 'expo-router'
+import { useCheckoutNative } from '@/hooks/useCheckout'
 
 type ShippingInfoType = {
   shippingEmail: string
@@ -26,7 +24,9 @@ type ShippingInfoType = {
 }
 
 const ShippingInfoScreen = () => {
-  // const router = useRouter()
+
+  const { handleCheckout } = useCheckoutNative()
+
   const [form, setForm] = useState<ShippingInfoType>({
     shippingEmail: '',
     fullName: '',
@@ -44,11 +44,9 @@ const ShippingInfoScreen = () => {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = () => {
-    console.log('🚚 Shipping form:', form)
-    // here you could later call: handleCheckout(form)
-    Alert.alert('✅', 'Η φόρμα αποστολής υποβλήθηκε με επιτυχία!')
-    // router.push('/checkout') 
+  const handleSubmit = async () => {
+    console.log('🚀 Checkout form submitted', form)
+    await handleCheckout(form)
   }
 
   return (
@@ -133,7 +131,7 @@ const ShippingInfoScreen = () => {
 
       {/* === Submit Button === */}
       <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
-        <Text style={styles.submitText}>Συνέχεια στο Checkout</Text>
+        <Text style={styles.submitText}>Πληρωμή μέσω Stripe</Text>
       </TouchableOpacity>
     </ScrollView>
   )

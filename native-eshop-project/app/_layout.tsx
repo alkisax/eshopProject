@@ -31,6 +31,8 @@ const RootLayout = () => {
                   <Stack.Screen name="cart/index" options={{ title: 'Καλάθι' }} />
                   <Stack.Screen name="favorites/index" options={{ title: 'Αγαπημένα' }} />
                   <Stack.Screen name="shipping-info/index" options={{ title: 'Πληροφορίες αποστολής' }} />
+                  <Stack.Screen name="checkout-success/index" options={{ title: 'Επιτυχής Πληρωμή' }} />
+                  <Stack.Screen name="checkout-cancel/index" options={{ title: 'Ακύρωση Πληρωμής' }} />
 
                   <Stack.Screen name="commodity/[id]/index" options={{ title: 'Προϊόν' }} />
 
