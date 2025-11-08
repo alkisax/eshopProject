@@ -12,6 +12,7 @@ const Navbar = () => {
   const { user, logout } = useContext(UserAuthContext);
   const { cartCount } = useContext(CartActionsContext); 
   const { hasCart } = useContext(VariablesContext); 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { hasFavorites, setHasFavorites  } = useContext(VariablesContext);
 
   const handleLogout = async () => {

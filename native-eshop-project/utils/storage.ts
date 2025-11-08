@@ -1,3 +1,4 @@
+// native-eshop-project\utils\storage.ts
 import * as SecureStore from 'expo-secure-store'
 import { Platform } from 'react-native'
 
@@ -25,4 +26,27 @@ export const deleteItem = async (key: string) => {
   } else {
     await SecureStore.deleteItemAsync(key)
   }
+}
+
+export const getToken = async (): Promise<string | null> => {
+  if (Platform.OS === 'web') {
+    return localStorage.getItem('token')
+  }
+  return await SecureStore.getItemAsync('token')
+}
+
+export const setToken = async (token: string): Promise<void> => {
+  if (Platform.OS === 'web') {
+    localStorage.setItem('token', token)
+    return
+  }
+  await SecureStore.setItemAsync('token', token)
+}
+
+export const deleteToken = async (): Promise<void> => {
+  if (Platform.OS === 'web') {
+    localStorage.removeItem('token')
+    return
+  }
+  await SecureStore.deleteItemAsync('token')
 }

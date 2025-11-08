@@ -36,7 +36,7 @@ const CommodityPage = () => {
   const { aiModerationEnabled } = useContext(AiModerationContext);
   const { addOneToCart, loadingItemId } = useContext(CartActionsContext);
   const { user } = useContext(UserAuthContext)
-  const { hasFavorites, setHasFavorites } = useContext(VariablesContext)
+  const { setHasFavorites } = useContext(VariablesContext)
 
   const [commodity, setCommodity] = useState<CommodityType | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
