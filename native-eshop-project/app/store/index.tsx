@@ -4,7 +4,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ActivityIndicator,
   FlatList,
   TouchableOpacity,
   Image,
@@ -31,7 +30,8 @@ const StoreScreen = () => {
   const [filtered, setFiltered] = useState<CommodityType[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [filtersVisible, setFiltersVisible] = useState(false);
-  const [semanticResults, setSemanticResults] = useState<CommodityType[] | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_semanticResults, setSemanticResults] = useState<CommodityType[] | null>(null);
 
   // Fetch commodities
   useEffect(() => {
@@ -176,10 +176,18 @@ const StoreScreen = () => {
   };
 
   if (loading) {
+    // show 6 skeleton placeholders
+    const skeletons = Array.from({ length: 6 }, (_, i) => i);
+
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#4a3f35" />
-      </View>
+      <FlatList
+        data={skeletons}
+        keyExtractor={(item) => item.toString()}
+        renderItem={() => <SimpleSkeletonCard />}
+        numColumns={2}
+        columnWrapperStyle={{ justifyContent: 'space-between' }}
+        contentContainerStyle={{ padding: 16, backgroundColor: '#fffdf7' }}
+      />
     );
   }
 
@@ -276,6 +284,14 @@ const StoreScreen = () => {
     </>
   );
 };
+
+const SimpleSkeletonCard = () => (
+  <View style={styles.card}>
+    <View style={[styles.skeletonBox, { height: 140 }]} />
+    <View style={[styles.skeletonBox, { width: '80%', height: 16, marginTop: 8 }]} />
+    <View style={[styles.skeletonBox, { width: '60%', height: 14, marginTop: 6 }]} />
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fffdf7' },
@@ -377,6 +393,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#48C4CF',
     fontWeight: '600',
+  },
+  skeletonBox: {
+    backgroundColor: '#e0e0e0',
+    borderRadius: 8,
   },
 });
 
