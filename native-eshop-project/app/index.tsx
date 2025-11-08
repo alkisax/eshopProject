@@ -1,18 +1,31 @@
 // native-eshop-project\app\index.tsx
-import React from 'react';
+import { useContext, useEffect } from 'react';
 import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import BlogHome from '../components/BlogHome';
 import Footer from '../components/Footer'
 import LatestCommodities from '@/components/LatestCommodities';
 import LastAnnouncement from '@/components/LastAnnouncement';
+import { UserAuthContext } from '@/context/UserAuthContext';
 
 const Home = () => {
   const router = useRouter();
 
+  const { user } = useContext(UserAuthContext);
+ 
   return (
 
     <>
+      {user ? (
+        <Text style={{ fontSize: 16, color: '#333', textAlign: 'center', marginTop: 8 }}>
+          Συνδεδεμένος ως: {user.username || user.email}
+        </Text>
+      ) : (
+        <Text style={{ fontSize: 16, color: '#999', textAlign: 'center', marginTop: 8 }}>
+          Δεν είστε συνδεδεμένος
+        </Text>
+      )}
+
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
