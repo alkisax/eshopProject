@@ -15,28 +15,35 @@ import axios from 'axios';
 import { useLocalSearchParams } from 'expo-router';
 import { VariablesContext } from '@/context/VariablesContext';
 import { AiModerationContext } from '@/context/AiModerationContext';
+import { CartActionsContext } from '@/context/CartActionsContext';
 import type { CommodityType } from '@/types/commerce.types';
 import CommodityReviews from '@/components/CommodityReviews';
 import SuggestedCommodities from '@/components/SuggestedCommodities';
+import { UserAuthContext } from '@/context/UserAuthContext'
+import { getItem } from '@/utils/storage'
 
 /*
   📦 CommodityPage (Native)
   - Fetches a single commodity by ID
   - Shows name, main image, description, price, and stock
   - Displays clickable thumbnails for other images
-  - Add to Cart / Favorites are temporary logs
+  - Add to Cart / Favorites
 */
 
 const CommodityPage = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { url } = useContext(VariablesContext);
   const { aiModerationEnabled } = useContext(AiModerationContext);
+  const { addOneToCart, loadingItemId } = useContext(CartActionsContext);
+  const { user } = useContext(UserAuthContext)
+  const { hasFavorites, setHasFavorites } = useContext(VariablesContext)
 
   const [commodity, setCommodity] = useState<CommodityType | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
+  const [isFavorite, setIsFavorite] = useState(false)
 
   // === Fetch commodity ===
   const fetchCommodity = useCallback(async () => {
@@ -59,16 +66,89 @@ const CommodityPage = () => {
     fetchCommodity();
   }, [fetchCommodity]);
 
-  // === Handlers (temporary logs) ===
-  const handleAddToCart = () => {
-    console.log('🛒 Add to cart clicked:', commodity?._id);
-    Alert.alert('🛒', 'Add to cart (log only)');
+  // === see if its already favorite ===
+  useEffect(() => {
+    const fetchFavoritesStatus = async () => {
+      const userId = user?._id
+      if (!userId || !commodity?._id) return
+
+      const token = await getItem('token')
+      if (!token) return
+
+      try {
+        const res = await axios.get(`${url}/api/users/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const favs: string[] = res.data.data.favorites || []
+        setIsFavorite(favs.includes(commodity._id.toString()))
+      } catch (err) {
+        console.error('Failed to check favorites', err)
+      }
+    }
+    fetchFavoritesStatus()
+  }, [user, commodity, url])
+
+  // === Handlers ===
+  const handleAddToCart = async () => {
+    if (!commodity?._id) return;
+    try {
+      await addOneToCart(commodity._id);
+      Alert.alert('🛒', 'Το προϊόν προστέθηκε στο καλάθι.');
+    } catch (err) {
+      console.error('Error adding to cart', err);
+      Alert.alert('Σφάλμα', 'Δεν ήταν δυνατή η προσθήκη στο καλάθι.');
+    }
   };
 
-  const handleAddToFavorites = () => {
-    console.log('❤️ Add to favorites clicked:', commodity?._id);
-    Alert.alert('❤️', 'Add to favorites (log only)');
-  };
+  const handleAddToFavorites = async () => {
+    const userId = user?._id
+    if (!userId || !commodity?._id) {
+      Alert.alert('Πρέπει να συνδεθείτε πρώτα')
+      return
+    }
+
+    const token = await getItem('token')
+    if (!token) return
+
+    try {
+      await axios.post(
+        `${url}/api/users/${userId}/favorites`,
+        { commodityId: commodity._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      setHasFavorites(true)
+      setIsFavorite(true)
+      Alert.alert('❤️', 'Προστέθηκε στα αγαπημένα')
+    } catch (err) {
+      console.error('Failed to add favorite', err)
+    }
+  }
+
+  const handleRemoveFromFavorites = async () => {
+    const userId = user?._id
+    if (!userId || !commodity?._id) return
+
+    const token = await getItem('token')
+    if (!token) return
+
+    try {
+      await axios.delete(`${url}/api/users/${userId}/favorites`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { commodityId: commodity._id },
+      })
+      setIsFavorite(false)
+
+      // ✅ re-check favorites count
+      const res = await axios.get(`${url}/api/users/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const favs = res.data.data.favorites || []
+      setHasFavorites(favs.length > 0)
+      Alert.alert('🗑️', 'Αφαιρέθηκε από τα αγαπημένα')
+    } catch (err) {
+      console.error('Failed to remove favorite', err)
+    }
+  }
 
   // === UI States ===
   if (loading) {
@@ -163,22 +243,29 @@ const CommodityPage = () => {
       <TouchableOpacity
         style={[
           styles.button,
-          commodity.stock === 0 && styles.buttonDisabled,
+          (commodity.stock === 0 || loadingItemId === commodity._id) &&
+            styles.buttonDisabled,
         ]}
-        disabled={commodity.stock === 0}
+        disabled={commodity.stock === 0 || loadingItemId === commodity._id}
         onPress={handleAddToCart}
       >
-        <Text style={styles.buttonText}>
-          {commodity.stock === 0 ? 'Μη διαθέσιμο' : 'Προσθήκη στο καλάθι'}
-        </Text>
+        {loadingItemId === commodity._id ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>
+         {commodity.stock === 0 ? 'Μη διαθέσιμο' : 'Προσθήκη στο καλάθι'}
+          </Text>
+        )}
       </TouchableOpacity>
 
       {/* === Favorites === */}
       <TouchableOpacity
         style={[styles.buttonOutline, styles.spacedButton]}
-        onPress={handleAddToFavorites}
+        onPress={isFavorite ? handleRemoveFromFavorites : handleAddToFavorites}
       >
-        <Text style={styles.buttonOutlineText}>Προσθήκη στα αγαπημένα</Text>
+        <Text style={styles.buttonOutlineText}>
+          {isFavorite ? 'Αφαίρεση από αγαπημένα ❤️' : 'Προσθήκη στα αγαπημένα ♡'}
+        </Text>
       </TouchableOpacity>
 
       {/* === Ai Suggestions === */}

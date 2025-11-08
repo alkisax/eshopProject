@@ -1,17 +1,18 @@
 // native-eshop-project/components/Navbar.tsx
 import React, { useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Appbar, Badge, IconButton } from 'react-native-paper';
 import { UserAuthContext } from '@/context/UserAuthContext';
+import { CartActionsContext } from '@/context/CartActionsContext';
+import { VariablesContext } from '@/context/VariablesContext'; 
 
 const Navbar = () => {
   const router = useRouter();
   const { user, logout } = useContext(UserAuthContext);
-
-  // TODO: replace later with real cart + favorites from context
-  const cartCount = 2;
-  const hasFavorites = true;
+  const { cartCount } = useContext(CartActionsContext); 
+  const { hasCart } = useContext(VariablesContext); 
+  const { hasFavorites, setHasFavorites  } = useContext(VariablesContext);
 
   const handleLogout = async () => {
     console.log('🧹 Logging out...');
@@ -41,8 +42,14 @@ const Navbar = () => {
 
       {/* Cart */}
       <View>
-        <IconButton icon="cart-outline" size={26} onPress={() => router.push('/cart')} />
-        {cartCount > 0 && <Badge style={styles.badge}>{cartCount}</Badge>}
+        <IconButton
+          icon="cart-outline"
+          size={26}
+          onPress={() => router.push('/cart')}
+        />
+        {hasCart && cartCount > 0 && (
+          <Badge style={styles.badge}>{cartCount}</Badge>
+        )}
       </View>
 
       {/* Favorites */}
