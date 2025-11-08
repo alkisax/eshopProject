@@ -1,3 +1,4 @@
+// native-eshop-project\components\CartItemsListNative.tsx
 import React, {
   useCallback,
   useContext,
@@ -161,7 +162,7 @@ const CartItemsListNative = () => {
       <View style={styles.bottomButtons}>
         <TouchableOpacity
           style={[styles.bottomBtn, styles.primaryBtn]}
-          onPress={() => Alert.alert('🚚', 'Shipping flow not implemented yet')}
+          onPress={() => router.push('/shipping-info')}
         >
           <Text style={styles.bottomBtnText}>Συνέχεια στην αποστολή</Text>
         </TouchableOpacity>

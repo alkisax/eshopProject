@@ -30,6 +30,7 @@ const RootLayout = () => {
                   <Stack.Screen name="store/index" options={{ title: 'Κατάστημα' }} />
                   <Stack.Screen name="cart/index" options={{ title: 'Καλάθι' }} />
                   <Stack.Screen name="favorites/index" options={{ title: 'Αγαπημένα' }} />
+                  <Stack.Screen name="shipping-info/index" options={{ title: 'Πληροφορίες αποστολής' }} />
 
                   <Stack.Screen name="commodity/[id]/index" options={{ title: 'Προϊόν' }} />
 
