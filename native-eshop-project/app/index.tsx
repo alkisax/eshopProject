@@ -1,5 +1,5 @@
 // native-eshop-project\app\index.tsx
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import BlogHome from '../components/BlogHome';
@@ -12,7 +12,11 @@ const Home = () => {
   const router = useRouter();
 
   const { user } = useContext(UserAuthContext);
- 
+
+  // useEffect(() => {
+  //   console.log('👤 Current user:', user);
+  // }, [user]);
+
   return (
 
     <>
@@ -25,7 +29,7 @@ const Home = () => {
           Δεν είστε συνδεδεμένος
         </Text>
       )}
-
+      
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
@@ -159,12 +163,9 @@ const styles = StyleSheet.create({
     maxWidth: 280,
     borderRadius: 12,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 6,
+    backgroundColor: '#fff',
     marginTop: 16,
+    elevation: 6,
   },
   storeButtonBg: {
     width: '100%',
@@ -195,12 +196,8 @@ const styles = StyleSheet.create({
     padding: 20,
     width: '90%',
     maxWidth: 700,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
     alignItems: 'center',
+    elevation: 4,
   },
   announcementSection: {
     width: '100%',

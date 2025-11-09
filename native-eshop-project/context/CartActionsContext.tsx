@@ -1,17 +1,19 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
-import type { ParticipantType, CartType, CommodityType } from "../types/commerce.types";
-import { VariablesContext } from "./VariablesContext"; // ✅ because you’re using setGlobalParticipant
-import { UserAuthContext } from "./UserAuthContext";
-import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
+import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import axios, { isAxiosError } from 'axios';
+import { v4 as uuidv4 } from 'uuid';
+import { Platform } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+
+import type {
+  ParticipantType,
+  CartType,
+} from '@/types/commerce.types';
+import { VariablesContext } from './VariablesContext';
+import { UserAuthContext } from './UserAuthContext';
 
 interface CartActionsContextType {
   addOneToCart: (commodityId: string) => Promise<void>;
-  removeItemFromCart : (
-    participantId: string,
-    commodityId: string,
-  ) => Promise<void>;
+  removeItemFromCart: (participantId: string, commodityId: string) => Promise<void>;
   addQuantityCommodityToCart: (
     participantId: string,
     commodityId: string,
@@ -24,11 +26,16 @@ interface CartActionsContextType {
   setCartCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const CartActionsContext = createContext<CartActionsContextType>({
-  addOneToCart: async () => { throw new Error("addOneToCart not implemented"); },
-  removeItemFromCart: async () => { throw new Error("removeItemFromCart not implemented"); },
-  addQuantityCommodityToCart: async () => { throw new Error("addQuantityCommodityToCart not implemented"); },
+  addOneToCart: async () => {
+    throw new Error('addOneToCart not implemented');
+  },
+  removeItemFromCart: async () => {
+    throw new Error('removeItemFromCart not implemented');
+  },
+  addQuantityCommodityToCart: async () => {
+    throw new Error('addQuantityCommodityToCart not implemented');
+  },
   fetchParticipantId: async () => null,
   loadingItemId: null,
   hasCart: false,
@@ -36,213 +43,227 @@ export const CartActionsContext = createContext<CartActionsContextType>({
   setCartCount: () => {},
 });
 
-
 export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
-  const { setGlobalParticipant, url, hasCart, setHasCart} = useContext(VariablesContext);
+  const { setGlobalParticipant, url, hasCart, setHasCart } =
+    useContext(VariablesContext);
   const { user } = useContext(UserAuthContext);
 
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
+  const [cartCount, setCartCount] = useState<number>(0);
 
-  const { tracker } = useAnalytics() || {}; //GA
+  // ---- storage helpers (web vs native) ----
+  const getToken = async (): Promise<string | null> => {
+    if (Platform.OS === 'web') {
+      return localStorage.getItem('token');
+    }
+    return await SecureStore.getItemAsync('token');
+  };
 
-  // part 1/2
+  const getGuestParticipantId = async (): Promise<string | null> => {
+    if (Platform.OS === 'web') {
+      return localStorage.getItem('guestParticipantId');
+    }
+    return await SecureStore.getItemAsync('guestParticipantId');
+  };
+
+  const setGuestParticipantId = async (id: string): Promise<void> => {
+    if (Platform.OS === 'web') {
+      localStorage.setItem('guestParticipantId', id);
+      return;
+    }
+    await SecureStore.setItemAsync('guestParticipantId', id);
+  };
+
+  const removeGuestParticipantId = async (): Promise<void> => {
+    if (Platform.OS === 'web') {
+      localStorage.removeItem('guestParticipantId');
+      return;
+    }
+    await SecureStore.deleteItemAsync('guestParticipantId');
+  };
+
+  // ---------- 1/2: find or create participant ----------
   const fetchParticipantId = async (): Promise<string | null> => {
-    console.log("enter addToCart");
+    console.log('enter addToCart');
 
+    // ✅ Logged-in user
     if (user) {
-      // 1. get user from context
-      console.log("setp 1. See if user has participant. user from context: ", user);
-      const email = user?.email;
+      console.log('step 1. user from context:', user);
+      const email = user.email;
       if (!email) {
-        console.error("email is required");
+        console.error('email is required');
         return null;
       }
 
-      // 2. see if user is assosiated with a participant
+      // 2. try to find participant by email
       try {
-        const response = await axios.get<{ status: boolean; data: ParticipantType }>(
-          `${url}/api/participant/by-email?email=${email}`,
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-          }
-        );
+        const token = await getToken();
+        const response = await axios.get<{
+          status: boolean;
+          data: ParticipantType;
+        }>(`${url}/api/participant/by-email`, {
+          params: { email },
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+
         const found = response.data.data;
         setGlobalParticipant(found);
-        return found._id  ?? null;
+        return found._id ?? null;
       } catch (err: unknown) {
-        if (axios.isAxiosError(err) && err.response?.status === 404) {
-          console.log("No participant found, will create a new one...");
+        if (isAxiosError(err) && err.response?.status === 404) {
+          console.log('No participant found, will create a new one...');
         } else {
-          throw err;
+          console.error('Error fetching participant by email', err);
+          return null;
         }
       }
 
-      // 3. if user without participant, create participant and add it to user
-      console.log("step 3. User has not participant association");
+      // 3. user exists but has no participant: create
+      console.log('step 3. creating participant for existing user');
 
       const newParticipantData = {
-        name: user?.name,
-        surname: user?.surname,
-        email: user?.email,
-        user: user?._id,
+        name: user.name,
+        surname: user.surname,
+        email: user.email,
+        user: user._id,
         transactions: [],
       };
 
-      const response = await axios.post<{ status: boolean; data: ParticipantType }>(
-        `${url}/api/participant/`,
-        newParticipantData
-      );
-      if (!response) {
-        console.error("error creating participant");
-        return null;
-      }
+      const response = await axios.post<{
+        status: boolean;
+        data: ParticipantType;
+      }>(`${url}/api/participant/`, newParticipantData);
 
       const newParticipant = response.data.data;
       setGlobalParticipant(newParticipant);
 
       console.log(
-        `step 3. User is associeted with a new participant. id: ${newParticipant._id}`
+        `User associated with new participant. id: ${newParticipant._id}`
       );
-      return newParticipant._id  ?? null;
-    } else {
-      // 4. if no user create a participant
-      console.log("step 4. no existing user. we will create a participant not associated with a user");
+      return newParticipant._id ?? null;
+    }
 
-      // 4a. check if guest has lockalstorage
-      const storedParticipantId = localStorage.getItem("guestParticipantId");
-      if (storedParticipantId) {
-        // 4b. if yes refetch his cart
-        try {
-          const response = await axios.get<{ status: boolean; data: ParticipantType }>(
-            `${url}/api/participant/${storedParticipantId}`
-          );
-          const newParticipant = response.data.data;
-          setGlobalParticipant(newParticipant);
-          console.log("Guest restored from localStorage:", response.data.data);
-          return newParticipant._id  ?? null;
-        } catch (err: unknown) {
-          console.warn("Stored guest not found in DB, creating a new one...", err);
-          localStorage.removeItem("guestParticipantId");
-        }
-      } else {
-        // 4c. if no create a guest participant to lockal storage.
-        const uuidGuest = uuidv4();
-        const guestEmail = `guest-${uuidGuest}@eshop.local`;
+    // ✅ Guest user
+    console.log(
+      'step 4. no existing user → create or reuse guest participant'
+    );
 
-        const newParticipantData = {
-          name: "",
-          surname: "",
-          email: guestEmail,
-          transactions: [],
-        };
+    // 4a. Try restore guest
+    const storedParticipantId = await getGuestParticipantId();
+    if (storedParticipantId) {
+      try {
+        const response = await axios.get<{
+          status: boolean;
+          data: ParticipantType;
+        }>(`${url}/api/participant/${storedParticipantId}`);
 
-        const response = await axios.post<{ status: boolean; data: ParticipantType }>(
-          `${url}/api/participant/`,
-          newParticipantData
+        const guest = response.data.data;
+        setGlobalParticipant(guest);
+        console.log('Guest restored from storage:', guest);
+        return guest._id ?? null;
+      } catch (err: unknown) {
+        console.warn(
+          'Stored guest not found in DB, creating a new one...',
+          err
         );
-
-        const newParticipant = response.data.data;
-        setGlobalParticipant(newParticipant);
-
-        // 🔑 Store the participant id for later refresh
-        // added "trust me" at _id with '!'
-        localStorage.setItem("guestParticipantId", newParticipant._id!.toString());
-
-        console.log(
-          `step 4. Guest is associeted with a new participant. id: ${newParticipant._id} and email: ${newParticipant.email}`
-        );
-        return newParticipant._id ?? null;
+        await removeGuestParticipantId();
       }
     }
-    return null;
+
+    // 4c. Create new guest participant
+    const uuidGuest = uuidv4();
+    const guestEmail = `guest-${uuidGuest}@eshop.local`;
+
+    const newParticipantData = {
+      name: '',
+      surname: '',
+      email: guestEmail,
+      transactions: [],
+    };
+
+    const response = await axios.post<{
+      status: boolean;
+      data: ParticipantType;
+    }>(`${url}/api/participant/`, newParticipantData);
+
+    const newParticipant = response.data.data;
+    setGlobalParticipant(newParticipant);
+    await setGuestParticipantId(newParticipant._id!.toString());
+
+    console.log(
+      `Guest associated with new participant. id: ${newParticipant._id}, email: ${newParticipant.email}`
+    );
+    return newParticipant._id ?? null;
   };
 
-  // part 2/2
+  // ---------- 2/2: ensure cart + change quantity ----------
   const addQuantityCommodityToCart = async (
     participantId: string,
     commodityId: string,
     quantity: number
   ): Promise<void> => {
-    console.log("Creating cart for participantId:", participantId);
+    console.log('Creating cart for participantId:', participantId);
     try {
-      // 5. check if participant has a cart if no create one
-      // creation is automated if not existing by cart dao
+      // ensure cart exists (cart DAO auto-creates if missing)
       const cartRes = await axios.get<{ status: boolean; data: CartType }>(
         `${url}/api/cart/${participantId}`
       );
       const ensuredCart = cartRes.data.data;
-      console.log("ensured cart: ", ensuredCart);
+      console.log('ensured cart:', ensuredCart);
 
-      // 6. add commodity to cart
-      const data = {
-        commodityId,
-        quantity,
-      };
+      const data = { commodityId, quantity };
 
-      // note: ?participantId=${participantId}
       await axios.patch<{ status: boolean; data: CartType }>(
         `${url}/api/cart/${participantId}/items`,
         data
       );
       console.log(`item id:${commodityId}, quantity: ${quantity} reached cart`);
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        console.error("Error adding commodity to cart:", err.response?.data || err.message);
+      if (isAxiosError(err)) {
+        console.error(
+          'Error adding commodity to cart:',
+          err.response?.data || err.message
+        );
       } else {
-        console.error("Unexpected error:", err);
+        console.error('Unexpected error:', err);
       }
     }
   };
 
   const addOneToCart = async (commodityId: string): Promise<void> => {
+    setLoadingItemId(commodityId);
     try {
       const participantId = await fetchParticipantId();
       if (!participantId) {
-        console.error("No participantId available, cannot add to cart");
+        console.error('No participantId available, cannot add to cart');
         return;
       }
 
       await addQuantityCommodityToCart(participantId, commodityId, 1);
-      setHasCart(true); // optimistic update
-      setLoadingItemId(commodityId); //axios spamming controll
+      setHasCart(true); // optimistic
 
-      // GA google analytics
-      if (tracker?.trackEvent) {
-        const commodityResponce = await axios.get<{ status: boolean, data: CommodityType }>(
-          `${url}/api/commodities/${commodityId}`
-        )
-        const commodity = commodityResponce.data.data;
-
-        tracker?.trackEvent("add_to_cart", {
-          currency: commodity.currency,
-          value: commodity.price,
-          items: [
-            {
-              item_id: commodity._id,
-              item_name: commodity.name,
-              price: commodity.price,
-              quantity: 1,
-            },
-          ],
-        }); 
-
-      }
-
-
-      // this part is just for logging the cart maybe later remove
+      // ---- refresh cart from backend for accurate badge ----
       const cartRes = await axios.get<{ status: boolean; data: CartType }>(
         `${url}/api/cart/${participantId}`
       );
-
       const cart = cartRes.data.data;
-      setHasCart(cart.items.length > 0); // actual backend truth update
-      setCartCount(cart.items.reduce((sum, item) => sum + item.quantity, 0)); // 🆕 total quantity
-      console.log(`cart items:`, cart.items);
+      setHasCart(cart.items.length > 0);
+      setCartCount(
+        cart.items.reduce((sum, item) => sum + item.quantity, 0)
+      );
+
+      console.log('cart items:', cart.items);
+
+      // (Optional) here you could also fire analytics if you want
+      // using a GA library supported in native.
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        console.error("Error adding commodity to cart:", err.response?.data || err.message);
+      if (isAxiosError(err)) {
+        console.error(
+          'Error adding commodity to cart:',
+          err.response?.data || err.message
+        );
       } else {
-        console.error("Unexpected error:", err);
+        console.error('Unexpected error:', err);
       }
     } finally {
       setLoadingItemId(null);
@@ -254,25 +275,29 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
     commodityId: string
   ): Promise<void> => {
     try {
-      const updated = await axios.patch<{ status: boolean; data: CartType }>(
+      await axios.patch<{ status: boolean; data: CartType }>(
         `${url}/api/cart/${participantId}/items`,
-        {
-          commodityId,
-          quantity: -99999, // TODO ugly
-        }
+        { commodityId, quantity: -99999 }
       );
-      setCartCount(updated.data.data.items.reduce((sum, item) => sum + item.quantity, 0));
-      console.log(`Removed commodity ${commodityId} completely from cart`);
+
+      // 🧠 Re-fetch latest cart for accurate badge + hasCart
+      const res = await axios.get<{ status: boolean; data: CartType }>(
+        `${url}/api/cart/${participantId}`
+      );
+      const cart = res.data.data;
+
+      setCartCount(cart.items.reduce((sum, item) => sum + item.quantity, 0));
+      setHasCart(cart.items.length > 0);
+
+      console.log(`✅ Removed commodity ${commodityId}. Cart now has ${cart.items.length} items`);
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        console.error("Error removing commodity:", err.response?.data || err.message);
+      if (isAxiosError(err)) {
+        console.error('Error removing commodity:', err.response?.data || err.message);
       } else {
-        console.error("Unexpected error:", err);
+        console.error('Unexpected error:', err);
       }
     }
   };
-
-  const [cartCount, setCartCount] = useState<number>(0);
 
   return (
     <CartActionsContext.Provider
@@ -284,7 +309,7 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
         loadingItemId,
         hasCart,
         cartCount,
-        setCartCount
+        setCartCount,
       }}
     >
       {children}

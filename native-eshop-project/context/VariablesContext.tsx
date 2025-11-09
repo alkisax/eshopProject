@@ -41,7 +41,7 @@ export const VariablesProvider = ({ children }: VariablesProviderProps) => {
   const [hasCart, setHasCart] = useState<boolean>(false);
   const [hasFavorites, setHasFavorites] = useState<boolean>(false);
   const [categories, setCategories] = useState<CategoryType[]>([]);
-
+  
   const refreshCategories = useCallback(async () => {
     try {
       // Prefer your dedicated Category API

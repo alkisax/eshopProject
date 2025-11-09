@@ -15,11 +15,13 @@ import { VariablesContext } from '@/context/VariablesContext';
 import type { CommodityType, CategoryType } from '@/types/commerce.types';
 import { useRouter } from 'expo-router';
 import StoreSidebarNative from '@/components/StoreSidebarNative';
+import { CartActionsContext } from '@/context/CartActionsContext';
 
 const ITEMS_PER_PAGE = 10;
 
 const StoreScreen = () => {
   const { url } = useContext(VariablesContext);
+  const { addOneToCart } = useContext(CartActionsContext);
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -152,6 +154,15 @@ const StoreScreen = () => {
     setFiltersVisible(false);
   };
 
+  const handleAddToCart = async (commodityId: string) => {
+    if (!commodityId) return;
+    try {
+      await addOneToCart(commodityId);
+    } catch (err) {
+      console.error('Error adding to cart:', err);
+    }
+  };
+
   // Pagination
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -214,24 +225,34 @@ const StoreScreen = () => {
         <FlatList
           data={paginated}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.card}
-              onPress={() => router.push(`/commodity/${item._id}`)}
-              activeOpacity={0.8}
-            >
-              <Image
-                source={{
-                  uri:
-                    item.images?.[0] ||
-                    'https://via.placeholder.com/200x200?text=No+Image',
-                }}
-                style={styles.image}
-              />
-              <Text style={styles.title}>{item.name}</Text>
-              <Text style={styles.price}>
-                {item.price} {item.currency}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.card}>
+              <TouchableOpacity
+                onPress={() => router.push(`/commodity/${item._id}`)}
+                activeOpacity={0.8}
+                style={{ width: '100%' }}
+              >
+                <Image
+                  source={{
+                    uri:
+                      item.images?.[0] ||
+                      'https://via.placeholder.com/200x200?text=No+Image',
+                  }}
+                  style={styles.image}
+                />
+                <Text style={styles.title}>{item.name}</Text>
+                <Text style={styles.price}>
+                  {item.price} {item.currency}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Add to cart button */}
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => handleAddToCart(item._id!)}
+              >
+                <Text style={styles.addButtonText}>+ Προσθήκη στο καλάθι</Text>
+              </TouchableOpacity>
+            </View>
           )}
           keyExtractor={(item, index) => item._id ?? String(index)}
           numColumns={2}
@@ -397,6 +418,21 @@ const styles = StyleSheet.create({
   skeletonBox: {
     backgroundColor: '#e0e0e0',
     borderRadius: 8,
+  },
+  addButton: {
+    marginTop: 8,
+    backgroundColor: '#48C4CF',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });
 
