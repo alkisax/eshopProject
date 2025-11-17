@@ -43,7 +43,7 @@ import CookiePolicy from "./pages/minorPages/CookiePolicy";
 import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
 import LayoutWithNavbarAndFooter from "./Layouts/LayoutWithNavbarAndFooter";
 import { CartActionsContext } from "./context/CartActionsContext";
-import SectionWithTitleAndContent from "./Layouts/deisgnComponents/SimpleCrossLayout";
+import CrossGridLayout from "./Layouts/deisgnComponents/CrossGridLayout";
 
 function App() {
   const { user } = useContext(UserAuthContext);
@@ -115,9 +115,9 @@ function App() {
           <Route
             path="/terms"
             element={
-              <SectionWithTitleAndContent>
+              <CrossGridLayout title="Όροι Χρήσης">
                 <Terms />
-              </SectionWithTitleAndContent>
+              </CrossGridLayout>
             }
           />
         </Route>
