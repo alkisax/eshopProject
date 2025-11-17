@@ -28,3 +28,5 @@ eas init
 # αφού βάλω env
 eas build --platform android --profile production
 ```
+
+https://expo.dev/artifacts/eas/qvJUegkzD69eXkBVMkKEF.apk
