@@ -2,6 +2,7 @@
 import { Box, Typography } from "@mui/material";
 import { useRef, useLayoutEffect, useState } from "react";
 import type { ReactNode } from "react";
+import TopCategoryGridHeader from "./TopCategoryGridHeader";
 
 interface Props {
   children: ReactNode;
@@ -60,121 +61,123 @@ const CrossGridLayout = ({ children, title }: Props) => {
   const bottomLineTop = leftColumnHeight - 4;
 
   return (
-    /**
-     * === ΕΞΩΤΕΡΙΚΟ WRAPPER ===
-     * px: οριζόντιο padding
-     * mx: εξωτερικό margin ώστε οι γραμμές να μην ακουμπάνε τα άκρα του viewport
-     * position:relative ώστε όλα τα absolute στοιχεία (γραμμές) να τοποθετούνται μέσα σε αυτό.
-     */
-    <Box sx={{ px: "40px", py: "0px", mx: "40px", position: "relative" }}>
-      {/*
+    <>
+      <TopCategoryGridHeader />
+
+      {/* === ΕΞΩΤΕΡΙΚΟ WRAPPER ===  px: οριζόντιο padding * mx: εξωτερικό
+      margin ώστε οι γραμμές να μην ακουμπάνε τα άκρα του viewport *
+      position:relative ώστε όλα τα absolute στοιχεία (γραμμές) να τοποθετούνται μέσα σε αυτό. */}
+      <Box sx={{ px: "40px", py: "0px", mx: "40px", position: "relative" }}>
+        {/*
       === ΕΠΑΝΩ ΟΡΙΖΟΝΤΙΑ ΓΡΑΜΜΗ === 
       Τοποθέτηση ~134px κάτω από το navbar ώστε να ευθυγραμμίζεται με το template
       */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: "134px",
-          left: 0,
-          right: 0,
-          height: "3px",
-          backgroundColor: lineColor,
-          zIndex: 10, // ώστε να μην περνάει κάτω από το περιεχόμενο
-        }}
-      />
+        <Box
+          sx={{
+            position: "absolute",
+            top: "134px",
+            left: 0,
+            right: 0,
+            height: "3px",
+            backgroundColor: lineColor,
+            zIndex: 10, // ώστε να μην περνάει κάτω από το περιεχόμενο
+          }}
+        />
 
-      {/*
+        {/*
       === ΜΕΣΑΙΑ ΓΡΑΜΜΗ ===
       Τοποθετείται στο childHeight + 120px ώστε να πέφτει ακριβώς κάτω από το περιεχόμενο
       */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: `${childHeight + 120}px`,
-          left: 0,
-          right: 0,
-          height: "3px",
-          backgroundColor: lineColor,
-          zIndex: 10,
-        }}
-      />
+        <Box
+          sx={{
+            position: "absolute",
+            top: `${childHeight + 120}px`,
+            left: 0,
+            right: 0,
+            height: "3px",
+            backgroundColor: lineColor,
+            zIndex: 10,
+          }}
+        />
 
-      {/*
+        {/*
       === ΚΑΤΩ ΓΡΑΜΜΗ ===
       Τοποθετείται λίγο πριν τελειώσει η αριστερή στήλη
       */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: `${bottomLineTop}px`,
-          left: 0,
-          right: 0,
-          height: "3px",
-          backgroundColor: lineColor,
-          zIndex: 10,
-        }}
-      />
+        <Box
+          sx={{
+            position: "absolute",
+            top: `${bottomLineTop}px`,
+            left: 0,
+            right: 0,
+            height: "3px",
+            backgroundColor: lineColor,
+            zIndex: 10,
+          }}
+        />
 
-      {/*
+        {/*
       ======================================================
         == ΚΥΡΙΩΣ ΠΕΡΙΟΧΗ — GRID ROW ΜΕ ΚΑΘΕΤΕΣ ΓΡΑΜΜΕΣ ==
       ======================================================
          */}
-      <Box sx={{ display: "flex", width: "100%" }}>
-        {/* 1η ΚΑΘΕΤΗ ΓΡΑΜΜΗ (ΑΡΙΣΤΕΡΗ) */}
-        <Box sx={verticalLine} />
+        <Box sx={{ display: "flex", width: "100%" }}>
+          {/* 1η ΚΑΘΕΤΗ ΓΡΑΜΜΗ (ΑΡΙΣΤΕΡΗ) */}
+          <Box sx={verticalLine} />
 
-        {/* 
+          {/* 
         === ΑΡΙΣΤΕΡΗ ΚΟΛΟΝΑ ΠΕΡΙΕΧΟΜΕΝΟΥ ===
         width: 50vw → η αριστερή περιοχή πιάνει το 50% του viewport width
         height: δυναμικό ύψος βάσει περιεχομένου
         */}
-        <Box
-          sx={{
-            width: "50vw",
-            minWidth: "200px",
-            px: 3,
-            pt: "60px",
-            height: `${leftColumnHeight}px`,
-            boxSizing: "content-box",
-          }}
-        >
-          {/*
+          <Box
+            sx={{
+              width: "50vw",
+              minWidth: "200px",
+              px: 3,
+              pt: "60px",
+              height: `${leftColumnHeight}px`,
+              boxSizing: "content-box",
+            }}
+          >
+            {/*
           === ΤΙΤΛΟΣ ΣΕΛΙΔΑΣ ===
           Εμφανίζεται μόνο αν υπάρχει title prop
           */}
-          {title && (
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: "bold",
-                textAlign: "center",
-                mb: 4,
-                mt: 2,
-              }}
-            >
-              {title}
-            </Typography>
-          )}
+            {title && (
+              <Typography
+                variant="h5"
+                sx={{
+                  // justifyContent: "left",
+                  fontWeight: "bold",
+                  textAlign: "left",
+                  mb: 4,
+                  mt: 2,
+                }}
+              >
+                {title}
+              </Typography>
+            )}
 
-          {/* === ΠΡΑΓΜΑΤΙΚΟ ΠΕΡΙΕΧΟΜΕΝΟ ===
+            {/* === ΠΡΑΓΜΑΤΙΚΟ ΠΕΡΙΕΧΟΜΕΝΟ ===
           Το contentRef μας επιτρέπει να μετράμε το ύψος του */}
-          <Box ref={contentRef}>{children}</Box>
+            <Box ref={contentRef}>{children}</Box>
+          </Box>
+
+          {/* 2η ΚΑΘΕΤΗ ΓΡΑΜΜΗ (ΚΕΝΤΡΟ) */}
+          <Box sx={verticalLine} />
+
+          {/* ΚΕΝΗ ΜΕΣΑΙΑ ΠΕΡΙΟΧΗ ΤΟΥ GRID */}
+          <Box sx={{ width: "30vw", pt: "60px" }} />
+
+          {/* 3η ΚΑΘΕΤΗ ΓΡΑΜΜΗ (ΔΕΞΙΑ) */}
+          <Box sx={verticalLine} />
+
+          {/* ΔΕΞΙΑ ΠΕΡΙΟΧΗ (απλά για να γεμίζει το flex) */}
+          <Box sx={{ flexGrow: 1, pt: "60px" }} />
         </Box>
-
-        {/* 2η ΚΑΘΕΤΗ ΓΡΑΜΜΗ (ΚΕΝΤΡΟ) */}
-        <Box sx={verticalLine} />
-
-        {/* ΚΕΝΗ ΜΕΣΑΙΑ ΠΕΡΙΟΧΗ ΤΟΥ GRID */}
-        <Box sx={{ width: "30vw", pt: "60px" }} />
-
-        {/* 3η ΚΑΘΕΤΗ ΓΡΑΜΜΗ (ΔΕΞΙΑ) */}
-        <Box sx={verticalLine} />
-
-        {/* ΔΕΞΙΑ ΠΕΡΙΟΧΗ (απλά για να γεμίζει το flex) */}
-        <Box sx={{ flexGrow: 1, pt: "60px" }} />
       </Box>
-    </Box>
+    </>
   );
 };
 
