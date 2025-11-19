@@ -153,6 +153,7 @@ const CrossGridLayout = ({ children, title }: Props) => {
                   textAlign: "left",
                   mb: 4,
                   mt: 2,
+                  color: lineColor
                 }}
               >
                 {title}

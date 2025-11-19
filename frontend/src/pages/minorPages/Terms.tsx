@@ -14,7 +14,7 @@ const Terms = () => {
       </Helmet>
 
       <Container maxWidth="md" sx={{ py: 6 }}>
-        <Typography
+        {/* <Typography
           variant="h4"
           component="h1"
           gutterBottom
@@ -22,7 +22,7 @@ const Terms = () => {
           textAlign="center"
         >
           Όροι Χρήσης
-        </Typography>
+        </Typography> */}
 
         <Typography variant="subtitle1" gutterBottom>
           Ημερομηνία Εφαρμογής: Ισχύουν από 01/11/2023

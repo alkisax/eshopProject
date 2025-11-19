@@ -44,6 +44,7 @@ import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
 import LayoutWithNavbarAndFooter from "./Layouts/LayoutWithNavbarAndFooter";
 import { CartActionsContext } from "./context/CartActionsContext";
 import CrossGridLayout from "./Layouts/deisgnComponents/CrossGridLayout";
+import AboutPage from "./pages/minorPages/AboutPage";
 
 function App() {
   const { user } = useContext(UserAuthContext);
@@ -104,13 +105,69 @@ function App() {
             <Route path="/profile" element={<ProfileUser />} />
           </Route>
 
-          <Route path="/contact" element={<Contact />} />
-          {/* <Route path="/terms" element={<Terms />} /> */}
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/payment-methods" element={<PaymentMethods />} />
-          <Route path="/shipping-methods" element={<ShippingMethods />} />
-          <Route path="/return-policy" element={<ReturnPolicy />} />
-          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          {/* Static / Minor Pages — all wrapped in CrossGridLayout */}
+          <Route
+            path="/contact"
+            element={
+              <CrossGridLayout title="Επικοινωνία">
+                <Contact />
+              </CrossGridLayout>
+            }
+          />
+
+          <Route
+            path="/privacy-policy"
+            element={
+              <CrossGridLayout title="Πολιτική Απορρήτου">
+                <PrivacyPolicy />
+              </CrossGridLayout>
+            }
+          />
+
+          <Route
+            path="/payment-methods"
+            element={
+              <CrossGridLayout title="Τρόποι Πληρωμής">
+                <PaymentMethods />
+              </CrossGridLayout>
+            }
+          />
+
+          <Route
+            path="/shipping-methods"
+            element={
+              <CrossGridLayout title="Τρόποι Αποστολής">
+                <ShippingMethods />
+              </CrossGridLayout>
+            }
+          />
+
+          <Route
+            path="/return-policy"
+            element={
+              <CrossGridLayout title="Πολιτική Επιστροφών">
+                <ReturnPolicy />
+              </CrossGridLayout>
+            }
+          />
+
+          <Route
+            path="/cookie-policy"
+            element={
+              <CrossGridLayout title="Πολιτική Cookies">
+                <CookiePolicy />
+              </CrossGridLayout>
+            }
+          />
+
+          <Route
+            path="/about"
+            element={
+              <CrossGridLayout title="Σχετικά με Εμάς">
+                <AboutPage />
+              </CrossGridLayout>
+            }
+          />
 
           <Route
             path="/terms"
