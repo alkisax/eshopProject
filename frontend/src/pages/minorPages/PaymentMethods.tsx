@@ -14,7 +14,7 @@ const PaymentMethods = () => {
       </Helmet>
 
       <Container maxWidth="md" sx={{ py: 6 }}>
-        <Typography
+        {/* <Typography
           variant="h4"
           component="h1"
           gutterBottom
@@ -22,7 +22,7 @@ const PaymentMethods = () => {
           textAlign="center"
         >
           Μέθοδοι Πληρωμής
-        </Typography>
+        </Typography> */}
 
         <Typography variant="body1" gutterBottom>
           Στο ηλεκτρονικό μας κατάστημα μπορείτε να επιλέξετε τον τρόπο πληρωμής που

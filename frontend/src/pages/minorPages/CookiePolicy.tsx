@@ -14,7 +14,7 @@ const CookiesPolicy = () => {
       </Helmet>
 
       <Container maxWidth="md" sx={{ py: 6 }}>
-        <Typography
+        {/* <Typography
           variant="h4"
           component="h1"
           gutterBottom
@@ -22,7 +22,7 @@ const CookiesPolicy = () => {
           textAlign="center"
         >
           Πολιτική Cookies
-        </Typography>
+        </Typography> */}
 
         <Typography variant="body1" gutterBottom>
           Όπως τα περισσότερα sites, έτσι κι εμείς χρησιμοποιούμε cookies ώστε να

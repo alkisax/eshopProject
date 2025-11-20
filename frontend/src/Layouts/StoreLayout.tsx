@@ -4,8 +4,13 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { VariablesContext } from "../context/VariablesContext";
 import { UserAuthContext } from "../context/UserAuthContext";
-import type { CartType, CategoryType, CommodityType } from "../types/commerce.types";
+import type {
+  CartType,
+  CategoryType,
+  CommodityType,
+} from "../types/commerce.types";
 import CartPreviewFooter from "../components/store_components/CartPreviewFooter";
+import { useLocation } from "react-router-dom";
 
 const StoreLayout = () => {
   const { url } = useContext(VariablesContext);
@@ -17,9 +22,27 @@ const StoreLayout = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   const [semanticResults, setSemanticResults] = useState<CommodityType[]>([]);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10; // try smaller to test pagination
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const preselectedCategory = params.get("cat");
+
+  // Αν υπάρχει cat=, επιλέγουμε την κατηγορία ΜΟΝΟ στο αρχικό mount
+  useEffect(() => {
+    if (preselectedCategory && allCategories.length > 0) {
+      // βρες την category με αυτό το name
+      const cat = allCategories.find((c) => c.name === preselectedCategory);
+
+      if (cat) {
+        setSelectedCategories([cat.name]); // βάση του name, όχι του id
+        setCurrentPage(1);
+        setFiltersApplied((prev) => !prev); // trigger filtering
+      }
+    }
+  }, [preselectedCategory, allCategories]);
 
   // φερνει τα commodities απο το backend
   // TODO  ⚠️⚠️⚠️ this fetches all commodities
@@ -51,20 +74,24 @@ const StoreLayout = () => {
       const res = await axios.get(`${url}/api/category`);
       if (res.data.status) {
         // only top-level categories
-        const parentCats = (res.data.data as CategoryType[]).filter(c => !c.parent && !c.isTag);  // exclude tagged categories
+        const parentCats = (res.data.data as CategoryType[]).filter(
+          (c) => !c.parent && !c.isTag
+        ); // exclude tagged categories
         setAllCategories(parentCats);
       }
     };
     fetchCategories();
   }, [url]);
-  const parentCategories = allCategories.filter(cat => !cat.parent);
- 
+  const parentCategories = allCategories.filter((cat) => !cat.parent);
+
   // 1/3
   const filterBySearch = (items: CommodityType[], searchText: string) => {
     if (!searchText) return items; // no filter if search is empty
 
     const lowerSearch = searchText.toLowerCase();
-    return items.filter(commodity => commodity.name.toLowerCase().includes(lowerSearch));
+    return items.filter((commodity) =>
+      commodity.name.toLowerCase().includes(lowerSearch)
+    );
   };
 
   // 2/3
@@ -99,7 +126,7 @@ const StoreLayout = () => {
   const filtered = filterBySearch(filterByCategory(commodities), search);
 
   // pagination
-  const pageCount = (Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const pageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginated = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -137,7 +164,7 @@ const StoreLayout = () => {
   };
 
   // απλό toggle που μπορεί να χρησιμοποιηθεί για re-render ή future side effects
-  console.log('filters applied', filtersApplied)
+  console.log("filters applied", filtersApplied);
 
   const handleSemanticSearch = async (query: string) => {
     if (!query.trim()) {
@@ -147,15 +174,15 @@ const StoreLayout = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get<{ status: boolean; data: { commodity: CommodityType; score: number }[] }>(
-        `${url}/api/ai-embeddings/search`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { query },
-        }
-      );
+      const res = await axios.get<{
+        status: boolean;
+        data: { commodity: CommodityType; score: number }[];
+      }>(`${url}/api/ai-embeddings/search`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { query },
+      });
 
-      setSemanticResults(res.data.data.map(r => r.commodity).slice(0, 5));
+      setSemanticResults(res.data.data.map((r) => r.commodity).slice(0, 5));
     } catch (err) {
       console.error("Semantic search failed", err);
     }
@@ -163,7 +190,7 @@ const StoreLayout = () => {
 
   // FOOTER LOGIC
   const { hasCart, globalParticipant } = useContext(VariablesContext);
-  const [cart, setCart] = useState<CartType | null>(null)
+  const [cart, setCart] = useState<CartType | null>(null);
 
   // copy/paste απο cartItemList
   // 📝 Χρησιμοποιούμε useCallback για να "κλειδώσουμε" τη συνάρτηση fetchCart,// ώστε να μη δημιουργείται καινούρια σε κάθε render. Έτσι δεν τρελαίνεται το useEffect και αποφεύγουμε το άπειρο loop / warning για dependencies στο [] του useeffect.
@@ -189,7 +216,9 @@ const StoreLayout = () => {
   // κανουμε render τρια πράγματα StoreSidebar το footer και Outlet (το Outlet ειναι placeholder του layout που θα καλυφθεί απο το StoreItemList μεσω του Store )
   return (
     <>
-      <div style={{ display: "flex",flexDirection: "column", minHeight: "100vh" }}>
+      <div
+        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
         <div style={{ display: "flex", flexGrow: 1 }}>
           <StoreSidebar
             search={search}
@@ -201,8 +230,15 @@ const StoreLayout = () => {
             onClearFilters={handleClearFilters}
             onSemanticSearch={handleSemanticSearch}
           />
-          <main style={{ display: "flex", flexDirection: "column", flexGrow: 1, padding: "16px" }}>
-              {/*
+          <main
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flexGrow: 1,
+              padding: "16px",
+            }}
+          >
+            {/*
               - Props = δίνουμε τιμές/handlers κατευθείαν σε child component: <Child count={count} />
               - Outlet context = δεν μπορούμε να περάσουμε props γιατί το child το δημιουργεί το router. Οπότε δίνουμε context στο <Outlet> και το child τα παίρνει με useOutletContext().
               */}
@@ -212,7 +248,8 @@ const StoreLayout = () => {
               {/* <Outlet context={{ commodities: paginated, pageCount, currentPage, fetchCart,setCurrentPage }} />  */}
               <Outlet
                 context={{
-                  commodities: semanticResults.length > 0 ? semanticResults : paginated, // semantic overrides normal list // already sliced
+                  commodities:
+                    semanticResults.length > 0 ? semanticResults : paginated, // semantic overrides normal list // already sliced
                   pageCount,
                   currentPage,
                   fetchCart,
@@ -221,16 +258,14 @@ const StoreLayout = () => {
                 }}
               />
             </div>
-            <CartPreviewFooter 
+            <CartPreviewFooter
               hasCart={hasCart}
               cart={cart}
               fetchCart={fetchCart}
             />
           </main>
-      
         </div>
       </div>
- 
     </>
   );
 };

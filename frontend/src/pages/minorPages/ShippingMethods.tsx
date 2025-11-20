@@ -14,7 +14,7 @@ const ShippingMethods = () => {
       </Helmet>
 
       <Container maxWidth="md" sx={{ py: 6 }}>
-        <Typography
+        {/* <Typography
           variant="h4"
           component="h1"
           gutterBottom
@@ -22,7 +22,7 @@ const ShippingMethods = () => {
           textAlign="center"
         >
           Μέθοδοι Αποστολής
-        </Typography>
+        </Typography> */}
 
         <Typography variant="body1" gutterBottom>
           Αποστολές εντός & εκτός Αττικής.

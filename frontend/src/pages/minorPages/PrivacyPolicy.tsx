@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
       </Helmet>
 
       <Container maxWidth="md" sx={{ py: 6 }}>
-        <Typography
+        {/* <Typography
           variant="h4"
           component="h1"
           gutterBottom
@@ -22,7 +22,7 @@ const PrivacyPolicy = () => {
           textAlign="center"
         >
           Πολιτική Απορρήτου
-        </Typography>
+        </Typography> */}
 
         <Typography variant="body1" gutterBottom>
           Στο ***** (https://*****/), αναγνωρίζουμε τη σημασία της προστασίας των

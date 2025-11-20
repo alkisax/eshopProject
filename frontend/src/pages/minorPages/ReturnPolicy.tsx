@@ -14,7 +14,7 @@ const ReturnPolicy = () => {
       </Helmet>
 
       <Container maxWidth="md" sx={{ py: 6 }}>
-        <Typography
+        {/* <Typography
           variant="h4"
           component="h1"
           gutterBottom
@@ -22,7 +22,7 @@ const ReturnPolicy = () => {
           textAlign="center"
         >
           Πολιτική Επιστροφών
-        </Typography>
+        </Typography> */}
 
         <Typography variant="body1" gutterBottom>
           Έχετε το δικαίωμα να επιστρέψετε προϊόντα εντός{" "}
