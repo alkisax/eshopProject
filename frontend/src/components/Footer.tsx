@@ -1,3 +1,4 @@
+// frontend\src\components\Footer.tsx
 import { Box, Container, IconButton, Link as MuiLink, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { Facebook, Instagram, Email, Phone } from "@mui/icons-material";

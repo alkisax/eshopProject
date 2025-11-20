@@ -1,6 +1,5 @@
 import { Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-// import logoIdea from "../../assets/banner-idea.png";
 import banner2 from "../../assets/banner2.jpg";
 
 const lineColor = "#008482";
@@ -13,7 +12,7 @@ const TopCategoryGridHeader = () => {
         pt: "40px",
         pb: 0,
         mx: "40px",
-        position: "relative", // <-- Οι absolute lines anchored εδώ
+        position: "relative",
       }}
     >
       {/* =============================
@@ -25,22 +24,24 @@ const TopCategoryGridHeader = () => {
         sx={{
           position: "absolute",
           top: 0,
-          bottom: "-60px", // πόσο να κατέβει για να ακουμπήσει CrossGrid
-          left: "40px", // μέσα στο padding container!
+          bottom: "-60px",
+          left: "40px",
           width: "3px",
           backgroundColor: lineColor,
+          display: { xs: "none", sm: "block" },
         }}
       />
 
-      {/* Middle vertical */}
+      {/* Middle vertical — HIDE ON MOBILE */}
       <Box
         sx={{
           position: "absolute",
           top: 0,
           bottom: "-60px",
-          left: "195px", // σταθερή θέση όπως στο template
+          left: "195px",
           width: "3px",
           backgroundColor: lineColor,
+          display: { xs: "none", sm: "block" },
         }}
       />
 
@@ -53,6 +54,7 @@ const TopCategoryGridHeader = () => {
           left: "360px",
           width: "3px",
           backgroundColor: lineColor,
+          display: { xs: "none", sm: "block" },
         }}
       />
 
@@ -65,6 +67,7 @@ const TopCategoryGridHeader = () => {
           width: "440px",
           height: "3px",
           backgroundColor: lineColor,
+          display: { xs: "none", sm: "block" },
         }}
       />
 
@@ -77,6 +80,7 @@ const TopCategoryGridHeader = () => {
           width: "440px",
           height: "3px",
           backgroundColor: lineColor,
+          display: { xs: "none", sm: "block" },
         }}
       />
 
@@ -89,6 +93,7 @@ const TopCategoryGridHeader = () => {
           width: "440px",
           height: "3px",
           backgroundColor: lineColor,
+          display: { xs: "none", sm: "block" },
         }}
       />
 
@@ -101,117 +106,140 @@ const TopCategoryGridHeader = () => {
           width: "440px",
           height: "3px",
           backgroundColor: lineColor,
+          display: { xs: "none", sm: "block" },
         }}
       />
 
+      {/* =============================
+          CATEGORY + LOGO ROW
+      ============================== */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          width: "100%",
+          alignItems: { xs: "center", sm: "flex-start" },
+          textAlign: { xs: "center", sm: "left" },
+        }}
+      >
+        {/* LOGO on mobile (goes on top) */}
+        <Box
+          sx={{
+            display: { xs: "block", sm: "none" },
+            mb: 3,
+          }}
+        >
+          <Box
+            component="img"
+            src={banner2}
+            alt="Have an Idea logo"
+            sx={{
+              height: "200px",
+              objectFit: "contain",
+              mx: "auto",
+            }}
+          />
+        </Box>
 
-{/* =============================
-    CATEGORY + LOGO ROW
-============================== */}
-<Box
-  sx={{
-    display: "flex",
-    width: "100%",
-    alignItems: "flex-start",
-  }}
->
-  {/* Left area with categories */}
-  <Box sx={{ pl: 3, pr: 3 }}>
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        rowGap: 2,
-        columnGap: 6,
-        minWidth: "260px",
-      }}
-    >
-      {/* row 1 */}
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Link to="/store?cat=Κολιέ" style={{ textDecoration: "none" }}>
-          <Typography
-            fontWeight="bold"
-            textAlign="center"
-            sx={{ color: lineColor }}
+        {/* Left area with categories */}
+        <Box sx={{ pl: 3, pr: 3 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              rowGap: 2,
+              columnGap: 6,
+              minWidth: "260px",
+            }}
           >
-            ΚΟΛΙΕ
-          </Typography>
-        </Link>
-      </Box>
+            {/* row 1 */}
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Link to="/store?cat=Κολιέ" style={{ textDecoration: "none" }}>
+                <Typography
+                  fontWeight="bold"
+                  textAlign="center"
+                  sx={{ color: lineColor }}
+                >
+                  ΚΟΛΙΕ
+                </Typography>
+              </Link>
+            </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Link to="/store?cat=Βραχιόλι" style={{ textDecoration: "none" }}>
-          <Typography
-            fontWeight="bold"
-            textAlign="center"
-            sx={{ color: lineColor }}
-          >
-            ΒΡΑΧΙΟΛΙΑ
-          </Typography>
-        </Link>
-      </Box>
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Link to="/store?cat=Βραχιόλι" style={{ textDecoration: "none" }}>
+                <Typography
+                  fontWeight="bold"
+                  textAlign="center"
+                  sx={{ color: lineColor }}
+                >
+                  ΒΡΑΧΙΟΛΙΑ
+                </Typography>
+              </Link>
+            </Box>
 
-      {/* row 2 */}
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Link to="/store?cat=Σκουλαρίκια" style={{ textDecoration: "none" }}>
-          <Typography
-            fontWeight="bold"
-            textAlign="center"
-            sx={{ color: lineColor }}
-          >
-            ΣΚΟΥΛΑΡΙΚΙΑ
-          </Typography>
-        </Link>
-      </Box>
+            {/* row 2 */}
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Link
+                to="/store?cat=Σκουλαρίκια"
+                style={{ textDecoration: "none" }}
+              >
+                <Typography
+                  fontWeight="bold"
+                  textAlign="center"
+                  sx={{ color: lineColor }}
+                >
+                  ΣΚΟΥΛΑΡΙΚΙΑ
+                </Typography>
+              </Link>
+            </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Link to="/store?cat=Δαχτυλίδι" style={{ textDecoration: "none" }}>
-          <Typography
-            fontWeight="bold"
-            textAlign="center"
-            sx={{ color: lineColor }}
-          >
-            ΔΑΧΤΥΛΙΔΙΑ
-          </Typography>
-        </Link>
-      </Box>
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Link
+                to="/store?cat=Δαχτυλίδι"
+                style={{ textDecoration: "none" }}
+              >
+                <Typography
+                  fontWeight="bold"
+                  textAlign="center"
+                  sx={{ color: lineColor }}
+                >
+                  ΔΑΧΤΥΛΙΔΙΑ
+                </Typography>
+              </Link>
+            </Box>
 
-      {/* row 3 */}
-      <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
-        <Link to="/about" style={{ textDecoration: "none" }}>
-          <Typography
-            fontWeight="bold"
-            textAlign="center"
-            sx={{ color: lineColor }}
-          >
-            ΓΙΑ ΕΜΑΣ
-          </Typography>
-        </Link>
-      </Box>
+            {/* row 3 */}
+            <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
+              <Link to="/about" style={{ textDecoration: "none" }}>
+                <Typography
+                  fontWeight="bold"
+                  textAlign="center"
+                  sx={{ color: lineColor }}
+                >
+                  ΓΙΑ ΕΜΑΣ
+                </Typography>
+              </Link>
+            </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
-        <Link to="/contact" style={{ textDecoration: "none" }}>
-          <Typography
-            fontWeight="bold"
-            textAlign="center"
-            sx={{ color: lineColor }}
-          >
-            ΕΠΙΚΟΙΝΩΝΙΑ
-          </Typography>
-        </Link>
-      </Box>
-    </Box>
-  </Box>
+            <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
+              <Link to="/contact" style={{ textDecoration: "none" }}>
+                <Typography
+                  fontWeight="bold"
+                  textAlign="center"
+                  sx={{ color: lineColor }}
+                >
+                  ΕΠΙΚΟΙΝΩΝΙΑ
+                </Typography>
+              </Link>
+            </Box>
+          </Box>
+        </Box>
 
-
-        {/* Invisible spacer */}
-        <Box sx={{ flexGrow: 1, maxWidth: "100px" }} />
-
-        {/* RIGHT LOGO */}
+        {/* RIGHT LOGO (desktop only) */}
         <Box
           sx={{
             ml: 4,
-            display: "flex",
+            display: { xs: "none", sm: "flex" },
             alignItems: "center",
             justifyContent: "flex-end",
             flexGrow: 1,
@@ -225,8 +253,7 @@ const TopCategoryGridHeader = () => {
           />
         </Box>
 
-        {/* Invisible spacer */}
-        <Box sx={{ flexGrow: 1, maxWidth: "100px" }} />
+        <Box sx={{ flexGrow: 1, maxWidth: "100px", display: { xs: "none", sm: "block" } }} />
       </Box>
     </Box>
   );

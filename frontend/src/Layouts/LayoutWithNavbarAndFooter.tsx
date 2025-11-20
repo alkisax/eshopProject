@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+// import Footer from "../components/Footer";
+import FooterDesigner from "./deisgnComponents/FooterDesigner";
 import { Box } from "@mui/material";
 
 const LayoutWithNavbarAndFooter = () => {
@@ -16,7 +17,8 @@ const LayoutWithNavbarAndFooter = () => {
       <Box sx={{ flexGrow: 1 }}>
         <Outlet />
       </Box>
-      <Footer />
+      {/* <Footer /> */}
+      <FooterDesigner />
     </Box>
   );
 };

@@ -172,8 +172,12 @@ const CrossGridLayout = ({ children, title }: Props) => {
           <Box sx={{ width: "30vw", pt: "60px" }} />
 
           {/* 3η ΚΑΘΕΤΗ ΓΡΑΜΜΗ (ΔΕΞΙΑ) */}
-          <Box sx={verticalLine} />
-
+          <Box
+            sx={{
+              ...verticalLine,
+              display: { xs: "none", sm: "block" }, // HIDE ON MOBILE
+            }}
+          />
           {/* ΔΕΞΙΑ ΠΕΡΙΟΧΗ (απλά για να γεμίζει το flex) */}
           <Box sx={{ flexGrow: 1, pt: "60px" }} />
         </Box>
