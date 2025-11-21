@@ -1,6 +1,6 @@
 // frontend\src\components\store_components\commodity_page_components\ItemActionsBtns.tsx
 
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 
@@ -20,20 +20,33 @@ const ItemActionsBtns = ({
   isFavorite,
   onAddToCart,
   onToggleFavorite,
-  showSuggestions,
+  // showSuggestions,
   onToggleSuggestions,
 }: Props) => {
   return (
-    <>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        gap: 2,
+        mt: 2,
+      }}
+    >
+
       {/* ADD TO CART */}
       <Button
         id="item-add-to-cart-btn"
         variant="contained"
         sx={{
-          mt: 2,
-          width: 200,
+          width: '150px',
+          height: '150px',
+          borderRadius: 0,
           color: "#fff",
           fontWeight: "bold",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
           "&:hover": {
             backgroundColor: "#FFd500",
             color: "#4a3f35",
@@ -42,7 +55,7 @@ const ItemActionsBtns = ({
         disabled={stock === 0}
         onClick={onAddToCart}
       >
-        {stock === 0 ? "Out of Stock" : "Add to Cart"}
+        Cart
       </Button>
 
       {/* FAVORITES */}
@@ -50,28 +63,38 @@ const ItemActionsBtns = ({
         id="item-favorites"
         variant="outlined"
         sx={{
-          mt: 1,
-          width: 200,
+          width: '150px',
+          height: '150px',
+          borderRadius: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
         disabled={!userExists}
         onClick={onToggleFavorite}
-        startIcon={
-          isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />
-        }
       >
-        {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+        {isFavorite
+          ? <FavoriteIcon color="error" />
+          : <FavoriteBorderIcon />}
       </Button>
 
-      {/* SUGGESTIONS TOGGLE */}
+      {/* SUGGESTIONS */}
       <Button
         id="item-suggestions"
         variant="outlined"
-        sx={{ mt: 2, width: 200 }}
+        sx={{
+          width: '150px',
+          height: '150px',
+          borderRadius: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
         onClick={onToggleSuggestions}
       >
-        {showSuggestions ? "Hide Suggestions" : "Show Suggestions"}
+        Δείξε προτάσεις
       </Button>
-    </>
+    </Box>
   );
 };
 

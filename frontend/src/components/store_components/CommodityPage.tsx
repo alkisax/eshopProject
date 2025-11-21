@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { Typography, Box, Stack } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 // import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 // import FavoriteIcon from "@mui/icons-material/Favorite";
 // import { TextField, Rating, Pagination } from "@mui/material";
@@ -20,9 +20,12 @@ import { Suspense, lazy } from "react";
 import GalleryCommodityPageSkeleton from "../skeletons/GalleryCommodityPageSkeleton";
 import TopCategoryGridHeader from "../../Layouts/deisgnComponents/TopCategoryGridHeader";
 import ItemDescription from "./commodity_page_components/ItemDescription";
+import ItemTitlePrice from "./commodity_page_components/ItemTitlePrice";
 import ItemActionsBtns from "./commodity_page_components/ItemActionsBtns";
 import ItemSuggestions from "./commodity_page_components/ItemSuggestions";
-import ReviewSection from "./commodity_page_components/ItemReviews"
+import ReviewSection from "./commodity_page_components/ItemReviews";
+
+import { useRef, useLayoutEffect } from "react";
 
 /* suspence
 React.lazy() is a built-in React function that allows you to dynamically import a component only when it’s needed. Normally, when you do: 
@@ -154,7 +157,6 @@ const CommodityPage = () => {
     if (id) fetchCommodity();
   }, [id, fetchCommodity]);
 
-
   // χρησιμοποιείτε στην παρακάτω useEffect
   interface SemanticSearchResult {
     commodity: CommodityType;
@@ -244,6 +246,67 @@ const CommodityPage = () => {
     }
   };
 
+  // =========================================
+  // === GRID TEMPLATE LOGIC (CrossGrid style)
+  // =========================================
+
+  // Βασικό χρώμα γραμμών (πράσινο από το template)
+  const lineColor = "#008482";
+
+  /**
+   * === ΣΤΑΘΕΡΟ ΣΤΥΛ ΚΑΘΕΤΗΣ ΓΡΑΜΜΗΣ ===
+   * Κάθε κατακόρυφη γραμμή έχει:
+   * - width 3px
+   * - backgroundColor lineColor
+   * - flexShrink:0 για να μην "σπάνε"
+   */
+  const verticalLine = {
+    width: "3px",
+    backgroundColor: lineColor,
+    flexShrink: 0,
+  };
+
+  /**
+   * === ΜΕΤΡΗΣΗ ΥΨΟΥΣ TOP ROW & ΟΛΟΥ LEFT CONTENT ===
+   * Θέλουμε:
+   * 1) topRowHeight → για να μπει η μεσαία γραμμή ανάμεσα στα rows
+   * 2) childHeight → για να μπει η κάτω γραμμή στο τέλος της αριστερής στήλης
+   */
+  const leftContentRef = useRef<HTMLDivElement | null>(null);
+  const topLeftRef = useRef<HTMLDivElement | null>(null);
+  const topRightRef = useRef<HTMLDivElement | null>(null);
+  const [topLeftHeight, setTopLeftHeight] = useState(0);
+
+  const [childHeight, setChildHeight] = useState(0);
+  const [topRowHeight, setTopRowHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    // ύψος όλης της αριστερής στήλης (top-left + bottom-left)
+    if (leftContentRef.current) {
+      setChildHeight(leftContentRef.current.getBoundingClientRect().height);
+    }
+
+    if (topLeftRef.current) {
+      setTopLeftHeight(topLeftRef.current.getBoundingClientRect().height);
+    }
+
+    // ύψος top row = max( εικόνες, title/price )
+    const hLeft = topLeftRef.current?.getBoundingClientRect().height ?? 0;
+    const hRight = topRightRef.current?.getBoundingClientRect().height ?? 0;
+    setTopRowHeight(Math.max(hLeft, hRight));
+  }, [commodity, comments, showSuggestions, newComment, newRating]);
+
+  /**
+   * === ΥΠΟΛΟΓΙΣΜΟΣ ΘΕΣΕΩΝ ΓΡΑΜΜΩΝ ===
+   */
+  const leftColumnHeight = childHeight + 400; // ίδιο "μαξιλάρι" με CrossGridLayout
+  const bottomLineTop = leftColumnHeight - 4;
+
+  // ΠΟΥ θα μπει η μεσαία γραμμή (ανάμεσα top & bottom row).
+  // pt: "60px" της στήλης + topRowHeight + λίγο αέρα
+  const middleGap = 40;
+  const middleLineTop = 60 + topRowHeight + middleGap;
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
@@ -268,7 +331,7 @@ const CommodityPage = () => {
           name="description"
           content={
             commodity.description
-              ? commodity.description.slice(0, 150) // keep under 160 chars
+              ? commodity.description.slice(0, 150)
               : "Δείτε λεπτομέρειες για το προϊόν μας."
           }
         />
@@ -280,50 +343,139 @@ const CommodityPage = () => {
 
       <TopCategoryGridHeader />
 
-      <Box sx={{ mt: 4 }}>
-        <Stack spacing={3}>
-          {/* === Image gallery === */}
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Suspense fallback={<GalleryCommodityPageSkeleton />}>
-              <GalleryCommodityPage commodity={commodity} />
-            </Suspense>
+      {/* === OUTER WRAPPER (CrossGrid style) === */}
+      <Box sx={{ px: "40px", mx: "40px", py: 0, position: "relative" }}>
+        {/* === TOP HORIZONTAL LINE === */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: "134px",
+            left: 0,
+            right: 0,
+            height: "3px",
+            backgroundColor: lineColor,
+          }}
+        />
+
+        {/* === MIDDLE HORIZONTAL LINE (between top & bottom sections) === */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: `${middleLineTop}px`,
+            left: 0,
+            right: 0,
+            height: "3px",
+            backgroundColor: lineColor,
+          }}
+        />
+
+        {/* === BOTTOM HORIZONTAL LINE === */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: `${bottomLineTop}px`,
+            left: 0,
+            right: 0,
+            height: "3px",
+            backgroundColor: lineColor,
+          }}
+        />
+
+        {/* ======================================================
+            === MAIN GRID  ===
+         ====================================================== */}
+        <Box sx={{ display: "flex", width: "100%" }}>
+          {/* LEFT VERTICAL LINE */}
+          <Box sx={verticalLine} />
+
+          {/* ================================================
+              LEFT SIDE — GALLERY + DESCRIPTION + REVIEWS
+           ================================================ */}
+          <Box
+            sx={{
+              width: "75%",
+              px: 3,
+              pt: "60px",
+              height: `${leftColumnHeight}px`,
+              boxSizing: "content-box",
+            }}
+          >
+            <Box ref={leftContentRef}>
+              {/* TOP-LEFT = GALLERY */}
+              <Box ref={topLeftRef} sx={{ mb: 4 }}>
+                <Suspense fallback={<GalleryCommodityPageSkeleton />}>
+                  <GalleryCommodityPage commodity={commodity} />
+                </Suspense>
+              </Box>
+
+              {/* BOTTOM-LEFT = Description */}
+              <ItemDescription commodity={commodity} />
+
+              {/* Suggestions (optional) */}
+              {showSuggestions && (
+                <ItemSuggestions
+                  suggestions={suggested}
+                  currentId={commodity._id}
+                />
+              )}
+
+              {/* BOTTOM-LEFT = Reviews */}
+              <ReviewSection
+                user={user}
+                comments={comments}
+                newComment={newComment}
+                newRating={newRating}
+                setNewComment={setNewComment}
+                setNewRating={setNewRating}
+                handleAddComment={handleAddComment}
+                commentPage={commentPage}
+                setCommentPage={setCommentPage}
+                commentsPerPage={commentsPerPage}
+              />
+            </Box>
           </Box>
 
-          <ItemDescription commodity={commodity} />
+          {/* MIDDLE VERTICAL LINE */}
+          <Box sx={verticalLine} />
 
-          <ItemActionsBtns
-            stock={commodity.stock}
-            userExists={!!user}
-            isFavorite={isFavorite}
-            onAddToCart={() => addOneToCart(commodity._id)}
-            onToggleFavorite={
-              isFavorite ? handleRemoveFromFavorites : handleAddToFavorites
-            }
-            showSuggestions={showSuggestions}
-            onToggleSuggestions={() => setShowSuggestions((prev) => !prev)}
-          />
+          {/* ================================================
+              RIGHT SIDE — TITLE/PRICE + BUTTONS
+           ================================================ */}
+          <Box
+            sx={{
+              width: "25%",
+              px: 3,
+              pt: "60px",
+            }}
+          >
+            {/* TOP-RIGHT = Title + Price */}
+            <Box
+              ref={topRightRef}
+              sx={{ mt: `${topLeftHeight - 40}px` }} // -40 για να μπει ακριβώς ίδια ευθεία
+            >
+              <ItemTitlePrice commodity={commodity} />
+            </Box>
 
-          {showSuggestions && (
-            <ItemSuggestions
-              suggestions={suggested}
-              currentId={commodity._id}
+            {/* buttons fall under the middle horizontal line */}
+            <Box sx={{ mt: "40px" }} /> 
+
+            {/* BOTTOM-RIGHT = Add to Cart / Favorites / Suggestions */}
+            <ItemActionsBtns
+              stock={commodity.stock}
+              userExists={!!user}
+              isFavorite={isFavorite}
+              onAddToCart={() => addOneToCart(commodity._id)}
+              onToggleFavorite={
+                isFavorite ? handleRemoveFromFavorites : handleAddToFavorites
+              }
+              showSuggestions={showSuggestions}
+              onToggleSuggestions={() => setShowSuggestions((prev) => !prev)}
             />
-          )}
+          </Box>
 
-          {/* === Reviews section === */}
-          <ReviewSection
-            user={user}
-            comments={comments}
-            newComment={newComment}
-            newRating={newRating}
-            setNewComment={setNewComment}
-            setNewRating={setNewRating}
-            handleAddComment={handleAddComment}
-            commentPage={commentPage}
-            setCommentPage={setCommentPage}
-            commentsPerPage={commentsPerPage}
-          />
-        </Stack>
+          {/* RIGHT VERTICAL LINE */}
+          <Box sx={verticalLine} />
+        </Box>
       </Box>
     </>
   );

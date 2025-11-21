@@ -10,7 +10,7 @@ interface Props {
 const ItemDescription = ({ commodity }: Props) => {
   return (
     <>
-      {/* === Price === */}
+      {/* === Price ===
       <Typography
         id="item-price"
         variant="body1"
@@ -25,7 +25,7 @@ const ItemDescription = ({ commodity }: Props) => {
           style: "currency",
           currency: "EUR",
         }).format(commodity.price)}
-      </Typography>
+      </Typography> */}
 
       {/* === Description === */}
       <Typography
