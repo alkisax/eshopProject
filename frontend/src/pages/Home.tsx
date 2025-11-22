@@ -23,7 +23,7 @@ const Home = () => {
         />
       </Helmet>
 
-      <Box
+      {/* <Box
         sx={{
           width: "100%",
           height: { xs: 200, md: 350 }, // responsive height
@@ -36,9 +36,9 @@ const Home = () => {
           color: "white",
           textAlign: "center",
         }}
-      >
+      > */}
         {/* αυτό είναι ένα αόρατο h1 που προστέθηκε για λόγους seo */}
-        <Typography
+        {/* <Typography
           variant="h1"
           sx={{
             fontSize: { xs: "1.8rem", md: "3rem" },
@@ -49,7 +49,7 @@ const Home = () => {
         >
           Έχω μια Ιδέα  – Χειροποίητα Κοσμήματα
         </Typography>   
-      </Box>
+      </Box> */}
 
       <Box
         sx={{

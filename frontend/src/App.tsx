@@ -70,7 +70,15 @@ function App() {
 
       <Routes>
         <Route element={<LayoutWithNavbarAndFooter />}>
-          <Route path="/" element={<Home />} />
+          {/* <Route path="/" element={<Home />} /> */}
+          <Route
+            path="/"
+            element={
+              <CrossGridLayout>
+                <Home />
+              </CrossGridLayout>
+            }
+          />
           <Route path="/news" element={<News />} />
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/posts/:slug" element={<BlogPost />} />
