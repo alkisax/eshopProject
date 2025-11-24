@@ -10,40 +10,51 @@ describe('E-Shop Basic E2E', () => {
       }
     });
 
-    // Go to minor footer pages
-    cy.contains('Πολιτική Απορρήτου').click();
+    // === ΠΟΛΙΤΙΚΗ ΑΠΟΡΡΗΤΟΥ ===
+    cy.get('#footer-privacy-policy').click();
     cy.url().should('include', '/privacy-policy');
     cy.contains('Ποια δεδομένα συλλέγουμε').should('be.visible');
-    cy.contains('Τρόποι Πληρωμής').click();
+
+    // === ΤΡΟΠΟΙ ΠΛΗΡΩΜΗΣ ===
+    cy.get('#footer-payment-methods').click();
     cy.url().should('include', '/payment-methods');
     cy.contains('Πληρωμή με Κάρτα Online').should('be.visible');
-    cy.contains('Τρόποι Αποστολής').click();
+
+    // === ΤΡΟΠΟΙ ΑΠΟΣΤΟΛΗΣ ===
+    cy.get('#footer-shipping-methods').click();
     cy.url().should('include', '/shipping-methods');
     cy.contains('Χρεώσεις Αποστολής').should('be.visible');
-    cy.contains('Όροι Χρήσης').click();
-    cy.url().should('include', '/terms');
-    cy.contains('Εφαρμοστέοι Νόμοι').should('be.visible');
-    cy.contains('Πολιτική Επιστροφών').click();
+
+    // === ΠΟΛΙΤΙΚΗ ΕΠΙΣΤΡΟΦΩΝ ===
+    cy.get('#footer-return-policy').click();
     cy.url().should('include', '/return-policy');
-    cy.contains('Έχετε το δικαίωμα να επιστρέψετε προϊόντα εντός 14 ημερολογιακών ημερών').should('be.visible');
-    cy.contains('Πολιτική Cookies').click();
+    cy.contains('Έχετε το δικαίωμα να επιστρέψετε προϊόντα εντός 14 ημερολογιακών ημερών')
+      .should('be.visible');
+
+    // === POLITIKI COOKIES ===
+    cy.get('#footer-cookie-policy').click();
     cy.url().should('include', '/cookie-policy');
     cy.contains('Cookies Λειτουργικότητας').should('be.visible');
-    cy.contains('Επικοινωνία').click();
+
+    // === ΕΠΙΚΟΙΝΩΝΙΑ ===
+    cy.get('#footer-contact').click();
     cy.url().should('include', '/contact');
     cy.contains('Βυζαντίου 40, Κάτω Πατήσια, Αθήνα 11144').should('be.visible');
-    // ✅ Check iframe exists and has correct src
+
+    // Check map iframe
     cy.get('iframe')
       .should('exist')
       .and('have.attr', 'src')
       .and('include', 'https://www.google.com/maps/embed');
+
+    // Back to home
     cy.get('#navbar-home').click();
     cy.url().should('eq', 'http://localhost:5173/');
 
-    // ✅ Put cy.log at the end of the test
     cy.log("✅ Finished test");
   });
 });
+
 
 describe('E-Shop Home Page', () => {
   beforeEach(() => {

@@ -2,9 +2,9 @@ import { Box, Typography, IconButton, Link as MuiLink } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { Facebook, Instagram, Email, Phone } from "@mui/icons-material";
 
-const lineColor = "#008482";   // πράσινο του template
-const bgColor = "#b7e0db";     // aqua background από designer
-const textColor = "#006f6d";   // dark greenish text
+const lineColor = "#008482"; // πράσινο του template
+const bgColor = "#b7e0db"; // aqua background από designer
+const textColor = "#006f6d"; // dark greenish text
 
 // Vertical line — hides automatically in mobile
 const VerticalLine = () => (
@@ -36,14 +36,14 @@ const FooterDesigner = () => {
         sx={{
           display: "flex",
           flexDirection: { xs: "column", sm: "row" }, // ❗ mobile = one column
-          justifyContent: { sm: "space-between" },
+          // justifyContent: { sm: "space-between" },
           flexWrap: "wrap",
-          gap: { xs: 4, sm: 2 },
+          gap: { xs: 4, sm: 9 },
         }}
       >
         {/* === Each column becomes a centered block in mobile === */}
-        
-        {/* Column 1 */}
+
+        {/* Column 1 — Πληροφορίες */}
         <Box
           sx={{
             display: "flex",
@@ -53,90 +53,91 @@ const FooterDesigner = () => {
         >
           <VerticalLine />
           <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
-              Πληροφορίες
-            </Typography>
 
-            <MuiLink component={RouterLink} to="/payment-methods" underline="none" color="inherit">
+
+            <MuiLink
+              id="footer-info-about"
+              component={RouterLink}
+              to="/about"
+              underline="none"
+              color="inherit"
+            >
+              Πληροφορίες
+            </MuiLink>
+            <br />
+
+            <MuiLink
+              id="footer-payment-methods"
+              component={RouterLink}
+              to="/payment-methods"
+              underline="none"
+              color="inherit"
+            >
               Τρόποι Πληρωμής
             </MuiLink>
             <br />
-            <MuiLink component={RouterLink} to="/shipping-methods" underline="none" color="inherit">
+
+            <MuiLink
+              id="footer-shipping-methods"
+              component={RouterLink}
+              to="/shipping-methods"
+              underline="none"
+              color="inherit"
+            >
               Τρόποι Αποστολής
             </MuiLink>
-          </Box>
-        </Box>
-
-        {/* Column 2 */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: { xs: "center", sm: "flex-start" },
-          }}
-        >
-          <VerticalLine />
-          <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
-              Συχνές Ερωτήσεις
-            </Typography>
-
-            <MuiLink component={RouterLink} to="/terms" underline="none" color="inherit">
-              Όροι Χρήσης
-            </MuiLink>
             <br />
-
-            <MuiLink component={RouterLink} to="/about" underline="none" color="inherit">
-              Εταιρεία
-            </MuiLink>
-          </Box>
-        </Box>
-
-        {/* Column 3 */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: { xs: "center", sm: "flex-start" },
-          }}
-        >
-          <VerticalLine />
-          <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
+            <MuiLink
+              id="footer-contact"
+              component={RouterLink}
+              to="/contact"
+              underline="none"
+              color="inherit"
+            >
               Επικοινωνία
-            </Typography>
-
-            <MuiLink component={RouterLink} to="/privacy-policy" underline="none" color="inherit">
-              Πολιτικές
             </MuiLink>
-            <br />
 
-            <MuiLink component={RouterLink} to="/privacy-policy" underline="none" color="inherit">
+          </Box>
+        </Box>
+
+        {/* Column 2 — Επικοινωνία */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: { xs: "center", sm: "flex-start" },
+          }}
+        >
+          <VerticalLine />
+          <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
+            <MuiLink
+              id="footer-privacy-policy"
+              component={RouterLink}
+              to="/privacy-policy"
+              underline="none"
+              color="inherit"
+            >
               Πολιτική Απορρήτου
             </MuiLink>
-          </Box>
-        </Box>
-
-        {/* Column 4 */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: { xs: "center", sm: "flex-start" },
-          }}
-        >
-          <VerticalLine />
-          <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
-              Πολιτική Επιστροφών
-            </Typography>
-
-            <MuiLink component={RouterLink} to="/return-policy" underline="none" color="inherit">
+            <br />
+            <MuiLink
+              id="footer-return-policy"
+              component={RouterLink}
+              to="/return-policy"
+              underline="none"
+              color="inherit"
+            >
               Πολιτική Επιστροφών
             </MuiLink>
             <br />
 
-            <MuiLink component={RouterLink} to="/cookie-policy" underline="none" color="inherit">
+            <MuiLink
+              id="footer-cookie-policy"
+              component={RouterLink}
+              to="/cookie-policy"
+              underline="none"
+              color="inherit"
+            >
               Πολιτική Cookies
             </MuiLink>
           </Box>
@@ -145,10 +146,7 @@ const FooterDesigner = () => {
 
       {/* === SOCIAL SECTION === */}
       <Box sx={{ mt: 4, textAlign: { xs: "center", sm: "left" } }}>
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: "bold", mb: 1 }}
-        >
+        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
           Ακολουθήστε μας
         </Typography>
 
@@ -161,10 +159,29 @@ const FooterDesigner = () => {
             py: 1,
           }}
         >
-          <IconButton href="#" color="inherit"><Facebook /></IconButton>
-          <IconButton href="#" color="inherit"><Instagram /></IconButton>
-          <IconButton href="mailto:info@example.com" color="inherit"><Email /></IconButton>
-          <IconButton href="tel:+302100000000" color="inherit"><Phone /></IconButton>
+          <IconButton id="footer-social-facebook" href="#" color="inherit">
+            <Facebook />
+          </IconButton>
+
+          <IconButton id="footer-social-instagram" href="#" color="inherit">
+            <Instagram />
+          </IconButton>
+
+          <IconButton
+            id="footer-social-email"
+            href="mailto:info@example.com"
+            color="inherit"
+          >
+            <Email />
+          </IconButton>
+
+          <IconButton
+            id="footer-social-phone"
+            href="tel:+302100000000"
+            color="inherit"
+          >
+            <Phone />
+          </IconButton>
         </Box>
       </Box>
     </Box>

@@ -24,6 +24,7 @@ const CrossGridLayout = ({ children, title }: Props) => {
     width: "3px",
     backgroundColor: lineColor,
     flexShrink: 0,
+    pointerEvents: "none",
   };
 
   /**
@@ -81,6 +82,7 @@ const CrossGridLayout = ({ children, title }: Props) => {
             height: "3px",
             backgroundColor: lineColor,
             zIndex: 10, // ώστε να μην περνάει κάτω από το περιεχόμενο
+            pointerEvents: "none",
           }}
         />
 
@@ -97,6 +99,7 @@ const CrossGridLayout = ({ children, title }: Props) => {
             height: "3px",
             backgroundColor: lineColor,
             zIndex: 10,
+            pointerEvents: "none",
           }}
         />
 
@@ -113,6 +116,7 @@ const CrossGridLayout = ({ children, title }: Props) => {
             height: "3px",
             backgroundColor: lineColor,
             zIndex: 10,
+            pointerEvents: "none",
           }}
         />
 
@@ -160,7 +164,7 @@ const CrossGridLayout = ({ children, title }: Props) => {
               </Typography>
             )}
 
-            {/* === ΠΡΑΓΜΑΤΙΚΟ ΠΕΡΙΕΧΟΜΕΝΟ ===
+          {/* === ΠΡΑΓΜΑΤΙΚΟ ΠΕΡΙΕΧΟΜΕΝΟ ===
           Το contentRef μας επιτρέπει να μετράμε το ύψος του */}
             <Box ref={contentRef}>{children}</Box>
           </Box>
