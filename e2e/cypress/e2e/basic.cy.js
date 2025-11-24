@@ -380,7 +380,7 @@ describe('Backend auth tests', () => {
     cy.url().should('match', /\/commodity\/[a-f0-9]{24}$/);
 
     // Assert title and price
-    cy.get('h4').should('exist').and('not.be.empty');       // title
+    cy.get('#item-title').should('exist').and('be.visible').and('not.be.empty'); // title
     cy.get('#item-price').should('exist').and('contain', '€'); // price format
 
     // Assert description + stock
