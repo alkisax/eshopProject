@@ -11,6 +11,7 @@ import type {
 } from "../types/commerce.types";
 import CartPreviewFooter from "../components/store_components/CartPreviewFooter";
 import { useLocation } from "react-router-dom";
+// import CrossGridLayout from "./deisgnComponents/CrossGridLayout";
 
 const StoreLayout = () => {
   const { url } = useContext(VariablesContext);
@@ -246,17 +247,19 @@ const StoreLayout = () => {
               {/* TODO */}
               {/* changed for front end full mount on memory search - Problem see storeSidebar notes */}
               {/* <Outlet context={{ commodities: paginated, pageCount, currentPage, fetchCart,setCurrentPage }} />  */}
-              <Outlet
-                context={{
-                  commodities:
-                    semanticResults.length > 0 ? semanticResults : paginated, // semantic overrides normal list // already sliced
-                  pageCount,
-                  currentPage,
-                  fetchCart,
-                  setCurrentPage,
-                  selectedCategories,
-                }}
-              />
+              {/* <CrossGridLayout title="Κατάστημα"> */}
+                <Outlet
+                  context={{
+                    commodities:
+                      semanticResults.length > 0 ? semanticResults : paginated, // semantic overrides normal list // already sliced
+                    pageCount,
+                    currentPage,
+                    fetchCart,
+                    setCurrentPage,
+                    selectedCategories,
+                  }}
+                />
+              {/* </CrossGridLayout> */}
             </div>
             <CartPreviewFooter
               hasCart={hasCart}

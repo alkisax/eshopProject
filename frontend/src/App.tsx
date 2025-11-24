@@ -43,6 +43,7 @@ import CookiePolicy from "./pages/minorPages/CookiePolicy";
 import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
 import LayoutWithNavbarAndFooter from "./Layouts/LayoutWithNavbarAndFooter";
 import { CartActionsContext } from "./context/CartActionsContext";
+import HomeResponsiveWrapper from "./Layouts/HomeResponsiveWrapper";
 import CrossGridLayout from "./Layouts/deisgnComponents/CrossGridLayout";
 import AboutPage from "./pages/minorPages/AboutPage";
 
@@ -70,7 +71,15 @@ function App() {
 
       <Routes>
         <Route element={<LayoutWithNavbarAndFooter />}>
-          <Route path="/" element={<Home />} />
+          {/* <Route path="/" element={<Home />} /> */}
+          <Route
+            path="/"
+            element={
+              <HomeResponsiveWrapper>
+                <Home />
+              </HomeResponsiveWrapper>
+            }
+          />
           <Route path="/news" element={<News />} />
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/posts/:slug" element={<BlogPost />} />
