@@ -238,7 +238,7 @@ const TopCategoryGridHeader = () => {
         {/* RIGHT LOGO (desktop only) */}
         <Box
           sx={{
-            ml: 4,
+            ml: { sm: 0, md: 0, lg: 4 },
             display: { xs: "none", sm: "flex" },
             alignItems: "center",
             justifyContent: "flex-end",
@@ -253,7 +253,13 @@ const TopCategoryGridHeader = () => {
           />
         </Box>
 
-        <Box sx={{ flexGrow: 1, maxWidth: "100px", display: { xs: "none", sm: "block" } }} />
+        <Box
+          sx={{
+            flexGrow: 1,
+            maxWidth: "100px",
+            display: { xs: "none", sm: "block" },
+          }}
+        />
       </Box>
     </Box>
   );
