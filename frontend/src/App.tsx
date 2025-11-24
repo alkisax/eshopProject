@@ -43,6 +43,7 @@ import CookiePolicy from "./pages/minorPages/CookiePolicy";
 import GAAnalyticsTracker from "./utils/GAAnalyticsTracker";
 import LayoutWithNavbarAndFooter from "./Layouts/LayoutWithNavbarAndFooter";
 import { CartActionsContext } from "./context/CartActionsContext";
+import HomeResponsiveWrapper from "./Layouts/HomeResponsiveWrapper";
 import CrossGridLayout from "./Layouts/deisgnComponents/CrossGridLayout";
 import AboutPage from "./pages/minorPages/AboutPage";
 
@@ -74,9 +75,9 @@ function App() {
           <Route
             path="/"
             element={
-              <CrossGridLayout>
+              <HomeResponsiveWrapper>
                 <Home />
-              </CrossGridLayout>
+              </HomeResponsiveWrapper>
             }
           />
           <Route path="/news" element={<News />} />

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { Typography, Box } from "@mui/material";
+import { useMediaQuery, useTheme } from "@mui/material";
 // import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 // import FavoriteIcon from "@mui/icons-material/Favorite";
 // import { TextField, Rating, Pagination } from "@mui/material";
@@ -24,6 +25,7 @@ import ItemTitlePrice from "./commodity_page_components/ItemTitlePrice";
 import ItemActionsBtns from "./commodity_page_components/ItemActionsBtns";
 import ItemSuggestions from "./commodity_page_components/ItemSuggestions";
 import ReviewSection from "./commodity_page_components/ItemReviews";
+import CommodityPageMobile from "./CommodityPageMobile";
 
 import { useRef, useLayoutEffect } from "react";
 
@@ -65,6 +67,9 @@ const CommodityPage = () => {
   const { user } = useContext(UserAuthContext);
 
   const { tracker } = useAnalytics() || {}; //GA
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // GA google analitics - track specific view of item
   useEffect(() => {
@@ -323,6 +328,34 @@ const CommodityPage = () => {
     return <Typography>No commodity found.</Typography>;
   }
 
+  if (isMobile) {
+    return (
+      <>
+        <CommodityPageMobile
+          commodity={commodity}
+          user={user}
+          isFavorite={isFavorite}
+          showSuggestions={showSuggestions}
+          suggested={suggested}
+          comments={comments}
+          newComment={newComment}
+          newRating={newRating}
+          onAddToCart={() => addOneToCart(commodity._id)}
+          onToggleFavorite={
+            isFavorite ? handleRemoveFromFavorites : handleAddToFavorites
+          }
+          setShowSuggestions={setShowSuggestions}
+          setNewComment={setNewComment}
+          setNewRating={setNewRating}
+          commentPage={commentPage}
+          setCommentPage={setCommentPage}
+          commentsPerPage={commentsPerPage}
+          handleAddComment={handleAddComment}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <Helmet>
@@ -451,13 +484,13 @@ const CommodityPage = () => {
             {/* TOP-RIGHT = Title + Price */}
             <Box
               ref={topRightRef}
-              sx={{ mt: `${topLeftHeight - 40}px` }} // -40 για να μπει ακριβώς ίδια ευθεία
+              sx={{ mt: `${topLeftHeight - 210}px` }} // -40 για να μπει ακριβώς ίδια ευθεία
             >
               <ItemTitlePrice commodity={commodity} />
             </Box>
 
             {/* buttons fall under the middle horizontal line */}
-            <Box sx={{ mt: "40px" }} /> 
+            <Box sx={{ mt: "190px" }} />
 
             {/* BOTTOM-RIGHT = Add to Cart / Favorites / Suggestions */}
             <ItemActionsBtns
