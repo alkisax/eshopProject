@@ -76,7 +76,7 @@ const CrossGridLayout = ({ children, title }: Props) => {
         <Box
           sx={{
             position: "absolute",
-            top: "134px",
+            top: "80px",
             left: 0,
             right: 0,
             height: "3px",
@@ -139,7 +139,7 @@ const CrossGridLayout = ({ children, title }: Props) => {
               width: "50vw",
               minWidth: "200px",
               px: 3,
-              pt: "60px",
+              pt: "0px",
               height: `${leftColumnHeight}px`,
               boxSizing: "content-box",
             }}

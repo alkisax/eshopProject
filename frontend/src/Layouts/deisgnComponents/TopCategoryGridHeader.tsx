@@ -12,6 +12,7 @@ const TopCategoryGridHeader = () => {
         pt: "40px",
         pb: 0,
         mx: "40px",
+        mb: "60px",
         position: "relative",
       }}
     >
@@ -50,8 +51,8 @@ const TopCategoryGridHeader = () => {
         sx={{
           position: "absolute",
           top: 0,
-          bottom: "-134px",
-          left: "360px",
+          bottom: "-140px",
+          left: "340px",
           width: "3px",
           backgroundColor: lineColor,
           display: { xs: "none", sm: "block" },
@@ -64,7 +65,7 @@ const TopCategoryGridHeader = () => {
           position: "absolute",
           top: "35px",
           left: "0px",
-          width: "440px",
+          width: "400px",
           height: "3px",
           backgroundColor: lineColor,
           display: { xs: "none", sm: "block" },
@@ -75,9 +76,9 @@ const TopCategoryGridHeader = () => {
       <Box
         sx={{
           position: "absolute",
-          top: "70px",
+          top: "57px",
           left: "0px",
-          width: "440px",
+          width: "400px",
           height: "3px",
           backgroundColor: lineColor,
           display: { xs: "none", sm: "block" },
@@ -88,9 +89,9 @@ const TopCategoryGridHeader = () => {
       <Box
         sx={{
           position: "absolute",
-          top: "110px",
+          top: "79px",
           left: "0px",
-          width: "440px",
+          width: "400px",
           height: "3px",
           backgroundColor: lineColor,
           display: { xs: "none", sm: "block" },
@@ -101,9 +102,9 @@ const TopCategoryGridHeader = () => {
       <Box
         sx={{
           position: "absolute",
-          top: "150px",
+          top: "105px",
           left: "0px",
-          width: "440px",
+          width: "400px",
           height: "3px",
           backgroundColor: lineColor,
           display: { xs: "none", sm: "block" },
@@ -113,6 +114,24 @@ const TopCategoryGridHeader = () => {
       {/* =============================
           CATEGORY + LOGO ROW
       ============================== */}
+
+      {/* RIGHT LOGO (desktop only - FIXED POSITION) */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: "-20px", // align with horizontal lines
+          left: "400px", // 440px grid width + 20px spacing
+          display: { xs: "none", sm: "block" },
+        }}
+      >
+        <Box
+          component="img"
+          src={banner2}
+          alt="Have an Idea logo"
+          sx={{ height: "220px", objectFit: "contain" }}
+        />
+      </Box>
+
       <Box
         sx={{
           display: "flex",
@@ -147,8 +166,8 @@ const TopCategoryGridHeader = () => {
             sx={{
               display: "grid",
               gridTemplateColumns: "repeat(2, 1fr)",
-              rowGap: 2,
-              columnGap: 6,
+              rowGap: 1,
+              columnGap: 3,
               minWidth: "260px",
             }}
           >
@@ -158,7 +177,7 @@ const TopCategoryGridHeader = () => {
                 <Typography
                   fontWeight="bold"
                   textAlign="center"
-                  sx={{ color: lineColor }}
+                  sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
                 >
                   ΚΟΛΙΕ
                 </Typography>
@@ -170,7 +189,11 @@ const TopCategoryGridHeader = () => {
                 <Typography
                   fontWeight="bold"
                   textAlign="center"
-                  sx={{ color: lineColor }}
+                  sx={{
+                    color: lineColor,
+                    fontSize: "0.9rem",
+                    lineHeight: 1.1,
+                  }}
                 >
                   ΒΡΑΧΙΟΛΙΑ
                 </Typography>
@@ -186,7 +209,7 @@ const TopCategoryGridHeader = () => {
                 <Typography
                   fontWeight="bold"
                   textAlign="center"
-                  sx={{ color: lineColor }}
+                  sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
                 >
                   ΣΚΟΥΛΑΡΙΚΙΑ
                 </Typography>
@@ -201,7 +224,7 @@ const TopCategoryGridHeader = () => {
                 <Typography
                   fontWeight="bold"
                   textAlign="center"
-                  sx={{ color: lineColor }}
+                  sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
                 >
                   ΔΑΧΤΥΛΙΔΙΑ
                 </Typography>
@@ -214,7 +237,7 @@ const TopCategoryGridHeader = () => {
                 <Typography
                   fontWeight="bold"
                   textAlign="center"
-                  sx={{ color: lineColor }}
+                  sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
                 >
                   ΓΙΑ ΕΜΑΣ
                 </Typography>
@@ -226,7 +249,7 @@ const TopCategoryGridHeader = () => {
                 <Typography
                   fontWeight="bold"
                   textAlign="center"
-                  sx={{ color: lineColor }}
+                  sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
                 >
                   ΕΠΙΚΟΙΝΩΝΙΑ
                 </Typography>
@@ -236,22 +259,24 @@ const TopCategoryGridHeader = () => {
         </Box>
 
         {/* RIGHT LOGO (desktop only) */}
-        <Box
+        {/* αφαιρέθηκε για να βγεί εκτός του flexbox και να έχει position absolute αλλα το κρατάω comment out γιατί μπορεί να επιστρέψω  */}
+        {/* <Box
           sx={{
-            ml: { sm: 0, md: 0, lg: 4 },
+            ml: "40px",
             display: { xs: "none", sm: "flex" },
-            alignItems: "center",
+            alignItems: "flex-start",
             justifyContent: "flex-end",
             flexGrow: 1,
+            mt: "-60px",
           }}
         >
           <Box
             component="img"
             src={banner2}
             alt="Have an Idea logo"
-            sx={{ height: "320px", objectFit: "contain" }}
+            sx={{ height: "220px", objectFit: "contain" }}
           />
-        </Box>
+        </Box> */}
 
         <Box
           sx={{
