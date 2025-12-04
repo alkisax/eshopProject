@@ -11,7 +11,6 @@ export default tseslint.config([
   },
   globalIgnores(["dist"]),
   {
-    root: true,
     files: ["**/*.{ts,tsx}"],
     extends: [
       js.configs.recommended,
