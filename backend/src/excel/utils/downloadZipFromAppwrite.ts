@@ -1,6 +1,6 @@
-// backend\src\excel\utils\downloadExcelFromAppwrite.ts
-// 3b1. επειδή θα έχουμε πολλές συναρτήσεις στον controller που θα κάνουν διαφορα πράγματα πχ import, export, sync κλπ κάνουμε το κατεύασμα του excel αρχείου απο το appwrite χωριστό module για να μπορούμε να το καλούμε
-// δες και χωριστό downloader για zip/rar αρχεία που θα χρησιμοποιηθεί για τις εικόνες
+// backend\src\excel\utils\downloadZipFromAppwrite.ts
+// 3b2. επειδή θα έχουμε πολλές συναρτήσεις στον controller που θα κάνουν διαφορα πράγματα πχ import, export, sync κλπ κάνουμε το κατεύασμα του excel αρχείου απο το appwrite χωριστό module για να μπορούμε να το καλούμε
+// δες και χωριστό downloader για τα excel αρχεία 
 // χρειάζετε fileId που θα το πάρει απο το front και bucket id που θα είναι στο env
 // μας το επιστρέφει ως buffer
 
@@ -16,7 +16,7 @@ const client = new Client()
 const storage = new Storage(client);
 
 // Κατεβάζει ένα excel από το Appwrite και το επιστρέφει ως Buffer.
-export const downloadExcelFromAppwrite = async (
+export const downloadZipFromAppwrite = async (
   fileId: string
 ): Promise<Buffer> => {
   const arrayBuffer = await storage.getFileDownload({
