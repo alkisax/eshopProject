@@ -1,0 +1,57 @@
+/* eslint-disable no-console */
+// backend/src/excel/controllers/excel.export.controller.ts
+import type { Request, Response } from 'express';
+import XLSX from 'xlsx';
+import Commodity from '../../stripe/models/commodity.models'; // adjust path if needed
+
+export const exportProductsToExcel = async (_req: Request, res: Response) => {
+  try {
+    // 1. Fetch all products
+    const products = await Commodity.find({}).lean();
+
+    // 2. Transform DB → rows
+    const rows = products.map((p) => ({
+      name: p.name,
+      description: p.description,
+      category: Array.isArray(p.category) ? p.category.join(', ') : '',
+      price: p.price,
+      stock: p.stock,
+      active: p.active,
+      stripePriceId: p.stripePriceId,
+      images: Array.isArray(p.images) ? p.images.join(', ') : '',
+    }));
+
+    // 3. Convert to worksheet
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+
+    // 4. Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Products');
+
+    // 5. Write workbook to **buffer**, not file
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'buffer',
+    });
+
+    // 6. Set headers for download
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="products_export.xlsx"'
+    );
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+
+    // 7. Send buffer to client
+    return res.send(excelBuffer);
+
+  } catch (error) {
+    console.error('Excel export error:', error);
+    return res.status(500).json({
+      status: false,
+      message: 'Failed to export products to Excel',
+    });
+  }
+};

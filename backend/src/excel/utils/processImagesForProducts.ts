@@ -24,18 +24,22 @@ export const processImagesForProducts = async (
   products: CommodityExcelRow[],
   zipImages: Record<string, Buffer>
 ): Promise<CommodityExcelRow[]> => {
-
   // αρχικοποιηση ενως temporary array που θα βάλουμε ένα ένα τα επεξεργασμένα προιόντα μας (με url αντι fiilename)
   const processedProducts: CommodityExcelRow[] = [];
 
   for (const product of products) {
-
     // αρχικοποίηση του πεδίου που θα μπούν τα urls
     const finalImageUrls: string[] = [];
 
     // product.images = ["keri1.jpg", "keri2.jpg"]
     for (const imageName of product.images) {
-      
+      // 1️⃣ Αν είναι URL → το κρατάμε όπως είναι
+      if (/^https?:\/\//i.test(imageName)) {
+        finalImageUrls.push(imageName);
+        continue;
+      }
+
+      // 2️⃣ Αλλιώς → είναι filename → το ψάχνουμε στο ZIP
       const buffer = zipImages[imageName];
 
       if (!buffer) {
