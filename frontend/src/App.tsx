@@ -90,7 +90,7 @@ function App() {
             <Route path="/store" element={<Store />} />
           </Route>
 
-          <Route path="/commodity/:id" element={<CommodityPage />} />
+          <Route path="/commodity/:slugOrId" element={<CommodityPage />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/shipping-info" element={<ShippingInfo />} />
           <Route path="/favorites" element={<FavoritesPage />} />

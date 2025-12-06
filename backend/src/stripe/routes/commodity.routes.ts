@@ -9,6 +9,8 @@ router.get('/', commodityController.findAll);
 
 router.get('/categories', commodityController.getAllCategories);
 
+router.get('/slug/:slug', commodityController.findBySlug);
+
 // Admin: comments
 router.get('/comments', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.getAllComments);
 
@@ -23,6 +25,7 @@ router.delete('/:id/comments', middleware.verifyToken, middleware.checkRole('ADM
 router.delete('/:id/comments/:commentId', middleware.verifyToken, middleware.checkRole('ADMIN'), commodityController.deleteComment);
 
 // Individual commodity (keep after static routes)
+
 router.get('/:id', commodityController.findById);
 
 // Admin: commodities

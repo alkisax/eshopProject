@@ -105,7 +105,7 @@ const StoreItemList = () => {
             >
               <CardActionArea
                 component={Link}
-                to={`/commodity/${commodity._id}`}
+                to={`/commodity/${commodity.slug ?? commodity._id}`}
                 sx={{
                   flexGrow: 1,              // 👈 take all vertical space
                   display: "flex",

@@ -50,7 +50,10 @@
 - favorites in initialiser ✅
 - no refresh in toggle proccesed ❓(tested and now working... did not touch)
 - add slug to commodity so as to have slug urls
+- τα εμπορεύματα χρειάζονται uuid
 - αυτή τη στιγμή όποτε χρειάζετε μου φαίρνει ΌΛΑ τα εμπορεύματα και μετά κανει search ή ότι άλλο client size. Πρέπει να αλλάξει
+- user order history
+- vectorise order history
 
 - ## e2e test
 

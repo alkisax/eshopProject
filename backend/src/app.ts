@@ -26,6 +26,7 @@ import { stripeController } from './stripe/controllers/stripe.controller';
 import categoryRoutes from './stripe/routes/category.routes';
 import modarationRoutes from './aiModeration/moderation.routes';
 import gptEmbeddingsRoutes from './aiEmbedings/gptEmbeddings.routes';
+import excelRoutes from './excel/routes/excel.routes';
 
 const app = express();
 
@@ -163,6 +164,8 @@ app.use('/api/subpage', subPageRoutes);
 app.use ('/api/moderationAi', modarationRoutes);
 app.use('/api/ai-embeddings', gptEmbeddingsRoutes);
 app.use('/api/upload-multer', uploadMulterRoutes);
+
+app.use('/api/excel', excelRoutes);
 
 app.use(express.static('dist')); 
 

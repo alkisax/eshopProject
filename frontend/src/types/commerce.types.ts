@@ -39,6 +39,8 @@ export interface ShippingInfoType {
 
 export interface CommodityType {
   _id: string;
+  uuid?: string;
+  slug?: string;  
   name: string;
   description?: string;
   category: string | string[] | { _id: string; name: string; slug: string };

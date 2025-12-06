@@ -48,6 +48,24 @@ const findById = async (req: Request, res: Response) => {
   }
 };
 
+const findBySlug = async (req: Request, res: Response) => {
+  const { slug } = req.params;
+
+  if (!slug) {
+    return res.status(400).json({ status: false, error: 'Commodity slug is required' });
+  }
+
+  try {
+    const commodity = await commodityDAO.findCommodityBySlug(slug);
+    if (!commodity) {
+      return res.status(404).json({ status: false, error: 'Commodity not found' });
+    }
+    return res.status(200).json({ status: true, data: commodity });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 const getAllCategories = async (_req: Request, res: Response) => {
   try {
     const categories = await commodityDAO.getAllCategories();
@@ -235,6 +253,7 @@ const getCommentsByUser = async (req: Request, res: Response) => {
 export const commodityController = {
   findAll,
   findById,
+  findBySlug,
   create,
   getAllCategories,
   updateById,

@@ -38,6 +38,20 @@ const findCommodityById = async (id: string | Types.ObjectId): Promise<Commodity
   return commodity;
 };
 
+const findCommodityByStripePriceId = async (
+  stripePriceId: string
+): Promise<CommodityType | null> => {
+  return await Commodity.findOne({ stripePriceId });
+};
+
+const findCommodityByUUID = async (uuid: string): Promise<CommodityType | null> => {
+  return await Commodity.findOne({ uuid });
+};
+
+const findCommodityBySlug = async (slug: string): Promise<CommodityType | null> => {
+  return await Commodity.findOne({ slug });
+};
+
 const getAllCategories = async (): Promise<string[]> => {
   const categories = await Commodity.aggregate([
     { $unwind: '$category' },          // flatten arrays
@@ -112,6 +126,31 @@ const sellCommodityById = async (
   }
 
   return updated;
+};
+
+// προστέθηκε όταν βάλαμε την λειτουργία να κανει update με excel. το κάνει ελέγχοντας ποια εμπορεύματα έχουν stripe id και ποια όχι, οπότε δημιουργεί όσα δεν έχουν το stripe id που έρχετε απο το excel και κάνει update τα άλλα. για αυτό χρειαζόμασταν ένα dao που να κάνει update με βάση το stripeId
+const updateCommodityByStripePriceId = async (
+  stripePriceId: string,
+  updateData: Partial<CommodityType>
+): Promise<CommodityType | null> => {
+  try {
+    const updated = await Commodity.findOneAndUpdate(
+      { stripePriceId },
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    return updated;
+
+  } catch (err: unknown) {
+    if (err instanceof ValidationError) {
+      throw err;
+    }
+    if (err instanceof Error && err.name === 'ValidationError') {
+      throw new ValidationError(err.message);
+    }
+    throw new DatabaseError('Unexpected error updating commodity');
+  }
 };
 
 // Delete
@@ -287,9 +326,13 @@ export const commodityDAO = {
   createCommodity,
   findAllCommodities,
   findCommodityById,
+  findCommodityByStripePriceId,
+  findCommodityByUUID,
+  findCommodityBySlug,
   getAllCategories,
   updateCommodityById,
   sellCommodityById,
+  updateCommodityByStripePriceId,
   deleteCommodityById,
   addCommentToCommodity,
   updateCommentInCommodity,

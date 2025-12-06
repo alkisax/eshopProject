@@ -1,4 +1,4 @@
-// src/pages/CommodityPage.tsx
+// frontend\src\components\store_components\CommodityPage.tsx
 import { useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
@@ -62,7 +62,8 @@ const CommodityPage = () => {
 
   const comments = (commodity?.comments ?? []).filter((c) => c.isApproved);
 
-  const { id } = useParams<{ id: string }>();
+  const isObjectId = (value: string) => /^[a-f\d]{24}$/i.test(value);
+  const { slugOrId } = useParams<{ slugOrId: string }>();
 
   const { user } = useContext(UserAuthContext);
 
@@ -95,6 +96,34 @@ const CommodityPage = () => {
       console.log("GA event sent: view_item", commodity.name, commodity._id);
     }
   }, [commodity, tracker]);
+
+  const fetchCommodity = useCallback(async () => {
+    if (!slugOrId) return;
+    try {
+    const endpoint = isObjectId(slugOrId)
+      ? `${url}/api/commodity/${slugOrId}`
+      : `${url}/api/commodity/slug/${slugOrId}`;
+
+      const res = await axios.get(endpoint);
+      setCommodity(res.data.data);
+
+      // 👇 set first image as selected
+      if (res.data.data.images?.length > 0) {
+        setSelectedImage(res.data.data.images[0]);
+      }
+    } catch (err) {
+      setError("Failed to load commodity.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [slugOrId, url]);
+
+  useEffect(() => {
+    if (slugOrId) fetchCommodity();
+  }, [slugOrId, fetchCommodity]);
+
+  const id = commodity?._id;
 
   const handleAddComment = async () => {
     if (!id || !user) return;
@@ -141,28 +170,7 @@ const CommodityPage = () => {
     }
   };
 
-  const fetchCommodity = useCallback(async () => {
-    try {
-      const res = await axios.get(`${url}/api/commodity/${id}`);
-      setCommodity(res.data.data);
-
-      // 👇 set first image as selected
-      if (res.data.data.images?.length > 0) {
-        setSelectedImage(res.data.data.images[0]);
-      }
-    } catch (err) {
-      setError("Failed to load commodity.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [id, url]);
-
-  useEffect(() => {
-    if (id) fetchCommodity();
-  }, [id, fetchCommodity]);
-
-  // χρησιμοποιείτε στην παρακάτω useEffect
+  // χρησιμοποιείτε στην παρακάτω useEffect fetchSuggestions
   interface SemanticSearchResult {
     commodity: CommodityType;
     score: number;
@@ -370,7 +378,7 @@ const CommodityPage = () => {
         />
         <link
           rel="canonical"
-          href={`${window.location.origin}/commodity/${commodity._id}`}
+          href={`${window.location.origin}/commodity/${commodity.slug ?? commodity._id}`}
         />
       </Helmet>
 
