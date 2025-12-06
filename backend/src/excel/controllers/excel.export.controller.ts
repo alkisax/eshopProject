@@ -2,12 +2,12 @@
 // backend/src/excel/controllers/excel.export.controller.ts
 import type { Request, Response } from 'express';
 import XLSX from 'xlsx';
-import Commodity from '../../stripe/models/commodity.models'; // adjust path if needed
+import Commodity from '../../stripe/models/commodity.models';
 
 export const exportProductsToExcel = async (_req: Request, res: Response) => {
   try {
     // 1. Fetch all products
-    const products = await Commodity.find({}).lean();
+    const products = await Commodity.find({}).lean(); // todo use dao
 
     // 2. Transform DB → rows
     const rows = products.map((p) => ({

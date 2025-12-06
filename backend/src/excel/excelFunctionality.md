@@ -503,28 +503,7 @@ got
 
 # gia argotera
 
-💠 Phase 2 — Export προϊόντων σε Excel
-Ώστε ο admin να κατεβάζει όλη τη λίστα προϊόντων σε Excel
-(με URLs ή filenames).
-
-💠 Phase 3 — Full Sync Mode
-Πολύ σημαντικό:
-Αν υπάρχουν προϊόντα στη DB που δεν υπάρχουν στο Excel → να διαγράφονται ή να γίνονται inactive.
-(Επιλογή με flag.)
-Παράδειγμα:
-Excel έχει: A, B, C
-DB έχει: A, B, C, D
-→ Το D να γίνει inactive ή delete.
-Αυτό το λένε synchronization mode.
-
-💠 Phase 4 — Validation layer
-π.χ.
-Empty name → reject
-Price <= 0 → reject
-Stripe ID missing → reject
-Category invalid → warning
-
-1️⃣ Export προϊόντων σε Excel
-2️⃣ Full sync mode (create/update/delete)
-4️⃣ Frontend uploader (2 αρχεία: Excel + ZIP)
-5️⃣ Θες να προσθέσουμε image resizing (small/medium/large) αυτόματα;
+1. Export προϊόντων σε Excel ✅
+2. Export images Zip 
+3. Full sync mode (create/update/delete)
+4. να προσθέσουμε image resizing (small/medium/large) αυτόματα;

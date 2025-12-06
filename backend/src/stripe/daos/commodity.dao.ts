@@ -44,6 +44,14 @@ const findCommodityByStripePriceId = async (
   return await Commodity.findOne({ stripePriceId });
 };
 
+const findCommodityByUUID = async (uuid: string): Promise<CommodityType | null> => {
+  return await Commodity.findOne({ uuid });
+};
+
+const findCommodityBySlug = async (slug: string): Promise<CommodityType | null> => {
+  return await Commodity.findOne({ slug });
+};
+
 const getAllCategories = async (): Promise<string[]> => {
   const categories = await Commodity.aggregate([
     { $unwind: '$category' },          // flatten arrays
@@ -319,6 +327,8 @@ export const commodityDAO = {
   findAllCommodities,
   findCommodityById,
   findCommodityByStripePriceId,
+  findCommodityByUUID,
+  findCommodityBySlug,
   getAllCategories,
   updateCommodityById,
   sellCommodityById,

@@ -26,6 +26,8 @@ export interface TransactionType extends Document {
 
 export interface CommodityType extends Document {
   _id: Types.ObjectId;
+  uuid?: string;
+  slug?: string;
   name: string;
   description?: string;
   category: string[]

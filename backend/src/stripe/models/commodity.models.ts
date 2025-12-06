@@ -1,6 +1,9 @@
+// backend\src\stripe\models\commodity.models.ts
 // TODO add slug to commodity so as to have slug urls
 
 import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+import { slugify } from '../../utils/slugify';
 import type { CommodityType } from '../types/stripe.types';
 
 const Schema = mongoose.Schema;
@@ -29,6 +32,17 @@ const commentSchema = new Schema({
 }); 
 
 const commoditySchema = new Schema({
+  uuid: {
+    type: String,
+    unique: true,
+    default: uuidv4
+  },
+  slug: {
+    type: String,
+    unique: true,
+    sparse: true,   // Επειδή έχω ήδη products στη DB χωρίς slug → χωρίς sparse: true, το MongoDB θα πετάξει duplicate key error για τα "null" slugs.
+    default: null
+  },
   name: { 
     type: String,
     required: true 
@@ -81,6 +95,16 @@ const commoditySchema = new Schema({
 {
   timestamps: true,
   collection: 'commodities'
+});
+
+// Στο Mongoose υπάρχει η έννοια των middleware hooks. Είναι functions που τρέχουν πριν ή μετά από κάποια ενέργεια.
+// function (next) {} Αυτή είναι η function που θα τρέξει πριν το save.
+commoditySchema.pre('save', function (next) {
+  // Μόνο αν δεν υπάρχει ήδη slug
+  if (!this.slug && this.name) {
+    this.slug = slugify(this.name);
+  }
+  next();
 });
 
 export default mongoose.model<CommodityType>('Commodity', commoditySchema);
