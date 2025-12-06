@@ -60,6 +60,8 @@ output → ενα arrray με objects απο όλα τα εμπορεύματα 
 ```ts
 export type ExcelParseResult = CommodityExcelRow[];
 export interface CommodityExcelRow {
+  uuid?: string;
+  slug?: string;
   name: string;
   description: string;
   category: string[]; // μετατροπή από comma-separated string → array
@@ -97,6 +99,8 @@ export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
 
   // 4️⃣ Περνάμε κάθε raw row από φάση καθαρισμού (normalization)
   const products = rawRows.map((row) => ({
+    uuid: row.uuid ?? undefined,
+    slug: row.slug ?? undefined,  
     // Αν κάποιο κελί είναι null → βάζουμε κενή τιμή
     name: row.name ?? '',
     description: row.description ?? '',

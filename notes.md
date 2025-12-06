@@ -23,6 +23,8 @@
 - chat gpt profanity comment test. if not pass wait for admin aproval ✅
 - cosline similarity commodity search✅
 - create a security risks checklist ✅
+- endpoint for importing/exporting via excel ✅
+- endpoint for exporting images zip
 - sitemap for dynamic pages in backend
 
 # frontend
@@ -49,8 +51,8 @@
 - seo ✅
 - favorites in initialiser ✅
 - no refresh in toggle proccesed ❓(tested and now working... did not touch)
-- add slug to commodity so as to have slug urls
-- τα εμπορεύματα χρειάζονται uuid
+- add slug to commodity so as to have slug urls ✅
+- τα εμπορεύματα χρειάζονται uuid ✅
 - αυτή τη στιγμή όποτε χρειάζετε μου φαίρνει ΌΛΑ τα εμπορεύματα και μετά κανει search ή ότι άλλο client size. Πρέπει να αλλάξει
 - user order history
 - vectorise order history

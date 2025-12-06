@@ -40,6 +40,8 @@ export interface CommodityType extends Document {
   images?: string[];
   comments?: CommentType[];
   vector?: number[]; // για προσθήκη vector embedings
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CommentType {
