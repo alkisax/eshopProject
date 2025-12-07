@@ -2,20 +2,23 @@
 // backend\src\excel\utils\processImagesForProducts.ts
 // 3e. Παίρνει products[] + zipImages{ filename: buffer }
 // ανεβάζει τις εικόνες στο Appwrite και επιστρέφει τελικό productsWithUrls[]
+// παίρνει τα products → κάνει μια for σε κάθε product → κάνει μια δέυτερη for σε κάθε imageName of product.images → αν είναι url το κράτάει → αν είναι filename την παίρνει απο το zip και την ανεβάζει
 
 import type { CommodityExcelRow } from '../excelParcer'; //⚠️
 import { uploadImageBufferToAppwrite } from './uploadImageBufferToAppwrite';
 
 // βαζω εδώ τον τυπο ως comment για να είναι ευαναγνωστο
-// export interface CommodityExcelRow {
-//   name: string;
-//   description: string;
-//   category: string[];
-//   price: number;
-//   stock: number;
-//   active: boolean;
-//   stripePriceId: string;
-//   images: string[];
+// interface CommodityExcelRowRaw {
+//   uuid: string | null;
+//   slug: string | null;
+//   name: string | null;
+//   description: string | null;
+//   category: string | null;
+//   price: number | string | null;
+//   stock: number | string | null;
+//   active: boolean | string | null;
+//   stripePriceId: string | null;
+//   images: string | null;
 // }
 
 // input: array με products & obj βιβλιοθήκη με ονομα εικόνας και buffer εικόνας

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 // backend\src\excel\utils\analyzeImagesInput.ts
 // 3a - Utility που αναλύει ΕΝΑ προϊόν από το Excel και αποφασίζει τι τύπο images έχει (urls, filenames, empty, mixed)
+// παίρνει ένα product (ένα excel row) → παίρνει τα images του → κάνει μια for σε κάθε image και ελεγχει αν είναι filename ή url ή λαθος → χαρακτηρίζει το product ως empty url filename ή mixed
 
 import type { CommodityExcelRow } from '../excelParcer';
 

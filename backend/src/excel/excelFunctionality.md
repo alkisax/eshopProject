@@ -224,20 +224,26 @@ controller:
 
 ```ts
 // Flag: έστω ΕΝΑ προϊόν χρειάζεται ZIP ;
-const zipNeeded = analysisResults.some((result) => result.type === 'filenames');
+// const zipNeeded = analysisResults.some((result) => result.type === 'filenames');
+const zipNeeded = analysisResults.some(
+      (result) => result.type === 'filenames' || result.type === 'mixed'
+    );
 
 // Εδώ θα μαζεύουμε warnings για το response
 const warnings: string[] = [];
 ```
 
-δεν έχουμε φτιάξει ακόμα την λογική αν ένα εμπόρευμα έχει mixed urls & filename για αυτό και έχουμε έναν placeholder για αυτά
+δεν έχουμε φτιάξει ακόμα την λογική αν ένα εμπόρευμα έχει mixed urls & filename για αυτό και έχουμε έναν placeholder για αυτά - update: τελικά η μόνη αλλαγή που χρειαζόταν ήταν να προστεθέι || result.type === 'mixed' και να αλλάξει το μυνημα
+const zipNeeded = analysisResults.some(
+      (result) => result.type === 'filenames' || result.type === 'mixed'
+    );
 
 ```ts
 // 5. Placeholder λογική για mixed / hasWrongNames
 analysisResults.forEach((result, index) => {
   if (result.type === 'mixed') {
     warnings.push(
-      `Product '${products[index].name}' has mixed URLs + filenames (NOT supported yet)`
+      `Product '${products[index].name}' contains both URLs and new filenames — new images will be uploaded`
     );
     // Placeholder future logic: skip or fix
   }
