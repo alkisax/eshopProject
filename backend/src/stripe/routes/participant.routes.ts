@@ -1,3 +1,4 @@
+// backend\src\stripe\routes\participant.routes.ts
 import express from 'express';
 const router = express.Router();
 import { participantController } from '../controllers/participant.controller';

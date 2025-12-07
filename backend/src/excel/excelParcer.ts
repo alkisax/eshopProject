@@ -7,6 +7,8 @@ import * as XLSX from 'xlsx';
 // Η τελική μορφή που θέλουμε να πάρουμε από το Excel.
 // Αυτή είναι η "καθαρή" και έτοιμη για χρήση δομή προϊόντος.
 export interface CommodityExcelRow {
+  uuid?: string;
+  slug?: string;  
   name: string;
   description: string;
   category: string[];       // μετατροπή από comma-separated string → array
@@ -24,6 +26,8 @@ export type ExcelParseResult = CommodityExcelRow[];
 // Το Excel δεν εγγυάται ότι όλα τα κελιά έχουν σωστούς τύπους.
 // Άρα εδώ ορίζουμε μια πιο "χαλαρή" μορφή με nullable + string values.
 interface CommodityExcelRowRaw {
+  uuid: string | null;
+  slug: string | null;
   name: string | null;
   description: string | null;
   category: string | null;
@@ -55,6 +59,8 @@ export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
 
   // 4️⃣ Περνάμε κάθε raw row από φάση καθαρισμού (normalization)
   const products = rawRows.map((row) => ({
+    uuid: row.uuid ?? undefined,
+    slug: row.slug ?? undefined,
     // Αν κάποιο κελί είναι null → βάζουμε κενή τιμή
     name: row.name ?? '',
     description: row.description ?? '',

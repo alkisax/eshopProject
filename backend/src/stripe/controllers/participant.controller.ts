@@ -1,3 +1,4 @@
+// backend\src\stripe\controllers\participant.controller.ts
 /* eslint-disable no-console */
 import { participantDao } from '../daos/participant.dao';
 import { handleControllerError } from '../../utils/error/errorHandler';

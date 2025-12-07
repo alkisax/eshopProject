@@ -7,19 +7,60 @@ import { Types } from 'mongoose';
 // Create
 const createCommodity = async (data: Partial<CommodityType>): Promise<CommodityType> => {
   try {
+
+    // // 🔵 LOG: Τι προσπαθούμε να δημιουργήσουμε
+    // console.log('🟦 [DAO] Attempting CREATE:', {
+    //   name: data.name,
+    //   slug: data.slug,
+    //   uuid: data.uuid,
+    //   stripePriceId: data.stripePriceId,
+    // }); // todo remove
+
     const existing = await Commodity.findOne({ stripePriceId: data.stripePriceId });
     if (existing) {
+      // console.error('❌ [DAO] Duplicate stripePriceId:', data.stripePriceId); // todo remove
       throw new ValidationError('Commodity with this stripePriceId already exists');
     }
 
     const commodity = new Commodity(data);
+
+    // // 🔵 LOG πριν το save
+    // console.log('"🟦 [DAO] Saving new commodity..."'); // todo remove
+
     const result = await commodity.save();
+
+    // // 🔵 LOG: Επιτυχία
+    // console.log('"✅ [DAO] CREATE SUCCESS:"', {
+    //   _id: result._id,
+    //   slug: result.slug,
+    //   uuid: result.uuid,
+    // }); // todo remove
+
     return result;
   } catch (err: unknown) {
+    // todo restore
     if (err instanceof Error && err.name === 'ValidationError') {
       throw new ValidationError(err.message);
     }
     throw new DatabaseError('Unexpected error creating commodity');
+    
+    // // todo remove
+    // // 🔥 LOG: Τι error πραγματικά πετάει η Mongo
+    // console.error('"❌ [DAO] CREATE ERROR RAW:"', err);
+
+    // if (err instanceof Error && err.name === 'ValidationError') {
+    //   console.error('"❌ [DAO] Mongoose ValidationError:"', err.message);
+    //   throw new ValidationError(err.message);
+    // }
+
+    // // Πράγματι θέλουμε να ξέρουμε το mongo duplicate key error:
+    // if (err instanceof Error && (err as any).code === 11000) {
+    //   console.error('"❌ [DAO] Duplicate key:"', (err as any).keyValue);
+    //   throw new ValidationError('"Duplicate key: "' + JSON.stringify((err as any).keyValue));
+    // }
+
+    // console.error('"❌ [DAO] Unexpected error:"', err);
+    // throw new DatabaseError('Unexpected error creating commodity');
   }
 };
 
@@ -73,6 +114,37 @@ const updateCommodityById = async (
       throw new NotFoundError('Commodity not found');
     }
     return updated;
+  } catch (err: unknown) {
+    if (err instanceof ValidationError) {
+      throw err; // keep ValidationError
+    }
+    if (err instanceof NotFoundError) {
+      throw err; // keep NotFoundError
+    }
+    if (err instanceof Error && err.name === 'ValidationError') {
+      throw new ValidationError(err.message);
+    }
+    throw new DatabaseError('Unexpected error updating commodity');
+  }
+};
+
+const updateCommodityByUUID = async (
+  uuid: string,
+  updateData: Partial<CommodityType>
+): Promise<CommodityType> => {
+  try {
+    const updated = await Commodity.findOneAndUpdate(
+      { uuid },
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) {
+      throw new NotFoundError('Commodity not found');
+    }
+
+    return updated;
+
   } catch (err: unknown) {
     if (err instanceof ValidationError) {
       throw err; // keep ValidationError
@@ -331,6 +403,7 @@ export const commodityDAO = {
   findCommodityBySlug,
   getAllCategories,
   updateCommodityById,
+  updateCommodityByUUID,
   sellCommodityById,
   updateCommodityByStripePriceId,
   deleteCommodityById,

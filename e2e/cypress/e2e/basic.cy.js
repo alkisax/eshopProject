@@ -1,6 +1,7 @@
 describe('E-Shop Basic E2E', () => {
   it('visits home page, navigates to minor footer pages', () => {
     cy.clearLocalStorage("ga_consent");
+    cy.clearLocalStorage("participantId");
     cy.visit('/');
 
     // Accept GDPR if shown
@@ -59,6 +60,7 @@ describe('E-Shop Basic E2E', () => {
 describe('E-Shop Home Page', () => {
   beforeEach(() => {
     cy.clearLocalStorage("ga_consent");
+    cy.clearLocalStorage("participantId");
     cy.visit('/');
 
     // Accept GDPR if banner shows
@@ -99,6 +101,7 @@ describe('E-Shop Home Page', () => {
 describe('Guest route', () => {
   beforeEach(() => {
     cy.clearLocalStorage("ga_consent");
+    cy.clearLocalStorage("participantId");
     cy.visit('/');
 
     // Accept GDPR if banner shows
@@ -169,7 +172,7 @@ describe('Guest route', () => {
     // a → means “all <a> tags”
     cy.get('#commodity-list a').first().click();
     // literally /commodity/ + 24 characters, each one being a hexadecimal digit
-    cy.url().should('match', /\/commodity\/[a-f0-9]{24}$/);
+    cy.url().should('match', /\/commodity\/([a-f0-9]{24}|[a-z0-9-]+)$/);
 
     cy.get('#navbar-cart-badge').click();
     cy.url().should('include', '/cart');
@@ -199,6 +202,7 @@ describe('Guest route', () => {
 describe('login test', () => {
   beforeEach(() => {
     cy.clearLocalStorage("ga_consent");
+    cy.clearLocalStorage("participantId");
     cy.visit('/');
 
     // Accept GDPR if banner shows
@@ -282,6 +286,7 @@ describe('login test', () => {
 describe('Backend auth tests', () => {
   beforeEach(() => {
     cy.clearLocalStorage("ga_consent");
+    cy.clearLocalStorage("participantId");
     cy.visit('/');
 
     // ✅ Accept GDPR banner if present
@@ -347,7 +352,7 @@ describe('Backend auth tests', () => {
     cy.intercept('POST', '/api/users/*/favorites').as('addFavorite');
     cy.intercept('DELETE', '/api/users/*/favorites').as('removeFavorite');
     cy.intercept('GET', '/api/users/*').as('getUser');
-    cy.intercept('GET', '/api/commodity/*').as('getCommodity');
+    cy.intercept('GET', '/api/commodity/**').as('getCommodity');
     
     // ✅ login first
     cy.get('#navbar-login', { timeout: 10000 }).should('exist').click();
@@ -377,7 +382,7 @@ describe('Backend auth tests', () => {
     // cy.get('#commodity-list a').first().click();
 
     // Assert URL is /commodity/:id
-    cy.url().should('match', /\/commodity\/[a-f0-9]{24}$/);
+    cy.url().should('match', /\/commodity\/([a-f0-9]{24}|[a-z0-9-]+)$/);
 
     // Assert title and price
     cy.get('#item-title').should('exist').and('be.visible').and('not.be.empty'); // title
@@ -422,7 +427,7 @@ describe('Backend auth tests', () => {
 
     // Go into commodity details
     cy.get('#commodity-list a').first().click();
-    cy.url().should('match', /\/commodity\/[a-f0-9]{24}$/);
+    cy.url().should('match', /\/commodity\/([a-f0-9]{24}|[a-z0-9-]+)$/);
 
     // ✅ Open cart
     cy.get('#navbar-cart-badge').click();
@@ -493,6 +498,7 @@ describe('Admin login and panel access', () => {
   it('logs in as admin and sees Admin Panel button', () => {
 
     cy.clearLocalStorage("ga_consent");
+    cy.clearLocalStorage("participantId");
     cy.visit('/');
 
     // Accept GDPR if needed
@@ -522,6 +528,7 @@ describe('Admin login and panel access', () => {
     cy.viewport(1280, 900); // ensure lg columns (e.g., Status) can appear
 
     cy.clearLocalStorage("ga_consent");
+    cy.clearLocalStorage("participantId");
     cy.visit('/');
 
     // GDPR
