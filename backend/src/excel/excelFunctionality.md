@@ -82,7 +82,11 @@ let products = parseExcelBuffer(excelBuffer);
 - η parseExcelBuffer
 
 ```ts
+// parseExcelBuffer
+// Παίρνει ένα Buffer (αρχείο Excel ανεβασμένο στο Appwrite)
+// και επιστρέφει έναν πίνακα από "καθαρά" προϊόντα
 export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
+
   // 1️⃣ Διαβάζουμε ολόκληρο το Excel workbook από το buffer
   const workbook = XLSX.read(buffer, { type: 'buffer' });
 
@@ -100,7 +104,7 @@ export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
   // 4️⃣ Περνάμε κάθε raw row από φάση καθαρισμού (normalization)
   const products = rawRows.map((row) => ({
     uuid: row.uuid ?? undefined,
-    slug: row.slug ?? undefined,  
+    slug: row.slug ?? undefined,
     // Αν κάποιο κελί είναι null → βάζουμε κενή τιμή
     name: row.name ?? '',
     description: row.description ?? '',
@@ -109,8 +113,8 @@ export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
     // - Το κάνουμε .split(',') → ["cat1", "cat2"]
     category: row.category
       ? String(row.category)
-          .split(',')
-          .map((c) => c.trim())
+        .split(',')
+        .map((c) => c.trim())
       : [],
     // Price και stock:
     // - Μετατρέπουμε το value σε Number
@@ -129,8 +133,8 @@ export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
     // - Το κάνουμε array ["a.jpg", "b.jpg"]
     images: row.images
       ? String(row.images)
-          .split(',')
-          .map((i) => i.trim())
+        .split(',')
+        .map((i) => i.trim())
       : [],
   }));
 
@@ -268,6 +272,8 @@ if (!zipNeeded) {
 - η addProductsFromExcel
 
 ```ts
+// 2. αυτή η βοηθητική συνάρτηση παίρνει όλα τα products, ελέγχει αν υπαρχουν στην βάση δεδομένων με βάση το stripe id και τα δημιουργεί ή τα κάνει update καλόντας τα αντίστοιχα dao ανάλογα
+// προσοχή έχει ένα import type απο άσχετο σημείο
 export const addProductsFromExcel = async (products: CommodityExcelRow[]) => {
   const results = {
     created: 0,
@@ -277,18 +283,34 @@ export const addProductsFromExcel = async (products: CommodityExcelRow[]) => {
 
   for (const p of products) {
     try {
+      let existing = null;
+
       // 1️⃣ έλεγχος αν υπάρχει προϊόν
-      const existing = await commodityDAO.findCommodityByStripePriceId(
-        p.stripePriceId
-      );
+      // 1️⃣ If product has uuid → preferred lookup
+      if (p.uuid) {
+        existing = await commodityDAO.findCommodityByUUID(p.uuid);
+      }
+
+      // 2️⃣ If no uuid or not found → fallback to stripePriceId
+      if (!existing && p.stripePriceId) {
+        existing = await commodityDAO.findCommodityByStripePriceId(
+          p.stripePriceId
+        );
+      }
 
       if (!existing) {
-        // 2️⃣ CREATE
-        await commodityDAO.createCommodity(p);
+        // 2️⃣ CREATE — but keep uuid & slug if provided
+        await commodityDAO.createCommodity({
+          ...p,
+          uuid: p.uuid?.trim() || undefined,
+          slug: p.slug?.trim() || undefined,
+        });
         results.created++;
       } else {
-        // 3️⃣ UPDATE
-        await commodityDAO.updateCommodityByStripePriceId(p.stripePriceId, p);
+        // 4️⃣ UPDATE EXISTING — update only allowed fields
+        // δεν θέλουμε να περάσουμε όλο το product οπως έρχετε απο το excel, για αυτό του αφαιρούμε τα uuid και slug ώστε να μην αλλάζουν
+        const { uuid: _uuid, slug: _slug, ...safeUpdate } = p;
+        await commodityDAO.updateCommodityByUUID(existing.uuid!, safeUpdate);
         results.updated++;
       }
     } catch (err: unknown) {
@@ -306,6 +328,15 @@ export const addProductsFromExcel = async (products: CommodityExcelRow[]) => {
 - backend\src\stripe\daos\commodity.dao.ts
 
 ```ts
+
+const findCommodityByUUID = async (uuid: string): Promise<CommodityType | null> => {
+  return await Commodity.findOne({ uuid });
+};
+
+const findCommodityBySlug = async (slug: string): Promise<CommodityType | null> => {
+  return await Commodity.findOne({ slug });
+};
+
 const findCommodityByStripePriceId = async (
   stripePriceId: string
 ): Promise<CommodityType | null> => {
@@ -328,6 +359,37 @@ const updateCommodityByStripePriceId = async (
   } catch (err: unknown) {
     if (err instanceof ValidationError) {
       throw err;
+    }
+    if (err instanceof Error && err.name === 'ValidationError') {
+      throw new ValidationError(err.message);
+    }
+    throw new DatabaseError('Unexpected error updating commodity');
+  }
+};
+
+const updateCommodityByUUID = async (
+  uuid: string,
+  updateData: Partial<CommodityType>
+): Promise<CommodityType> => {
+  try {
+    const updated = await Commodity.findOneAndUpdate(
+      { uuid },
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) {
+      throw new NotFoundError('Commodity not found');
+    }
+
+    return updated;
+
+  } catch (err: unknown) {
+    if (err instanceof ValidationError) {
+      throw err; // keep ValidationError
+    }
+    if (err instanceof NotFoundError) {
+      throw err; // keep NotFoundError
     }
     if (err instanceof Error && err.name === 'ValidationError') {
       throw new ValidationError(err.message);
