@@ -98,17 +98,11 @@ const findAllCommoditiesPaginated = async (
   const skip = (safePage - 1) * safeLimit;
 
   const items = await Commodity.find()
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(safeLimit);
+    .sort({ createdAt: -1 })  // to σορτ μοιάζει αυθέρετο αλλα χρειάζετε για να επιστρέφει κάθε φορά τα ίδια προβλεπόμενα αποτελέσματα
+    .skip(skip) // Προσπέρασε τα πρώτα n αποτελέσματα - εντολή mongoDB
+    .limit(safeLimit); // πόσα αποτελέσματα να επιστρέψει - εντολή mongoDB
 
-  const [items, total] = await Promise.all([
-    Commodity.find()
-      .sort({ createdAt: -1 }) // to σορτ μοιάζει αυθέρετο αλλα χρειάζετε για να επιστρέφει κάθε φορά τα ίδια προβλεπόμενα αποτελέσματα
-      .skip(skip) // Προσπέρασε τα πρώτα n αποτελέσματα - εντολή mongoDB
-      .limit(safeLimit), // πόσα αποτελέσματα να επιστρέψει - εντολή mongoDB
-    Commodity.countDocuments(),
-  ]);
+  const total = await Commodity.countDocuments();
 
   const pageCount = Math.ceil(total / safeLimit) || 1;
 
