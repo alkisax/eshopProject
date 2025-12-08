@@ -2,13 +2,18 @@
 import Commodity from '../models/commodity.models';
 import mongoose from 'mongoose';
 import type { CommodityType, CommentType } from '../types/stripe.types';
-import { NotFoundError, ValidationError, DatabaseError } from '../../utils/error/errors.types';
+import {
+  NotFoundError,
+  ValidationError,
+  DatabaseError,
+} from '../../utils/error/errors.types';
 import { Types } from 'mongoose';
 
 // Create
-const createCommodity = async (data: Partial<CommodityType>): Promise<CommodityType> => {
+const createCommodity = async (
+  data: Partial<CommodityType>
+): Promise<CommodityType> => {
   try {
-
     // // 🔵 LOG: Τι προσπαθούμε να δημιουργήσουμε
     // console.log('🟦 [DAO] Attempting CREATE:', {
     //   name: data.name,
@@ -17,10 +22,14 @@ const createCommodity = async (data: Partial<CommodityType>): Promise<CommodityT
     //   stripePriceId: data.stripePriceId,
     // }); // todo remove
 
-    const existing = await Commodity.findOne({ stripePriceId: data.stripePriceId });
+    const existing = await Commodity.findOne({
+      stripePriceId: data.stripePriceId,
+    });
     if (existing) {
       // console.error('❌ [DAO] Duplicate stripePriceId:', data.stripePriceId); // todo remove
-      throw new ValidationError('Commodity with this stripePriceId already exists');
+      throw new ValidationError(
+        'Commodity with this stripePriceId already exists'
+      );
     }
 
     const commodity = new Commodity(data);
@@ -44,7 +53,7 @@ const createCommodity = async (data: Partial<CommodityType>): Promise<CommodityT
       throw new ValidationError(err.message);
     }
     throw new DatabaseError('Unexpected error creating commodity');
-    
+
     // // todo remove
     // // 🔥 LOG: Τι error πραγματικά πετάει η Mongo
     // console.error('"❌ [DAO] CREATE ERROR RAW:"', err);
@@ -66,14 +75,59 @@ const createCommodity = async (data: Partial<CommodityType>): Promise<CommodityT
 };
 
 // Read all
-const findAllCommodities = async (page = 0): Promise<CommodityType[]> => {
-  return await Commodity.find().limit(50).skip(page * 50);
+const findAllCommodities = async (): Promise<CommodityType[]> => {
+  return await Commodity.find();
+};
+
+// pagination on backend
+// in: Ποια σελίδα θα δούμε, ποσα ανα σελίδα. out: λίστα με αντικείμενα, συνολικό πλήθος Products, σε πια σελίδα είμαστε, πόσες σελίδες υπάρχουν
+const findAllCommoditiesPaginated = async (
+  page: number,
+  limit: number // πόσα προϊόντα δείχνουμε ανά σελίδα
+): Promise<{
+  items: CommodityType[];
+  total: number;
+  page: number;
+  pageCount: number;
+}> => {
+  // μικρή προστασία από λάθος τιμές
+  const safePage = page > 0 ? page : 1;
+  const safeLimit = limit > 0 ? limit : 10;
+
+  // Προσπέρασε τα πρώτα n αποτελέσματα και ξεκίνα να μου επιστρέφεις από το επόμενο. Οπότε αν 0 προσπερνάει 0 προϊόντα, αν 1 προσπερνάει safelimit προϊόντα (10) κλπ
+  const skip = (safePage - 1) * safeLimit;
+
+  const items = await Commodity.find()
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(safeLimit);
+
+  const [items, total] = await Promise.all([
+    Commodity.find()
+      .sort({ createdAt: -1 }) // to σορτ μοιάζει αυθέρετο αλλα χρειάζετε για να επιστρέφει κάθε φορά τα ίδια προβλεπόμενα αποτελέσματα
+      .skip(skip) // Προσπέρασε τα πρώτα n αποτελέσματα - εντολή mongoDB
+      .limit(safeLimit), // πόσα αποτελέσματα να επιστρέψει - εντολή mongoDB
+    Commodity.countDocuments(),
+  ]);
+
+  const pageCount = Math.ceil(total / safeLimit) || 1;
+
+  return {
+    items,
+    total,
+    page: safePage,
+    pageCount,
+  };
 };
 
 // Read by ID
-const findCommodityById = async (id: string | Types.ObjectId): Promise<CommodityType> => {
-  const commodity = await Commodity.findById(id)
-    .populate('comments.user', 'username');
+const findCommodityById = async (
+  id: string | Types.ObjectId
+): Promise<CommodityType> => {
+  const commodity = await Commodity.findById(id).populate(
+    'comments.user',
+    'username'
+  );
   if (!commodity) {
     throw new NotFoundError('Commodity not found');
   }
@@ -86,22 +140,26 @@ const findCommodityByStripePriceId = async (
   return await Commodity.findOne({ stripePriceId });
 };
 
-const findCommodityByUUID = async (uuid: string): Promise<CommodityType | null> => {
+const findCommodityByUUID = async (
+  uuid: string
+): Promise<CommodityType | null> => {
   return await Commodity.findOne({ uuid });
 };
 
-const findCommodityBySlug = async (slug: string): Promise<CommodityType | null> => {
+const findCommodityBySlug = async (
+  slug: string
+): Promise<CommodityType | null> => {
   return await Commodity.findOne({ slug });
 };
 
 const getAllCategories = async (): Promise<string[]> => {
   const categories = await Commodity.aggregate([
-    { $unwind: '$category' },          // flatten arrays
+    { $unwind: '$category' }, // flatten arrays
     { $match: { category: { $ne: '' } } }, // skip empty
-    { $group: { _id: '$category' } },  // unique
-    { $sort: { _id: 1 } }              // sort alphabetically
+    { $group: { _id: '$category' } }, // unique
+    { $sort: { _id: 1 } }, // sort alphabetically
   ]);
-  return categories.map(c => c._id);
+  return categories.map((c) => c._id);
 };
 
 // Update
@@ -110,7 +168,10 @@ const updateCommodityById = async (
   updateData: Partial<CommodityType>
 ): Promise<CommodityType> => {
   try {
-    const updated = await Commodity.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+    const updated = await Commodity.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
     if (!updated) {
       throw new NotFoundError('Commodity not found');
     }
@@ -134,18 +195,16 @@ const updateCommodityByUUID = async (
   updateData: Partial<CommodityType>
 ): Promise<CommodityType> => {
   try {
-    const updated = await Commodity.findOneAndUpdate(
-      { uuid },
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updated = await Commodity.findOneAndUpdate({ uuid }, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updated) {
       throw new NotFoundError('Commodity not found');
     }
 
     return updated;
-
   } catch (err: unknown) {
     if (err instanceof ValidationError) {
       throw err; // keep ValidationError
@@ -164,7 +223,7 @@ const updateCommodityByUUID = async (
 const sellCommodityById = async (
   id: string | Types.ObjectId,
   quantity: number,
-  session?: mongoose.ClientSession   //session
+  session?: mongoose.ClientSession //session
 ): Promise<CommodityType> => {
   if (quantity <= 0) {
     throw new ValidationError('Quantity must be at least 1');
@@ -180,17 +239,20 @@ const sellCommodityById = async (
   }
 
   const updated = await Commodity.findByIdAndUpdate(
-    id,                        // 1️⃣ Which document? → Match by _id
-    {                          // 2️⃣ What update to apply?
-      $inc: {                  // Use MongoDB's $inc operator = "increment"
-        soldCount: quantity,   // Increase soldCount by the quantity sold
-        stock: -quantity       // Decrease stock by the same quantity
-      }
+    id, // 1️⃣ Which document? → Match by _id
+    {
+      // 2️⃣ What update to apply?
+      $inc: {
+        // Use MongoDB's $inc operator = "increment"
+        soldCount: quantity, // Increase soldCount by the quantity sold
+        stock: -quantity, // Decrease stock by the same quantity
+      },
     },
-    {                          // 3️⃣ Options for Mongoose
-      new: true,               // Return the *updated* document (not the old one)
+    {
+      // 3️⃣ Options for Mongoose
+      new: true, // Return the *updated* document (not the old one)
       runValidators: true,
-      session //session
+      session, //session
     }
   );
 
@@ -214,7 +276,6 @@ const updateCommodityByStripePriceId = async (
     );
 
     return updated;
-
   } catch (err: unknown) {
     if (err instanceof ValidationError) {
       throw err;
@@ -227,14 +288,15 @@ const updateCommodityByStripePriceId = async (
 };
 
 // Delete
-const deleteCommodityById = async (id: string | Types.ObjectId): Promise<CommodityType> => {
+const deleteCommodityById = async (
+  id: string | Types.ObjectId
+): Promise<CommodityType> => {
   const deleted = await Commodity.findByIdAndDelete(id);
   if (!deleted) {
     throw new NotFoundError('Commodity not found');
   }
   return deleted;
 };
-
 
 // ➕ Add comment
 const addCommentToCommodity = async (
@@ -302,13 +364,15 @@ const deleteCommentFromCommoditybyCommentId = async (
 };
 
 // ⏳ cron autodelete dao action
-export const deleteOldUnapprovedComments = async (days = 5): Promise<number> => {
+export const deleteOldUnapprovedComments = async (
+  days = 5
+): Promise<number> => {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
 
   // ✅ ensure same subdocument matches both conditions
   const commodities = await Commodity.find({
-    comments: { $elemMatch: { isApproved: false, updatedAt: { $lt: cutoff } } }
+    comments: { $elemMatch: { isApproved: false, updatedAt: { $lt: cutoff } } },
   });
 
   let removedCount = 0;
@@ -318,10 +382,11 @@ export const deleteOldUnapprovedComments = async (days = 5): Promise<number> => 
 
     if (!commodity.comments || commodity.comments.length === 0) {
       continue;
-    };
+    }
 
     commodity.comments = commodity.comments.filter(
-      (c: CommentType) => !(c.isApproved === false && c.updatedAt && c.updatedAt < cutoff)
+      (c: CommentType) =>
+        !(c.isApproved === false && c.updatedAt && c.updatedAt < cutoff)
     );
 
     const after = commodity.comments.length;
@@ -341,11 +406,11 @@ const getAllComments = async () => {
     { $unwind: '$comments' },
     {
       $lookup: {
-        from: 'users',                // collection name in Mongo
-        localField: 'comments.user',  // ObjectId reference
+        from: 'users', // collection name in Mongo
+        localField: 'comments.user', // ObjectId reference
         foreignField: '_id',
-        as: 'userInfo'
-      }
+        as: 'userInfo',
+      },
     },
     { $unwind: { path: '$userInfo', preserveNullAndEmptyArrays: true } },
     {
@@ -355,15 +420,15 @@ const getAllComments = async () => {
           _id: '$userInfo._id',
           username: '$userInfo.username',
           email: '$userInfo.email',
-          name: '$userInfo.name'
+          name: '$userInfo.name',
         },
         text: '$comments.text',
         rating: '$comments.rating',
         isApproved: '$comments.isApproved',
         createdAt: '$comments.createdAt',
-        commentId: '$comments._id'
-      }
-    }
+        commentId: '$comments._id',
+      },
+    },
   ]);
   return result;
 };
@@ -380,9 +445,9 @@ const getCommentsByUser = async (userId: string | Types.ObjectId) => {
         rating: '$comments.rating',
         isApproved: '$comments.isApproved',
         createdAt: '$comments.createdAt',
-        commentId: '$comments._id'
-      }
-    }
+        commentId: '$comments._id',
+      },
+    },
   ]);
   return result;
 };
@@ -398,6 +463,7 @@ const deleteAllCommentsByUser = async (userId: string | Types.ObjectId) => {
 export const commodityDAO = {
   createCommodity,
   findAllCommodities,
+  findAllCommoditiesPaginated,
   findCommodityById,
   findCommodityByStripePriceId,
   findCommodityByUUID,
@@ -415,5 +481,5 @@ export const commodityDAO = {
   deleteOldUnapprovedComments,
   getAllComments,
   getCommentsByUser,
-  deleteAllCommentsByUser
+  deleteAllCommentsByUser,
 };

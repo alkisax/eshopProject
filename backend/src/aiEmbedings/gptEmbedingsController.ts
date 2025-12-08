@@ -24,7 +24,7 @@ const vectorizeAllHandler = async (_req: Request, res: Response) => {
     let updatedCount = 0;
 
     while (true) {
-      const commodities = await commodityDAO.findAllCommodities(page);
+      const commodities = await commodityDAO.findAllCommodities();
       // οταν θα ζητήσουμε απο το commodityDao να φτάσει στην πρωτη σελίδα αδεια θα στείλει [] και θα κάνει trigger το break
       if (commodities.length === 0) {
         break;

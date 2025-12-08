@@ -20,10 +20,9 @@ const create = async (req: Request, res: Response) => {
 };
 
 // GET all commodities
-const findAll = async (req: Request, res: Response) => {
+const findAll = async (_req: Request, res: Response) => {
   try {
-    const page = req.query.page ? Number(req.query.page) : 0;
-    const commodities = await commodityDAO.findAllCommodities(page);
+    const commodities = await commodityDAO.findAllCommodities();
 
     console.log('Fetched all commodities');
     return res.status(200).json({ status: true, data: commodities });
