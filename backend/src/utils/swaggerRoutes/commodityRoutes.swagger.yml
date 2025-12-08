@@ -223,6 +223,122 @@ paths:
                     example: 10
         '500':
           description: Server error
+          
+  /api/commodity/search:
+    get:
+      summary: Search commodities (search bar + category filter + pagination)
+      description: >
+        Returns a paginated list of commodities filtered by:
+        - **search term** (case-insensitive, matches commodity name)
+        - **one or more categories**  
+        - **pagination parameters**  
+        This endpoint does **not** replace `/api/commodity`; it is a parallel, more powerful search API.
+      tags:
+        - Commodities
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+          description: Page number (default = 1)
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 12
+          description: Number of results per page (default = 12)
+        - in: query
+          name: search
+          required: false
+          schema:
+            type: string
+            example: "ring"
+          description: Text search on commodity name (case-insensitive)
+        - in: query
+          name: categories
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            example: ["Silver", "Handmade"]
+          style: form
+          explode: true
+          description: >
+            One or more categories to filter by.  
+            Example: `?categories=Silver&categories=Gold`
+      responses:
+        '200':
+          description: Paginated filtered commodity results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      items:
+                        type: array
+                        description: Commodities for the current page
+                        items:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            name:
+                              type: string
+                            description:
+                              type: string
+                            category:
+                              type: array
+                              items:
+                                type: string
+                            price:
+                              type: number
+                            currency:
+                              type: string
+                            stripePriceId:
+                              type: string
+                            soldCount:
+                              type: integer
+                            stock:
+                              type: integer
+                            active:
+                              type: boolean
+                            images:
+                              type: array
+                              items:
+                                type: string
+                            createdAt:
+                              type: string
+                              format: date-time
+                            updatedAt:
+                              type: string
+                              format: date-time
+                      total:
+                        type: integer
+                        example: 120
+                        description: Total number of matching commodities
+                      page:
+                        type: integer
+                        example: 1
+                      pageCount:
+                        type: integer
+                        example: 10
+                      limit:
+                        type: integer
+                        example: 12
+        '500':
+          description: Server error
 
   /api/commodity/categories:
     get:
