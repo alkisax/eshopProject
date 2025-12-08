@@ -24,7 +24,9 @@
 - cosline similarity commodity search✅
 - create a security risks checklist ✅
 - endpoint for importing/exporting via excel ✅
-- endpoint for exporting images zip
+- endpoint for exporting images zip ✅
+- endpoint for full excel update ✅
+- γιατί στην δημιουργια απο excel τα προιοντα είναι active: false?
 - sitemap for dynamic pages in backend
 
 # frontend
@@ -57,6 +59,7 @@
 - αυτή τη στιγμή όποτε χρειάζετε μου φαίρνει ΌΛΑ τα εμπορεύματα και μετά κανει search ή ότι άλλο client size. Πρέπει να αλλάξει
 - user order history
 - vectorise order history
+- γιατι προβάλει τα προιόντα με active: false
 
 - ## e2e test
 
