@@ -92,7 +92,7 @@ function App() {
 
           <Route path="/commodity/:slugOrId" element={<CommodityPage />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/shipping-frontend\src\App.tsxinfo" element={<ShippingInfo />} />
+          <Route path="/shipping-info" element={<ShippingInfo />} />
           <Route path="/favorites" element={<FavoritesPage />} />
 
           <Route path="/login" element={<Login url={url} />} />
