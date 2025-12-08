@@ -100,7 +100,8 @@ const findAllCommoditiesPaginated = async (
   const items = await Commodity.find()
     .sort({ createdAt: -1 })  // to σορτ μοιάζει αυθέρετο αλλα χρειάζετε για να επιστρέφει κάθε φορά τα ίδια προβλεπόμενα αποτελέσματα
     .skip(skip) // Προσπέρασε τα πρώτα n αποτελέσματα - εντολή mongoDB
-    .limit(safeLimit); // πόσα αποτελέσματα να επιστρέψει - εντολή mongoDB
+    .limit(safeLimit) // πόσα αποτελέσματα να επιστρέψει - εντολή mongoDB
+    .select('-vector'); 
 
   const total = await Commodity.countDocuments();
 
@@ -144,6 +145,61 @@ const findCommodityBySlug = async (
   slug: string
 ): Promise<CommodityType | null> => {
   return await Commodity.findOne({ slug });
+};
+
+// για category filter και search bar. τα αποτελέσματα είναι paginated γιατί μπορεί να είναι πολλά
+// in: σελίδα και limit pagination, search param, categories param (πάνω απο μία κατηγορίες). out: pagination info, search results items
+const searchCommodities = async ({
+  page,
+  limit,
+  search,
+  categories,
+}: {
+  page: number;
+  limit: number;
+  search?: string;
+  categories?: string[];
+}): Promise<{
+  items: CommodityType[];
+  total: number;
+  page: number;
+  pageCount: number;
+}> => {
+  // επειδή δεν ξέρουμε αν θα είναι search bar, category filter ή και τα δύο, φτιάχνουμε την μεταβλητή filter που αργότερα θα μπεί μέσα στην αναζήτηση στην εντολή της mongo. Ειναι type unknown γιατι θα είναι παραμέτροι query της mongo
+  //  Αν υπάρχουν ΚΑΙ categories ΚΑΙ search, το filter γίνεται: { category: { $in: ["Silver", "Gold"] }, name: { $regex: "ring", $options: "i" } }
+  const filter: Record<string, unknown> = {};
+
+  // 📌 category filtering
+  if (categories && categories.length > 0) {
+    filter.category = { $in: categories };
+  }
+
+  // 📌 name search
+  //$options: 'i' → case insensitive (Ring, ring, RING)
+  if (search && search.trim() !== '') {
+    filter.name = { $regex: search, $options: 'i' };
+  }
+
+  // pagination func δες παραπάνω
+  const safePage = page > 0 ? page : 1;
+  const safeLimit = limit > 0 ? limit : 10;
+
+  const skip = (safePage - 1) * safeLimit;
+
+  const items = await Commodity.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(safeLimit)
+    .select('-vector'); 
+
+  const total = await Commodity.countDocuments(filter);
+
+  return {
+    items,
+    total,
+    page: safePage,
+    pageCount: Math.ceil(total / safeLimit) || 1,
+  };
 };
 
 const getAllCategories = async (): Promise<string[]> => {
@@ -462,6 +518,7 @@ export const commodityDAO = {
   findCommodityByStripePriceId,
   findCommodityByUUID,
   findCommodityBySlug,
+  searchCommodities,
   getAllCategories,
   updateCommodityById,
   updateCommodityByUUID,

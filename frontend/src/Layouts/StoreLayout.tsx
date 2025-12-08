@@ -91,6 +91,7 @@ const StoreLayout = () => {
     if (!searchText) return items; // no filter if search is empty
 
     const lowerSearch = searchText.toLowerCase();
+    // todo αλλαγή σε backend category search
     return items.filter((commodity) =>
       commodity.name.toLowerCase().includes(lowerSearch)
     );

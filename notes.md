@@ -27,6 +27,9 @@
 - endpoint for exporting images zip ✅
 - endpoint for full excel update ✅
 - sitemap for dynamic pages in backend
+- backend pagination
+- mongo search and search categories
+- swagger για uuid, slug, pagination all
 
 # frontend
 - minimal shop ✅

@@ -8,6 +8,11 @@ const router = Router();
 // Public
 router.get('/', commodityController.findAll);
 
+router.get('/paginated', commodityController.findAllPaginated);
+
+// για το search bar και category filtering. επιστρέφει paginated αποτελέσματα
+router.get('/search', commodityController.search);
+
 router.get('/categories', commodityController.getAllCategories);
 
 router.get('/slug/:slug', commodityController.findBySlug);

@@ -31,6 +31,110 @@ const findAll = async (_req: Request, res: Response) => {
   }
 };
 
+// find all paginated
+// in: αρηθμός σελίδας, πόσα products ανα σελίδα. out: products, total, page, pagecount, limit 
+const findAllPaginated = async (req: Request, res: Response) => {
+  try {
+    let page: number = 1;
+    let limit: number = 10;
+    const pageParam = req.query.page;
+    const limitParam = req.query.limit;
+
+    if (typeof pageParam === 'string') {
+      const parsedPage = Number(pageParam);
+      if (!Number.isNaN(parsedPage) && parsedPage > 0) { // Για να αποκλείσουμε input που δεν είναι αριθμός.
+        page = parsedPage;
+      }
+    }
+
+    if (typeof limitParam === 'string') {
+      const parsedLimit = Number(limitParam);
+      if (!Number.isNaN(parsedLimit) && parsedLimit > 0) {
+        limit = parsedLimit;
+      }
+    }
+
+    const result = await commodityDAO.findAllCommoditiesPaginated(page, limit);
+
+    return res.status(200).json({
+      status: true,
+      data: result.items,
+      total: result.total,
+      page: result.page,
+      pageCount: result.pageCount,
+      limit,
+    });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+// search με search bar ή/και category(ies) filtering
+// in: pagination info (page, limit), query
+// out: pagination info, filtered items
+const search = async (req: Request, res: Response) => {
+  try {
+    // pagination params
+    let page: number = 1;
+    let limit: number = 12;
+
+    const pageParam = req.query.page;
+    const limitParam = req.query.limit;
+
+    // απο το query μου έρχονται όλα σε string
+    if (typeof pageParam === 'string') {
+      const parsed = Number(pageParam);
+      if (!Number.isNaN(parsed) && parsed > 0) {
+        page = parsed;
+      }
+    }
+
+    if (typeof limitParam === 'string') {
+      const parsed = Number(limitParam);
+      if (!Number.isNaN(parsed) && parsed > 0) {
+        limit = parsed;
+      }
+    }
+
+    // --- search param ---
+    let search: string | undefined = undefined;
+    const searchParam = req.query.search;
+
+    if (typeof searchParam === 'string') {
+      const trimmed = searchParam.trim();
+      if (trimmed !== '') {
+        search = trimmed;
+      }
+    }
+
+    // --- categories param ---
+    let categories: string[] | undefined = undefined;
+    const categoriesParam = req.query.categories;
+
+    if (Array.isArray(categoriesParam)) {
+      categories = categoriesParam.map((c) => String(c));
+    } else if (typeof categoriesParam === 'string') {
+      categories = [categoriesParam];
+    }
+
+    // --- DAO call ---
+    const result = await commodityDAO.searchCommodities({
+      page,
+      limit,
+      search,
+      categories,
+    });
+
+    // --- response ---
+    return res.status(200).json({
+      status: true,
+      data: result,
+    });
+  } catch (err) {
+    return handleControllerError(res, err);
+  }
+};
+
 // GET commodity by ID
 const findById = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -251,6 +355,8 @@ const getCommentsByUser = async (req: Request, res: Response) => {
 
 export const commodityController = {
   findAll,
+  findAllPaginated,
+  search,
   findById,
   findBySlug,
   create,
