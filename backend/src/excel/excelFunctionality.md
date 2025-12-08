@@ -579,3 +579,24 @@ got
 2. Export images Zip 
 3. Full sync mode (create/update/delete)
 4. να προσθέσουμε image resizing (small/medium/large) αυτόματα;
+
+
+# testing
+- download excel
+```
+curl -X GET "http://localhost:3001/api/excel/export" \
+  -o "/c/Users/Administrator/Desktop/products_full_export.xlsx"
+```
+- download images
+```
+curl -o "C:\\Users\\Administrator\\Desktop\\product_images_export.zip" http://localhost:3001/api/excel/export-images
+```
+- import excel
+zip: 6936c2a40019a2a19420 excel: 6936c2ed0018e9f68bdb name:products_final_import.xlsx
+```
+curl -X POST http://localhost:3001/api/excel/import   -H "Content-Type: application/json"   -d '{
+    "fileId": "6936c2ed0018e9f68bdb",
+    "originalName": "products_final_import.xlsx",
+    "zipFileId": "6936c2a40019a2a19420"
+  }'
+```
