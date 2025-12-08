@@ -1,3 +1,4 @@
+// frontend\src\Layouts\StoreLayout.tsx
 import { Outlet } from "react-router-dom";
 import StoreSidebar from "../components/store_components/StoreSidebar";
 import { useCallback, useContext, useEffect, useState } from "react";

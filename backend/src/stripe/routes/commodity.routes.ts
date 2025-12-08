@@ -1,3 +1,4 @@
+// backend\src\stripe\routes\commodity.routes.ts
 import { Router } from 'express';
 import { commodityController } from '../controllers/commodity.controller';
 import { middleware } from '../../login/middleware/verification.middleware';

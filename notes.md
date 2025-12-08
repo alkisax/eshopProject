@@ -26,7 +26,6 @@
 - endpoint for importing/exporting via excel ✅
 - endpoint for exporting images zip ✅
 - endpoint for full excel update ✅
-- γιατί στην δημιουργια απο excel τα προιοντα είναι active: false?
 - sitemap for dynamic pages in backend
 
 # frontend
@@ -55,11 +54,10 @@
 - no refresh in toggle proccesed ❓(tested and now working... did not touch)
 - add slug to commodity so as to have slug urls ✅
 - τα εμπορεύματα χρειάζονται uuid ✅
-- hide admin and uploader user
+- hide admin and uploader user ✅
 - αυτή τη στιγμή όποτε χρειάζετε μου φαίρνει ΌΛΑ τα εμπορεύματα και μετά κανει search ή ότι άλλο client size. Πρέπει να αλλάξει
 - user order history
 - vectorise order history
-- γιατι προβάλει τα προιόντα με active: false
 
 - ## e2e test
 

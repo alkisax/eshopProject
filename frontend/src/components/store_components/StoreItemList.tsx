@@ -1,3 +1,4 @@
+// frontend\src\components\store_components\StoreItemList.tsx
 import { useContext } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { Button, Pagination, Typography, Card, CardActions, CardActionArea, CardContent, CardMedia, } from "@mui/material";

@@ -1,3 +1,4 @@
+// backend\src\stripe\daos\commodity.dao.ts
 import Commodity from '../models/commodity.models';
 import mongoose from 'mongoose';
 import type { CommodityType, CommentType } from '../types/stripe.types';
