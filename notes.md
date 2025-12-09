@@ -26,10 +26,10 @@
 - endpoint for importing/exporting via excel ✅
 - endpoint for exporting images zip ✅
 - endpoint for full excel update ✅
+- backend pagination ✅
+- mongo search and search categories ✅
+- swagger για uuid, slug, pagination all ✅
 - sitemap for dynamic pages in backend
-- backend pagination
-- mongo search and search categories
-- swagger για uuid, slug, pagination all
 
 # frontend
 - minimal shop ✅

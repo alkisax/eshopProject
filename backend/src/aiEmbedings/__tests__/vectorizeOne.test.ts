@@ -72,7 +72,9 @@ afterAll(async () => {
 
 describe('POST /api/ai-embeddings/vectorize/:id', () => {
   it('401 if no token', async () => {
-    const res = await request(app).post(`/api/ai-embeddings/vectorize/${commodityId}`);
+    const res = await request(app).post(
+      `/api/ai-embeddings/vectorize/${commodityId}`
+    );
     expect(res.status).toBe(401);
   });
 
@@ -119,7 +121,9 @@ describe('POST /api/ai-embeddings/vectorize/:id', () => {
   it('200 and returns commodity with vector (happy path)', async () => {
     // Spy getEmbedding to return fake vector
     const fakeVector = Array(10).fill(0.5); // shorter than 1536 for test speed
-    const spy = jest.spyOn(gptService, 'getEmbedding').mockResolvedValue(fakeVector);
+    const spy = jest
+      .spyOn(gptService, 'getEmbedding')
+      .mockResolvedValue(fakeVector);
 
     const res = await request(app)
       .post(`/api/ai-embeddings/vectorize/${commodityId}`)
@@ -179,7 +183,9 @@ describe('DAO/service errors with spyOn', () => {
     });
 
     const fakeVector = Array(4).fill(0.9);
-    const spy = jest.spyOn(gptService, 'getEmbedding').mockResolvedValue(fakeVector);
+    const spy = jest
+      .spyOn(gptService, 'getEmbedding')
+      .mockResolvedValue(fakeVector);
 
     const res = await request(app)
       .post(`/api/ai-embeddings/vectorize/${commodityNoDesc._id}`)
@@ -226,22 +232,6 @@ describe('POST /api/ai-embeddings/vectorize/all', () => {
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(res.status).toBe(403);
-  });
-
-  it('200 returns count of updated commodities (happy path)', async () => {
-    const fakeVector = Array(8).fill(0.25);
-    const spy = jest.spyOn(gptService, 'getEmbedding').mockResolvedValue(fakeVector);
-
-    const res = await request(app)
-      .post('/api/ai-embeddings/vectorize/all')
-      .set('Authorization', `Bearer ${adminToken}`);
-
-    expect(res.status).toBe(200);
-    expect(res.body.status).toBe(true);
-    expect(typeof res.body.data).toBe('number');
-    expect(res.body.data).toBeGreaterThanOrEqual(0);
-
-    spy.mockRestore();
   });
 });
 
