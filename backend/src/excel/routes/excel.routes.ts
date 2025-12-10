@@ -2,6 +2,8 @@
 import { Router } from 'express';
 import { importProductsFromExcel } from '../controllers/excel.import.controller';
 import { exportProductsToExcel } from '../controllers/excel.export.controller';
+import { exportProductImagesZip } from '../controllers/excel.exportImages.controller';
+import { syncProductsFromExcel } from '../controllers/excel.sync.controller';
 
 const router = Router();
 
@@ -10,6 +12,10 @@ router.post('/import', importProductsFromExcel);
 
 // GET /excel/export
 router.get('/export', exportProductsToExcel);
+
+router.get('/export-images', exportProductImagesZip);
+
+router.post('/sync', syncProductsFromExcel);
 
 export default router;
 

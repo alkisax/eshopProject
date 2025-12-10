@@ -1,3 +1,4 @@
+// frontend\src\pages\Store.tsx
 import { Helmet } from 'react-helmet-async'
 import StoreItemList from '../components/store_components/StoreItemList'
 

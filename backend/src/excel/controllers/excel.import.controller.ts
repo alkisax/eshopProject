@@ -53,7 +53,7 @@ export const importProductsFromExcel = async (req: Request, res: Response) => {
 
     // Flag: έστω ΕΝΑ προϊόν χρειάζεται ZIP ;
     const zipNeeded = analysisResults.some(
-      (result) => result.type === 'filenames'
+      (result) => result.type === 'filenames' || result.type === 'mixed'
     );
 
     // Εδώ θα μαζεύουμε warnings για το response
@@ -63,7 +63,7 @@ export const importProductsFromExcel = async (req: Request, res: Response) => {
     analysisResults.forEach((result, index) => {
       if (result.type === 'mixed') {
         warnings.push(
-          `Product '${products[index].name}' has mixed URLs + filenames (NOT supported yet)`
+          `Product '${products[index].name}' contains both URLs and new filenames — new images will be uploaded`
         );
         // Placeholder future logic: skip or fix
       }

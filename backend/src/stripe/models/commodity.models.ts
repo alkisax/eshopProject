@@ -1,5 +1,5 @@
 // backend\src\stripe\models\commodity.models.ts
-// TODO add slug to commodity so as to have slug urls
+// DONE add slug to commodity so as to have slug urls
 
 import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';

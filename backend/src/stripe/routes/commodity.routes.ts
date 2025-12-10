@@ -1,3 +1,4 @@
+// backend\src\stripe\routes\commodity.routes.ts
 import { Router } from 'express';
 import { commodityController } from '../controllers/commodity.controller';
 import { middleware } from '../../login/middleware/verification.middleware';
@@ -6,6 +7,11 @@ const router = Router();
 
 // Public
 router.get('/', commodityController.findAll);
+
+router.get('/paginated', commodityController.findAllPaginated);
+
+// για το search bar και category filtering. επιστρέφει paginated αποτελέσματα
+router.get('/search', commodityController.search);
 
 router.get('/categories', commodityController.getAllCategories);
 

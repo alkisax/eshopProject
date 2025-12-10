@@ -1,3 +1,4 @@
+// frontend\src\Layouts\StoreLayout.tsx
 import { Outlet } from "react-router-dom";
 import StoreSidebar from "../components/store_components/StoreSidebar";
 import { useCallback, useContext, useEffect, useState } from "react";
@@ -24,8 +25,9 @@ const StoreLayout = () => {
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   const [semanticResults, setSemanticResults] = useState<CommodityType[]>([]);
 
+  const [pageCount, setPageCount] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10; // try smaller to test pagination
+  const ITEMS_PER_PAGE = 12;
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -45,100 +47,85 @@ const StoreLayout = () => {
     }
   }, [preselectedCategory, allCategories]);
 
-  // φερνει τα commodities απο το backend
-  // TODO  ⚠️⚠️⚠️ this fetches all commodities
+  // φτιάξαμε μια νέα fetch commodities για να φέρνει τα προιόντα με paginated απο το backend. Παρότι έχουμε fetch paginated εδώ κάνουμε get απο το search(paginated) γιατι η search μου φαίρνει paginated τα πάντα αν δεν έχει παραμέτρους αρα κάνει το ίδιο πράγμα.
+  const fetchPaginatedCommodities = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      const token = localStorage.getItem("token");
+
+      // Custom paramsSerializer:
+      // Η axios ΔΕΝ κάνει σωστό encoding για ελληνικά arrays στο query string.  Αν της δώσεις { categories: ["Σκουλαρίκια"] } μπορεί να σπάσει ή να στείλει λάθος encoding, και ο backend να πάρει undefined. Το URLSearchParams κάνει σωστή κωδικοποίηση UTF-8 ΚΑΙ στέλνει σωστά: categories=Σκουλαρίκια
+      const res = await axios.get(`${url}/api/commodity/search`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+          search: search || undefined,
+          categories:
+            selectedCategories.length > 0 ? selectedCategories : undefined,
+        },
+        paramsSerializer: (params) => {
+          const searchParams = new URLSearchParams();
+
+          Object.keys(params).forEach((key) => {
+            const value = params[key];
+
+            if (Array.isArray(value)) {
+              value.forEach((v) => searchParams.append(key, v));
+            } else if (value !== undefined) {
+              searchParams.append(key, value);
+            }
+          });
+
+          return searchParams.toString();
+        },
+      });
+
+      const data = res.data.data;
+
+      setCommodities(data.items);
+      setPageCount(data.pageCount);
+    } catch (err) {
+      console.error("Pagination fetch failed", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [
+    url,
+    currentPage,
+    ITEMS_PER_PAGE,
+    selectedCategories,
+    search,
+    setIsLoading,
+  ]); // To fetchPaginatedCommodities ξαναδημιουργείται μόνο όταν αλλάξει κάποια από αυτές όταν αλλάζουν categories → νέο fetch - όταν αλλάζει search → νέο fetch ⚠️ οχι απλός ένα dependancy αλλα μέρος της λειτουργείας του search και categories
+
   useEffect(() => {
-    const fetchAllCommodities = async () => {
-      try {
-        setIsLoading(true);
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${url}/api/commodity/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const allCommodities: CommodityType[] = res.data.data;
-
-        setCommodities(allCommodities);
-      } catch {
-        console.log("error fetching commodities");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllCommodities();
-  }, [url, setIsLoading]);
+    fetchPaginatedCommodities();
+  }, [fetchPaginatedCommodities]);
 
   // φέρνει όλες τις κατηγορίες για το filtering. θα μπορούσα να το έκανα και εδώ απο το commodities αλλα αφου έχω dedicated endpoint είναι μάλλον καλύτερα
   useEffect(() => {
     const fetchCategories = async () => {
       const res = await axios.get(`${url}/api/category`);
       if (res.data.status) {
-        // only top-level categories
-        const parentCats = (res.data.data as CategoryType[]).filter(
-          (c) => !c.parent && !c.isTag
-        ); // exclude tagged categories
-        setAllCategories(parentCats);
+        const cats = (res.data.data as CategoryType[]).filter((c) => !c.isTag);
+        setAllCategories(cats);
       }
     };
     fetchCategories();
   }, [url]);
   const parentCategories = allCategories.filter((cat) => !cat.parent);
 
-  // 1/3
-  const filterBySearch = (items: CommodityType[], searchText: string) => {
-    if (!searchText) return items; // no filter if search is empty
-
-    const lowerSearch = searchText.toLowerCase();
-    return items.filter((commodity) =>
-      commodity.name.toLowerCase().includes(lowerSearch)
-    );
-  };
-
-  // 2/3
-  const filterByCategory = (items: CommodityType[]) => {
-    if (selectedCategories.length === 0) return items;
-
-    return items.filter((c) => {
-      const cat = c.category as unknown;
-
-      // case 1: single string id
-      if (typeof cat === "string") {
-        return selectedCategories.includes(cat);
-      }
-
-      // case 2: array of string ids
-      if (Array.isArray(cat) && cat.every((x) => typeof x === "string")) {
-        return cat.some((id) => selectedCategories.includes(id));
-      }
-
-      // case 3: populated object
-      if (typeof cat === "object" && cat && "_id" in cat) {
-        return selectedCategories.includes((cat as { _id: string })._id);
-      }
-
-      return false;
-    });
-  };
-
-  // console.log("selectedCategories", selectedCategories);
-  // console.log("commodity categories", commodities.map(c => c.category));
-  // 3/3 συνένωση των δυο παραπάνω
-  const filtered = filterBySearch(filterByCategory(commodities), search);
-
-  // pagination
-  const pageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginated = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
   // κάνει set το state με τις κατηγορίες που έχουν επιλεχθει
   const handleToggleCategory = (cat: string, checked: boolean) => {
     // Αν το checkbox μπήκε on (checked === true) → κάνουμε spread το προηγούμενο array και προσθέτουμε τη νέα κατηγορία. Αν το checkbox βγήκε off (checked === false) → κρατάμε όλες τις κατηγορίες εκτός από αυτήν
-    setSelectedCategories((prev) =>
-      checked ? [...prev, cat] : prev.filter((c) => c !== cat)
-    );
+    setSelectedCategories((prev) => {
+      const next = checked ? [...prev, cat] : prev.filter((c) => c !== cat);
+      console.log("SELECTED CATEGORIES:", next);
+      return next;
+    });
+
     setCurrentPage(1);
   };
 
@@ -244,21 +231,17 @@ const StoreLayout = () => {
               - Outlet context = δεν μπορούμε να περάσουμε props γιατί το child το δημιουργεί το router. Οπότε δίνουμε context στο <Outlet> και το child τα παίρνει με useOutletContext().
               */}
             <div style={{ flexGrow: 1 }}>
-              {/* TODO */}
-              {/* changed for front end full mount on memory search - Problem see storeSidebar notes */}
-              {/* <Outlet context={{ commodities: paginated, pageCount, currentPage, fetchCart,setCurrentPage }} />  */}
-              {/* <CrossGridLayout title="Κατάστημα"> */}
-                <Outlet
-                  context={{
-                    commodities:
-                      semanticResults.length > 0 ? semanticResults : paginated, // semantic overrides normal list // already sliced
-                    pageCount,
-                    currentPage,
-                    fetchCart,
-                    setCurrentPage,
-                    selectedCategories,
-                  }}
-                />
+              <Outlet
+                context={{
+                  commodities:
+                    semanticResults.length > 0 ? semanticResults : commodities,
+                  pageCount,
+                  currentPage,
+                  fetchCart,
+                  setCurrentPage,
+                  selectedCategories,
+                }}
+              />
               {/* </CrossGridLayout> */}
             </div>
             <CartPreviewFooter

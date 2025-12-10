@@ -1,3 +1,4 @@
+// backend\src\utils\swagger.ts
 import m2s from 'mongoose-to-swagger';
 import User from '../login/models/users.models';
 import Participant from '../stripe/models/participant.models';
@@ -54,6 +55,9 @@ const moderatorRoutesDocs = yaml.load(
 const embedingsRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'embedings.swagger.yml' )
 );
+const excelRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'excelRoutes.swagger.yml')
+);
 
 const options = {
   definition: {
@@ -93,6 +97,7 @@ const options = {
       ...transactionRoutesDocs.paths,
       ...emailRoutesDocs.paths,
       ...stripeRoutesDocs.paths,
+      ...excelRoutesDocs.paths,
       ...uploadMulterRoutesDocs.paths,
       ...categoriesRoutesDocs.paths,
       ...postRoutesDocs.paths,

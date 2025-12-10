@@ -17,6 +17,7 @@
     "test:log": "cross-env NODE_ENV=test jest --coverage --testTimeout=50000 --runInBand --verbose --resetModules --clearMocks"
   },
   "devDependencies": {
+    "@types/archiver": "^7.0.0",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/jest": "^30.0.0",
@@ -41,6 +42,7 @@
   },
   "dependencies": {
     "appwrite": "^18.2.0",
+    "archiver": "^7.0.1",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",

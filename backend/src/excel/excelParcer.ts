@@ -8,15 +8,15 @@ import * as XLSX from 'xlsx';
 // Αυτή είναι η "καθαρή" και έτοιμη για χρήση δομή προϊόντος.
 export interface CommodityExcelRow {
   uuid?: string;
-  slug?: string;  
+  slug?: string;
   name: string;
   description: string;
-  category: string[];       // μετατροπή από comma-separated string → array
+  category: string[]; // μετατροπή από comma-separated string → array
   price: number;
   stock: number;
   active: boolean;
   stripePriceId: string;
-  images: string[];         // μετατροπή από comma-separated string → array
+  images: string[]; // μετατροπή από comma-separated string → array
 }
 
 // Ένα ExcelParseResult είναι απλά ένας πίνακας από προϊόντα
@@ -42,7 +42,6 @@ interface CommodityExcelRowRaw {
 // Παίρνει ένα Buffer (αρχείο Excel ανεβασμένο στο Appwrite)
 // και επιστρέφει έναν πίνακα από "καθαρά" προϊόντα
 export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
-
   // 1️⃣ Διαβάζουμε ολόκληρο το Excel workbook από το buffer
   const workbook = XLSX.read(buffer, { type: 'buffer' });
 
@@ -80,7 +79,20 @@ export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
     // Active:
     // - Αν στο Excel γράψει κάποιος "true" ή TRUE
     // - Το κάνουμε πραγματικό boolean
-    active: row.active === 'true' || row.active === true,
+    active: (() => {
+      const val = String(row.active).trim().toLowerCase();
+
+      if (val === 'true') { return true ; }
+      if (val === 'false') { return false; }
+      if (val === '1') { return true; }
+      if (val === '0') { return false; };
+
+      // fallback for booleans from Excel
+      if (row.active === true) { return true; }
+      if (row.active === false) { return false; }
+
+      return false; // default
+    })(),
     // Stripe price ID:
     // - Μετατρέπουμε πάντα σε string
     stripePriceId: String(row.stripePriceId ?? ''),

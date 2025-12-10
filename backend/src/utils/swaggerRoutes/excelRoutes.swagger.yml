@@ -1,0 +1,198 @@
+# backend\src\utils\swaggerRoutes\excelRoutes.swagger.yml
+openapi: 3.1.0
+info:
+  title: Excel Import/Export & Sync API
+  version: '1.0.0'
+  description: |
+    Endpoints for importing products from Excel, exporting the database to Excel,
+    exporting product images as ZIP, and performing full synchronization.
+
+tags:
+  - name: Excel
+    description: Import/export and sync operations for products.
+
+paths:
+  ###############################################################
+  # 1) IMPORT PRODUCTS (Excel + optional ZIP)
+  ###############################################################
+  /api/excel/import:
+    post:
+      tags: [Excel]
+      summary: Import products from an Excel file already uploaded to Appwrite.
+      description: |
+        Accepts Appwrite file IDs for:
+        - Excel file (mandatory)
+        - ZIP images file (optional)
+
+        Imports products:
+        - Creates or updates products based on UUID (and fallback with stripePriceId)
+        - Supports images as URLs or filenames
+        - When filenames exist and ZIP is provided → uploads to Appwrite
+        - When filenames exist but ZIP is missing → images are removed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fileId, originalName]
+              properties:
+                fileId:
+                  type: string
+                  example: '6936c2ed0018e9f68bdb'
+                originalName:
+                  type: string
+                  example: 'products_final_import.xlsx'
+                zipFileId:
+                  type: string
+                  nullable: true
+                  example: '6936c2a40019a2a19420'
+      responses:
+        '201':
+          description: Import completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Products imported successfully (with ZIP images)'
+                  warnings:
+                    type: array
+                    items:
+                      type: string
+                  data:
+                    type: object
+                    properties:
+                      created:
+                        type: integer
+                        example: 3
+                      updated:
+                        type: integer
+                        example: 1
+                      errors:
+                        type: array
+                        items:
+                          type: string
+        '400':
+          description: Missing fileId/originalName or invalid extension
+        '500':
+          description: Server error
+
+  ###############################################################
+  # 2) EXPORT PRODUCTS TO EXCEL
+  ###############################################################
+  /api/excel/export:
+    get:
+      tags: [Excel]
+      summary: Export all products from MongoDB into an Excel file.
+      description: |
+        Returns an .xlsx file with UUID, slug, name, description,
+        categories, price, stock, active, stripePriceId, image URLs,
+        and timestamps.
+      responses:
+        '200':
+          description: Excel file stream
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Failed to export products
+
+  ###############################################################
+  # 3) EXPORT PRODUCT IMAGES ZIP
+  ###############################################################
+  /api/excel/export-images:
+    get:
+      tags: [Excel]
+      summary: Export all product images as a ZIP archive.
+      description: |
+        Creates a ZIP file with all Appwrite-hosted product images.
+        Each product gets its own folder based on slug/uuid/name.
+      responses:
+        '200':
+          description: ZIP archive stream
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Error generating ZIP
+
+  ###############################################################
+  # 4) FULL SYNC (Excel → DB)
+  ###############################################################
+  /api/excel/sync:
+    post:
+      tags: [Excel]
+      summary: Full two-way synchronization using Excel and optional ZIP.
+      description: |
+        - Creates new products when UUID not found  
+        - Updates matching products  
+        - Deactivates products missing from Excel  
+        - Handles images (URLs, filenames, or mixed)
+        - Requires an Excel already uploaded to Appwrite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fileId, originalName]
+              properties:
+                fileId:
+                  type: string
+                  example: '6936b77400300c99e70f'
+                originalName:
+                  type: string
+                  example: 'products_sync.xlsx'
+                zipFileId:
+                  type: string
+                  nullable: true
+                  example: '6936b4f6001f634e3dab'
+      responses:
+        '200':
+          description: Sync completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Excel sync completed'
+                  data:
+                    type: object
+                    properties:
+                      checked:
+                        type: integer
+                        example: 43
+                      created:
+                        type: integer
+                        example: 3
+                      updated:
+                        type: integer
+                        example: 5
+                      deactivated:
+                        type: integer
+                        example: 1
+                      warnings:
+                        type: array
+                        items: { type: string }
+                      errors:
+                        type: array
+                        items: { type: string }
+        '400':
+          description: Missing fileId/originalName or invalid Excel file
+        '500':
+          description: Server-side sync failure

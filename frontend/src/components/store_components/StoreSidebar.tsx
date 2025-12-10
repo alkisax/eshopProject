@@ -1,13 +1,27 @@
+// frontend\src\components\store_components\StoreSidebar.tsx
 // TODO
 // Είχαμε ένα σοβαρό πρόβλημα και για αυτό αφαιρέθηκε το search bar. Εκάνε search μονο στα paginated αντικείμενα. για να μην γίνετε αυτό θα πρέπει το Pagination να οργανωθεί στο backend ή το front end να έχει τα πάντα στην μνήμη του. θα ακολουθήσω αυτό το δεύτερο αλλά αυτό είναι ΛΑΘΟΣ και πρέπει να αλλαχθει αργότερα γιατι αν τα εμπορεύματα είναι πολλά θα κολάει
 
 import { useState } from "react";
-import { Drawer, Divider, TextField, List, ListItem, FormGroup, FormControlLabel, Checkbox, Typography, IconButton, useMediaQuery, Button, } from "@mui/material";
+import {
+  Drawer,
+  Divider,
+  TextField,
+  List,
+  ListItem,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  Typography,
+  IconButton,
+  useMediaQuery,
+  Button,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
 import type { CategoryType } from "../../types/commerce.types";
 import StoreSidebarSkeleton from "../skeletons/StoreSidebarSkeleton";
-import { useDebouncedCallback } from 'use-debounce';
+import { useDebouncedCallback } from "use-debounce";
 
 interface StoreSidebarProps {
   search: string;
@@ -28,9 +42,8 @@ const StoreSidebar = ({
   onToggleCategory,
   onApplyFilters,
   onClearFilters,
-  onSemanticSearch
+  onSemanticSearch,
 }: StoreSidebarProps) => {
-
   // Είναι React hook από το Material-UI (@mui/material/styles). Σου δίνει πρόσβαση στο theme Το theme είναι κάτι σαν "παγκόσμιο config" για styling. Το ορίζει το ThemeProvider που συνήθως βάζεις γύρω από όλη την app σου. και επειδή εδώ δεν έχουμε είναι default
   const theme = useTheme();
   // ένα boolean που έρχετε απο το MUI
@@ -46,7 +59,7 @@ const StoreSidebar = ({
   // useEffect(() => {
   //   const timeout = setTimeout(() => {
   //     onSearch(localSearch);
-  //   }, 50); 
+  //   }, 50);
   //   return () => clearTimeout(timeout);
   // }, [localSearch, onSearch]);
   const debouncedSearch = useDebouncedCallback((value: string) => {
@@ -59,7 +72,6 @@ const StoreSidebar = ({
 
   const drawerContent = (
     <>
-
       <Divider />
 
       {/* Search box */}
@@ -100,11 +112,7 @@ const StoreSidebar = ({
       />
 
       {/* Categories */}
-      <Typography
-        id="sidebar-title"
-        variant="subtitle1"
-        sx={{ mb: 1 }}
-      >
+      <Typography id="sidebar-title" variant="subtitle1" sx={{ mb: 1 }}>
         Categories
       </Typography>
       <List dense disablePadding>
@@ -116,7 +124,9 @@ const StoreSidebar = ({
                 control={
                   <Checkbox
                     checked={selectedCategories.includes(cat.name)}
-                    onChange={(e) => onToggleCategory(cat.name, e.target.checked)}
+                    onChange={(e) => {
+                      onToggleCategory(cat.name, e.target.checked);
+                    }}
                   />
                 }
                 label={cat.name}

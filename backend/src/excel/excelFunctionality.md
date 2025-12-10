@@ -224,20 +224,26 @@ controller:
 
 ```ts
 // Flag: έστω ΕΝΑ προϊόν χρειάζεται ZIP ;
-const zipNeeded = analysisResults.some((result) => result.type === 'filenames');
+// const zipNeeded = analysisResults.some((result) => result.type === 'filenames');
+const zipNeeded = analysisResults.some(
+      (result) => result.type === 'filenames' || result.type === 'mixed'
+    );
 
 // Εδώ θα μαζεύουμε warnings για το response
 const warnings: string[] = [];
 ```
 
-δεν έχουμε φτιάξει ακόμα την λογική αν ένα εμπόρευμα έχει mixed urls & filename για αυτό και έχουμε έναν placeholder για αυτά
+δεν έχουμε φτιάξει ακόμα την λογική αν ένα εμπόρευμα έχει mixed urls & filename για αυτό και έχουμε έναν placeholder για αυτά - update: τελικά η μόνη αλλαγή που χρειαζόταν ήταν να προστεθέι || result.type === 'mixed' και να αλλάξει το μυνημα
+const zipNeeded = analysisResults.some(
+      (result) => result.type === 'filenames' || result.type === 'mixed'
+    );
 
 ```ts
 // 5. Placeholder λογική για mixed / hasWrongNames
 analysisResults.forEach((result, index) => {
   if (result.type === 'mixed') {
     warnings.push(
-      `Product '${products[index].name}' has mixed URLs + filenames (NOT supported yet)`
+      `Product '${products[index].name}' contains both URLs and new filenames — new images will be uploaded`
     );
     // Placeholder future logic: skip or fix
   }
@@ -573,3 +579,24 @@ got
 2. Export images Zip 
 3. Full sync mode (create/update/delete)
 4. να προσθέσουμε image resizing (small/medium/large) αυτόματα;
+
+
+# testing
+- download excel
+```
+curl -X GET "http://localhost:3001/api/excel/export" \
+  -o "/c/Users/Administrator/Desktop/products_full_export.xlsx"
+```
+- download images
+```
+curl -o "C:\\Users\\Administrator\\Desktop\\product_images_export.zip" http://localhost:3001/api/excel/export-images
+```
+- import excel
+zip: 6936c2a40019a2a19420 excel: 6936c2ed0018e9f68bdb name:products_final_import.xlsx
+```
+curl -X POST http://localhost:3001/api/excel/import   -H "Content-Type: application/json"   -d '{
+    "fileId": "6936c2ed0018e9f68bdb",
+    "originalName": "products_final_import.xlsx",
+    "zipFileId": "6936c2a40019a2a19420"
+  }'
+```
