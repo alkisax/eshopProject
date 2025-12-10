@@ -98,10 +98,10 @@ const findAllCommoditiesPaginated = async (
   const skip = (safePage - 1) * safeLimit;
 
   const items = await Commodity.find()
-    .sort({ createdAt: -1 })  // to σορτ μοιάζει αυθέρετο αλλα χρειάζετε για να επιστρέφει κάθε φορά τα ίδια προβλεπόμενα αποτελέσματα
+    .sort({ createdAt: -1 }) // to σορτ μοιάζει αυθέρετο αλλα χρειάζετε για να επιστρέφει κάθε φορά τα ίδια προβλεπόμενα αποτελέσματα
     .skip(skip) // Προσπέρασε τα πρώτα n αποτελέσματα - εντολή mongoDB
     .limit(safeLimit) // πόσα αποτελέσματα να επιστρέψει - εντολή mongoDB
-    .select('-vector'); 
+    .select('-vector');
 
   const total = await Commodity.countDocuments();
 
@@ -151,7 +151,7 @@ const findCommodityBySlug = async (
 // in: σελίδα και limit pagination, search param, categories param (πάνω απο μία κατηγορίες). out: pagination info, search results items
 const searchCommodities = async ({
   page,
-  limit,
+  limit, // πόσα προϊόντα δείχνουμε ανά σελίδα
   search,
   categories,
 }: {
@@ -170,8 +170,10 @@ const searchCommodities = async ({
   const filter: Record<string, unknown> = {};
 
   // 📌 category filtering
+  // normalize('NFC') → λύνει πρόβλημα με ελληνικούς χαρακτήρες που μπορεί να σταλούν σε διαφορετική unicode μορφή (π.χ. τα τονισμένα γράμματα. Έτσι "Σκουλαρίκια" από browser και DB θα συγκρίνονται 100% ίδια.
   if (categories && categories.length > 0) {
-    filter.category = { $in: categories };
+    const normalized = categories.map((c) => c.normalize('NFC'));
+    filter.category = { $in: normalized };
   }
 
   // 📌 name search
@@ -184,13 +186,14 @@ const searchCommodities = async ({
   const safePage = page > 0 ? page : 1;
   const safeLimit = limit > 0 ? limit : 10;
 
+  // Προσπέρασε τα πρώτα n αποτελέσματα και ξεκίνα να μου επιστρέφεις από το επόμενο. Οπότε αν 0 προσπερνάει 0 προϊόντα, αν 1 προσπερνάει safelimit προϊόντα (10) κλπ
   const skip = (safePage - 1) * safeLimit;
 
   const items = await Commodity.find(filter)
-    .sort({ createdAt: 1 })
-    .skip(skip)
-    .limit(safeLimit)
-    .select('-vector'); 
+    .sort({ createdAt: 1 }) // to σορτ μοιάζει αυθέρετο αλλα χρειάζετε για να επιστρέφει κάθε φορά τα ίδια προβλεπόμενα αποτελέσματα
+    .skip(skip) // Προσπέρασε τα πρώτα n αποτελέσματα - εντολή mongoDB
+    .limit(safeLimit) // πόσα αποτελέσματα να επιστρέψει - εντολή mongoDB
+    .select('-vector');
 
   const total = await Commodity.countDocuments(filter);
 

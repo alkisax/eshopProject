@@ -58,7 +58,7 @@
 - add slug to commodity so as to have slug urls ✅
 - τα εμπορεύματα χρειάζονται uuid ✅
 - hide admin and uploader user ✅
-- αυτή τη στιγμή όποτε χρειάζετε μου φαίρνει ΌΛΑ τα εμπορεύματα και μετά κανει search ή ότι άλλο client size. Πρέπει να αλλάξει
+- αυτή τη στιγμή όποτε χρειάζετε μου φαίρνει ΌΛΑ τα εμπορεύματα και μετά κανει search ή ότι άλλο client side. Πρέπει να αλλάξει✅
 - user order history
 - vectorise order history
 

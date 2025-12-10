@@ -2,13 +2,18 @@
 import type { Request, Response } from 'express';
 import { commodityDAO } from '../daos/commodity.dao';
 import { handleControllerError } from '../../utils/error/errorHandler';
-import { createCommoditySchema, updateCommoditySchema, createCommentSchema, updateCommentSchema } from '../validation/commerce.schema';
+import {
+  createCommoditySchema,
+  updateCommoditySchema,
+  createCommentSchema,
+  updateCommentSchema,
+} from '../validation/commerce.schema';
 
 // POST create commodity
 const create = async (req: Request, res: Response) => {
   try {
     const parsed = createCommoditySchema.parse(req.body);
-    const data = parsed;    
+    const data = parsed;
 
     const newCommodity = await commodityDAO.createCommodity(data);
 
@@ -32,7 +37,7 @@ const findAll = async (_req: Request, res: Response) => {
 };
 
 // find all paginated
-// in: αρηθμός σελίδας, πόσα products ανα σελίδα. out: products, total, page, pagecount, limit 
+// in: αρηθμός σελίδας, πόσα products ανα σελίδα. out: products, total, page, pagecount, limit
 const findAllPaginated = async (req: Request, res: Response) => {
   try {
     let page: number = 1;
@@ -42,7 +47,8 @@ const findAllPaginated = async (req: Request, res: Response) => {
 
     if (typeof pageParam === 'string') {
       const parsedPage = Number(pageParam);
-      if (!Number.isNaN(parsedPage) && parsedPage > 0) { // Για να αποκλείσουμε input που δεν είναι αριθμός.
+      if (!Number.isNaN(parsedPage) && parsedPage > 0) {
+        // Για να αποκλείσουμε input που δεν είναι αριθμός.
         page = parsedPage;
       }
     }
@@ -140,7 +146,9 @@ const findById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (!id) {
-    return res.status(400).json({ status: false, error: 'Commodity ID is required' });
+    return res
+      .status(400)
+      .json({ status: false, error: 'Commodity ID is required' });
   }
 
   try {
@@ -155,13 +163,17 @@ const findBySlug = async (req: Request, res: Response) => {
   const { slug } = req.params;
 
   if (!slug) {
-    return res.status(400).json({ status: false, error: 'Commodity slug is required' });
+    return res
+      .status(400)
+      .json({ status: false, error: 'Commodity slug is required' });
   }
 
   try {
     const commodity = await commodityDAO.findCommodityBySlug(slug);
     if (!commodity) {
-      return res.status(404).json({ status: false, error: 'Commodity not found' });
+      return res
+        .status(404)
+        .json({ status: false, error: 'Commodity not found' });
     }
     return res.status(200).json({ status: true, data: commodity });
   } catch (error) {
@@ -183,13 +195,18 @@ const updateById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (!id) {
-    return res.status(400).json({ status: false, error: 'Commodity ID is required' });
+    return res
+      .status(400)
+      .json({ status: false, error: 'Commodity ID is required' });
   }
 
   try {
     const parsed = updateCommoditySchema.parse(req.body);
-    const updateData = parsed;    
-    const updatedCommodity = await commodityDAO.updateCommodityById(id, updateData);
+    const updateData = parsed;
+    const updatedCommodity = await commodityDAO.updateCommodityById(
+      id,
+      updateData
+    );
 
     console.log(`Updated commodity ${id}`);
     return res.status(200).json({ status: true, data: updatedCommodity });
@@ -201,10 +218,13 @@ const updateById = async (req: Request, res: Response) => {
 // PATCH sell commodity (stock decrease + soldCount increase)
 const sellById = async (req: Request, res: Response) => {
   const id: string = req.params.id;
-  const quantity: number  = req.body.quantity;
+  const quantity: number = req.body.quantity;
 
   if (!id || !quantity) {
-    return res.status(400).json({ status: false, message: 'Commodity ID and quantity are required' });
+    return res.status(400).json({
+      status: false,
+      message: 'Commodity ID and quantity are required',
+    });
   }
 
   try {
@@ -221,14 +241,19 @@ const deleteById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (!id) {
-    return res.status(400).json({ status: false, message: 'Commodity ID is required' });
+    return res
+      .status(400)
+      .json({ status: false, message: 'Commodity ID is required' });
   }
 
   try {
     const deletedCommodity = await commodityDAO.deleteCommodityById(id);
 
     console.log(`Deleted commodity ${deletedCommodity.name}`);
-    return res.status(200).json({ status: true, message: `Commodity ${deletedCommodity.name} deleted successfully` });
+    return res.status(200).json({
+      status: true,
+      message: `Commodity ${deletedCommodity.name} deleted successfully`,
+    });
   } catch (error) {
     return handleControllerError(res, error);
   }
@@ -249,18 +274,20 @@ const addComment = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (!id) {
-    return res.status(400).json({ status: false, error: 'Commodity ID is required' });
+    return res
+      .status(400)
+      .json({ status: false, error: 'Commodity ID is required' });
   }
 
   try {
     const parsed = createCommentSchema.parse(req.body);
     const { user, text, rating, isApproved } = parsed;
-    
-    const updated = await commodityDAO.addCommentToCommodity(id, { 
-      user, 
-      text, 
+
+    const updated = await commodityDAO.addCommentToCommodity(id, {
+      user,
+      text,
       rating,
-      isApproved: isApproved === false ? false : true 
+      isApproved: isApproved === false ? false : true,
     });
     console.log(`Added comment to commodity ${id}`);
     return res.status(200).json({ status: true, data: updated });
@@ -273,14 +300,21 @@ const updateComment = async (req: Request, res: Response) => {
   const { commodityId, commentId } = req.params;
 
   if (!commodityId || !commentId) {
-    return res.status(400).json({ status: false, error: 'Commodity ID and Comment ID are required' });
+    return res.status(400).json({
+      status: false,
+      error: 'Commodity ID and Comment ID are required',
+    });
   }
 
   try {
     const parsed = updateCommentSchema.parse(req.body);
     const { isApproved } = parsed;
 
-    const updated = await commodityDAO.updateCommentInCommodity(commodityId, commentId, { isApproved });
+    const updated = await commodityDAO.updateCommentInCommodity(
+      commodityId,
+      commentId,
+      { isApproved }
+    );
     return res.status(200).json({ status: true, data: updated });
   } catch (error) {
     return handleControllerError(res, error);
@@ -292,7 +326,9 @@ const clearComments = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (!id) {
-    return res.status(400).json({ status: false, error: 'Commodity ID is required' });
+    return res
+      .status(400)
+      .json({ status: false, error: 'Commodity ID is required' });
   }
 
   try {
@@ -309,11 +345,17 @@ const deleteComment = async (req: Request, res: Response) => {
   const { id, commentId } = req.params;
 
   if (!id || !commentId) {
-    return res.status(400).json({ status: false, error: 'Commodity ID and Comment ID are required' });
+    return res.status(400).json({
+      status: false,
+      error: 'Commodity ID and Comment ID are required',
+    });
   }
 
   try {
-    const updated = await commodityDAO.deleteCommentFromCommoditybyCommentId(id, commentId);
+    const updated = await commodityDAO.deleteCommentFromCommoditybyCommentId(
+      id,
+      commentId
+    );
     return res.status(200).json({ status: true, data: updated });
   } catch (error) {
     return handleControllerError(res, error);
@@ -326,7 +368,7 @@ const deleteOldUnapprovedComments = async (_req: Request, res: Response) => {
     const deletedCount = await commodityDAO.deleteOldUnapprovedComments(5); // προεπιλογή 5 μέρες
     res.status(200).json({
       status: true,
-      message: `${deletedCount} unapproved comments older than 5 days were deleted.`
+      message: `${deletedCount} unapproved comments older than 5 days were deleted.`,
     });
   } catch (error) {
     handleControllerError(res, error);
@@ -337,7 +379,9 @@ const deleteAllCommentsByUser = async (req: Request, res: Response) => {
   const { userId } = req.params;
   try {
     const count = await commodityDAO.deleteAllCommentsByUser(userId);
-    return res.status(200).json({ status: true, message: `${count} comments removed` });
+    return res
+      .status(200)
+      .json({ status: true, message: `${count} comments removed` });
   } catch (err) {
     return handleControllerError(res, err);
   }
@@ -371,5 +415,5 @@ export const commodityController = {
   deleteComment,
   deleteOldUnapprovedComments,
   deleteAllCommentsByUser,
-  getCommentsByUser
+  getCommentsByUser,
 };
