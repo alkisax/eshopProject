@@ -187,7 +187,7 @@ const searchCommodities = async ({
   const skip = (safePage - 1) * safeLimit;
 
   const items = await Commodity.find(filter)
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: 1 })
     .skip(skip)
     .limit(safeLimit)
     .select('-vector'); 

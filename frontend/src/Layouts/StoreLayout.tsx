@@ -25,6 +25,7 @@ const StoreLayout = () => {
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   const [semanticResults, setSemanticResults] = useState<CommodityType[]>([]);
 
+  const [pageCount, setPageCount] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10; // try smaller to test pagination
 
@@ -48,27 +49,59 @@ const StoreLayout = () => {
 
   // φερνει τα commodities απο το backend
   // TODO  ⚠️⚠️⚠️ this fetches all commodities
+  // useEffect(() => {
+  //   const fetchAllCommodities = async () => {
+  //     try {
+  //       setIsLoading(true);
+  //       const token = localStorage.getItem("token");
+  //       const res = await axios.get(`${url}/api/commodity/`, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+
+  //       const allCommodities: CommodityType[] = res.data.data;
+
+  //       setCommodities(allCommodities);
+  //     } catch {
+  //       console.log("error fetching commodities");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   fetchAllCommodities();
+  // }, [url, setIsLoading]);
+
+  const fetchPaginatedCommodities = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      const token = localStorage.getItem('token');
+
+      const res = await axios.get(`${url}/api/commodity/search`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+          search: search || undefined,
+          categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+        },
+      });
+
+      const data = res.data.data;
+
+      setCommodities(data.items);
+      setPageCount(data.pageCount);
+
+    } catch (err) {
+      console.error('Pagination fetch failed', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [url, currentPage, ITEMS_PER_PAGE, selectedCategories, search, setIsLoading]);
+
   useEffect(() => {
-    const fetchAllCommodities = async () => {
-      try {
-        setIsLoading(true);
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${url}/api/commodity/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const allCommodities: CommodityType[] = res.data.data;
-
-        setCommodities(allCommodities);
-      } catch {
-        console.log("error fetching commodities");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAllCommodities();
-  }, [url, setIsLoading]);
+    fetchPaginatedCommodities();
+  }, [fetchPaginatedCommodities]);
 
   // φέρνει όλες τις κατηγορίες για το filtering. θα μπορούσα να το έκανα και εδώ απο το commodities αλλα αφου έχω dedicated endpoint είναι μάλλον καλύτερα
   useEffect(() => {
@@ -86,54 +119,52 @@ const StoreLayout = () => {
   }, [url]);
   const parentCategories = allCategories.filter((cat) => !cat.parent);
 
-  // 1/3
-  const filterBySearch = (items: CommodityType[], searchText: string) => {
-    if (!searchText) return items; // no filter if search is empty
+  // // 1/3
+  // const filterBySearch = (items: CommodityType[], searchText: string) => {
+  //   if (!searchText) return items; // no filter if search is empty
 
-    const lowerSearch = searchText.toLowerCase();
-    // todo αλλαγή σε backend category search
-    return items.filter((commodity) =>
-      commodity.name.toLowerCase().includes(lowerSearch)
-    );
-  };
+  //   const lowerSearch = searchText.toLowerCase();
+  //   // todo αλλαγή σε backend category search
+  //   return items.filter((commodity) =>
+  //     commodity.name.toLowerCase().includes(lowerSearch)
+  //   );
+  // };
 
-  // 2/3
-  const filterByCategory = (items: CommodityType[]) => {
-    if (selectedCategories.length === 0) return items;
+  // // 2/3
+  // const filterByCategory = (items: CommodityType[]) => {
+  //   if (selectedCategories.length === 0) return items;
 
-    return items.filter((c) => {
-      const cat = c.category as unknown;
+  //   return items.filter((c) => {
+  //     const cat = c.category as unknown;
 
-      // case 1: single string id
-      if (typeof cat === "string") {
-        return selectedCategories.includes(cat);
-      }
+  //     // case 1: single string id
+  //     if (typeof cat === "string") {
+  //       return selectedCategories.includes(cat);
+  //     }
 
-      // case 2: array of string ids
-      if (Array.isArray(cat) && cat.every((x) => typeof x === "string")) {
-        return cat.some((id) => selectedCategories.includes(id));
-      }
+  //     // case 2: array of string ids
+  //     if (Array.isArray(cat) && cat.every((x) => typeof x === "string")) {
+  //       return cat.some((id) => selectedCategories.includes(id));
+  //     }
 
-      // case 3: populated object
-      if (typeof cat === "object" && cat && "_id" in cat) {
-        return selectedCategories.includes((cat as { _id: string })._id);
-      }
+  //     // case 3: populated object
+  //     if (typeof cat === "object" && cat && "_id" in cat) {
+  //       return selectedCategories.includes((cat as { _id: string })._id);
+  //     }
 
-      return false;
-    });
-  };
+  //     return false;
+  //   });
+  // };
 
-  // console.log("selectedCategories", selectedCategories);
-  // console.log("commodity categories", commodities.map(c => c.category));
-  // 3/3 συνένωση των δυο παραπάνω
-  const filtered = filterBySearch(filterByCategory(commodities), search);
+  // // 3/3 συνένωση των δυο παραπάνω
+  // const filtered = filterBySearch(filterByCategory(commodities), search);
 
-  // pagination
-  const pageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginated = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  // // pagination
+  // const pageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  // const paginated = filtered.slice(
+  //   (currentPage - 1) * ITEMS_PER_PAGE,
+  //   currentPage * ITEMS_PER_PAGE
+  // );
 
   // κάνει set το state με τις κατηγορίες που έχουν επιλεχθει
   const handleToggleCategory = (cat: string, checked: boolean) => {
@@ -252,8 +283,7 @@ const StoreLayout = () => {
               {/* <CrossGridLayout title="Κατάστημα"> */}
                 <Outlet
                   context={{
-                    commodities:
-                      semanticResults.length > 0 ? semanticResults : paginated, // semantic overrides normal list // already sliced
+                  commodities: semanticResults.length > 0 ? semanticResults : commodities,
                     pageCount,
                     currentPage,
                     fetchCart,
