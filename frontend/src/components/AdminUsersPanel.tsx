@@ -288,6 +288,39 @@ const AdminPanel = () => {
           )}
         </DialogContent>
       </Dialog>
+      {/* ADMIN USERS PANEL – INSTRUCTIONS */}
+      <Paper
+        sx={{ p: 2, mt: 4, backgroundColor: "#f7f7f7" }}
+        variant="outlined"
+      >
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Instructions – Users Administration
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • Here you can view all registered users of the platform.
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Update</b>: Opens a panel where you can edit user information
+          (name, username, email).
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Delete</b>: Removes the user permanently. All comments associated
+          with this user are also removed.
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>View More</b>: Shows extended user details such as ID, roles, and
+          profile data.
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Make Admin / Remove Admin</b>: Toggles administrator privileges.
+          Admins have full access to all dashboard features.
+        </Typography>
+        <Typography variant="body2">
+          • The list refreshes automatically after each action. You can reload
+          manually via page refresh if needed.
+        </Typography>
+      </Paper>
     </>
   );
 };

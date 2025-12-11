@@ -2,7 +2,20 @@
 import { useEffect, useState, useContext, useCallback } from "react";
 import axios from "axios";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography, Pagination, IconButton, Stack, Tooltip, TextField
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Typography,
+  Pagination,
+  IconButton,
+  Stack,
+  Tooltip,
+  TextField,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import AddBoxIcon from "@mui/icons-material/AddBox";
@@ -25,7 +38,7 @@ const AdminCommoditiesPanel = () => {
   const [currentPage, setCurrentPage] = useState(1);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_pageCount, setPageCount] = useState(0);
-  const [expanded, setExpanded] = useState<string | null>('');
+  const [expanded, setExpanded] = useState<string | null>("");
   const [search, setSearch] = useState(""); // 🔍 added search state
 
   // 📍 React Router hook that gives info about the current URL (path, query, state).
@@ -142,7 +155,7 @@ const AdminCommoditiesPanel = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log('created vector for commodity');
+      console.log("created vector for commodity");
       await fetchCommodities();
     } catch (err) {
       console.error("Error vectorizing commodity:", err);
@@ -160,7 +173,9 @@ const AdminCommoditiesPanel = () => {
       c.name?.toLowerCase().includes(lower) ||
       c.description?.toLowerCase().includes(lower) ||
       (Array.isArray(c.category) &&
-        c.category.some(cat => typeof cat === "string" && cat.toLowerCase().includes(lower)))
+        c.category.some(
+          (cat) => typeof cat === "string" && cat.toLowerCase().includes(lower)
+        ))
     );
   });
 
@@ -221,7 +236,6 @@ const AdminCommoditiesPanel = () => {
             </TableHead>
             <TableBody>
               {paginated.map((c) => (
-
                 <React.Fragment key={c._id?.toString()}>
                   <TableRow>
                     <TableCell>{c.name}</TableCell>
@@ -254,8 +268,14 @@ const AdminCommoditiesPanel = () => {
                         </IconButton>
                         <Tooltip title="Vectorize">
                           <IconButton
-                            color={c.vector && c.vector.length > 0 ? "success" : "warning"}
-                            onClick={() => handleVectorizeCommodity(c._id!.toString())}
+                            color={
+                              c.vector && c.vector.length > 0
+                                ? "success"
+                                : "warning"
+                            }
+                            onClick={() =>
+                              handleVectorizeCommodity(c._id!.toString())
+                            }
                           >
                             <PrecisionManufacturingIcon />
                           </IconButton>
@@ -287,8 +307,14 @@ const AdminCommoditiesPanel = () => {
                         </Button>
                         <Button
                           variant="outlined"
-                          color={c.vector && c.vector.length > 0 ? "success" : "warning"}
-                          onClick={() => handleVectorizeCommodity(c._id!.toString())}
+                          color={
+                            c.vector && c.vector.length > 0
+                              ? "success"
+                              : "warning"
+                          }
+                          onClick={() =>
+                            handleVectorizeCommodity(c._id!.toString())
+                          }
                           size="small"
                           startIcon={<PrecisionManufacturingIcon />}
                         >
@@ -307,7 +333,6 @@ const AdminCommoditiesPanel = () => {
                     />
                   )}
                 </React.Fragment>
-
               ))}
             </TableBody>
           </Table>
@@ -322,8 +347,69 @@ const AdminCommoditiesPanel = () => {
           sx={{ mt: 2, display: "flex", justifyContent: "center" }}
         />
       )}
+
+      {/* ===================== ADMIN COMMODITIES PANEL – INSTRUCTIONS ===================== */}
+      <Paper
+        sx={{ p: 2, mt: 4, backgroundColor: "#f7f7f7" }}
+        variant="outlined"
+      >
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Instructions – Commodities Management
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • This panel lists all products in the shop. You can search, edit,
+          restock, delete, vectorize, or create new commodities.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Edit</b>: Expands the product row and opens the editing footer.
+          You can change name, description, categories, price, currency, Stripe
+          price ID, stock, active state, and images.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Categories</b>: Categories are stored as strings. When editing,
+          you may type new categories freely. If a category does not exist in
+          the database, the system creates it automatically (with slugified
+          name).
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Images</b>: You can add images either by pasting URLs or by
+          uploading files (handled via Appwrite). Uploaded images generate
+          public URLs automatically. Each thumbnail can be removed individually.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Restock</b>: Updates the total stock number (not increment).
+          Example: setting “20” makes the product’s total stock = 20.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Vectorize</b>: Sends the product through the AI embeddings
+          endpoint. This creates semantic vectors used for “similar products”
+          suggestions. The icon turns green when vectors already exist.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Delete</b>: Permanently removes the product and all internal
+          references. Use only when absolutely necessary.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Add Commodity</b>: Opens the create page. On save, it returns to
+          this panel and automatically refreshes the list (via React Router
+          location state).
+        </Typography>
+
+        <Typography variant="body2">
+          • Pagination and search help navigate large catalogs. Filtering is
+          local and updates automatically as you type.
+        </Typography>
+      </Paper>
     </div>
   );
-}
+};
 
 export default AdminCommoditiesPanel;

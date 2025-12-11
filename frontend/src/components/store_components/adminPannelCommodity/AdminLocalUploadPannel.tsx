@@ -2,7 +2,12 @@
 import { useState, useEffect, useContext, useCallback } from "react";
 import axios from "axios";
 import {
-  Typography, Button, List, ListItem, ListItemText, Box
+  Typography,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Box,
 } from "@mui/material";
 import { VariablesContext } from "../../../context/VariablesContext";
 
@@ -26,7 +31,9 @@ const AdminLocalUploadsPanel = () => {
   const [file, setFile] = useState<File | null>(null);
 
   const fetchUploads = useCallback(async () => {
-    const res = await axios.get<{ status: boolean; data: UploadMeta[] }>(`${url}/api/upload-multer`);
+    const res = await axios.get<{ status: boolean; data: UploadMeta[] }>(
+      `${url}/api/upload-multer`
+    );
     if (res.data.status) setUploads(res.data.data);
   }, [url]);
 
@@ -46,7 +53,7 @@ const AdminLocalUploadsPanel = () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    
+
     await fetchUploads();
     setFile(null);
   };
@@ -77,55 +84,96 @@ const AdminLocalUploadsPanel = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h5" gutterBottom>
-        Local Uploads (avoid)
-      </Typography>
+    <>
+      <Box>
+        <Typography variant="h5" gutterBottom>
+          Local Uploads (avoid)
+        </Typography>
 
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
-      />
-      <Button
-        variant="contained"
-        onClick={handleUpload}
-        disabled={!file}
-        sx={{ ml: 2 }}
-      >
-        Upload
-      </Button>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+        />
+        <Button
+          variant="contained"
+          onClick={handleUpload}
+          disabled={!file}
+          sx={{ ml: 2 }}
+        >
+          Upload
+        </Button>
 
-      <List>
-        {uploads.map((u) => (
-          <ListItem
-            key={u._id}
-            secondaryAction={
-              <Button
-                color="error"
-                onClick={() => handleDelete(u._id)}
-              >
-                Delete
-              </Button>
-            }
-          >
-            {u.file.contentType.startsWith("image/") && (
-              <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
-                <img
-                  src={u.file.url}
-                  alt={u.file.originalName}
-                  style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 4 }}
-                />
-              </Box>
-            )}
-            <ListItemText
-              primary={u.name || u.file.originalName}
-              secondary={u.file.url}
-            />
-          </ListItem>
-        ))}
-      </List>
-    </Box>
+        <List>
+          {uploads.map((u) => (
+            <ListItem
+              key={u._id}
+              secondaryAction={
+                <Button color="error" onClick={() => handleDelete(u._id)}>
+                  Delete
+                </Button>
+              }
+            >
+              {u.file.contentType.startsWith("image/") && (
+                <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
+                  <img
+                    src={u.file.url}
+                    alt={u.file.originalName}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      objectFit: "cover",
+                      borderRadius: 4,
+                    }}
+                  />
+                </Box>
+              )}
+              <ListItemText
+                primary={u.name || u.file.originalName}
+                secondary={u.file.url}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+
+      {/* ===================== ADMIN LOCAL UPLOADS PANEL – INSTRUCTIONS ===================== */}
+      <Box sx={{ p: 2, mt: 4, backgroundColor: "#f7f7f7", borderRadius: 1 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Instructions – Local Uploads (Avoid)
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • This panel manages files uploaded through the <b>multer</b> local
+          upload system. These files are stored on the backend server and also
+          recorded in MongoDB.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • This method is kept only for legacy compatibility and testing. The
+          recommended method for images is the Appwrite cloud uploader (see
+          “Cloud Uploads” panel).
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Upload</b>: Select an image and click “Upload”. When using{" "}
+          <code>?saveToMongo=true</code>, metadata is stored in MongoDB along
+          with the file reference.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Delete</b>: Removes both the file from disk and the corresponding
+          MongoDB record. Use with caution — products referencing this URL will
+          no longer display the image.
+        </Typography>
+
+        <Typography variant="body2">
+          • Prefer Appwrite for production use; local uploads increase server
+          disk usage, are harder to manage, and do not provide CDN-style
+          performance.
+        </Typography>
+      </Box>
+    </>
   );
 };
 

@@ -2,15 +2,27 @@
 import { useContext, useState } from "react";
 import axios from "axios";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, Typography, IconButton, Chip, Stack, Switch, Tooltip, 
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Typography,
+  IconButton,
+  Chip,
+  Stack,
+  Switch,
+  Tooltip,
 } from "@mui/material";
 // import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 // import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import CallSplitIcon from "@mui/icons-material/CallSplit";
 import AddBoxIcon from "@mui/icons-material/AddBox";
-import EscalatorWarningTwoToneIcon from '@mui/icons-material/EscalatorWarningTwoTone';
+import EscalatorWarningTwoToneIcon from "@mui/icons-material/EscalatorWarningTwoTone";
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
 import type { CategoryType } from "../../../types/commerce.types";
@@ -24,19 +36,23 @@ const AdminCategoriesPanel = () => {
 
   // const [expanded, setExpanded] = useState<string | null>(null);
   // το state αυτό δεν είναι ένα απλό boolean, φυλάει και το id αν είναι θετικό
-  const [openSetParent, setOpenSetParent] = useState<null | { childId: string }>(null);
+  const [openSetParent, setOpenSetParent] = useState<null | {
+    childId: string;
+  }>(null);
   const [openAdd, setOpenAdd] = useState<boolean>(false);
 
   //unused vars
   // console.log(expanded);
-  
+
   // children names via ids
   const childNames = (c: CategoryType): string[] => {
     if (!c.children || c.children.length === 0) return [];
-    return c.children
-      .map((id) => categories.find((category) => category._id === id)?.name)
-      // cleans the array to only include valid names
-      .filter(Boolean) as string[];
+    return (
+      c.children
+        .map((id) => categories.find((category) => category._id === id)?.name)
+        // cleans the array to only include valid names
+        .filter(Boolean) as string[]
+    );
   };
 
   const parentName = (c: CategoryType): string | null => {
@@ -44,7 +60,11 @@ const AdminCategoriesPanel = () => {
     return c.parent.name ?? null;
   };
 
-  const toggleFlag = async (c: CategoryType, field: "active" | "isTag", value: boolean) => {
+  const toggleFlag = async (
+    c: CategoryType,
+    field: "active" | "isTag",
+    value: boolean
+  ) => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
@@ -89,7 +109,7 @@ const AdminCategoriesPanel = () => {
   const handleAddCategory = async (payload: Partial<CategoryType>) => {
     const token = localStorage.getItem("token");
     await axios.post(`${url}/api/category`, payload, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     await refreshCategories();
     setOpenAdd(false);
@@ -101,7 +121,7 @@ const AdminCategoriesPanel = () => {
       setIsLoading(true);
       const token = localStorage.getItem("token");
       await axios.delete(`${url}/api/category/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       await refreshCategories();
     } finally {
@@ -112,7 +132,12 @@ const AdminCategoriesPanel = () => {
   return (
     <div>
       {/* το κουμπί για δημιουργία νεου επάνω δεξια. Αν το state openAdd αλλάξει ανοίγει αναδιώμενο παράθυρο */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mb: 2 }}
+      >
         <Typography variant="h5">Categories</Typography>
         {/* startIcon={<AddBoxIcon />} → Render this icon to the left of the button text, */}
         <Button
@@ -133,10 +158,24 @@ const AdminCategoriesPanel = () => {
               {/* Always visible */}
               <TableCell>Name / Slug & Actions</TableCell>
               {/* Hidden on small → display: { xs: "none", md: "table-cell" } */}
-              <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>Parent</TableCell>
-              <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>Children</TableCell>
-              <TableCell align="center" sx={{ display: { xs: "none", md: "table-cell" } }}>Active</TableCell>
-              <TableCell align="center" sx={{ display: { xs: "none", md: "table-cell" } }}>Tag</TableCell>
+              <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>
+                Parent
+              </TableCell>
+              <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                Children
+              </TableCell>
+              <TableCell
+                align="center"
+                sx={{ display: { xs: "none", md: "table-cell" } }}
+              >
+                Active
+              </TableCell>
+              <TableCell
+                align="center"
+                sx={{ display: { xs: "none", md: "table-cell" } }}
+              >
+                Tag
+              </TableCell>
             </TableRow>
           </TableHead>
 
@@ -145,7 +184,7 @@ const AdminCategoriesPanel = () => {
             {categories.map((c) => {
               // διαφορες ιδιότητες της κάθε κατηγορίας μες στο map
               const id = c._id as string;
-              const parent = parentName(c)
+              const parent = parentName(c);
               const children = childNames(c);
 
               // Το "return" εδώ δεν είναι νέο return της συνάρτησης component, αλλά το return του callback της .map(). Κάθε τέτοιο return αποδίδει ένα <TableRow> για την τρέχουσα κατηγορία.
@@ -161,28 +200,47 @@ const AdminCategoriesPanel = () => {
                         <Typography fontWeight={600} noWrap>
                           {c.name}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary" noWrap>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          noWrap
+                        >
                           {c.slug}
                         </Typography>
                       </Stack>
 
                       {/* Actions inline for small screens */}
-                      <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                      <Stack
+                        direction="row"
+                        spacing={0.5}
+                        flexWrap="wrap"
+                        useFlexGap
+                      >
                         {/* το tooltip μου δείχνει το ενημερωτικό popup label */}
 
                         <Tooltip title="Set parent">
                           {/* αλλάζει το state του openSetParent και κάνει trigger το άνοιγμα του σχετικού παραθύρου (παρακάτω) */}
-                          <IconButton size="small" onClick={() => setOpenSetParent({ childId: id })}>
+                          <IconButton
+                            size="small"
+                            onClick={() => setOpenSetParent({ childId: id })}
+                          >
                             <EscalatorWarningTwoToneIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Remove parent">
-                          <IconButton size="small" onClick={() => handleRemoveParent(id)}>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleRemoveParent(id)}
+                          >
                             <CallSplitIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Delete">
-                          <IconButton size="small" color="error" onClick={() => handleDelete(id)}>
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => handleDelete(id)}
+                          >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
@@ -195,16 +253,22 @@ const AdminCategoriesPanel = () => {
                     {parent ? (
                       <Chip label={parent} size="small" />
                     ) : (
-                      <Typography variant="caption" color="text.secondary">—</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        —
+                      </Typography>
                     )}
                   </TableCell>
 
                   {/* αυτό είναι το μόνο που έχει display: lg (όλα τα άλλα έχουν md) με αποτέλεσμα να κρίβετε και στις μεσαίες οθόνες */}
                   <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
                     {children.length > 0 ? (
-                      children.map((n) => <Chip key={n} label={n} size="small" />)
+                      children.map((n) => (
+                        <Chip key={n} label={n} size="small" />
+                      ))
                     ) : (
-                      <Typography variant="caption" color="text.secondary">—</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        —
+                      </Typography>
                     )}
                   </TableCell>
 
@@ -212,7 +276,9 @@ const AdminCategoriesPanel = () => {
                     <Switch
                       size="small"
                       checked={c.active ?? true}
-                      onChange={(_e, checked) => toggleFlag(c, "active", checked)}
+                      onChange={(_e, checked) =>
+                        toggleFlag(c, "active", checked)
+                      }
                     />
                   </TableCell>
 
@@ -220,7 +286,9 @@ const AdminCategoriesPanel = () => {
                     <Switch
                       size="small"
                       checked={!!c.isTag}
-                      onChange={(_e, checked) => toggleFlag(c, "isTag", checked)}
+                      onChange={(_e, checked) =>
+                        toggleFlag(c, "isTag", checked)
+                      }
                     />
                   </TableCell>
                 </TableRow>
@@ -234,7 +302,7 @@ const AdminCategoriesPanel = () => {
       {/* μεταφερθηκαν σε δικό τους component */}
       {openSetParent && (
         <SetParentDialog
-          // διαφορα Props 
+          // διαφορα Props
           open
           childId={openSetParent.childId}
           onClose={() => setOpenSetParent(null)}
@@ -250,6 +318,59 @@ const AdminCategoriesPanel = () => {
           onCreate={handleAddCategory}
         />
       )}
+
+      {/* ===================== ADMIN CATEGORIES PANEL – INSTRUCTIONS ===================== */}
+      <Paper
+        sx={{ p: 2, mt: 4, backgroundColor: "#f7f7f7" }}
+        variant="outlined"
+      >
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Instructions – Category Management
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • This panel manages the full category tree of the e-shop. Categories
+          may have parents, children, or function as standalone tags.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Add Category</b>: Opens a dialog where you define name, slug and
+          flags. New categories are added globally and become immediately
+          available for all commodities.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Set Parent</b>: Assigns a parent category to the selected one.
+          This creates a hierarchical structure (parent → children).
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Remove Parent</b>: Detaches the category from its current parent,
+          returning it to root level.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Active</b>: Controls whether the category is visible and usable
+          in the front-end filtering system.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Tag</b>: When enabled, the category acts as a lightweight tag.
+          Useful for grouping commodities without strict hierarchy.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Children</b>: Displays all categories that list the current one
+          as their parent. These relationships are updated automatically when
+          setting or removing parents.
+        </Typography>
+
+        <Typography variant="body2">
+          • <b>Delete Category</b>: Removes the category from the system. Use
+          with caution — commodities referencing this category will keep the
+          text name but will no longer link to a valid category entry.
+        </Typography>
+      </Paper>
     </div>
   );
 };

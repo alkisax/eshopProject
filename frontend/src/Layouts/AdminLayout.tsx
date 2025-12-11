@@ -15,6 +15,7 @@ import AdminBlogPanel from "../blog/blogComponents/AdminBlogPanel";
 import AdminPostsPanel from "../blog/blogComponents/AdminPostsPanel";
 import AdminAnalyticsPanel from "../components/store_components/adminPannelCommodity/AdminAnalyticsPanel";
 import AdminExcelPanel from "../components/store_components/adminPannelCommodity/AdminExcelPanel";
+import AdminPanelInstructions from "../components/store_components/AdminPanelInstructions";
 
 const AdminLayout = () => {
   const [activePanel, setActivePanel] = useState<string | null>(null);
@@ -41,7 +42,7 @@ const AdminLayout = () => {
         }} />}
         {activePanel === "clearOld" && <AdminClearOldPanel />}
         {activePanel === "analytics" && <AdminAnalyticsPanel />}
-        {!activePanel && <p>Select a panel from the sidebar</p>}
+        {!activePanel && <AdminPanelInstructions />}
         <Outlet />
       </main>
     </div>

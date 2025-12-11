@@ -167,89 +167,157 @@ const AdminExcelPanel = () => {
   };
 
   return (
-    <Paper sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        Excel Product Tools
-      </Typography>
-
-      {/* Loading Overlay */}
-      {loading && (
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-          <CircularProgress size={24} />
-          <Typography>Processing… please wait</Typography>
-        </Stack>
-      )}
-
-      <Stack spacing={3}>
-        {/* EXCEL SELECT */}
-        <Box>
-          <Typography fontWeight="bold">Excel File (.xlsx)</Typography>
-          <input
-            type="file"
-            accept=".xlsx,.xls"
-            onChange={(e) => setExcelFile(e.target.files?.[0] || null)}
-          />
-        </Box>
-
-        {/* ZIP SELECT */}
-        <Box>
-          <Typography fontWeight="bold">Images Zip (optional)</Typography>
-          <input
-            type="file"
-            accept=".zip"
-            onChange={(e) => setZipFile(e.target.files?.[0] || null)}
-          />
-        </Box>
-
-        <Divider />
-
-        {/* EXPORT BUTTON */}
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleExportExcel}
-          disabled={loading}
-        >
-          Export Products Excel
-        </Button>
-
-        {/* EXPORT IMAGES ZIP */}
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleExportImagesZip}
-          disabled={loading}
-        >
-          Export Images ZIP
-        </Button>
-
-        {/* IMPORT BUTTON */}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleImportProducts}
-          disabled={loading}
-        >
-          Import Products (Excel → DB)
-        </Button>
-
-        {/* SYNC BUTTON */}
-        <Button
-          variant="contained"
-          color="warning"
-          onClick={handleSyncProducts}
-          disabled={loading}
-        >
-          Sync / Update Products
-        </Button>
-      </Stack>
-
-      {message && (
-        <Typography sx={{ mt: 3, whiteSpace: "pre-wrap" }} color="secondary">
-          {message}
+    <>
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          Excel Product Tools
         </Typography>
-      )}
-    </Paper>
+
+        {/* Loading Overlay */}
+        {loading && (
+          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+            <CircularProgress size={24} />
+            <Typography>Processing… please wait</Typography>
+          </Stack>
+        )}
+
+        <Stack spacing={3}>
+          {/* EXCEL SELECT */}
+          <Box>
+            <Typography fontWeight="bold">Excel File (.xlsx)</Typography>
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={(e) => setExcelFile(e.target.files?.[0] || null)}
+            />
+          </Box>
+
+          {/* ZIP SELECT */}
+          <Box>
+            <Typography fontWeight="bold">Images Zip (optional)</Typography>
+            <input
+              type="file"
+              accept=".zip"
+              onChange={(e) => setZipFile(e.target.files?.[0] || null)}
+            />
+          </Box>
+
+          <Divider />
+
+          {/* EXPORT BUTTON */}
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleExportExcel}
+            disabled={loading}
+          >
+            Export Products Excel
+          </Button>
+
+          {/* EXPORT IMAGES ZIP */}
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleExportImagesZip}
+            disabled={loading}
+          >
+            Export Images ZIP
+          </Button>
+
+          {/* IMPORT BUTTON */}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleImportProducts}
+            disabled={loading}
+          >
+            Import Products (Excel → DB)
+          </Button>
+
+          {/* SYNC BUTTON */}
+          <Button
+            variant="contained"
+            color="warning"
+            onClick={handleSyncProducts}
+            disabled={loading}
+          >
+            Sync / Update Products
+          </Button>
+        </Stack>
+
+        {message && (
+          <Typography sx={{ mt: 3, whiteSpace: "pre-wrap" }} color="secondary">
+            {message}
+          </Typography>
+        )}
+      </Paper>
+      {/* ===================== EXCEL PRODUCT TOOLS – INSTRUCTIONS ===================== */}
+      <Paper
+        sx={{ p: 2, mt: 4, backgroundColor: "#f7f7f7" }}
+        variant="outlined"
+      >
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Instructions – Excel Product Import / Export
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • This panel allows bulk management of products using Excel files. All
+          files are temporarily uploaded to Appwrite before processing.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Export Products Excel</b>: Downloads an Excel file containing all
+          existing products from the database. Use this file as a template for
+          bulk editing.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Export Images ZIP</b>: Downloads a ZIP file with all product
+          images currently stored. Useful when creating a new ZIP to re-upload
+          with correct filenames.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Excel File (.xlsx)</b>: Required for import or sync. Must follow
+          the column structure expected by the backend (name, description,
+          category, price, stock, active, stripePriceId, images).
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Images ZIP (optional)</b>: If provided, the backend will extract
+          images and auto-match them to products based on filename. When
+          omitted, only fields from Excel are processed.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Import Products (Excel → DB)</b>: Creates new products OR
+          replaces existing ones based strictly on Excel data. Use this for
+          initial population or full overwrite operations.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Sync / Update Products</b>: Updates existing products without
+          deleting missing entries. Only fields included in Excel are updated.
+          Safe for live stores.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • Both Import & Sync first upload the Excel (and optional ZIP) to
+          Appwrite, then pass their file IDs to the backend for processing.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • The <b>Result Message</b> at the bottom displays a detailed JSON
+          summary: number of created products, updated products, untouched
+          products, or any errors.
+        </Typography>
+
+        <Typography variant="body2">
+          • If a ZIP is included, image URLs are updated automatically.
+          Otherwise, only text fields are processed.
+        </Typography>
+      </Paper>
+    </>
   );
 };
 

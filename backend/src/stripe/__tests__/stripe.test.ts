@@ -1,4 +1,3 @@
-
 process.env.APPWRITE_ENDPOINT = 'http://dummy';
 process.env.APPWRITE_PROJECT_ID = 'dummy';
 process.env.APPWRITE_API_KEY = 'dummy';
@@ -7,7 +6,6 @@ jest.mock('../../utils/appwrite.ts', () => ({
   account: {},
   OAuthProvider: { Google: 'google' },
 }));
-
 
 import request from 'supertest';
 import app from '../../app';
@@ -19,7 +17,8 @@ const mockCreateCheckoutSession = jest.fn();
 const mockRetrieveSession = jest.fn();
 jest.mock('../services/stripe.service', () => ({
   stripeService: {
-    createCheckoutSession: (...args: unknown[]) => mockCreateCheckoutSession(...args),
+    createCheckoutSession: (...args: unknown[]) =>
+      mockCreateCheckoutSession(...args),
     retrieveSession: (...args: unknown[]) => mockRetrieveSession(...args),
   },
 }));
@@ -37,7 +36,8 @@ const mockFindParticipantByEmail = jest.fn();
 const mockCreateParticipant = jest.fn();
 jest.mock('../daos/participant.dao', () => ({
   participantDao: {
-    findParticipantByEmail: (...args: unknown[]) => mockFindParticipantByEmail(...args),
+    findParticipantByEmail: (...args: unknown[]) =>
+      mockFindParticipantByEmail(...args),
     createParticipant: (...args: unknown[]) => mockCreateParticipant(...args),
   },
 }));
@@ -67,20 +67,27 @@ describe('Stripe Controller', () => {
   describe('POST /api/stripe/checkout/cart', () => {
     it('returns 200 with checkout session', async () => {
       mockFetchCart.mockResolvedValue(mockCart);
-      mockCreateCheckoutSession.mockResolvedValue({ id: 'mock_id', url: 'mock_url' });
+      mockCreateCheckoutSession.mockResolvedValue({
+        id: 'mock_id',
+        url: 'mock_url',
+      });
 
       const res = await request(app)
         .post('/api/stripe/checkout/cart')
         .send({
           participantId: mockCart.participant.toString(),
-          participantInfo: { email: 'john@example.com' },
+          participantInfo: {
+            _id: mockCart.participant.toString(),
+            email: 'john@example.com',
+            name: 'John',
+          },
           shippingInfo: {
             fullName: 'John Doe',
             addressLine1: '123 Main St',
             city: 'Athens',
             postalCode: '12345',
-            country: 'GR'
-          }
+            country: 'GR',
+          },
         });
 
       expect(res.status).toBe(200);
@@ -95,7 +102,11 @@ describe('Stripe Controller', () => {
         .post('/api/stripe/checkout/cart')
         .send({
           participantId: mockCart.participant.toString(),
-          participantInfo: { email: 'john@example.com' },
+          participantInfo: {
+            _id: mockCart.participant.toString(),
+            email: 'john@example.com',
+            name: 'John',
+          },
           shippingInfo: {
             fullName: 'John Doe',
             addressLine1: '123 Main St',

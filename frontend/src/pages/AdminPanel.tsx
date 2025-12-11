@@ -1,3 +1,5 @@
+// frontend\src\pages\AdminPanel.tsx
+
 const AdminPanel = () => {
 
   return (
