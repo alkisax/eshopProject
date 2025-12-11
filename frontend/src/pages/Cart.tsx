@@ -1,4 +1,4 @@
-
+// frontend\src\pages\Cart.tsx
 import { Box, Typography } from "@mui/material";
 import CartItemsList from "../components/store_components/CartItemsList"
 import { Helmet } from "react-helmet-async";

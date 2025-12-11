@@ -1,3 +1,4 @@
+// backend\src\stripe\models\participant.models.ts
 import mongoose from 'mongoose';
 import type { ParticipantType } from '../types/stripe.types';
 
