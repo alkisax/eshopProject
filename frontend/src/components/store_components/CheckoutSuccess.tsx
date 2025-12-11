@@ -81,7 +81,7 @@ const CheckoutSuccess = () => {
     };
 
     fetchTransactions();
-  }, [globalParticipant?._id, setGlobalParticipant, url]);
+  }, [globalParticipant, globalParticipant?._id, setGlobalParticipant, url]);
 
   if (loading) {
     return (

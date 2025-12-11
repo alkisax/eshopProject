@@ -1,10 +1,33 @@
 // src/components/AdminTransactionsPanel.tsx
 import { useEffect, useState, useContext, useCallback } from "react";
 import axios from "axios";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography, Switch, FormControlLabel, Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemText, Box } from "@mui/material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Typography,
+  Switch,
+  FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  Box,
+} from "@mui/material";
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
-import type { TransactionType, ParticipantType } from "../../../types/commerce.types";
+import type {
+  TransactionType,
+  ParticipantType,
+} from "../../../types/commerce.types";
 
 const AdminTransactionsPanel = () => {
   const { url } = useContext(VariablesContext);
@@ -35,7 +58,10 @@ const AdminTransactionsPanel = () => {
     fetchTransactions();
   }, [fetchTransactions, url]);
 
-  const markProcessed = async (transactionId: string, transaction: TransactionType) => {
+  const markProcessed = async (
+    transactionId: string,
+    transaction: TransactionType
+  ) => {
     try {
       const token = localStorage.getItem("token");
 
@@ -86,8 +112,8 @@ const AdminTransactionsPanel = () => {
   The Team
   `;
 
-    console.log('emailSubject, emailTextBody', emailSubject, emailTextBody);
-    
+    console.log("emailSubject, emailTextBody", emailSubject, emailTextBody);
+
     return { emailSubject, emailTextBody };
   };
 
@@ -121,7 +147,9 @@ const AdminTransactionsPanel = () => {
             color="primary"
           />
         }
-        label={showAll ? "Showing all transactions" : "Showing only unprocessed"}
+        label={
+          showAll ? "Showing all transactions" : "Showing only unprocessed"
+        }
       />
 
       {!isLoading && transactions.length > 0 && (
@@ -129,11 +157,17 @@ const AdminTransactionsPanel = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>Name</TableCell>
-                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>Surname</TableCell>
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                  Name
+                </TableCell>
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                  Surname
+                </TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>Amount (€)</TableCell>
-                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>Status</TableCell>
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                  Status
+                </TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
@@ -150,15 +184,21 @@ const AdminTransactionsPanel = () => {
                       sx={{ cursor: "pointer" }}
                       onClick={() => handleOpen(t)}
                     >
-                      <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                      <TableCell
+                        sx={{ display: { xs: "none", lg: "table-cell" } }}
+                      >
                         {participant?.name || "No Name"}
                       </TableCell>
-                      <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                      <TableCell
+                        sx={{ display: { xs: "none", lg: "table-cell" } }}
+                      >
                         {participant?.surname || "No Surname"}
                       </TableCell>
                       <TableCell>{participant?.email || "No Email"}</TableCell>
                       <TableCell>{t.amount} €</TableCell>
-                      <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                      <TableCell
+                        sx={{ display: { xs: "none", lg: "table-cell" } }}
+                      >
                         {t.processed ? "Processed" : "Unprocessed"}
                       </TableCell>
                       <TableCell>
@@ -212,7 +252,9 @@ const AdminTransactionsPanel = () => {
               </Typography>
               {selected.shipping ? (
                 <Box sx={{ ml: 1 }}>
-                  <Typography variant="body2">{selected.shipping.fullName}</Typography>
+                  <Typography variant="body2">
+                    {selected.shipping.fullName}
+                  </Typography>
                   <Typography variant="body2">
                     {selected.shipping.addressLine1}
                   </Typography>
@@ -224,7 +266,9 @@ const AdminTransactionsPanel = () => {
                   <Typography variant="body2">
                     {selected.shipping.postalCode}, {selected.shipping.city}
                   </Typography>
-                  <Typography variant="body2">{selected.shipping.country}</Typography>
+                  <Typography variant="body2">
+                    {selected.shipping.country}
+                  </Typography>
                   <Typography variant="body2">
                     Phone: {selected.shipping.phone}
                   </Typography>
@@ -233,7 +277,9 @@ const AdminTransactionsPanel = () => {
                   </Typography>
                 </Box>
               ) : (
-                <Typography variant="body2">No shipping info available.</Typography>
+                <Typography variant="body2">
+                  No shipping info available.
+                </Typography>
               )}
             </>
           )}
@@ -242,6 +288,46 @@ const AdminTransactionsPanel = () => {
           <Button onClick={handleClose}>Close</Button>
         </DialogActions>
       </Dialog>
+      {/* ===================== ADMIN TRANSACTIONS PANEL – INSTRUCTIONS ===================== */}
+      <Paper
+        sx={{ p: 2, mt: 4, backgroundColor: "#f7f7f7" }}
+        variant="outlined"
+      >
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Instructions – Transactions
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • A <b>Transaction</b> is a completed order linked to a specific
+          participant. The participant may be a logged-in user or a guest user
+          created automatically.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • Each transaction contains the list of purchased items, the total
+          amount, the creation date, and—if provided—shipping information.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • Use the <b>Show All / Show Only Unprocessed</b> switch to filter
+          between orders that still require action and all historical orders.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • Clicking a row opens the full transaction details: item list,
+          quantities, prices, and the customer’s shipping data.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • Clicking <b>"Send Email & Mark Processed"</b> sends a confirmation
+          email to the buyer and marks the order as processed. This helps track
+          which orders have already been handled.
+        </Typography>
+
+        <Typography variant="body2">
+          • Marking a processed order as unprocessed simply changes its status
+        </Typography>
+      </Paper>
     </div>
   );
 };

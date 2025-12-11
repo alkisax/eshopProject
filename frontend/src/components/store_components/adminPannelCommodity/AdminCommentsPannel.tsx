@@ -1,10 +1,20 @@
 // frontend/src/components/store_components/adminPannelCommodity/AdminCommentsPanel.tsx
 import { useEffect, useState, useContext, useCallback } from "react";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Typography, IconButton, TablePagination, Tooltip, Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  IconButton,
+  TablePagination,
+  Tooltip,
+  Stack,
   FormControlLabel,
-  Switch
+  Switch,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -16,7 +26,8 @@ import { AiModerationContext } from "../../../context/AiModerationContext";
 
 const AdminCommentsPanel = () => {
   const { url } = useContext(VariablesContext);
-  const { aiModerationEnabled, setAiModerationEnabled } = useContext(AiModerationContext);
+  const { aiModerationEnabled, setAiModerationEnabled } =
+    useContext(AiModerationContext);
 
   const [comments, setComments] = useState<CommentType[]>([]);
   const [page, setPage] = useState(0);
@@ -64,15 +75,15 @@ const AdminCommentsPanel = () => {
   };
 
   const handleToggleApproval = async (comment: CommentType) => {
-    const commodityId = comment.commodity?._id || comment._id;  // commodity id
-    const commentId = comment.commentId;                        // comment id
+    const commodityId = comment.commodity?._id || comment._id; // commodity id
+    const commentId = comment.commentId; // comment id
 
     if (!commodityId || !commentId) return;
 
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
-        `${url}/api/commodity/${commodityId}/comments/${commentId}`,   // ✅ match backend
+        `${url}/api/commodity/${commodityId}/comments/${commentId}`, // ✅ match backend
         { isApproved: !comment.isApproved },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -97,123 +108,183 @@ const AdminCommentsPanel = () => {
   };
 
   return (
-    <Paper sx={{ p: 2 }}>
-      <FormControlLabel
-        control={
-          <Switch
-            checked={aiModerationEnabled}
-            onChange={(e) => {
-              const enabled = e.target.checked;
-              setAiModerationEnabled(enabled);
-              console.log(`🔎 AI Moderation turned ${enabled ? "ON" : "OFF"}`);
-            }}
-          />
-        }
-        label="AI Moderation"
-      />
-      <Typography variant="h5" gutterBottom>
-        All Comments
-      </Typography>
-      <TableContainer>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              {/* hidden on small screens */}
-              <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
-                User
-              </TableCell>
-              {/* always visible */}
-              <TableCell>Email</TableCell>
-              <TableCell>Commodity</TableCell>
-              <TableCell>Text</TableCell>
-              {/* hidden on small screens */}
-              <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
-                Rating
-              </TableCell>
-              <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
-                Approved
-              </TableCell>
-              <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
-                Created
-              </TableCell>
-              {/* always visible */}
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {comments
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((c, idx) => (
-                <TableRow key={`${c._id}-${idx}`} hover>
-                  {/* hidden on small screens */}
-                  <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
-                    {getUserName(c.user)}
-                  </TableCell>
-                  {/* always visible */}
-                  <TableCell>{getUserEmail(c.user)}</TableCell>
-                  <TableCell>{c.commodity?.name || "—"}</TableCell>
-                  <TableCell>
-                    {typeof c.text === "string"
-                      ? c.text
-                      : JSON.stringify(c.text)}
-                  </TableCell>
-                  {/* hidden on small screens */}
-                  <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
-                    {c.rating ?? "—"}
-                  </TableCell>
-                  <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
-                    {c.isApproved ? "✅" : "❌"}
-                  </TableCell>
-                  <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
-                    {c.createdAt
-                      ? new Date(c.createdAt).toLocaleString()
-                      : "—"}
-                  </TableCell>
-                  {/* always visible */}
-                  <TableCell align="right">
-                    <Stack direction="row" spacing={1}>
-                      <Tooltip title={c.isApproved ? "Disapprove" : "Approve"}>
-                        <IconButton
-                          size="small"
-                          color={c.isApproved ? "success" : "default"}
-                          onClick={() => handleToggleApproval(c)}
+    <>
+      <Paper sx={{ p: 2 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={aiModerationEnabled}
+              onChange={(e) => {
+                const enabled = e.target.checked;
+                setAiModerationEnabled(enabled);
+                console.log(
+                  `🔎 AI Moderation turned ${enabled ? "ON" : "OFF"}`
+                );
+              }}
+            />
+          }
+          label="AI Moderation"
+        />
+        <Typography variant="h5" gutterBottom>
+          All Comments
+        </Typography>
+        <TableContainer>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                {/* hidden on small screens */}
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                  User
+                </TableCell>
+                {/* always visible */}
+                <TableCell>Email</TableCell>
+                <TableCell>Commodity</TableCell>
+                <TableCell>Text</TableCell>
+                {/* hidden on small screens */}
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                  Rating
+                </TableCell>
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                  Approved
+                </TableCell>
+                <TableCell sx={{ display: { xs: "none", lg: "table-cell" } }}>
+                  Created
+                </TableCell>
+                {/* always visible */}
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {comments
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((c, idx) => (
+                  <TableRow key={`${c._id}-${idx}`} hover>
+                    {/* hidden on small screens */}
+                    <TableCell
+                      sx={{ display: { xs: "none", lg: "table-cell" } }}
+                    >
+                      {getUserName(c.user)}
+                    </TableCell>
+                    {/* always visible */}
+                    <TableCell>{getUserEmail(c.user)}</TableCell>
+                    <TableCell>{c.commodity?.name || "—"}</TableCell>
+                    <TableCell>
+                      {typeof c.text === "string"
+                        ? c.text
+                        : JSON.stringify(c.text)}
+                    </TableCell>
+                    {/* hidden on small screens */}
+                    <TableCell
+                      sx={{ display: { xs: "none", lg: "table-cell" } }}
+                    >
+                      {c.rating ?? "—"}
+                    </TableCell>
+                    <TableCell
+                      sx={{ display: { xs: "none", lg: "table-cell" } }}
+                    >
+                      {c.isApproved ? "✅" : "❌"}
+                    </TableCell>
+                    <TableCell
+                      sx={{ display: { xs: "none", lg: "table-cell" } }}
+                    >
+                      {c.createdAt
+                        ? new Date(c.createdAt).toLocaleString()
+                        : "—"}
+                    </TableCell>
+                    {/* always visible */}
+                    <TableCell align="right">
+                      <Stack direction="row" spacing={1}>
+                        <Tooltip
+                          title={c.isApproved ? "Disapprove" : "Approve"}
                         >
-                          {c.isApproved ? (
-                            <CancelIcon fontSize="small" />
-                          ) : (
-                            <CheckCircleIcon fontSize="small" />
-                          )}
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete">
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDelete(c)}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                          <IconButton
+                            size="small"
+                            color={c.isApproved ? "success" : "default"}
+                            onClick={() => handleToggleApproval(c)}
+                          >
+                            {c.isApproved ? (
+                              <CancelIcon fontSize="small" />
+                            ) : (
+                              <CheckCircleIcon fontSize="small" />
+                            )}
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => handleDelete(c)}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-      <TablePagination
-        component="div"
-        count={comments.length}
-        page={page}
-        onPageChange={(_e, newPage) => setPage(newPage)}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={(e) => {
-          setRowsPerPage(parseInt(e.target.value, 10));
-          setPage(0);
-        }}
-      />
-    </Paper>
+        <TablePagination
+          component="div"
+          count={comments.length}
+          page={page}
+          onPageChange={(_e, newPage) => setPage(newPage)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+        />
+      </Paper>
+      {/* ===================== ADMIN COMMENTS PANEL – INSTRUCTIONS ===================== */}
+      <Paper
+        sx={{ p: 2, mt: 4, backgroundColor: "#f7f7f7" }}
+        variant="outlined"
+      >
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Instructions – Comment Moderation
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • This panel lists <b>all user comments</b> across the entire store,
+          including guest comments, ratings, approval status, and timestamps.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>AI Moderation</b> toggles the automatic content scanning system.
+          When enabled, new comments are checked for offensive or unsafe text
+          before being accepted.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Approve / Disapprove</b>: Switches a comment’s visibility on the
+          public product page. Approved comments are visible to customers;
+          unapproved comments remain hidden.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Delete</b>: Permanently removes the comment from its associated
+          commodity. This action cannot be undone.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>User information</b>: Shows username or email when available.
+          Anonymous or guest comments display minimal identifying information.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          • <b>Ratings</b>: If provided, the numeric rating appears in the
+          table. Missing ratings display “—”.
+        </Typography>
+
+        <Typography variant="body2">
+          • <b>Pagination</b>: Allows browsing comments in batches. Changing
+          rows per page resets the pagination to page 0 for convenience.
+        </Typography>
+      </Paper>
+    </>
   );
 };
 

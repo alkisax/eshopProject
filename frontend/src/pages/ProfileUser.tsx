@@ -1,21 +1,37 @@
-import axios from "axios"
+// frontend\src\pages\ProfileUser.tsx
+import axios from "axios";
 // import { useNavigate } from "react-router-dom";
-import { useState, useContext, useEffect } from "react"
-import { Box, Button, TextField, Typography, Paper, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Divider } from "@mui/material"
+import { useState, useContext, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider,
+} from "@mui/material";
 import { UserAuthContext } from "../context/UserAuthContext";
 import { VariablesContext } from "../context/VariablesContext";
 import { frontendValidatePassword } from "../utils/registerBackend";
-import Loading from '../components/Loading'
+import Loading from "../components/Loading";
 import type { UpdateUser, IUser } from "../types/types";
 import type { CommentType } from "../types/commerce.types";
+import type { TransactionType } from "../types/commerce.types";
 
 interface Props {
   userToEdit?: IUser;
 }
 
 const ProfileUser = ({ userToEdit }: Props) => {
-  const { user, setUser, isLoading, setIsLoading, refreshUser } = useContext(UserAuthContext);
-  const { url } = useContext(VariablesContext)
+  const { user, setUser, isLoading, setIsLoading, refreshUser } =
+    useContext(UserAuthContext);
+  const { url } = useContext(VariablesContext);
 
   // αυτο το component καλείτε και απο το adminpanel στο edit. εκει θα πρέπει να μπορούμε να αλλάξουμε και έναν άλλο χρίστη περα απο αυτό που είναι logedin
   const targetUser = userToEdit ?? user;
@@ -26,21 +42,26 @@ const ProfileUser = ({ userToEdit }: Props) => {
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [lastProvider, setLastProvider] = useState<string>('none')
+  const [lastProvider, setLastProvider] = useState<string>("none");
 
   const [userId, setUserId] = useState<string>(targetUser?._id || "");
-  const [hasPassword, setHasPassword] = useState<boolean>(!!targetUser?.hasPassword);
+  const [hasPassword, setHasPassword] = useState<boolean>(
+    !!targetUser?.hasPassword
+  );
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openCommentsDialog, setOpenCommentsDialog] = useState(false);
   const [userComments, setUserComments] = useState<CommentType[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
+  const [orders, setOrders] = useState<TransactionType[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [participantId, setParticipantId] = useState<string | null>(null);
+  const [openOrdersDialog, setOpenOrdersDialog] = useState(false);
 
   // const navigate = useNavigate();
   // Decide whether we're editing current user or admin target
 
-
   useEffect(() => {
-    setLastProvider(user?.provider ?? 'none');
+    setLastProvider(user?.provider ?? "none");
   }, [user]);
 
   useEffect(() => {
@@ -54,11 +75,63 @@ const ProfileUser = ({ userToEdit }: Props) => {
     }
   }, [targetUser]);
 
+  // show previus orders
+  const fetchParticipant = useCallback(async () => {
+    if (!email) return; // email, όχι userId
+
+    try {
+      const res = await axios.get(
+        `${url}/api/participant/by-email?email=${email}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+
+      if (res.data.status) {
+        setParticipantId(res.data.data._id);
+      }
+    } catch (e) {
+      console.log("No participant for this email", e);
+    }
+  }, [email, url]);
+
+  useEffect(() => {
+    fetchParticipant();
+  }, [fetchParticipant]);
+
+  const fetchOrders = useCallback(async () => {
+    if (!participantId) return;
+
+    setLoadingOrders(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(
+        `${url}/api/transaction/participant/${participantId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const sorted = res.data.data.sort(
+        (a: TransactionType, b: TransactionType) =>
+          new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+      );
+
+      setOrders(sorted);
+    } catch (err) {
+      console.error("Failed to load orders", err);
+    } finally {
+      setLoadingOrders(false);
+    }
+  }, [participantId, url]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
   if (!targetUser || isLoading) {
-    return (
-      <Loading />
-    )
-  };
+    return <Loading />;
+  }
 
   const handleUpdateUserBackend = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -81,7 +154,7 @@ const ProfileUser = ({ userToEdit }: Props) => {
         setIsLoading(false);
         return;
       }
-      updatePayload.password = password      
+      updatePayload.password = password;
     }
 
     // If no fields were filled, return error
@@ -95,8 +168,8 @@ const ProfileUser = ({ userToEdit }: Props) => {
     if (!userId) {
       setErrorMessage("**ERROR** no user id");
       setIsLoading(false);
-      return;      
-    } 
+      return;
+    }
 
     try {
       const res = await axios.put(`${url}/api/users/${userId}`, updatePayload, {
@@ -118,18 +191,22 @@ const ProfileUser = ({ userToEdit }: Props) => {
         setLastProvider(updatedUser.provider || lastProvider);
 
         alert("Profile updated successfully 🚀");
-        if (refreshUser) { // ts null check
-          await refreshUser();// refresh the context
-        } 
+        if (refreshUser) {
+          // ts null check
+          await refreshUser(); // refresh the context
+        }
         // navigate("/");
       } else {
         setErrorMessage(res.data.error || res.data.data || "Update failed");
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        const backendMsg = err.response?.data?.error || err.response?.data?.message;
+        const backendMsg =
+          err.response?.data?.error || err.response?.data?.message;
         if (backendMsg) {
-          setErrorMessage(Array.isArray(backendMsg) ? backendMsg.join(", ") : backendMsg);
+          setErrorMessage(
+            Array.isArray(backendMsg) ? backendMsg.join(", ") : backendMsg
+          );
         } else {
           setErrorMessage("An unknown error occurred during update");
         }
@@ -141,12 +218,16 @@ const ProfileUser = ({ userToEdit }: Props) => {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   const handleDeleteSelf = async () => {
     if (!userId) return;
 
-    if (!window.confirm("Are you sure you want to delete your account? This cannot be undone.")) {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your account? This cannot be undone."
+      )
+    ) {
       return;
     }
 
@@ -180,7 +261,6 @@ const ProfileUser = ({ userToEdit }: Props) => {
       });
 
       if (res.data.status) {
-
         alert("Your account has been deleted.");
         localStorage.removeItem("token");
         // optionally clear user context
@@ -207,11 +287,14 @@ const ProfileUser = ({ userToEdit }: Props) => {
     if (!userId) return;
     setLoadingComments(true);
     try {
-      const res = await axios.get(`${url}/api/commodity/comments/user/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const res = await axios.get(
+        `${url}/api/commodity/comments/user/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       if (res.data.status) {
         setUserComments(res.data.data);
         setOpenCommentsDialog(true);
@@ -247,7 +330,7 @@ const ProfileUser = ({ userToEdit }: Props) => {
               {/* password? (read-only) */}
               <TextField
                 label="password"
-                value={hasPassword  ? "Yes" : "No"}
+                value={hasPassword ? "Yes" : "No"}
                 fullWidth
                 disabled
               />
@@ -276,15 +359,15 @@ const ProfileUser = ({ userToEdit }: Props) => {
                 fullWidth
               />
 
-              {(lastProvider !== 'appwrite') && 
+              {lastProvider !== "appwrite" && (
                 <>
                   <Paper
                     variant="outlined"
                     sx={{
                       p: 2,
-                      border: '1px solid rgba(188, 229, 251, 1)',
+                      border: "1px solid rgba(188, 229, 251, 1)",
                       borderRadius: 2,
-                      mt: 2
+                      mt: 2,
                     }}
                   >
                     <Stack spacing={2}>
@@ -306,12 +389,11 @@ const ProfileUser = ({ userToEdit }: Props) => {
                         autoComplete="new-password"
                         required
                         fullWidth
-                      />                         
+                      />
                     </Stack>
-                    
                   </Paper>
                 </>
-              }
+              )}
 
               <TextField
                 label="last provider"
@@ -335,15 +417,25 @@ const ProfileUser = ({ userToEdit }: Props) => {
               >
                 {isLoading ? "Loading..." : "Update Profile"}
               </Button>
-                  <Button
-                    variant="outlined"
-                    color="info"
-                    size="small"
-                    onClick={handleShowComments}
-                    disabled={loadingComments}
-                  >
-                    {loadingComments ? "Loading comments..." : "View My Comments"}
-                  </Button>
+              <Button
+                variant="outlined"
+                color="secondary"
+                size="small"
+                onClick={() => setOpenOrdersDialog(true)}
+                disabled={loadingOrders}
+              >
+                {loadingOrders ? "Loading orders..." : "View My Orders"}
+              </Button>
+
+              <Button
+                variant="outlined"
+                color="info"
+                size="small"
+                onClick={handleShowComments}
+                disabled={loadingComments}
+              >
+                {loadingComments ? "Loading comments..." : "View My Comments"}
+              </Button>
             </Stack>
           </Box>
           <Divider />
@@ -360,12 +452,10 @@ const ProfileUser = ({ userToEdit }: Props) => {
             >
               Delete My Account
             </Button>
-          </Box>          
+          </Box>
         </Paper>
         {/* self delete btn */}
-
       </Box>
-
 
       {/* JSX dialog box for self delete */}
       <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
@@ -378,40 +468,104 @@ const ProfileUser = ({ userToEdit }: Props) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteDialogClose}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+          <Button
+            onClick={handleDeleteConfirm}
+            color="error"
+            variant="contained"
+          >
             Yes, Delete
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* jsx dialog box for view comments */}
-      <Dialog open={openCommentsDialog} onClose={() => setOpenCommentsDialog(false)} maxWidth="sm" fullWidth>
-      <DialogTitle>My Comments</DialogTitle>
-      <DialogContent dividers>
-        {userComments.length === 0 ? (
-          <Typography>No comments found.</Typography>
-        ) : (
-          <Stack spacing={2}>
-            {userComments.map((c, idx) => (
-              <Paper key={idx} sx={{ p: 2 }} variant="outlined">
-                <Typography variant="body2">
-                  <strong>Commodity:</strong>{c.commodityName ?? c.commodityId ?? "Unknown commodity"}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Comment:</strong> {typeof c.text === "string" ? c.text : JSON.stringify(c.text)}
-                </Typography>
-                <Typography variant="body2"><strong>Rating:</strong> {c.rating ?? "—"}</Typography>
-              </Paper>
-            ))}
-          </Stack>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setOpenCommentsDialog(false)}>Close</Button>
-      </DialogActions>
-    </Dialog>
+      <Dialog
+        open={openCommentsDialog}
+        onClose={() => setOpenCommentsDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>My Comments</DialogTitle>
+        <DialogContent dividers>
+          {userComments.length === 0 ? (
+            <Typography>No comments found.</Typography>
+          ) : (
+            <Stack spacing={2}>
+              {userComments.map((c, idx) => (
+                <Paper key={idx} sx={{ p: 2 }} variant="outlined">
+                  <Typography variant="body2">
+                    <strong>Commodity:</strong>
+                    {c.commodityName ?? c.commodityId ?? "Unknown commodity"}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Comment:</strong>{" "}
+                    {typeof c.text === "string"
+                      ? c.text
+                      : JSON.stringify(c.text)}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Rating:</strong> {c.rating ?? "—"}
+                  </Typography>
+                </Paper>
+              ))}
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenCommentsDialog(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
+      {/* jsx dialog fro view previous orders */}
+      <Dialog
+        open={openOrdersDialog}
+        onClose={() => setOpenOrdersDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>My Orders</DialogTitle>
+        <DialogContent dividers>
+          {orders.length === 0 ? (
+            <Typography>No orders found.</Typography>
+          ) : (
+            <Stack spacing={2}>
+              {orders.map((order, idx) => (
+                <Paper key={idx} sx={{ p: 2 }} variant="outlined">
+                  <Typography variant="body2" fontWeight="bold">
+                    {new Date(order.createdAt!).toLocaleString()}
+                  </Typography>
+
+                  {order.items.map((item, i) => (
+                    <Box
+                      key={i}
+                      component={Link}
+                      to={`/commodity/${item.commodity?._id}`}
+                      sx={{
+                        color: "primary.main",
+                        textDecoration: "none",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      {item.commodity?.name} × {item.quantity} —{" "}
+                      {item.priceAtPurchase}€
+                    </Box>
+                  ))}
+
+                  <Divider sx={{ my: 1 }} />
+
+                  <Typography variant="body2">
+                    <strong>Total:</strong> {order.amount}€
+                  </Typography>
+                </Paper>
+              ))}
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenOrdersDialog(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </>
-  )
-}
-export default ProfileUser
+  );
+};
+export default ProfileUser;

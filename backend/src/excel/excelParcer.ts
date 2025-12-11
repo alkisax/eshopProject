@@ -80,16 +80,27 @@ export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
     // - Αν στο Excel γράψει κάποιος "true" ή TRUE
     // - Το κάνουμε πραγματικό boolean
     active: (() => {
+      if (row.active === true) {
+        return true;
+      }
+      if (row.active === false) {
+        return false;
+      }
+
       const val = String(row.active).trim().toLowerCase();
 
-      if (val === 'true') { return true ; }
-      if (val === 'false') { return false; }
-      if (val === '1') { return true; }
-      if (val === '0') { return false; };
-
-      // fallback for booleans from Excel
-      if (row.active === true) { return true; }
-      if (row.active === false) { return false; }
+      if (val === 'true') {
+        return true;
+      }
+      if (val === 'false') {
+        return false;
+      }
+      if (val === '1') {
+        return true;
+      }
+      if (val === '0') {
+        return false;
+      }
 
       return false; // default
     })(),
