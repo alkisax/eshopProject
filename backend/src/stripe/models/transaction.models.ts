@@ -1,3 +1,4 @@
+// backend\src\stripe\models\transaction.models.ts
 import mongoose from 'mongoose';
 import type { TransactionType } from '../types/stripe.types';
 

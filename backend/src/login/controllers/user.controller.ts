@@ -1,3 +1,4 @@
+// backend\src\login\controllers\user.controller.ts
 /* eslint-disable no-console */
 import bcrypt from 'bcrypt';
 import User from '../models/users.models';

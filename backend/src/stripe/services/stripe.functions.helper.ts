@@ -1,3 +1,4 @@
+// backend\src\stripe\services\stripe.functions.helper.ts
 import type { CartType, CartItemType, CommodityType, lineItemsType } from '../types/stripe.types';
 import { SHIPPING_PRICE_IDS } from '../config/shippingPrices';
 

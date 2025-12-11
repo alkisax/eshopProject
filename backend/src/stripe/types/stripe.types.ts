@@ -1,3 +1,4 @@
+// backend\src\stripe\types\stripe.types.ts
 import mongoose, { Types, Document } from 'mongoose';
 import { IUser } from '../../login/types/user.types';
 

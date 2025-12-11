@@ -3,13 +3,22 @@ import Transaction from '../models/transaction.models';
 import Participant from '../models/participant.models';
 import Cart from '../models/cart.models';
 import { commodityDAO } from '../daos/commodity.dao';
-import type { TransactionType, ParticipantType, CommodityType, ShippingInfoType } from '../types/stripe.types';
-import { NotFoundError, ValidationError, DatabaseError } from '../../utils/error/errors.types';
+import type {
+  TransactionType,
+  ParticipantType,
+  CommodityType,
+  ShippingInfoType,
+} from '../types/stripe.types';
+import {
+  NotFoundError,
+  ValidationError,
+  DatabaseError,
+} from '../../utils/error/errors.types';
 
 import { Types } from 'mongoose';
 
 type PopulatedCartItem = {
-  commodity: CommodityType;   // always the full commodity now
+  commodity: CommodityType; // always the full commodity now
   quantity: number;
   priceAtPurchase: number;
 };
@@ -19,7 +28,6 @@ const createTransaction = async (
   sessionId: string,
   shipping?: ShippingInfoType
 ): Promise<TransactionType> => {
-
   /*
    σε αυτή τη συνάρτηση καλούσα πολλές φορές την βάση για να κάνω διάφορα. Να βρω τον participant, να βρώ το cart του, να σώσω την συναλλαγή του, να ενημερώσω τον participant για την νεα συναλαγή και να αδειάσω το crt. Αν κάτι χαλάσει στην μέση θα έχει κάνει κάποια και θα έχει αφήσει άλλα. Για αυτό η mongoose μου δίνει τα session που τα κάνει όλα bundle και αν δεν πετύχει κάποιο κάνει roll back
       η σύνταξή του είναι ως εξής:
@@ -46,57 +54,107 @@ const createTransaction = async (
   */
   const session = await mongoose.startSession();
   session.startTransaction();
-  try{
+  try {
+    console.log('✨ [TX] START createTransaction');
+    console.log('➡️ participantId:', participantId);
+    console.log('➡️ sessionId:', sessionId);
 
     // 1️⃣ Get participant
-    const participant = await Participant.findById(participantId).session(session);
+    const participant = await Participant.findById(participantId).session(
+      session
+    );
+    console.log(
+      '👤 Participant loaded:',
+      participant ? participant._id : 'NOT FOUND'
+    );
     if (!participant) {
       throw new NotFoundError('Participant not found');
     }
 
     // 2️⃣ Get cart
     // δεν καλούμε την λογική του cart dao create γιατί αυτή μου φτιάχνει ένα νέο cart αν δεν υπάρχει. εμείς εδώ είμαστε στο ταμείο και περιμένουμε απο τον πελάτη να έχει cart οταν φτάνει εδώ αλλιώς λάθος
-    const cart = await Cart.findOne({ participant: participantId }).populate<{ items: PopulatedCartItem[] }>('items.commodity').session(session);
+    const cart = await Cart.findOne({ participant: participantId })
+      .populate<{ items: PopulatedCartItem[] }>('items.commodity')
+      .session(session);
+    console.log('🛒 Cart loaded:', cart ? cart._id : 'NO CART FOUND');
+    console.log('🛒 Cart items length:', cart?.items.length);
+    if (cart) {
+      cart.items.forEach((it, idx) => {
+        console.log(`   ➤ CART ITEM ${idx}`);
+        console.log('      commodity raw:', it.commodity);
+        console.log('      commodity ID:', it.commodity?._id);
+        console.log('      quantity:', it.quantity);
+        console.log('      priceAtPurchase:', it.priceAtPurchase);
+      });
+    }
+
     if (!cart || cart.items.length === 0) {
       throw new ValidationError('Cart is empty or not found');
     }
 
     // 3️⃣ Prevent duplicate sessions
-    const existingTransaction = await Transaction.findOne({ sessionId }).session(session);
+    const existingTransaction = await Transaction.findOne({
+      sessionId,
+    }).session(session);
+    console.log('🔎 Existing transaction:', existingTransaction ? 'YES' : 'NO');
     if (existingTransaction) {
       throw new ValidationError('Transaction already exists for this session');
     }
 
-    // 4️⃣ Calculate total amount & snapshot items
-    const items = cart.items.map(item => ({
-      commodity: item.commodity._id,
-      quantity: item.quantity,
-      priceAtPurchase: item.priceAtPurchase
-    }));
+    // 4️⃣ Snapshot items
+    console.log('🧾 Creating items snapshot...');
+    const items = cart.items.map((item, idx) => {
+      console.log(`   ➤ SNAPSHOT ITEM ${idx}`);
+      console.log('      item.commodity:', item.commodity);
+      console.log('      item.commodity?._id:', item.commodity?._id);
+
+      return {
+        commodity: item.commodity?._id, // <— here it may be null
+        quantity: item.quantity,
+        priceAtPurchase: item.priceAtPurchase,
+      };
+    });
+
+    console.log('🧾 Snapshot result:', items);
 
     // βρήσκω το συνολο της τιμής προϊόν * ποσοτητα για κάθε προϊόν
-    const amount = items.reduce((sum, item) => sum + item.priceAtPurchase * item.quantity, 0);
+    const amount = items.reduce(
+      (sum, item) => sum + item.priceAtPurchase * item.quantity,
+      0
+    );
+    console.log('💶 Total amount:', amount);
 
     // 5️⃣ εδώ είναι η κατασκευή της τελικής συναλαγής μου που θα στείλω στο stripe. Eχει id πελάτη, αντικείμενα (με προϊόντα, ποσότητα, τιμή αγοράς), συνολική αξία, και αν έχει επεξεργαστεί. έχει ακόμα το id που χρησιμοποιήθηκε απο το stripe
+    console.log('🧱 Saving new Transaction document...');
     const transaction = new Transaction({
       participant: participantId,
       items,
       amount,
       shipping: shipping || {},
       sessionId,
-      processed: false
+      processed: false,
     });
 
     const result = await transaction.save({ session });
+    console.log('💾 Transaction saved with ID:', result._id);
     // populate δεν χρειάζεται .session(session) Το populate είναι client-side operation
     await result.populate<{ items: PopulatedCartItem[] }>('items.commodity');
+    console.log('🔄 Populated transaction items:', result.items);
 
     // **ΠΡΟΣΟΧΗ** εδώ καλώ το sellCommodityById απο το commodity dao το οποίο το κάνω chain στο session
+    console.log('📉 Updating commodity stock...');
     for (const item of items) {
-      await commodityDAO.sellCommodityById(item.commodity, item.quantity, session);  // <-- update stock
+      console.log('   ➤ Updating stock for commodity:', item.commodity);
+
+      await commodityDAO.sellCommodityById(
+        item.commodity,
+        item.quantity,
+        session
+      ); // <-- update stock
     }
 
     // Link transaction to participant
+    console.log('🔗 Linking transaction to participant...');
     await Participant.findByIdAndUpdate(
       participantId,
       { $push: { transactions: result._id } },
@@ -110,21 +168,24 @@ const createTransaction = async (
     //   { session }
     // );
 
+    console.log('✅ Committing MongoDB transaction...');
     await session.commitTransaction();
     session.endSession();
+    console.log('✨ [TX] FINISHED createTransaction');
 
     return result;
-
   } catch (err: unknown) {
+    console.log('❌ ERROR in createTransaction:', err);
+
     await session.abortTransaction();
     session.endSession();
 
     if (err instanceof ValidationError) {
       throw err;
-    };
+    }
     if (err instanceof NotFoundError) {
       throw err;
-    };
+    }
     if (err instanceof Error && err.name === 'ValidationError') {
       throw new ValidationError(err.message);
     }
@@ -140,7 +201,9 @@ const findAllTransactions = async (): Promise<TransactionType[]> => {
 };
 
 // Find transaction by ID
-const findTransactionById = async (transactionId: string | Types.ObjectId): Promise<TransactionType  & { participant: ParticipantType }> => {
+const findTransactionById = async (
+  transactionId: string | Types.ObjectId
+): Promise<TransactionType & { participant: ParticipantType }> => {
   const response = await Transaction.findById(transactionId)
     .populate<{ participant: ParticipantType }>('participant')
     .populate('items.commodity');
@@ -154,19 +217,23 @@ const findTransactionById = async (transactionId: string | Types.ObjectId): Prom
 const findByParticipantId = async (participantId: string | Types.ObjectId) => {
   return await Transaction.find({ participant: participantId })
     .sort({ createdAt: -1 })
-    .populate<{ items:  { commodity: CommodityType }[]  }>('items.commodity');
+    .populate<{ items: { commodity: CommodityType }[] }>('items.commodity');
 };
 
 // αυτο είναι για το session του stripe. δεν έχει ακόμα endpoint. ισως πρέπει να φτιαχτει
-const findBySessionId = async (sessionId: string): Promise<TransactionType | null> => {
-  const response =  await Transaction.findOne({ sessionId })
+const findBySessionId = async (
+  sessionId: string
+): Promise<TransactionType | null> => {
+  const response = await Transaction.findOne({ sessionId })
     .populate('participant')
     .populate('items.commodity');
   return response;
 };
 
-const findTransactionsByProcessed = async (isProcessed: boolean): Promise<TransactionType[]> => {
-  const response =  await Transaction.find({ processed: isProcessed })
+const findTransactionsByProcessed = async (
+  isProcessed: boolean
+): Promise<TransactionType[]> => {
+  const response = await Transaction.find({ processed: isProcessed })
     .populate<{ participant: ParticipantType }>('participant')
     .populate('items.commodity');
   return response;
@@ -180,7 +247,9 @@ const updateTransactionById = async (
   try {
     // ✅ only "processed" is allowed
     if (Object.keys(updateData).length !== 1 || !('processed' in updateData)) {
-      throw new ValidationError('Transactions are immutable and cannot be updated (only processed can be toggled)');
+      throw new ValidationError(
+        'Transactions are immutable and cannot be updated (only processed can be toggled)'
+      );
     }
 
     const updated = await Transaction.findByIdAndUpdate(
@@ -202,7 +271,7 @@ const updateTransactionById = async (
     }
     if (err instanceof NotFoundError) {
       throw err;
-    };
+    }
     throw new DatabaseError('Error updating transaction');
   }
 };
@@ -240,14 +309,15 @@ const addTransactionToParticipant = async (
   }
 };
 
-
 // Delete a transaction by ID
-const deleteTransactionById = async (transactionId: string | Types.ObjectId): Promise<TransactionType> => {
+const deleteTransactionById = async (
+  transactionId: string | Types.ObjectId
+): Promise<TransactionType> => {
   const existing = await Transaction.findById(transactionId);
   if (!existing) {
     throw new NotFoundError('transaction 404');
   }
-  
+
   try {
     const response = await Transaction.findByIdAndUpdate(
       transactionId,
@@ -263,7 +333,7 @@ const deleteTransactionById = async (transactionId: string | Types.ObjectId): Pr
   } catch (err: unknown) {
     if (err instanceof NotFoundError) {
       throw err;
-    };
+    }
     throw new DatabaseError('error deleting transaction');
   }
 };
@@ -292,5 +362,5 @@ export const transactionDAO = {
   findTransactionsByProcessed,
   findByParticipantId,
   findBySessionId,
-  addTransactionToParticipant
+  addTransactionToParticipant,
 };

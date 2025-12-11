@@ -1,3 +1,4 @@
+// backend\src\stripe\controllers\stripe.controller.ts
 /* eslint-disable no-console */
 import logger from '../../utils/logger';
 import Stripe from 'stripe';
@@ -11,6 +12,7 @@ import { fetchCart } from '../daos/stripe.dao';
 import { CartType } from '../types/stripe.types';
 import { cartDAO } from '../daos/cart.dao';
 import { checkoutSessionSchema } from '../validation/commerce.schema';
+import { updateUserPurchaseHistory } from '../services/updateUserPurchaseHistory';
 
 const createCheckoutSession = async (req: Request, res: Response) => {
   try {
@@ -275,6 +277,9 @@ const handleWebhook = async (req: Request, res: Response) => {
         shipping
       );
       console.log(newTransaction);
+
+      // μεταφέρθεικε σε helper γιατί ήδη είναι τεράστια ⚠️⚠️⚠️⚠️
+      await updateUserPurchaseHistory(participant, newTransaction);
 
       // persist log
       logger.info('Transaction created after Stripe webhook', {

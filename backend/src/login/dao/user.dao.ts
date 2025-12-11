@@ -1,3 +1,4 @@
+// backend\src\login\dao\user.dao.ts
 import type { IUser, UserView, CreateUserHash, UpdateUser } from '../types/user.types';
 import User from '../models/users.models';
 // import { string } from 'zod';
@@ -10,7 +11,13 @@ export const toUserDAO = (user: IUser): UserView => {
     name: user.name,
     email: user.email,
     roles: user.roles,
+
     favorites: user.favorites ?? [],
+    // order hsitory
+    orderHistory: user.orderHistory ?? [],
+    purchasedProducts: user.purchasedProducts ?? [],
+    totalSpent: user.totalSpent ?? 0,
+
     createdAt: user.createdAt,
     updatedAt: user.updatedAt
   };
