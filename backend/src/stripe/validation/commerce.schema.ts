@@ -118,6 +118,7 @@ export const updateCommentSchema = z.object({
 export const checkoutSessionSchema = z.object({
   participantId: objectId,
   participantInfo: z.object({
+    _id: objectId, 
     name: z.string().min(1).max(100).optional(),
     email: z.email(),
   }),

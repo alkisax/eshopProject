@@ -19,6 +19,8 @@ const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
       return;
     }
       
+    console.log("👉 globalParticipant before checkout:", globalParticipant);
+
     const participantInfo = { 
       _id: globalParticipant._id,
       name: form.fullName,
@@ -26,7 +28,7 @@ const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
       email: globalParticipant.email,
     };
     
-    console.log("participant info>>>", participantInfo);
+    console.log("👉 participantInfo being sent to backend:", participantInfo);
     console.log(">>> button clicked, participant_id =", globalParticipant._id)
 
     try {
@@ -44,6 +46,7 @@ const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
       if (!stripe) {
         throw new Error("Stripe failed to initialize");
       }
+      console.log("👉 Stripe session returned:", response.data);
       await stripe.redirectToCheckout({ sessionId: data.id })
     } catch (error) {
       console.error("Error during checkout:", error)
