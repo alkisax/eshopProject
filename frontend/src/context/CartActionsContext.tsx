@@ -1,3 +1,4 @@
+// frontend\src\context\CartActionsContext.tsx
 import { createContext, useContext, useState, type ReactNode } from "react";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
@@ -225,9 +226,7 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
             },
           ],
         }); 
-
       }
-
 
       // this part is just for logging the cart maybe later remove
       const cartRes = await axios.get<{ status: boolean; data: CartType }>(

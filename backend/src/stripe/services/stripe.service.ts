@@ -1,3 +1,4 @@
+// backend\src\stripe\services\stripe.service.ts
 /* eslint-disable no-console */
 // https://youtu.be/_Z5hVtn1TqY?si=IqXPM09yIasUT2sI
 
@@ -43,7 +44,7 @@ const createCheckoutSession = async (
   //Stripe will still show  Google Pay / Revolut if you have them enabled in your dashboard.
   return await stripe.checkout.sessions.create({
     mode: 'payment',
-    payment_method_types: ['card', 'revolut_pay'],
+    payment_method_types: ['card'],
     line_items,
     success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${FRONTEND_URL}/cancel?canceled=true`,

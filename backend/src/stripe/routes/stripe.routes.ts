@@ -1,3 +1,4 @@
+// backend\src\stripe\routes\stripe.routes.ts
 import express from 'express';
 const router = express.Router();
 import { stripeController } from '../controllers/stripe.controller';

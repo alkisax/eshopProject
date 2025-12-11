@@ -1,3 +1,4 @@
+// backend\src\stripe\daos\stripe.dao.ts
 import Cart from '../models/cart.models';
 import type { CartType, ParticipantType, CartItemType, CommodityType } from '../types/stripe.types';
 import { Types } from 'mongoose';

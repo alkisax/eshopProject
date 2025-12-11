@@ -112,7 +112,7 @@ test success stripe
 `http://localhost:5173/checkout-success?session_id=cs_live_a1JCZeeRHmiDWLeaKo4RQh9Axfd5gzOxd56GuAMRBe7mlvoKLKMJwFhj3I`
 `http://localhost:5173/checkout-success?session_id=cs_live_a1egwCT3aaLnGV1nyDUZh7gy6M6R4duEluiYuickNdaLKr4FbGyqhK1Ls1`
 και μέσο deployed
-`https://eshop.portfolio-projects.space/checkout-success?session_id=cs_live_a1UkI3dmvt8wuxSk1KJH9ro3JPizExuAM1c5iC0KVJ8Q4AQzn2keN326Du`
+`https://eshop.portfolio-projects.space/checkout-success?session_id=cs_live_a15zdzmTsUPlwOdLCAoJNocUcqfBqZZQk588jPOblet9ik6nnbW50CYUUz`
 
 - 'as any' not allowed, follow strict types
 - avoid using mock. if have to use spy on

@@ -1,3 +1,4 @@
+// frontend\src\hooks\useCheckout.tsx
 import axios from 'axios' 
 import { loadStripe } from '@stripe/stripe-js'
 import { useContext } from "react";
