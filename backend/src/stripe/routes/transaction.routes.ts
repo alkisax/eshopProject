@@ -12,8 +12,8 @@ router.get('/', middleware.verifyToken, middleware.checkRole('ADMIN'), transacti
 router.get('/unprocessed', middleware.verifyToken, middleware.checkRole('ADMIN'), transactionController.findUnprocessed);
 
 // get all transactions by participant id. to create an "previous pirchaces" - needs login or else can acces other people transactions
-router.get('/participant/:participantId', middleware.verifyToken, transactionController.findByParticipant
-);
+// router.get('/participant/:participantId', middleware.verifyToken, transactionController.findByParticipant);
+router.get('/participant/:participantId', transactionController.findByParticipant);
 
 // POST create a new transaction (no auth yet)
 router.post('/', limiter(15,5), transactionController.create);

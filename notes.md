@@ -29,6 +29,8 @@
 - backend pagination ✅
 - mongo search and search categories ✅
 - swagger για uuid, slug, pagination all ✅
+- user order history
+- vectorise order history
 - sitemap for dynamic pages in backend
 
 # frontend
@@ -59,8 +61,7 @@
 - τα εμπορεύματα χρειάζονται uuid ✅
 - hide admin and uploader user ✅
 - αυτή τη στιγμή όποτε χρειάζετε μου φαίρνει ΌΛΑ τα εμπορεύματα και μετά κανει search ή ότι άλλο client side. Πρέπει να αλλάξει✅
-- user order history
-- vectorise order history
+
 
 - ## e2e test
 
@@ -107,10 +108,11 @@ Start Command:
 test success stripe
 `http://localhost:5173/checkout-success?session_id=cs_live_a1PBF9KvFU5WOiYAIA6FyI3zpQfRDR54C1VO7OJTBax1YfytAyK2bygMFj`
 
-
-
-
-
+10/12/25
+`http://localhost:5173/checkout-success?session_id=cs_live_a1JCZeeRHmiDWLeaKo4RQh9Axfd5gzOxd56GuAMRBe7mlvoKLKMJwFhj3I`
+`http://localhost:5173/checkout-success?session_id=cs_live_a1egwCT3aaLnGV1nyDUZh7gy6M6R4duEluiYuickNdaLKr4FbGyqhK1Ls1`
+και μέσο deployed
+`https://eshop.portfolio-projects.space/checkout-success?session_id=cs_live_a1UkI3dmvt8wuxSk1KJH9ro3JPizExuAM1c5iC0KVJ8Q4AQzn2keN326Du`
 
 - 'as any' not allowed, follow strict types
 - avoid using mock. if have to use spy on

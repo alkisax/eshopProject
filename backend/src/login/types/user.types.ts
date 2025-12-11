@@ -1,6 +1,8 @@
+// backend\src\login\types\user.types.ts
 import { Document, Types } from 'mongoose';
 import type { Request } from 'express';
 import { CommodityType } from '../../stripe/types/stripe.types';
+import type { TransactionType } from '../../stripe/types/stripe.types';
 
 // full mongose obj
 export interface IUser extends Document {
@@ -12,8 +14,19 @@ export interface IUser extends Document {
   hashedPassword: string;
   hasPassword?: boolean;
   favorites?: Types.ObjectId[] | string[]  | CommodityType[];
+  // order history
+  orderHistory?: (Types.ObjectId | TransactionType)[];
+  purchasedProducts?: UserPurchasedProduct[];
+  totalSpent?: number;
+
   createdAt: Date;
   updatedAt: Date;
+}
+
+// προσθέτουμε νέα types για την λειτουργία user order history
+export interface UserPurchasedProduct {
+  uuid: string;
+  count: number;
 }
 
 export type Roles = 'USER' | 'ADMIN'
@@ -26,6 +39,12 @@ export interface UserView {
   email?: string | undefined;
   roles: string[];
   favorites?: Types.ObjectId[] | string[]  | CommodityType[];
+
+  // oreder history
+  orderHistory?: (Types.ObjectId | string | TransactionType)[];
+  purchasedProducts?: UserPurchasedProduct[];
+  totalSpent?: number;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,6 +75,10 @@ export interface UpdateUser {
   password?: string; // optional, will be hashed if present
   hashedPassword?: string;
   favorites?: Types.ObjectId[] | string[] | CommodityType[];
+// order history
+  orderHistory?: (Types.ObjectId | string)[];
+  purchasedProducts?: UserPurchasedProduct[];
+  totalSpent?: number;
 }
 
 // φτιαχτηκε γιατί το middleware δεν επέτρεπε req: Request
