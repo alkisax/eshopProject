@@ -1,3 +1,4 @@
+// backend\src\aiEmbedings\gptEmbedingsService.ts
 import axios from 'axios';
 import { commodityDAO } from '../stripe/daos/commodity.dao';
 import type { CommodityType } from '../stripe/types/stripe.types';
