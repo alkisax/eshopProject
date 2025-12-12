@@ -29,7 +29,7 @@
 - backend pagination ✅
 - mongo search and search categories ✅
 - swagger για uuid, slug, pagination all ✅
-- user order history
+- user order history ✅
 - vectorise order history
 - sitemap for dynamic pages in backend
 

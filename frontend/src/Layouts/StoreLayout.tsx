@@ -1,5 +1,5 @@
 // frontend\src\Layouts\StoreLayout.tsx
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import StoreSidebar from "../components/store_components/StoreSidebar";
 import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
@@ -29,10 +29,29 @@ const StoreLayout = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
+  const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const preselectedCategory = params.get("cat");
 
+  // ↓ λειτουργία επιστροφής στην σελίδα που είμασταν: (πχ: είμαι στην σελίδα 4 των paginated προιόντων. επισκευτομαι ενα προϊόν και μετα παταω το back του browser. με πάει στην σελίδα 1 αντι για την 4)
+  // παίρνω των αρηθμό της σελ απο url param
+  const pageFromUrl = Number(params.get("page")) || 1;
+  useEffect(() => {
+    setCurrentPage(pageFromUrl);
+  }, [pageFromUrl]);
+
+  useEffect(() => {
+    // επιστρέφει κατι σαν '?page=4&cat=Δαχτυλίδια'
+    // η μορφή του location είναι σαν 
+    // location = { pathname: '/store', search: '?page=4&cat=Δαχτυλίδια', hash: '', state: null, key: 'abc123' }
+    const params = new URLSearchParams(location.search);
+    // Τα query params στο URL είναι πάντα strings
+    params.set("page", String(currentPage));
+    // { replace: true }: «αντί να προσθέσεις νέο history entry, αντικατέστησε το τρέχον»
+    navigate({ search: params.toString() }, { replace: true });
+  }, [currentPage, location.search, navigate]);
+
+  const preselectedCategory = params.get("cat");
   // Αν υπάρχει cat=, επιλέγουμε την κατηγορία ΜΟΝΟ στο αρχικό mount
   useEffect(() => {
     if (preselectedCategory && allCategories.length > 0) {
