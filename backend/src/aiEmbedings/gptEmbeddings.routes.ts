@@ -1,3 +1,4 @@
+// backend\src\aiEmbedings\gptEmbeddings.routes.ts
 import express from 'express';
 import { gptEmbedingsController } from './gptEmbedingsController';
 import { middleware } from '../login/middleware/verification.middleware';

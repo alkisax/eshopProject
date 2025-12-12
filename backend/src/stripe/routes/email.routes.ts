@@ -1,3 +1,4 @@
+// backend\src\stripe\routes\email.routes.ts
 import express from 'express';
 const router = express.Router();
 import { emailController } from '../controllers/email.controller';

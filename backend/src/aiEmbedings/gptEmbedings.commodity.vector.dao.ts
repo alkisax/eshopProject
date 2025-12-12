@@ -1,3 +1,4 @@
+// backend\src\aiEmbedings\gptEmbedings.commodity.vector.dao.ts
 import Commodity from '../stripe/models/commodity.models';
 import type { CommodityType } from '../stripe/types/stripe.types';
 

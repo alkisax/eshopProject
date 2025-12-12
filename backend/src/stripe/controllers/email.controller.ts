@@ -1,3 +1,4 @@
+// backend\src\stripe\controllers\email.controller.ts
 import type { Request, Response } from 'express';
 import nodemailer from 'nodemailer';
 import { transactionDAO } from '../daos/transaction.dao';

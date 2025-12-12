@@ -1,3 +1,4 @@
+// backend\src\aiEmbedings\gptEmbedingsController.ts
 /* eslint-disable no-console */
 import {
   generateEmbeddingForOneCommodity,

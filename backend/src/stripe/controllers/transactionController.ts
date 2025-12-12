@@ -14,18 +14,21 @@ const create = async (req: Request, res: Response) => {
   const sessionId = req.body.sessionId as string;
 
   if (!participantId || !sessionId) {
-    return res.status(400).json({ 
-      status: false, 
-      message: 'participantId and sessionId are required' 
+    return res.status(400).json({
+      status: false,
+      message: 'participantId and sessionId are required',
     });
   }
 
   try {
-    const newTransaction = await transactionDAO.createTransaction(participantId, sessionId);
+    const newTransaction = await transactionDAO.createTransaction(
+      participantId,
+      sessionId
+    );
 
-    return res.status(201).json({ 
-      status: true, 
-      data: newTransaction 
+    return res.status(201).json({
+      status: true,
+      data: newTransaction,
     });
   } catch (error) {
     return handleControllerError(res, error);
@@ -48,7 +51,6 @@ const findAll = async (_req: Request, res: Response) => {
 };
 
 const findUnprocessed = async (_req: Request, res: Response) => {
-  
   try {
     // done by middleware
     // if (!req.headers.authorization) {
@@ -57,7 +59,6 @@ const findUnprocessed = async (_req: Request, res: Response) => {
 
     const unprocessed = await transactionDAO.findTransactionsByProcessed(false);
     return res.status(200).json({ status: true, data: unprocessed });
-
   } catch (error) {
     return handleControllerError(res, error);
   }
@@ -67,36 +68,52 @@ const findByParticipant = async (req: Request, res: Response) => {
   const { participantId } = req.params;
 
   if (!participantId) {
-    return res.status(400).json({ status: false, message: 'participantId is required' });
+    return res
+      .status(400)
+      .json({ status: false, message: 'participantId is required' });
   }
 
   try {
-    const transactions = await transactionDAO.findByParticipantId(participantId);
+    const transactions = await transactionDAO.findByParticipantId(
+      participantId
+    );
     return res.status(200).json({ status: true, data: transactions });
   } catch (error) {
     return handleControllerError(res, error);
   }
 };
 
-
 // αυτή είναι σημαντική γιατί στέλνει αυτόματα το email
 const toggleProcessed = async (req: Request, res: Response) => {
   const transactionId = req.params.id;
-  if (!transactionId){
-    return res.status(400).json({ status: false, message: 'transaction ID is required OR not found' });
+  if (!transactionId) {
+    return res
+      .status(400)
+      .json({
+        status: false,
+        message: 'transaction ID is required OR not found',
+      });
   }
 
   try {
     const transaction = await transactionDAO.findTransactionById(transactionId);
 
     const updatedData = {
-      processed: !transaction.processed
+      processed: !transaction.processed,
     };
 
-    const updatedTransaction = await transactionDAO.updateTransactionById(transactionId, updatedData);
+    const updatedTransaction = await transactionDAO.updateTransactionById(
+      transactionId,
+      updatedData
+    );
 
     // εδώ στέλνουμε το email
-    await axios.post(`${BACKEND_URL}/api/email/${transactionId}`, req.body || {});
+    // στο Hetzner μας διμηουργούσε πρόβλημα και για αυτό ακολουθήσαμε μια fire and forget προσέγγιση όπου στέλνουμε το mail και δεν περιμένουμε την απάντησή του. για αυτό αφαιρέσαμε το await. Απο await axios.post → axios post
+    axios
+      .post(`${BACKEND_URL}/api/email/${transactionId}`, req.body || {})
+      .catch((err) => {
+        console.error('Email failed', err.message);
+      });
 
     return res.status(200).json({ status: true, data: updatedTransaction });
   } catch (error) {
@@ -106,15 +123,27 @@ const toggleProcessed = async (req: Request, res: Response) => {
 
 const deleteById = async (req: Request, res: Response) => {
   const transactionId = req.params.id;
-  if (!transactionId){
-    return res.status(400).json({ status: false, error: 'transaction ID is required OR not found' });
+  if (!transactionId) {
+    return res
+      .status(400)
+      .json({
+        status: false,
+        error: 'transaction ID is required OR not found',
+      });
   }
-  
-  try {
-    const deletedTransaction = await transactionDAO.deleteTransactionById(transactionId);
 
-    if (!deletedTransaction){
-      return res.status(404).json({ status: false, error: 'Error deleting transaction: not found' });
+  try {
+    const deletedTransaction = await transactionDAO.deleteTransactionById(
+      transactionId
+    );
+
+    if (!deletedTransaction) {
+      return res
+        .status(404)
+        .json({
+          status: false,
+          error: 'Error deleting transaction: not found',
+        });
     } else {
       // ✅ return the cancelled transaction
       return res.status(200).json({ status: true, data: deletedTransaction });
@@ -124,7 +153,10 @@ const deleteById = async (req: Request, res: Response) => {
   }
 };
 
-const deleteOldProcessedTransactions = async (_req: Request, res: Response): Promise<void> => {
+const deleteOldProcessedTransactions = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const deletedCount = await transactionDAO.deleteOldProcessedTransactions(5);
     res.status(200).json({
@@ -143,5 +175,5 @@ export const transactionController = {
   findByParticipant,
   toggleProcessed,
   deleteById,
-  deleteOldProcessedTransactions
+  deleteOldProcessedTransactions,
 };
