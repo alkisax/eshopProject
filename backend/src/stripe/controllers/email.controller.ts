@@ -18,8 +18,10 @@ const sendThnxEmail = async (req: Request, res: Response) => {
 
     const transporter = nodemailer.createTransport({
       host: 'smtp.zoho.eu',
-      port: 465,
-      secure: true,
+      // port: 465,
+      port: 587,
+      // secure: true,
+      secure: false,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
