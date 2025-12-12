@@ -1,11 +1,18 @@
 // src/components/admin/AdminCommodityFooter.tsx
 import { useContext, useEffect, useMemo, useState } from "react";
 import {
-  TableRow, TableCell, Button, TextField,
-  Stack, IconButton, Typography, Autocomplete,
-  Box
+  TableRow,
+  TableCell,
+  Button,
+  TextField,
+  Stack,
+  IconButton,
+  Typography,
+  Autocomplete,
+  Box,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { Switch, FormControlLabel } from "@mui/material";
 import type { CommodityType } from "../../../types/commerce.types";
 import { useAppwriteUploader } from "../../../hooks/useAppwriteUploader";
 import { VariablesContext } from "../../../context/VariablesContext";
@@ -19,7 +26,12 @@ interface CommodityFooterProps {
   onRestock: (id: string, newQuantity: number) => void;
 }
 
-const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: CommodityFooterProps) => {
+const AdminCommodityFooter = ({
+  setExpanded,
+  commodity,
+  onSave,
+  onRestock,
+}: CommodityFooterProps) => {
   const [editMode, setEditMode] = useState(false);
 
   // αποθηκεύουμε την φόρμα μας προσορινά σε ένα state
@@ -47,7 +59,10 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
   // VariablesContext → έχει την παγκόσμια λίστα κατηγοριών + helper για refresh
   const { url, categories, refreshCategories } = useContext(VariablesContext);
 
-  const handleChange = (field: string, value: string | number | string[] | boolean) => {
+  const handleChange = (
+    field: string,
+    value: string | number | string[] | boolean
+  ) => {
     // το διατηρεί όλο ίδιο εκτός απο το οτι αλλαζει την τιμή του field που μας έρχετε απο τα params
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -90,13 +105,13 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
     [categories]
   );
 
-  // φέρνει τα 5 πιο προσφατα αρχεία. η listfiles έιναι συνα΄ρτηση του cloudupload 
+  // φέρνει τα 5 πιο προσφατα αρχεία. η listfiles έιναι συνα΄ρτηση του cloudupload
   useEffect(() => {
     const loadRecentFiles = async () => {
       if (!ready) return;
       try {
         // call your paginated listFiles (page=1, limit=5)
-        const res = await listFiles(1, 5); 
+        const res = await listFiles(1, 5);
         // convert to URLs
         const urls = res.files.map((f) => getFileUrl(f.$id));
         setFiles(urls);
@@ -209,6 +224,21 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
                 value={form.stock}
                 onChange={(e) => handleChange("stock", Number(e.target.value))}
               />
+              
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={form.active}
+                    onChange={(e) => handleChange("active", e.target.checked)}
+                    color="success"
+                  />
+                }
+                label={
+                  form.active
+                    ? "Active (visible in store)"
+                    : "Inactive (hidden from store)"
+                }
+              />
 
               {/* === Images Section === */}
               {/* σχόλια για την λειτουργεία του images θα βρείς στο ΑdminAddNewCommodity */}
@@ -237,7 +267,9 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
                       label="Image URLs"
                       size="small"
                       placeholder="Paste or type URL"
-                      onFocus={() => console.log("Input focused, options:", files)}
+                      onFocus={() =>
+                        console.log("Input focused, options:", files)
+                      }
                     />
                   )}
                 />
@@ -290,7 +322,7 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
                         sx={{
                           position: "relative",
                           display: "inline-block",
-                          overflow: "visible"
+                          overflow: "visible",
                         }}
                       >
                         <img
@@ -300,7 +332,7 @@ const AdminCommodityFooter = ({ setExpanded, commodity, onSave, onRestock }: Com
                             width: 60,
                             height: 60,
                             objectFit: "cover",
-                            borderRadius: 4 
+                            borderRadius: 4,
                           }}
                         />
                         <IconButton
