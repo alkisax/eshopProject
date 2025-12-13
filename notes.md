@@ -30,6 +30,7 @@
 - mongo search and search categories ✅
 - swagger για uuid, slug, pagination all ✅
 - user order history ✅
+- fix email error on Hetzner (port 587)✅
 - vectorise order history
 - sitemap for dynamic pages in backend
 
