@@ -5,6 +5,7 @@ import axios from 'axios';
 import { handleControllerError } from '../../utils/error/errorHandler';
 // import type { TransactionType } from '../types/stripe.types';
 import { Types } from 'mongoose';
+import { emailController } from './email.controller';
 // const sendThnxEmail = require('../controllers/email.controller') // !!!
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
@@ -25,6 +26,16 @@ const create = async (req: Request, res: Response) => {
       participantId,
       sessionId
     );
+
+    const notificationPromise = emailController.sendAdminSaleNotification(
+      newTransaction._id.toString()
+    );
+
+    if (notificationPromise) {
+      notificationPromise.catch((err) =>
+        console.error('Admin sale notification failed', err)
+      );
+    }
 
     return res.status(201).json({
       status: true,
@@ -87,12 +98,10 @@ const findByParticipant = async (req: Request, res: Response) => {
 const toggleProcessed = async (req: Request, res: Response) => {
   const transactionId = req.params.id;
   if (!transactionId) {
-    return res
-      .status(400)
-      .json({
-        status: false,
-        message: 'transaction ID is required OR not found',
-      });
+    return res.status(400).json({
+      status: false,
+      message: 'transaction ID is required OR not found',
+    });
   }
 
   try {
@@ -124,12 +133,10 @@ const toggleProcessed = async (req: Request, res: Response) => {
 const deleteById = async (req: Request, res: Response) => {
   const transactionId = req.params.id;
   if (!transactionId) {
-    return res
-      .status(400)
-      .json({
-        status: false,
-        error: 'transaction ID is required OR not found',
-      });
+    return res.status(400).json({
+      status: false,
+      error: 'transaction ID is required OR not found',
+    });
   }
 
   try {
@@ -138,12 +145,10 @@ const deleteById = async (req: Request, res: Response) => {
     );
 
     if (!deletedTransaction) {
-      return res
-        .status(404)
-        .json({
-          status: false,
-          error: 'Error deleting transaction: not found',
-        });
+      return res.status(404).json({
+        status: false,
+        error: 'Error deleting transaction: not found',
+      });
     } else {
       // ✅ return the cancelled transaction
       return res.status(200).json({ status: true, data: deletedTransaction });

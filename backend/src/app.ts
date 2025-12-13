@@ -27,6 +27,7 @@ import categoryRoutes from './stripe/routes/category.routes';
 import modarationRoutes from './aiModeration/moderation.routes';
 import gptEmbeddingsRoutes from './aiEmbedings/gptEmbeddings.routes';
 import excelRoutes from './excel/routes/excel.routes';
+import settingsRoutes from './settings/settings.routes';
 
 const app = express();
 
@@ -150,6 +151,8 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+
+app.use('/api/settings', settingsRoutes);
 
 app.use('/api/participant', participantRoutes);
 app.use('/api/transaction', transactionRoutes);
