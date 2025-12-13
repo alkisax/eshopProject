@@ -49,21 +49,23 @@ const sendThnxEmail = async (req: Request, res: Response) => {
 };
 
 // admin notification = πώληση δημιουργήθηκε
+import { settingsDAO } from '../../settings/settings.dao';
+
 const sendAdminSaleNotification = async (transactionId: string) => {
-  if (process.env.ADMIN_SALES_NOTIFICATIONS_ENABLED !== 'true') {
+  const settings = await settingsDAO.getGlobalSettings();
+
+  if (!settings.adminNotifications?.salesNotificationsEnabled) {
     return;
   }
 
-  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+  const adminEmail = settings.adminNotifications.adminEmail;
   if (!adminEmail) {
     return;
   }
 
   const transporter = nodemailer.createTransport({
     host: 'smtp.zoho.eu',
-    // port: 465,
     port: 587,
-    // secure: true,
     secure: false,
     auth: {
       user: process.env.EMAIL_USER,
@@ -77,25 +79,19 @@ const sendAdminSaleNotification = async (transactionId: string) => {
     ? new Date(transaction.createdAt).toLocaleString()
     : 'Unknown date';
 
-  const subject = 'New sale created';
-  const text = `
-New sale just created.
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: adminEmail,
+    subject: 'New sale created',
+    text: `New sale just created.
 
 Amount: ${transaction.amount} €
 Customer: ${transaction.participant.email}
 Items: ${transaction.items.length}
-Date: ${createdAt}
-
-Login to admin panel to process the order.
-`;
-
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: adminEmail,
-    subject,
-    text,
+Date: ${createdAt}`,
   });
 };
+
 
 export const emailController = {
   sendThnxEmail,

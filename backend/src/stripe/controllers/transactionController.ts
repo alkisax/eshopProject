@@ -30,7 +30,6 @@ const create = async (req: Request, res: Response) => {
     const notificationPromise = emailController.sendAdminSaleNotification(
       newTransaction._id.toString()
     );
-
     if (notificationPromise) {
       notificationPromise.catch((err) =>
         console.error('Admin sale notification failed', err)
