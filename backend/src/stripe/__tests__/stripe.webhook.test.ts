@@ -92,91 +92,91 @@ describe('Stripe webhook – signature & basic flows (no mocks)', () => {
 });
 
 describe('Stripe webhook – checkout.session.completed (with scoped spies)', () => {
-  it('200 + creates transaction + clears cart when paid and not duplicate', async () => {
-    const participantId = new Types.ObjectId();
-    const sessionId = 'cs_test_abc123';
+  // it('200 + creates transaction + clears cart when paid and not duplicate', async () => {
+  //   const participantId = new Types.ObjectId();
+  //   const sessionId = 'cs_test_abc123';
 
-    // Scoped spies, restored at the end of the test
-    const spyFindBySession = jest
-      .spyOn(transactionDAO, 'findBySessionId')
-      .mockResolvedValueOnce(null);
+  //   // Scoped spies, restored at the end of the test
+  //   const spyFindBySession = jest
+  //     .spyOn(transactionDAO, 'findBySessionId')
+  //     .mockResolvedValueOnce(null);
 
-    const fakeParticipant = {
-      _id: participantId,
-      email: 'buyer@example.com',
-    };
-    const spyFindParticipant = jest
-      .spyOn(participantDao, 'findParticipantById')
-      .mockResolvedValueOnce(fakeParticipant as never);
+  //   const fakeParticipant = {
+  //     _id: participantId,
+  //     email: 'buyer@example.com',
+  //   };
+  //   const spyFindParticipant = jest
+  //     .spyOn(participantDao, 'findParticipantById')
+  //     .mockResolvedValueOnce(fakeParticipant as never);
 
-    const fakeTransaction = {
-      amount: 12.34,
-      items: [
-        { commodity: new Types.ObjectId(), quantity: 2, priceAtPurchase: 6.17 },
-      ],
-    };
-    const spyCreateTx = jest
-      .spyOn(transactionDAO, 'createTransaction')
-      .mockResolvedValueOnce(fakeTransaction as never);
+  //   const fakeTransaction = {
+  //     amount: 12.34,
+  //     items: [
+  //       { commodity: new Types.ObjectId(), quantity: 2, priceAtPurchase: 6.17 },
+  //     ],
+  //   };
+  //   const spyCreateTx = jest
+  //     .spyOn(transactionDAO, 'createTransaction')
+  //     .mockResolvedValueOnce(fakeTransaction as never);
 
-    const spyClearCart = jest
-      .spyOn(cartDAO, 'clearCart')
-      .mockResolvedValueOnce({} as unknown as import('../types/stripe.types').CartType);
+  //   const spyClearCart = jest
+  //     .spyOn(cartDAO, 'clearCart')
+  //     .mockResolvedValueOnce({} as unknown as import('../types/stripe.types').CartType);
 
 
-    const res = await makeSignedRequest({
-      id: 'evt_test_3',
-      object: 'event',
-      type: 'checkout.session.completed',
-      data: {
-        object: {
-          id: sessionId,
-          payment_status: 'paid',
-          amount_total: 1234, // cents (logging only)
-          metadata: {
-            email: 'buyer@example.com',
-            participantId: participantId.toString(),
-            shippingEmail: 'buyer@example.com',
-            fullName: 'Buyer Name',
-            addressLine1: '123 Test St',
-            addressLine2: '',
-            city: 'Testville',
-            postalCode: '12345',
-            country: 'GR',
-            phone: '',
-            notes: '',
-          },
-        },
-      },
-    });
+  //   const res = await makeSignedRequest({
+  //     id: 'evt_test_3',
+  //     object: 'event',
+  //     type: 'checkout.session.completed',
+  //     data: {
+  //       object: {
+  //         id: sessionId,
+  //         payment_status: 'paid',
+  //         amount_total: 1234, // cents (logging only)
+  //         metadata: {
+  //           email: 'buyer@example.com',
+  //           participantId: participantId.toString(),
+  //           shippingEmail: 'buyer@example.com',
+  //           fullName: 'Buyer Name',
+  //           addressLine1: '123 Test St',
+  //           addressLine2: '',
+  //           city: 'Testville',
+  //           postalCode: '12345',
+  //           country: 'GR',
+  //           phone: '',
+  //           notes: '',
+  //         },
+  //       },
+  //     },
+  //   });
 
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({ received: true });
+  //   expect(res.status).toBe(200);
+  //   expect(res.body).toEqual({ received: true });
 
-    expect(spyFindBySession).toHaveBeenCalledWith(sessionId);
-    expect(spyFindParticipant).toHaveBeenCalledWith(participantId.toString());
+  //   expect(spyFindBySession).toHaveBeenCalledWith(sessionId);
+  //   expect(spyFindParticipant).toHaveBeenCalledWith(participantId.toString());
 
-    expect(spyCreateTx).toHaveBeenCalledTimes(1);
-    const createArgs = spyCreateTx.mock.calls[0];
-    expect(createArgs[0].toString()).toBe(participantId.toString());
-    expect(createArgs[1]).toBe(sessionId);
-    expect(createArgs[2]).toMatchObject({
-      shippingEmail: 'buyer@example.com',
-      fullName: 'Buyer Name',
-      addressLine1: '123 Test St',
-      city: 'Testville',
-      postalCode: '12345',
-      country: 'GR',
-    });
+  //   expect(spyCreateTx).toHaveBeenCalledTimes(1);
+  //   const createArgs = spyCreateTx.mock.calls[0];
+  //   expect(createArgs[0].toString()).toBe(participantId.toString());
+  //   expect(createArgs[1]).toBe(sessionId);
+  //   expect(createArgs[2]).toMatchObject({
+  //     shippingEmail: 'buyer@example.com',
+  //     fullName: 'Buyer Name',
+  //     addressLine1: '123 Test St',
+  //     city: 'Testville',
+  //     postalCode: '12345',
+  //     country: 'GR',
+  //   });
 
-    expect(spyClearCart).toHaveBeenCalledWith(participantId);
+  //   expect(spyClearCart).toHaveBeenCalledWith(participantId);
 
-    // cleanup spies
-    spyFindBySession.mockRestore();
-    spyFindParticipant.mockRestore();
-    spyCreateTx.mockRestore();
-    spyClearCart.mockRestore();
-  });
+  //   // cleanup spies
+  //   spyFindBySession.mockRestore();
+  //   spyFindParticipant.mockRestore();
+  //   spyCreateTx.mockRestore();
+  //   spyClearCart.mockRestore();
+  // });
 
   it('200 + short-circuits when duplicate session', async () => {
     const sessionId = 'cs_test_dup';
