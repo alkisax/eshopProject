@@ -12,7 +12,7 @@ import { fetchCart } from '../daos/stripe.dao';
 import { CartType } from '../types/stripe.types';
 import { cartDAO } from '../daos/cart.dao';
 import { checkoutSessionSchema } from '../validation/commerce.schema';
-import { updateUserPurchaseHistory } from '../services/updateUserPurchaseHistory';
+// import { updateUserPurchaseHistory } from '../services/updateUserPurchaseHistory';
 
 const createCheckoutSession = async (req: Request, res: Response) => {
   try {
@@ -22,7 +22,11 @@ const createCheckoutSession = async (req: Request, res: Response) => {
     const shippinginfo = parsed.shippingInfo;
 
     const cart: CartType = await fetchCart(participantId);
-    const session = await stripeService.createCheckoutSession(cart, participantInfo, shippinginfo);
+    const session = await stripeService.createCheckoutSession(
+      cart,
+      participantInfo,
+      shippinginfo
+    );
     return res.status(200).json({ status: true, data: session });
   } catch (error) {
     return handleControllerError(res, error);
@@ -152,14 +156,13 @@ Timing: The webhook may arrive even if the user never comes back to your site.
 
 // Stripe Dashboard → Developers → Webhooks → Add endpoint → your account → 🔎 chekcout → checkout.session.completed → wenhook endpoint → https://eshopproject-ggmn.onrender.com/api/stripe/webhook
 
-
 // ⚠️ Important: this route must use express.raw({ type: 'application/json' })
 // instead of express.json(), otherwise signature verification will fail.
 const handleWebhook = async (req: Request, res: Response) => {
   console.log('🔥 Stripe webhook hit');
 
   if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('Missing STRIPE_SECRET_KEY env variable');    
+    throw new Error('Missing STRIPE_SECRET_KEY env variable');
   }
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -200,21 +203,29 @@ const handleWebhook = async (req: Request, res: Response) => {
       console.log('💰 Session completed:', {
         id: session.id,
         email: session.metadata?.email,
-        amount: session.amount_total
+        amount: session.amount_total,
       });
 
       // ✅ EARLY RETURN if payment not actually paid
       if (session.payment_status !== 'paid') {
-        return res.json({ received: true, message: `Payment status: ${session.payment_status}` });
+        return res.json({
+          received: true,
+          message: `Payment status: ${session.payment_status}`,
+        });
       }
 
       const sessionId = session.id;
 
       // prevent duplicate transactions
-      const existingTransaction = await transactionDAO.findBySessionId(sessionId);
+      const existingTransaction = await transactionDAO.findBySessionId(
+        sessionId
+      );
       if (existingTransaction) {
         // ✨ In webhook we just ack and return 200 (no redirect)
-        return res.json({ received: true, message: 'Transaction already recorded' });
+        return res.json({
+          received: true,
+          message: 'Transaction already recorded',
+        });
       }
 
       const email = session.metadata?.email || '';
@@ -263,9 +274,18 @@ const handleWebhook = async (req: Request, res: Response) => {
 
       const participantId = session.metadata?.participantId;
       if (!participantId) {
-        throw new Error('Missing participantId in Stripe session metadata');
+        console.error('Missing participantId in Stripe session metadata', {
+          sessionId: session.id,
+          metadata: session.metadata,
+        });
+
+        // ACK Stripe για να ΜΗΝ ξανακάνει retry
+        return res.json({ received: true, error: 'missingParticipantId' });
       }
-      const participant = await participantDao.findParticipantById(participantId);
+
+      const participant = await participantDao.findParticipantById(
+        participantId
+      );
       if (!participant) {
         throw new Error(`Participant ${participantId} not found`);
       }
@@ -279,7 +299,8 @@ const handleWebhook = async (req: Request, res: Response) => {
       console.log(newTransaction);
 
       // μεταφέρθεικε σε helper γιατί ήδη είναι τεράστια ⚠️⚠️⚠️⚠️
-      await updateUserPurchaseHistory(participant, newTransaction);
+      // await updateUserPurchaseHistory(participant, newTransaction);
+      // η όλη διαχείρηση του user history γινετε μέσα απο participant οπότε αυτό είναι λάθος
 
       // persist log
       logger.info('Transaction created after Stripe webhook', {
@@ -323,5 +344,5 @@ export const stripeController = {
   createCheckoutSession,
   // handleSuccess,
   handleWebhook,
-  handleCancel
+  handleCancel,
 };

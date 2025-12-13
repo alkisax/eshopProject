@@ -877,3 +877,5 @@ ssh root@49.12.76.128
 cd /var/www && cd eshopProject && git pull origin main && cd frontend && npm install --legacy-peer-deps && npm run build && cd ../backend && npm install && npm run build && pm2 list && pm2 restart eshop-backend --update-env && nginx -t && systemctl reload nginx && sleep 5 && curl http://localhost:3004/api/ping; echo
 ```
 
+- see backend logs: `pm2 logs eshop-backend --err --lines 50`
+- clear logs: `pm2 flush eshop-backend`
