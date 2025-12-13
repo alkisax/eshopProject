@@ -7,8 +7,8 @@ import app from '../../app';
 
 // We don't need DB here because we spy on the DAOs for the "completed" flow.
 import { transactionDAO } from '../daos/transaction.dao';
-import { participantDao } from '../daos/participant.dao';
-import { cartDAO } from '../daos/cart.dao';
+// import { participantDao } from '../daos/participant.dao';
+// import { cartDAO } from '../daos/cart.dao';
 import { Types } from 'mongoose';
 
 const WEBHOOK_PATH = '/api/stripe/webhook';
