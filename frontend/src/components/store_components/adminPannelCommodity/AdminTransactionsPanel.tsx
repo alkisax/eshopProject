@@ -28,6 +28,7 @@ import type {
   TransactionType,
   ParticipantType,
 } from "../../../types/commerce.types";
+import AdminNotificationsMailer from "./AdminNotificationsMailer";
 
 const AdminTransactionsPanel = () => {
   const { url } = useContext(VariablesContext);
@@ -151,6 +152,7 @@ const AdminTransactionsPanel = () => {
           showAll ? "Showing all transactions" : "Showing only unprocessed"
         }
       />
+      <AdminNotificationsMailer />
 
       {!isLoading && transactions.length > 0 && (
         <TableContainer component={Paper} sx={{ mt: 2 }}>
