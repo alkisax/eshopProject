@@ -62,11 +62,52 @@
 - τα εμπορεύματα χρειάζονται uuid ✅
 - hide admin and uploader user ✅
 - αυτή τη στιγμή όποτε χρειάζετε μου φαίρνει ΌΛΑ τα εμπορεύματα και μετά κανει search ή ότι άλλο client side. Πρέπει να αλλάξει✅
+- email notification on buy✅
 - οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
-- email notification on buy
 
 
 - ## e2e test
+
+# feats
+στο κατάστημά μου έχω
+sign up,  login user με backend, appwrite, google
+αρχική σελίδα με carousel τελευταίων προιόντων
+post page με ritch text και multimedia
+σελίδα καταστήματος και προιόντων με search, semantic search, categories filters, sever pagination
+σελίδες προιόντος με slug, image, thumbnails, add to cart, add to favorites, user comments and rating (ai modarated για profanity), vector embendings suggestions
+favorites page
+cart page με αλλαγή ποσότητας ή αφαίρεση
+shipping info page με επιλογή τρόπου αποστολής (που αθρίζετε στην τιμή)
+pay with stripe (card gpay)
+profile page με επιλογή self delete + remove comments και αλλαγή στοιχείων και password όπως και order history 
+
+το admin dashboard έχει tab για crud χρηστών + make admin
+tab για διαχείρηση παραγγελιών με auto "your order is beeing processed" mail, και auto inform admin on sale option
+tab για διαχείρηση προιόντων, CRUD και δημιουργία όπως και γρήγορο restock option
+tab για upload images στο appwrite
+tab για σβήσιμο junk και resitudes (old carts, guest participants etc)
+tab για διαχείρησης categorieσ me parent/child ή tag
+tab για διχείρηση των comments (ai moderation setting, hide delete etc)
+tabs for creating rich text posts and crud them (with subpage option ως νέα ή ανακοινώσεις)
+tab για upload excel και images zip files για offline διχείρηση και crud των προιόντων μέσο excel αρχείου 
+tab me iframe απο looker studio και ga4 σε εμφάνιση προιόντος σε λίστα/προσθήκη στο cart/εμφάνιση προιόντος
+
+έχει gdpr/social/legal subpages και aprove cookies etc btn στην αρχή
+έχουν ληφθεί υπόψιν διάφορες safety ανάγκες
+- Winston logger
+- CORS with allow-list
+- Helmet with CSP
+- Zod input validation
+- Role-based access control
+- Healthcheck API endpoint
+- Rate limiter (global + login brute-force)
+- Automated tests in GitHub Actions
+- DAO pattern for DB access
+- Environment variables for secrets
+- Upload size restriction
+- εκτεταμένο testing με jest και cypress και github actions ci/cd 
+
+είναι deploy στο Hetzner με domain απο namecheap
 
 # security  
 
