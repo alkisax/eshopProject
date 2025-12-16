@@ -31,6 +31,7 @@
 - swagger για uuid, slug, pagination all ✅
 - user order history ✅
 - fix email error on Hetzner (port 587)✅
+- Amount-based checkout
 - vectorise order history
 - sitemap for dynamic pages in backend
 

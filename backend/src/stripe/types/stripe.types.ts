@@ -40,6 +40,8 @@ export interface CommodityType extends Document {
   stock: number;
   active: boolean;
   images?: string[];
+  requiresProcessing?: boolean;
+  processingTimeDays?: number;
   comments?: CommentType[];
   variants?: CommodityVariantType[];
   vector?: number[]; // για προσθήκη vector embedings

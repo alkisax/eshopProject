@@ -4,33 +4,43 @@ import { CartType } from '../types/stripe.types';
 
 const Schema = mongoose.Schema;
 
-const cartItemSchema = new Schema({
-  commodity: {
-    type: Schema.Types.ObjectId,
-    ref: 'Commodity',
-    required: true
+const cartItemSchema = new Schema(
+  {
+    commodity: {
+      type: Schema.Types.ObjectId,
+      ref: 'Commodity',
+      required: true,
+    },
+    variantId: {
+      type: Schema.Types.ObjectId,
+      required: false,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    priceAtPurchase: {
+      type: Number,
+      required: true,
+    },
   },
-  quantity: {
-    type: Number,
-    required: true,
-  },
-  priceAtPurchase: {
-    type: Number,
-    required: true
-  }
-}, { _id: false });
+  { _id: false }
+);
 
-const cartSchema = new Schema({
-  participant: {
-    type: Schema.Types.ObjectId,
-    ref: 'Participant',
-    required: true,
-    unique: true
+const cartSchema = new Schema(
+  {
+    participant: {
+      type: Schema.Types.ObjectId,
+      ref: 'Participant',
+      required: true,
+      unique: true,
+    },
+    items: {
+      type: [cartItemSchema],
+      default: [],
+    },
   },
-  items: {
-    type: [cartItemSchema],
-    default: []
-  },
-}, { timestamps: true, collection: 'carts' });
+  { timestamps: true, collection: 'carts' }
+);
 
 export default mongoose.model<CartType>('Cart', cartSchema);
