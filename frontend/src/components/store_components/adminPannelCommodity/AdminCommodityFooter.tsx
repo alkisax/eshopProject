@@ -13,11 +13,15 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Switch, FormControlLabel } from "@mui/material";
-import type { CommodityType } from "../../../types/commerce.types";
+import type {
+  CommodityType,
+  CommodityVariantType,
+} from "../../../types/commerce.types";
 import { useAppwriteUploader } from "../../../hooks/useAppwriteUploader";
 import { VariablesContext } from "../../../context/VariablesContext";
 import axios from "axios";
 import { slugify } from "../../../utils/slugify";
+import AdminVariantsEditor from "./AdminCommodityFooterComponents/AdminVariantsEditor";
 
 interface CommodityFooterProps {
   setExpanded: (id: string | null) => void;
@@ -35,11 +39,23 @@ const AdminCommodityFooter = ({
   const [editMode, setEditMode] = useState(false);
 
   // αποθηκεύουμε την φόρμα μας προσορινά σε ένα state
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    name: string;
+    description: string;
+    category: string[];
+    price: number;
+    currency: string;
+    stripePriceId: string;
+    stock: number;
+    active: boolean;
+    images: string[];
+    variants: CommodityVariantType[];
+  }>({
     name: commodity.name || "",
     description: commodity.description || "",
     // ΠΡΟΣΟΧΗ: εδώ πια δουλεύουμε με categories ως λίστα ονομάτων (string[])
     category: (commodity.category as string[]) || [],
+    variants: commodity.variants ?? [],
     price: commodity.price || 0,
     currency: commodity.currency || "eur",
     stripePriceId: commodity.stripePriceId || "",
@@ -58,6 +74,21 @@ const AdminCommodityFooter = ({
 
   // VariablesContext → έχει την παγκόσμια λίστα κατηγοριών + helper για refresh
   const { url, categories, refreshCategories } = useContext(VariablesContext);
+
+  useEffect(() => {
+    setForm({
+      name: commodity.name || "",
+      description: commodity.description || "",
+      category: (commodity.category as string[]) || [],
+      price: commodity.price || 0,
+      currency: commodity.currency || "eur",
+      stripePriceId: commodity.stripePriceId || "",
+      stock: commodity.stock || 0,
+      active: commodity.active ?? true,
+      images: commodity.images || [],
+      variants: commodity.variants ?? [],
+    });
+  }, [commodity]);
 
   const handleChange = (
     field: string,
@@ -195,6 +226,13 @@ const AdminCommodityFooter = ({
                 )}
               />
 
+              <AdminVariantsEditor
+                variants={form.variants}
+                onChange={(variants) =>
+                  setForm((prev) => ({ ...prev, variants }))
+                }
+              />
+
               <TextField
                 label="Price"
                 size="small"
@@ -224,7 +262,7 @@ const AdminCommodityFooter = ({
                 value={form.stock}
                 onChange={(e) => handleChange("stock", Number(e.target.value))}
               />
-              
+
               <FormControlLabel
                 control={
                   <Switch
