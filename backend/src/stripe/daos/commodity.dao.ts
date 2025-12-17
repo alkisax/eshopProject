@@ -32,6 +32,15 @@ const createCommodity = async (
       );
     }
 
+    // 🆕 VARIANT GUARD
+    if (data.variants && data.variants.length > 0) {
+      for (const v of data.variants) {
+        if (!v.attributes || Object.keys(v.attributes).length === 0) {
+          throw new ValidationError('Variant attributes cannot be empty');
+        }
+      }
+    }
+
     const commodity = new Commodity(data);
 
     // // 🔵 LOG πριν το save
@@ -221,6 +230,15 @@ const updateCommodityById = async (
   updateData: Partial<CommodityType>
 ): Promise<CommodityType> => {
   try {
+    // 🆕 VARIANT GUARD
+    if (updateData.variants && updateData.variants.length > 0) {
+      if ('price' in updateData || 'stripePriceId' in updateData) {
+        throw new ValidationError(
+          'Cannot change price or stripePriceId on products with variants'
+        );
+      }
+    }
+
     const updated = await Commodity.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
@@ -248,6 +266,15 @@ const updateCommodityByUUID = async (
   updateData: Partial<CommodityType>
 ): Promise<CommodityType> => {
   try {
+    // 🆕 VARIANT GUARD
+    if (updateData.variants && updateData.variants.length > 0) {
+      if ('price' in updateData || 'stripePriceId' in updateData) {
+        throw new ValidationError(
+          'Cannot change price or stripePriceId on products with variants'
+        );
+      }
+    }
+
     const updated = await Commodity.findOneAndUpdate({ uuid }, updateData, {
       new: true,
       runValidators: true,

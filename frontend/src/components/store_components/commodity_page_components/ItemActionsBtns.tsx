@@ -1,3 +1,4 @@
+// frontend\src\components\store_components\commodity_page_components\ItemActionsBtns.tsx
 import { Box, Button } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -10,6 +11,8 @@ interface Props {
   onToggleFavorite: () => void;
   showSuggestions: boolean;
   onToggleSuggestions: () => void;
+  hasVariants: boolean;
+  variantSelected: boolean;
 }
 
 const ItemActionsBtns = ({
@@ -20,7 +23,11 @@ const ItemActionsBtns = ({
   onToggleFavorite,
   showSuggestions,
   onToggleSuggestions,
+  hasVariants,
+  variantSelected,
 }: Props) => {
+  const isAddToCartDisabled = stock === 0 || (hasVariants && !variantSelected);
+
   return (
     <Box
       sx={{
@@ -48,10 +55,14 @@ const ItemActionsBtns = ({
             color: "#fff",
           },
         }}
-        disabled={stock === 0}
+        disabled={isAddToCartDisabled}
         onClick={onAddToCart}
       >
-        {stock === 0 ? "Out of Stock" : "Add to Cart"}
+        {stock === 0
+          ? "Out of Stock"
+          : hasVariants && !variantSelected
+          ? "Επιλέξτε παραλλαγή"
+          : "Add to Cart"}
       </Button>
 
       {/* === FAVORITES === */}

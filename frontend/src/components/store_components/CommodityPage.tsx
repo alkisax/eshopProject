@@ -28,6 +28,7 @@ import ReviewSection from "./commodity_page_components/ItemReviews";
 import CommodityPageMobile from "./CommodityPageMobile";
 
 import { useRef, useLayoutEffect } from "react";
+import VariantSelector from "./commodity_page_components/VariantSelector";
 
 /* suspence
 React.lazy() is a built-in React function that allows you to dynamically import a component only when it’s needed. Normally, when you do: 
@@ -52,6 +53,9 @@ const CommodityPage = () => {
   const [error, setError] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
+    null
+  );
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState<number | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false); //προστέθηκε αυτό για να μην κάνει autoload το suggestion και μου ΄καίει' τα λεφτα στο openAI api
@@ -100,9 +104,9 @@ const CommodityPage = () => {
   const fetchCommodity = useCallback(async () => {
     if (!slugOrId) return;
     try {
-    const endpoint = isObjectId(slugOrId)
-      ? `${url}/api/commodity/${slugOrId}`
-      : `${url}/api/commodity/slug/${slugOrId}`;
+      const endpoint = isObjectId(slugOrId)
+        ? `${url}/api/commodity/${slugOrId}`
+        : `${url}/api/commodity/slug/${slugOrId}`;
 
       const res = await axios.get(endpoint);
       setCommodity(res.data.data);
@@ -124,6 +128,11 @@ const CommodityPage = () => {
   }, [slugOrId, fetchCommodity]);
 
   const id = commodity?._id;
+
+  // reset το variant όταν αλλάζει προϊόν:
+  useEffect(() => {
+    setSelectedVariantId(null);
+  }, [id]);
 
   const handleAddComment = async () => {
     if (!id || !user) return;
@@ -348,7 +357,7 @@ const CommodityPage = () => {
           comments={comments}
           newComment={newComment}
           newRating={newRating}
-          onAddToCart={() => addOneToCart(commodity._id)}
+          onAddToCart={addOneToCart} // ⬅️ ΕΔΩ
           onToggleFavorite={
             isFavorite ? handleRemoveFromFavorites : handleAddToFavorites
           }
@@ -378,7 +387,9 @@ const CommodityPage = () => {
         />
         <link
           rel="canonical"
-          href={`${window.location.origin}/commodity/${commodity.slug ?? commodity._id}`}
+          href={`${window.location.origin}/commodity/${
+            commodity.slug ?? commodity._id
+          }`}
         />
       </Helmet>
 
@@ -452,6 +463,14 @@ const CommodityPage = () => {
               {/* BOTTOM-LEFT = Description */}
               <ItemDescription commodity={commodity} />
 
+              {commodity.variants && commodity.variants.length > 0 && (
+                <VariantSelector
+                  variants={commodity.variants}
+                  value={selectedVariantId}
+                  onChange={setSelectedVariantId}
+                />
+              )}
+
               {/* Suggestions (optional) */}
               {showSuggestions && (
                 <ItemSuggestions
@@ -505,7 +524,11 @@ const CommodityPage = () => {
               stock={commodity.stock}
               userExists={!!user}
               isFavorite={isFavorite}
-              onAddToCart={() => addOneToCart(commodity._id)}
+              hasVariants={!!commodity.variants?.length}
+              variantSelected={!!selectedVariantId}
+              onAddToCart={() =>
+                addOneToCart(commodity._id, selectedVariantId ?? undefined)
+              }
               onToggleFavorite={
                 isFavorite ? handleRemoveFromFavorites : handleAddToFavorites
               }
