@@ -1,3 +1,4 @@
+// frontend\src\components\store_components\CartPreviewFooter.tsx
 import { useContext } from "react";
 import { Box, IconButton, Typography, Divider } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -14,17 +15,34 @@ interface Props {
 }
 
 const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
-  const { addQuantityCommodityToCart, removeItemFromCart, fetchParticipantId } =
-    useContext(CartActionsContext);
+  const {
+    addQuantityCommodityToCart,
+    removeItemFromCart,
+    fetchParticipantId,
+  } = useContext(CartActionsContext);
+
   const { globalParticipant } = useContext(VariablesContext);
 
-  // 🧱 Defensive check: skip render if cart missing or empty
-  if (!hasCart || !cart || !Array.isArray(cart.items) || cart.items.length === 0) {
+  /**
+   * 🧱 Defensive check
+   * - Αν δεν υπάρχει cart ή είναι άδειο → δεν δείχνουμε footer
+   */
+  if (
+    !hasCart ||
+    !cart ||
+    !Array.isArray(cart.items) ||
+    cart.items.length === 0
+  ) {
     return null;
   }
 
-  // 🧩 filter out malformed/null commodity references (can happen in CI or slow backend)
-  const safeItems = cart.items.filter((i) => i && i.commodity);
+  /**
+   * 🧩 Φιλτράρουμε corrupted items
+   * (π.χ. σε CI / race conditions backend)
+   */
+  const safeItems = cart.items.filter(
+    (item) => item && item.commodity && item.commodity._id
+  );
 
   return (
     <Box
@@ -39,70 +57,97 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
         Your Cart
       </Typography>
 
-      {safeItems.map((item) => (
-        <Box
-          key={item.commodity?._id?.toString() || Math.random().toString()}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            mb: 1,
-          }}
-        >
-          <Typography sx={{ flexGrow: 1 }}>
-            {item.commodity?.name ?? "Unknown item"} ({item.priceAtPurchase}€)
-          </Typography>
+      {safeItems.map((item) => {
+        const commodityId = item.commodity._id.toString();
+        const variantId = item.variantId; // 🆕 ΚΡΙΣΙΜΟ
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {/* - button */}
-            <IconButton
-              size="small"
-              onClick={async () => {
-                const pid = await fetchParticipantId();
-                if (pid && item.commodity?._id) {
-                  await addQuantityCommodityToCart(pid, item.commodity._id.toString(), -1);
+        return (
+          <Box
+            /**
+             * 🔑 key ΠΡΕΠΕΙ να διαχωρίζει variants
+             */
+            key={`${commodityId}-${variantId ?? "novar"}`}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 1,
+            }}
+          >
+            <Typography sx={{ flexGrow: 1 }}>
+              {item.commodity.name} ({item.priceAtPurchase}€)
+            </Typography>
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {/* ➖ Μείωση ποσότητας */}
+              <IconButton
+                size="small"
+                onClick={async () => {
+                  const participantId = await fetchParticipantId();
+                  if (!participantId) return;
+
+                  await addQuantityCommodityToCart(
+                    participantId,
+                    commodityId,
+                    -1,
+                    variantId // ⬅️ ΠΕΡΝΑΜΕ VARIANT
+                  );
+
                   await fetchCart();
-                }
-              }}
-            >
-              <RemoveIcon fontSize="small" />
-            </IconButton>
+                }}
+              >
+                <RemoveIcon fontSize="small" />
+              </IconButton>
 
-            {/* qty */}
-            <Typography>{item.quantity}</Typography>
+              {/* ποσότητα */}
+              <Typography>{item.quantity}</Typography>
 
-            {/* + button */}
-            <IconButton
-              size="small"
-              onClick={async () => {
-                const pid = await fetchParticipantId();
-                if (pid && item.commodity?._id) {
-                  await addQuantityCommodityToCart(pid, item.commodity._id.toString(), 1);
+              {/* ➕ Αύξηση ποσότητας */}
+              <IconButton
+                size="small"
+                onClick={async () => {
+                  const participantId = await fetchParticipantId();
+                  if (!participantId) return;
+
+                  await addQuantityCommodityToCart(
+                    participantId,
+                    commodityId,
+                    1,
+                    variantId // ⬅️ ΠΕΡΝΑΜΕ VARIANT
+                  );
+
                   await fetchCart();
-                }
-              }}
-            >
-              <AddIcon fontSize="small" />
-            </IconButton>
+                }}
+              >
+                <AddIcon fontSize="small" />
+              </IconButton>
 
-            {/* delete all */}
-            <IconButton
-              size="small"
-              onClick={async () => {
-                const pid = globalParticipant?._id?.toString();
-                if (pid && item.commodity?._id) {
-                  await removeItemFromCart(pid, item.commodity._id.toString());
+              {/* 🗑️ Διαγραφή όλου του item (συγκεκριμένου variant) */}
+              <IconButton
+                size="small"
+                onClick={async () => {
+                  const participantId = globalParticipant?._id?.toString();
+                  if (!participantId) return;
+
+                  await removeItemFromCart(
+                    participantId,
+                    commodityId,
+                    variantId // ⬅️ ΠΕΡΝΑΜΕ VARIANT
+                  );
+
                   await fetchCart();
-                }
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Box>
           </Box>
-        </Box>
-      ))}
+        );
+      })}
 
       <Divider sx={{ my: 1 }} />
+
+      {/* 💰 Σύνολο */}
       <Typography>
         <strong>Total:</strong>{" "}
         {safeItems.reduce(
@@ -116,3 +161,4 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
 };
 
 export default CartPreviewFooter;
+

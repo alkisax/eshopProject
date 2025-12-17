@@ -11,19 +11,32 @@ import type { CartType } from "../../types/commerce.types";
 // removed for passing first through sipping info
 // import { useCheckout } from "../../hooks/useCheckout";
 
-import { Box, Button, IconButton, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Stack,
+  Typography,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { CartActionsContext } from "../../context/CartActionsContext";
 
-
 const CartItemsList = () => {
-  const { addOneToCart, addQuantityCommodityToCart, removeItemFromCart, fetchParticipantId } =
-  useContext(CartActionsContext)!;
+  const {
+    addOneToCart,
+    addQuantityCommodityToCart,
+    removeItemFromCart,
+    fetchParticipantId,
+  } = useContext(CartActionsContext)!;
   const { url, globalParticipant } = useContext(VariablesContext);
   const { setIsLoading, isLoading } = useContext(UserAuthContext);
-  const [cart, setCart] = useState<CartType>()
+  const [cart, setCart] = useState<CartType>();
 
   // removed for passing first through sipping info
   // const { handleCheckout } = useCheckout();
@@ -51,34 +64,39 @@ const CartItemsList = () => {
     }
   }, [fetchCart, globalParticipant?._id, setIsLoading, url]);
 
-  const add = async (id: string): Promise<void> => {
+  const add = async (
+    commodityId: string,
+    variantId?: string
+  ): Promise<void> => {
     const participantId = await fetchParticipantId();
     if (!participantId) return;
-    await addOneToCart(id);
-    await fetchCart();   // 👈 refresh
+    await addOneToCart(commodityId, variantId);
+    await fetchCart(); // 👈 refresh
   };
 
-  const decrement = async (id: string): Promise<void> => {
+  const decrement = async (
+    commodityId: string,
+    variantId?: string
+  ): Promise<void> => {
     const participantId = await fetchParticipantId();
     if (!participantId) return;
-    await addQuantityCommodityToCart(participantId, id, -1);
-    await fetchCart();   // 👈 refresh
+    await addQuantityCommodityToCart(participantId, commodityId, -1, variantId);
+    await fetchCart(); // 👈 refresh
   };
 
-  const remove = async (id: string): Promise<void> => {
+  const remove = async (
+    commodityId: string,
+    variantId?: string
+  ): Promise<void> => {
     const participantId = await fetchParticipantId();
     if (!participantId) return;
-    await removeItemFromCart(participantId, id);
-    await fetchCart();   // 👈 refresh
+    await removeItemFromCart(participantId, commodityId, variantId);
+    await fetchCart(); // 👈 refresh
   };
 
   return (
     <>
-      <Typography
-        component="h2"
-        variant="h4"
-        gutterBottom
-      >
+      <Typography component="h2" variant="h4" gutterBottom>
         Τα προϊόντα σας
       </Typography>
 
@@ -91,81 +109,93 @@ const CartItemsList = () => {
       ) : (
         <List>
           {cart.items.map((item) => (
-      <ListItem
-        key={item.commodity._id.toString()}
-        sx={{
-          flexDirection: { xs: "column", sm: "row" },
-          alignItems: { xs: "flex-start", sm: "center" },
-          justifyContent: "space-between",
-          bgcolor: "#fafafa",
-          gap: 2,
-          mb: 2,
-          borderRadius: 2,
-          boxShadow: 1,
-          p: 2,
-        }}
-      >
-        {/* Image + text */}
-        <ListItemButton
-          component={Link}
-          to={`/commodity/${item.commodity._id}`}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 2,
-            flex: 1,
-            width: "100%", // full width on mobile
-          }}
-        >
-          <Box
-            component="img"
-            src={item.commodity.images?.[0] || "/placeholder.jpg"}
-            alt={item.commodity.name}
-            title={item.commodity.name}
-            loading="lazy"
-            sx={{
-              width: 80,
-              height: 80,
-              objectFit: "cover",
-              borderRadius: 2,
-              border: "1px solid #ddd",
-            }}
-          />
-        <ListItemText
-          slotProps={{
-            primary: {
-              sx: { fontWeight: "bold", fontSize: "1.1rem" },
-            },
-            secondary: {
-              sx: { fontSize: "0.95rem", color: "text.secondary" },
-            },
-          }}
-          primary={item.commodity.name}
-          secondary={`${item.commodity.price} ${item.commodity.currency} — Qty: ${item.quantity}`}
-        />
-        </ListItemButton>
+            <ListItem
+              key={item.commodity._id.toString()}
+              sx={{
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: { xs: "flex-start", sm: "center" },
+                justifyContent: "space-between",
+                bgcolor: "#fafafa",
+                gap: 2,
+                mb: 2,
+                borderRadius: 2,
+                boxShadow: 1,
+                p: 2,
+              }}
+            >
+              {/* Image + text */}
+              <ListItemButton
+                component={Link}
+                to={`/commodity/${item.commodity._id}`}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flex: 1,
+                  width: "100%", // full width on mobile
+                }}
+              >
+                <Box
+                  component="img"
+                  src={item.commodity.images?.[0] || "/placeholder.jpg"}
+                  alt={item.commodity.name}
+                  title={item.commodity.name}
+                  loading="lazy"
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    objectFit: "cover",
+                    borderRadius: 2,
+                    border: "1px solid #ddd",
+                  }}
+                />
+                <ListItemText
+                  slotProps={{
+                    primary: {
+                      sx: { fontWeight: "bold", fontSize: "1.1rem" },
+                    },
+                    secondary: {
+                      sx: { fontSize: "0.95rem", color: "text.secondary" },
+                    },
+                  }}
+                  primary={item.commodity.name}
+                  secondary={`${item.commodity.price} ${item.commodity.currency} — Qty: ${item.quantity}`}
+                />
+              </ListItemButton>
 
-        {/* Buttons */}
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{
-            mt: { xs: 1, sm: 0 },   // margin-top only on mobile
-            alignSelf: { xs: "stretch", sm: "flex-end" }, // full width row on mobile
-            justifyContent: { xs: "center", sm: "flex-end" },
-          }}
-        >
-          <IconButton size="medium" color="primary" onClick={() => add(item.commodity._id)}>
-            <AddIcon />
-          </IconButton>
-          <IconButton size="medium" color="secondary" onClick={() => decrement(item.commodity._id)}>
-            <RemoveIcon />
-          </IconButton>
-          <IconButton size="medium" color="error" onClick={() => remove(item.commodity._id)}>
-            <DeleteIcon />
-          </IconButton>
-        </Stack>
-      </ListItem>
+              {/* Buttons */}
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  mt: { xs: 1, sm: 0 }, // margin-top only on mobile
+                  alignSelf: { xs: "stretch", sm: "flex-end" }, // full width row on mobile
+                  justifyContent: { xs: "center", sm: "flex-end" },
+                }}
+              >
+                <IconButton
+                  size="medium"
+                  color="primary"
+                  onClick={() => add(item.commodity._id, item.variantId)}
+                >
+                  <AddIcon />
+                </IconButton>
+                <IconButton
+                  size="medium"
+                  color="secondary"
+                  onClick={() => decrement(item.commodity._id, item.variantId)}
+                >
+                  <RemoveIcon />
+                </IconButton>
+                <IconButton
+                  size="medium"
+                  color="error"
+                  onClick={() => remove(item.commodity._id, item.variantId)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Stack>
+            </ListItem>
           ))}
         </List>
       )}
@@ -200,6 +230,6 @@ const CartItemsList = () => {
         </Button>
       </Stack>
     </>
-  )
-}
-export default CartItemsList
+  );
+};
+export default CartItemsList;

@@ -104,6 +104,7 @@ export interface CartItemType {
   commodity: CommodityType;
   quantity: number;
   priceAtPurchase: number;
+  variantId: string;
 }
 
 export interface CategoryType {
