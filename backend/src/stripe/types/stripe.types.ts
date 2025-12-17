@@ -87,7 +87,7 @@ export interface CartType {
 
 export interface CartItemType {
   commodity: Types.ObjectId | string  | CommodityType;
-  variantId?: Types.ObjectId;
+  variantId?: string | Types.ObjectId;
   quantity: number;
   priceAtPurchase: number;
 }
