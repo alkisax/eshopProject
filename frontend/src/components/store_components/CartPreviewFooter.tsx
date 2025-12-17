@@ -1,4 +1,3 @@
-// frontend\src\components\store_components\CartPreviewFooter.tsx
 import { useContext } from "react";
 import { Box, IconButton, Typography, Divider } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -24,8 +23,12 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
   const { globalParticipant } = useContext(VariablesContext);
 
   /**
-   * 🧱 Defensive check
-   * - Αν δεν υπάρχει cart ή είναι άδειο → δεν δείχνουμε footer
+   * 🧱 Defensive guard
+   * Αν:
+   * - δεν υπάρχει cart
+   * - ή είναι άδειο
+   * - ή items δεν είναι array
+   * → δεν αποδίδουμε τίποτα
    */
   if (
     !hasCart ||
@@ -37,8 +40,8 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
   }
 
   /**
-   * 🧩 Φιλτράρουμε corrupted items
-   * (π.χ. σε CI / race conditions backend)
+   * 🧹 Καθαρίζουμε corrupted items
+   * (π.χ. race condition backend / CI / partial populate)
    */
   const safeItems = cart.items.filter(
     (item) => item && item.commodity && item.commodity._id
@@ -59,14 +62,29 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
 
       {safeItems.map((item) => {
         const commodityId = item.commodity._id.toString();
-        const variantId = item.variantId; // 🆕 ΚΡΙΣΙΜΟ
+        const variantId = item.variantId ?? null;
+
+        /**
+         * 🔍 Αν υπάρχει variantId
+         * βρίσκουμε το αντίστοιχο variant
+         * για να εμφανίσουμε attributes (π.χ. size / color)
+         */
+        const selectedVariant =
+          variantId && item.commodity.variants
+            ? item.commodity.variants.find(
+                (v) => v._id?.toString() === variantId
+              )
+            : null;
 
         return (
           <Box
             /**
-             * 🔑 key ΠΡΕΠΕΙ να διαχωρίζει variants
+             * 🔑 key
+             * ΠΡΕΠΕΙ να διαχωρίζει:
+             * - ίδιο προϊόν
+             * - διαφορετικά variants
              */
-            key={`${commodityId}-${variantId ?? "novar"}`}
+            key={`${commodityId}-${variantId ?? "novariant"}`}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -74,12 +92,28 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
               mb: 1,
             }}
           >
-            <Typography sx={{ flexGrow: 1 }}>
-              {item.commodity.name} ({item.priceAtPurchase}€)
-            </Typography>
+            {/* 🧾 Όνομα προϊόντος + variant (αν υπάρχει) */}
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography fontWeight="bold">
+                {item.commodity.name}
+              </Typography>
 
+              {selectedVariant && (
+                <Typography variant="body2" color="text.secondary">
+                  {Object.entries(selectedVariant.attributes)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(" / ")}
+                </Typography>
+              )}
+
+              <Typography variant="body2">
+                {item.priceAtPurchase}€ × {item.quantity}
+              </Typography>
+            </Box>
+
+            {/* 🔘 Κουμπιά ποσότητας / διαγραφής */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              {/* ➖ Μείωση ποσότητας */}
+              {/* ➖ μείωση ποσότητας */}
               <IconButton
                 size="small"
                 onClick={async () => {
@@ -90,7 +124,7 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
                     participantId,
                     commodityId,
                     -1,
-                    variantId // ⬅️ ΠΕΡΝΑΜΕ VARIANT
+                    variantId // ⬅️ περνάμε variant
                   );
 
                   await fetchCart();
@@ -102,7 +136,7 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
               {/* ποσότητα */}
               <Typography>{item.quantity}</Typography>
 
-              {/* ➕ Αύξηση ποσότητας */}
+              {/* ➕ αύξηση ποσότητας */}
               <IconButton
                 size="small"
                 onClick={async () => {
@@ -113,7 +147,7 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
                     participantId,
                     commodityId,
                     1,
-                    variantId // ⬅️ ΠΕΡΝΑΜΕ VARIANT
+                    variantId // ⬅️ περνάμε variant
                   );
 
                   await fetchCart();
@@ -122,7 +156,7 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
                 <AddIcon fontSize="small" />
               </IconButton>
 
-              {/* 🗑️ Διαγραφή όλου του item (συγκεκριμένου variant) */}
+              {/* 🗑️ διαγραφή ΟΛΟΥ του συγκεκριμένου variant */}
               <IconButton
                 size="small"
                 onClick={async () => {
@@ -132,7 +166,7 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
                   await removeItemFromCart(
                     participantId,
                     commodityId,
-                    variantId // ⬅️ ΠΕΡΝΑΜΕ VARIANT
+                    variantId // ⬅️ κρίσιμο
                   );
 
                   await fetchCart();
@@ -147,7 +181,10 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
 
       <Divider sx={{ my: 1 }} />
 
-      {/* 💰 Σύνολο */}
+      {/* 💰 Σύνολο καλαθιού
+          Υπολογίζεται από priceAtPurchase × quantity
+          (σωστό ακόμα και αν αλλάξει τιμή προϊόντος)
+      */}
       <Typography>
         <strong>Total:</strong>{" "}
         {safeItems.reduce(
@@ -161,4 +198,3 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
 };
 
 export default CartPreviewFooter;
-
