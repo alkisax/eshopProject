@@ -31,6 +31,7 @@
 - swagger για uuid, slug, pagination all ✅
 - user order history ✅
 - fix email error on Hetzner (port 587)✅
+- Amount-based checkout
 - vectorise order history
 - sitemap for dynamic pages in backend
 
@@ -63,8 +64,20 @@
 - hide admin and uploader user ✅
 - αυτή τη στιγμή όποτε χρειάζετε μου φαίρνει ΌΛΑ τα εμπορεύματα και μετά κανει search ή ότι άλλο client side. Πρέπει να αλλάξει✅
 - email notification on buy✅
+- admin commodity pannel προβληματική φόρτωση όλων των εμπορευμάτων
+- θα θέλαμε το variant να συνδέετε με συγκεκριμένη εικόνα
+- να ελέξουμε τα excel μετα τα variants
 - οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
 
+προτάσεις
+- 1. Order state machine pending → paid → packed → shipped → delivered
+- 3. Shipment tracking + tracking number
+- 5. “People also bought” - Όχι vector - transaction-based co-occurrence
+- 6. Profile behavior vector (frequency-biased)
+- 7. AI features Review summarization per product
+- 8. Fraud / anomaly detection (basic): πολλά orders / ίδια IP, weird quantities, repeated failed payments
+- 2. Invoice / receipt generation: PDF, αριθμός παραστατικού, VAT field
+- 4. Data export (GDPR): “download my data”
 
 - ## e2e test
 

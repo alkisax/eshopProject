@@ -8,7 +8,7 @@ import { Types } from 'mongoose';
 import { emailController } from './email.controller';
 // const sendThnxEmail = require('../controllers/email.controller') // !!!
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
 
 const create = async (req: Request, res: Response) => {
   const participantId = req.body.participant as Types.ObjectId;

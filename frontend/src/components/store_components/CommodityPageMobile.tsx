@@ -1,5 +1,6 @@
+// frontend\src\components\store_components\CommodityPageMobile.tsx
 import { Box } from "@mui/material";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import GalleryCommodityPageSkeleton from "../skeletons/GalleryCommodityPageSkeleton";
 import GalleryCommodityPage from "./GalleryCommodityPage";
@@ -11,6 +12,7 @@ import ReviewsSection from "./commodity_page_components/ItemReviews";
 import type { CommodityType } from "../../types/commerce.types";
 import type { IUser } from "../../types/types";
 import type { CommentType } from "../../types/commerce.types";
+import VariantSelector from "./commodity_page_components/VariantSelector";
 
 interface CommodityPageMobileProps {
   commodity: CommodityType;
@@ -21,7 +23,7 @@ interface CommodityPageMobileProps {
   comments: CommentType[];
   newComment: string;
   newRating: number | null;
-  onAddToCart: () => void;
+  onAddToCart: (commodityId: string, variantId?: string) => void;
   onToggleFavorite: () => void;
   setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>;
   setNewComment: React.Dispatch<React.SetStateAction<string>>;
@@ -49,8 +51,16 @@ const CommodityPageMobile = ({
   commentPage,
   setCommentPage,
   commentsPerPage,
-  handleAddComment
+  handleAddComment,
 }: CommodityPageMobileProps) => {
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
+    null
+  );
+
+  useEffect(() => {
+    setSelectedVariantId(null);
+  }, [commodity._id]);
+
   return (
     <>
       <Helmet>
@@ -70,7 +80,15 @@ const CommodityPageMobile = ({
           <ItemTitlePrice commodity={commodity} />
         </Box>
 
-        
+        {/* variants */}
+        {commodity.variants && commodity.variants.length > 0 && (
+          <VariantSelector
+            variants={commodity.variants}
+            value={selectedVariantId}
+            onChange={setSelectedVariantId}
+          />
+        )}
+
         {/* DESCRIPTION */}
         <Box sx={{ mt: 4 }}>
           <ItemDescription commodity={commodity} />
@@ -82,19 +100,20 @@ const CommodityPageMobile = ({
             stock={commodity.stock}
             userExists={!!user}
             isFavorite={isFavorite}
-            onAddToCart={onAddToCart}
+            hasVariants={!!commodity.variants?.length}
+            variantSelected={!!selectedVariantId}
+            onAddToCart={() =>
+              onAddToCart(commodity._id, selectedVariantId ?? undefined)
+            }
             onToggleFavorite={onToggleFavorite}
             showSuggestions={showSuggestions}
-            onToggleSuggestions={() => setShowSuggestions(prev => !prev)}
+            onToggleSuggestions={() => setShowSuggestions((prev) => !prev)}
           />
         </Box>
 
         {/* SUGGESTIONS */}
         {showSuggestions && (
-          <ItemSuggestions
-            suggestions={suggested}
-            currentId={commodity._id}
-          />
+          <ItemSuggestions suggestions={suggested} currentId={commodity._id} />
         )}
 
         {/* REVIEWS */}

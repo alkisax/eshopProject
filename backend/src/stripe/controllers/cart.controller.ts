@@ -41,9 +41,9 @@ const addOrRemoveItem = async (req: Request, res: Response) => {
     const parsedParams = participantParamSchema.parse(req.params);
     const parsedBody = cartItemChangeSchema.parse(req.body);
     const { participantId } = parsedParams;
-    const { commodityId, quantity } = parsedBody;
+    const { commodityId, quantity, variantId } = parsedBody;
 
-    const cart = await cartDAO.addOrRemoveItemToCart(participantId, commodityId, quantity);
+    const cart = await cartDAO.addOrRemoveItemToCart(participantId, commodityId, quantity, variantId);
     return res.status(200).json({ status: true, data: cart });
   } catch (error) {
     return handleControllerError(res, error);
@@ -56,9 +56,9 @@ const updateQuantity = async (req: Request, res: Response) => {
     const parsedParams = participantParamSchema.parse(req.params);
     const parsedBody = cartItemUpdateSchema.parse(req.body);
     const { participantId } = parsedParams;
-    const { commodityId, quantity } = parsedBody;
+    const { commodityId, quantity, variantId } = parsedBody;
 
-    const cart = await cartDAO.updateItemQuantity(participantId, commodityId, quantity);
+    const cart = await cartDAO.updateItemQuantity(participantId, commodityId, quantity, variantId);
     return res.status(200).json({ status: true, data: cart });
   } catch (error) {
     return handleControllerError(res, error);

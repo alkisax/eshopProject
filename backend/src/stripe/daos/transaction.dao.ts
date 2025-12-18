@@ -8,6 +8,7 @@ import type {
   ParticipantType,
   CommodityType,
   ShippingInfoType,
+  PopulatedCartItem,
 } from '../types/stripe.types';
 import {
   NotFoundError,
@@ -16,12 +17,6 @@ import {
 } from '../../utils/error/errors.types';
 
 import { Types } from 'mongoose';
-
-type PopulatedCartItem = {
-  commodity: CommodityType; // always the full commodity now
-  quantity: number;
-  priceAtPurchase: number;
-};
 
 const createTransaction = async (
   participantId: string | Types.ObjectId,
@@ -107,9 +102,11 @@ const createTransaction = async (
       console.log(`   ➤ SNAPSHOT ITEM ${idx}`);
       console.log('      item.commodity:', item.commodity);
       console.log('      item.commodity?._id:', item.commodity?._id);
+      console.log('      item.variantId:', item.variantId);
 
       return {
         commodity: item.commodity?._id, // <— here it may be null
+        variantId: item.variantId ?? undefined,
         quantity: item.quantity,
         priceAtPurchase: item.priceAtPurchase,
       };

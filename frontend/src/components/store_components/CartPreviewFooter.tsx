@@ -14,17 +14,38 @@ interface Props {
 }
 
 const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
-  const { addQuantityCommodityToCart, removeItemFromCart, fetchParticipantId } =
-    useContext(CartActionsContext);
+  const {
+    addQuantityCommodityToCart,
+    removeItemFromCart,
+    fetchParticipantId,
+  } = useContext(CartActionsContext);
+
   const { globalParticipant } = useContext(VariablesContext);
 
-  // 🧱 Defensive check: skip render if cart missing or empty
-  if (!hasCart || !cart || !Array.isArray(cart.items) || cart.items.length === 0) {
+  /**
+   * 🧱 Defensive guard
+   * Αν:
+   * - δεν υπάρχει cart
+   * - ή είναι άδειο
+   * - ή items δεν είναι array
+   * → δεν αποδίδουμε τίποτα
+   */
+  if (
+    !hasCart ||
+    !cart ||
+    !Array.isArray(cart.items) ||
+    cart.items.length === 0
+  ) {
     return null;
   }
 
-  // 🧩 filter out malformed/null commodity references (can happen in CI or slow backend)
-  const safeItems = cart.items.filter((i) => i && i.commodity);
+  /**
+   * 🧹 Καθαρίζουμε corrupted items
+   * (π.χ. race condition backend / CI / partial populate)
+   */
+  const safeItems = cart.items.filter(
+    (item) => item && item.commodity && item.commodity._id
+  );
 
   return (
     <Box
@@ -39,70 +60,131 @@ const CartPreviewFooter = ({ hasCart, cart, fetchCart }: Props) => {
         Your Cart
       </Typography>
 
-      {safeItems.map((item) => (
-        <Box
-          key={item.commodity?._id?.toString() || Math.random().toString()}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            mb: 1,
-          }}
-        >
-          <Typography sx={{ flexGrow: 1 }}>
-            {item.commodity?.name ?? "Unknown item"} ({item.priceAtPurchase}€)
-          </Typography>
+      {safeItems.map((item) => {
+        const commodityId = item.commodity._id.toString();
+        const variantId = item.variantId ?? null;
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {/* - button */}
-            <IconButton
-              size="small"
-              onClick={async () => {
-                const pid = await fetchParticipantId();
-                if (pid && item.commodity?._id) {
-                  await addQuantityCommodityToCart(pid, item.commodity._id.toString(), -1);
+        /**
+         * 🔍 Αν υπάρχει variantId
+         * βρίσκουμε το αντίστοιχο variant
+         * για να εμφανίσουμε attributes (π.χ. size / color)
+         */
+        const selectedVariant =
+          variantId && item.commodity.variants
+            ? item.commodity.variants.find(
+                (v) => v._id?.toString() === variantId
+              )
+            : null;
+
+        return (
+          <Box
+            /**
+             * 🔑 key
+             * ΠΡΕΠΕΙ να διαχωρίζει:
+             * - ίδιο προϊόν
+             * - διαφορετικά variants
+             */
+            key={`${commodityId}-${variantId ?? "novariant"}`}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 1,
+            }}
+          >
+            {/* 🧾 Όνομα προϊόντος + variant (αν υπάρχει) */}
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography fontWeight="bold">
+                {item.commodity.name}
+              </Typography>
+
+              {selectedVariant && (
+                <Typography variant="body2" color="text.secondary">
+                  {Object.entries(selectedVariant.attributes)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(" / ")}
+                </Typography>
+              )}
+
+              <Typography variant="body2">
+                {item.priceAtPurchase}€ × {item.quantity}
+              </Typography>
+            </Box>
+
+            {/* 🔘 Κουμπιά ποσότητας / διαγραφής */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {/* ➖ μείωση ποσότητας */}
+              <IconButton
+                size="small"
+                onClick={async () => {
+                  const participantId = await fetchParticipantId();
+                  if (!participantId) return;
+
+                  await addQuantityCommodityToCart(
+                    participantId,
+                    commodityId,
+                    -1,
+                    variantId // ⬅️ περνάμε variant
+                  );
+
                   await fetchCart();
-                }
-              }}
-            >
-              <RemoveIcon fontSize="small" />
-            </IconButton>
+                }}
+              >
+                <RemoveIcon fontSize="small" />
+              </IconButton>
 
-            {/* qty */}
-            <Typography>{item.quantity}</Typography>
+              {/* ποσότητα */}
+              <Typography>{item.quantity}</Typography>
 
-            {/* + button */}
-            <IconButton
-              size="small"
-              onClick={async () => {
-                const pid = await fetchParticipantId();
-                if (pid && item.commodity?._id) {
-                  await addQuantityCommodityToCart(pid, item.commodity._id.toString(), 1);
+              {/* ➕ αύξηση ποσότητας */}
+              <IconButton
+                size="small"
+                onClick={async () => {
+                  const participantId = await fetchParticipantId();
+                  if (!participantId) return;
+
+                  await addQuantityCommodityToCart(
+                    participantId,
+                    commodityId,
+                    1,
+                    variantId // ⬅️ περνάμε variant
+                  );
+
                   await fetchCart();
-                }
-              }}
-            >
-              <AddIcon fontSize="small" />
-            </IconButton>
+                }}
+              >
+                <AddIcon fontSize="small" />
+              </IconButton>
 
-            {/* delete all */}
-            <IconButton
-              size="small"
-              onClick={async () => {
-                const pid = globalParticipant?._id?.toString();
-                if (pid && item.commodity?._id) {
-                  await removeItemFromCart(pid, item.commodity._id.toString());
+              {/* 🗑️ διαγραφή ΟΛΟΥ του συγκεκριμένου variant */}
+              <IconButton
+                size="small"
+                onClick={async () => {
+                  const participantId = globalParticipant?._id?.toString();
+                  if (!participantId) return;
+
+                  await removeItemFromCart(
+                    participantId,
+                    commodityId,
+                    variantId // ⬅️ κρίσιμο
+                  );
+
                   await fetchCart();
-                }
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Box>
           </Box>
-        </Box>
-      ))}
+        );
+      })}
 
       <Divider sx={{ my: 1 }} />
+
+      {/* 💰 Σύνολο καλαθιού
+          Υπολογίζεται από priceAtPurchase × quantity
+          (σωστό ακόμα και αν αλλάξει τιμή προϊόντος)
+      */}
       <Typography>
         <strong>Total:</strong>{" "}
         {safeItems.reduce(

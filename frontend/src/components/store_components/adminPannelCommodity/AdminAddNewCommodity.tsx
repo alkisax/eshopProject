@@ -1,16 +1,25 @@
 // src/components/admin/AdminAddNewCommodity.tsx
 import { useState, useContext, useMemo, useEffect } from "react";
 import {
-  TextField, Button, Typography, Paper, Stack,
-  Autocomplete, Box, IconButton
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Stack,
+  Autocomplete,
+  Box,
+  IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useAppwriteUploader } from "../../../hooks/useAppwriteUploader"
+import { useAppwriteUploader } from "../../../hooks/useAppwriteUploader";
 import { slugify } from "../../../utils/slugify";
+import AdminVariantsEditor from "./AdminCommodityFooterComponents/AdminVariantsEditor";
+import type { EditableVariant } from "./AdminCommodityFooterComponents/AdminVariantsEditor";
+import type { CommodityType } from "../../../types/commerce.types";
 
 const AdminAddNewCommodity = () => {
   const { url, categories, refreshCategories } = useContext(VariablesContext);
@@ -30,13 +39,21 @@ const AdminAddNewCommodity = () => {
     images: [] as string[], // for now array of URLs
   });
 
+  // state για variants
+  const [editableVariants, setEditableVariants] = useState<EditableVariant[]>(
+    []
+  );
+
   // εχουμε ανάγκη ένα state για να φυλαμε τα αρχεια για το suggestion
   const [files, setFiles] = useState<string[]>([]);
 
   // επαναχρησιμοποιούμε τις λειτουργιες upload που μεταφέραμε στο hook. **Αυτό είναι ένα συμαντικό αρχείο**, έχει όλη την λογική μας
   const { ready, uploadFile, getFileUrl, listFiles } = useAppwriteUploader();
 
-  const handleChange = (field: string, value: string | number | boolean | string[]) => {
+  const handleChange = (
+    field: string,
+    value: string | number | boolean | string[]
+  ) => {
     // το διατηρεί όλο ίδιο εκτός απο το οτι αλλαζει την τιμή του field που μας έρχετε απο τα params
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -47,7 +64,8 @@ const AdminAddNewCommodity = () => {
   // έχουμε set γιατί ολλα τα categories είναι μοναδικα
   // δημιουργεί ένα Memo set array με μόνα τα ονόματα σε μικρό
   const existingSet = useMemo(
-    () => new Set(categories.map(n => n.name.toLowerCase())), [categories]
+    () => new Set(categories.map((n) => n.name.toLowerCase())),
+    [categories]
   );
 
   // added for categories
@@ -56,7 +74,7 @@ const AdminAddNewCommodity = () => {
     const token = localStorage.getItem("token");
 
     // κρατάμε μόνο τις κατηγορίες που δεν υπάρχουν ήδη
-    const toCreate = names.filter(n => !existingSet.has(n.toLowerCase()));
+    const toCreate = names.filter((n) => !existingSet.has(n.toLowerCase()));
     if (toCreate.length === 0) return;
 
     // εδώ θα τα στείλουμε **ένα-ένα με for...of** την δημιουργια του καθε axios post, όχι Promise.all ← αυτο είναι χρήσιμο. να το μάθω αργότερα
@@ -84,30 +102,42 @@ const AdminAddNewCommodity = () => {
       setIsLoading(true);
 
       // 1) Normalize categories from input
-      const categoryNames = form.category
-        .map((c) => c.trim())
-        .filter(Boolean);
+      const categoryNames = form.category.map((c) => c.trim()).filter(Boolean);
 
       // 2) Ensure they exist in DB (creates missing, refreshes context)
       await ensureCategoriesExist(categoryNames);
 
+      //normilize variants
+      const normalizedVariants = editableVariants.map((v) => ({
+        active: v.active,
+        attributes: Object.fromEntries(
+          v.attributes
+            .filter((a) => a.key.trim())
+            .map((a) => [a.key.trim(), a.value])
+        ),
+      }));
+
       const token = localStorage.getItem("token");
 
-      const res = await axios.post(
-        `${url}/api/commodity`,
-        {
-          name: form.name,
-          description: form.description,
-          category: categoryNames,
-          price: form.price,
-          currency: form.currency,
-          stripePriceId: form.stripePriceId,
-          stock: form.stock === "" ? 0 : form.stock,
-          active: form.active,
-          images: form.images,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const payload: Partial<CommodityType> = {
+        name: form.name,
+        description: form.description,
+        category: categoryNames,
+        price: form.price,
+        currency: form.currency,
+        stripePriceId: form.stripePriceId,
+        stock: form.stock === "" ? 0 : form.stock,
+        active: form.active,
+        images: form.images,
+      };
+
+      if (normalizedVariants.length > 0) {
+        payload.variants = normalizedVariants;
+      }
+
+      const res = await axios.post(`${url}/api/commodity`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       console.log("Commodity created:", res.data.data);
       // χρειαζόμαστε κάτι να κάνει refresh στο AdminCommoditiesPanel. Χρησιμοποιούμε useLocation
@@ -122,11 +152,11 @@ const AdminAddNewCommodity = () => {
   // list of strings for the <Autocomplete options={…}>
   // δημιουργεί ένα array με μόνο τα ονοματα των categories
   const nameOptions = useMemo(
-    () => categories.map(c => c.name),
+    () => categories.map((c) => c.name),
     [categories]
   );
 
-  // φέρνει τα 5 πιο προσφατα αρχεία. η listfiles έιναι συνα΄ρτηση του cloudupload 
+  // φέρνει τα 5 πιο προσφατα αρχεία. η listfiles έιναι συνα΄ρτηση του cloudupload
   useEffect(() => {
     const loadRecentFiles = async () => {
       if (!ready) return;
@@ -175,6 +205,11 @@ const AdminAddNewCommodity = () => {
               placeholder="Type and press Enter…"
             />
           )}
+        />
+
+        <AdminVariantsEditor
+          variants={editableVariants}
+          onChange={setEditableVariants}
         />
 
         <TextField
@@ -282,7 +317,12 @@ const AdminAddNewCommodity = () => {
                 <img
                   src={url}
                   alt={`preview-${idx}`}
-                  style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 4 }}
+                  style={{
+                    width: 80,
+                    height: 80,
+                    objectFit: "cover",
+                    borderRadius: 4,
+                  }}
                 />
                 <IconButton
                   size="small"
@@ -311,11 +351,7 @@ const AdminAddNewCommodity = () => {
         </>
 
         <Stack direction="row" spacing={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-          >
+          <Button variant="contained" color="primary" onClick={handleSubmit}>
             Save
           </Button>
           <Button

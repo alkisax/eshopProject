@@ -239,14 +239,28 @@ const AdminTransactionsPanel = () => {
             <>
               <Typography variant="subtitle1">Items:</Typography>
               <List dense>
-                {selected.items.map((item, idx) => (
-                  <ListItem key={idx}>
-                    <ListItemText
-                      primary={`${item.commodity.name} × ${item.quantity}`}
-                      secondary={`${item.priceAtPurchase}€ each`}
-                    />
-                  </ListItem>
-                ))}
+                {selected.items.map((item, idx) => {
+                  console.log("🧪 TRANSACTION ITEM", idx, item);
+
+                  return (
+                    <ListItem key={idx}>
+                      <ListItemText
+                        primary={`${item.commodity.name} × ${item.quantity}`}
+                        secondary={
+                          <>
+                            <span>{`${item.priceAtPurchase}€ each`}</span>
+                            {item.variantId && (
+                              <>
+                                <br />
+                                <span>{`Variant: ${item.variantId}`}</span>
+                              </>
+                            )}
+                          </>
+                        }
+                      />
+                    </ListItem>
+                  );
+                })}
               </List>
 
               <Typography variant="subtitle1" sx={{ mt: 2 }}>

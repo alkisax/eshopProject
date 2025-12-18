@@ -13,10 +13,16 @@ export interface ParticipantType {
   updatedAt?: Date;
 }
 
+export interface TransactionItemType {
+  commodity: Types.ObjectId | string | CommodityType;
+  variantId?: Types.ObjectId | string;   // ✅ new
+  quantity: number;
+  priceAtPurchase: number;
+}
 export interface TransactionType extends Document {
   _id: Types.ObjectId;
   participant: Types.ObjectId | string | ParticipantType; // links to Participant
-  items: CartItemType[];   // reuse the same type
+  items: TransactionItemType[];
   amount: number; // total
   processed?: boolean;
   cancelled?: boolean;
@@ -29,6 +35,7 @@ export interface CommodityType extends Document {
   _id: Types.ObjectId;
   uuid?: string;
   slug?: string;
+  sku?: string;
   name: string;
   description?: string;
   category: string[]
@@ -39,10 +46,27 @@ export interface CommodityType extends Document {
   stock: number;
   active: boolean;
   images?: string[];
+  requiresProcessing?: boolean;
+  processingTimeDays?: number;
   comments?: CommentType[];
+  variants?: CommodityVariantType[];
   vector?: number[]; // για προσθήκη vector embedings
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+// προσθήκη για την περίπτωση που έχουμε εμπορευματα με ιδιότητες πχ μεγεθος χρωμα σε μπλουζάκι
+
+export type VariantAttributeValue = string;
+
+export type VariantAttributes = Record<string, VariantAttributeValue>;
+
+export interface CommodityVariantType {
+  _id?: Types.ObjectId;
+  attributes: VariantAttributes;
+  stock?: number;
+  sku?: string;
+  active?: boolean;
 }
 
 export interface CommentType {
@@ -69,9 +93,17 @@ export interface CartType {
 
 export interface CartItemType {
   commodity: Types.ObjectId | string  | CommodityType;
+  variantId?: string | Types.ObjectId;
   quantity: number;
   priceAtPurchase: number;
 }
+
+export type PopulatedCartItem = {
+  commodity: CommodityType; // always the full commodity now
+  variantId?: string | Types.ObjectId;
+  quantity: number;
+  priceAtPurchase: number;
+};
 
 export interface lineItemsType {
   price: string;

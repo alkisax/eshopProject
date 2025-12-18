@@ -96,6 +96,7 @@ const AdminCommoditiesPanel = () => {
           stock: data.stock,
           active: data.active,
           images: data.images,
+          variants: data.variants,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -231,6 +232,7 @@ const AdminCommoditiesPanel = () => {
                 <TableCell>Price</TableCell>
                 <TableCell>Stock</TableCell>
                 <TableCell>Sold</TableCell>
+                <TableCell>Variants</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -245,6 +247,11 @@ const AdminCommoditiesPanel = () => {
                     </TableCell>
                     <TableCell>{c.stock}</TableCell>
                     <TableCell>{c.soldCount}</TableCell>
+                    <TableCell>
+                      {c.variants?.length
+                        ? `${c.variants.length} variants`
+                        : "—"}
+                    </TableCell>
 
                     {/* Actions cell */}
                     <TableCell>

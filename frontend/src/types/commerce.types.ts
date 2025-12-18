@@ -50,11 +50,26 @@ export interface CommodityType {
   soldCount: number;
   stock: number;
   active: boolean;
+  variants?: CommodityVariantType[];
   images?: string[];
   vector?: number[]
   comments?: CommentType[];
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+// προσθήκη για την περίπτωση που έχουμε εμπορευματα με ιδιότητες πχ μεγεθος χρωμα σε μπλουζάκι
+
+export type VariantAttributeValue = string;
+
+export type VariantAttributes = Record<string, VariantAttributeValue>;
+
+export interface CommodityVariantType {
+  _id?: string;
+  attributes: VariantAttributes;
+  stock?: number;
+  sku?: string;
+  active?: boolean;
 }
 
 export interface CommentType {
@@ -89,6 +104,7 @@ export interface CartItemType {
   commodity: CommodityType;
   quantity: number;
   priceAtPurchase: number;
+  variantId: string;
 }
 
 export interface CategoryType {

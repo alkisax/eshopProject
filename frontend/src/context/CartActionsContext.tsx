@@ -8,15 +8,17 @@ import { UserAuthContext } from "./UserAuthContext";
 import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
 
 interface CartActionsContextType {
-  addOneToCart: (commodityId: string) => Promise<void>;
+  addOneToCart: (commodityId: string, variantId?: string) => Promise<void>;
   removeItemFromCart : (
     participantId: string,
     commodityId: string,
+    variantId?: string
   ) => Promise<void>;
   addQuantityCommodityToCart: (
     participantId: string,
     commodityId: string,
-    quantity: number
+    quantity: number,
+    variantId?:string,
   ) => Promise<void>;
   fetchParticipantId: () => Promise<string | null>;
   loadingItemId: string | null;
@@ -162,7 +164,8 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
   const addQuantityCommodityToCart = async (
     participantId: string,
     commodityId: string,
-    quantity: number
+    quantity: number,
+    variantId?: string,
   ): Promise<void> => {
     console.log("Creating cart for participantId:", participantId);
     try {
@@ -178,6 +181,7 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
       const data = {
         commodityId,
         quantity,
+        ...(variantId ? { variantId } : {}),  //αν δεν υπάρχει → δεν στέλνεται
       };
 
       // note: ?participantId=${participantId}
@@ -195,7 +199,7 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const addOneToCart = async (commodityId: string): Promise<void> => {
+  const addOneToCart = async (commodityId: string, variantId?: string): Promise<void> => {
     try {
       const participantId = await fetchParticipantId();
       if (!participantId) {
@@ -203,14 +207,14 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      await addQuantityCommodityToCart(participantId, commodityId, 1);
+      await addQuantityCommodityToCart(participantId, commodityId, 1, variantId);
       setHasCart(true); // optimistic update
       setLoadingItemId(commodityId); //axios spamming controll
 
       // GA google analytics
       if (tracker?.trackEvent) {
         const commodityResponce = await axios.get<{ status: boolean, data: CommodityType }>(
-          `${url}/api/commodities/${commodityId}`
+          `${url}/api/commodity/${commodityId}`
         )
         const commodity = commodityResponce.data.data;
 
@@ -223,6 +227,7 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
               item_name: commodity.name,
               price: commodity.price,
               quantity: 1,
+              ...(variantId ? { item_variant: variantId } : {}),
             },
           ],
         }); 
@@ -250,13 +255,15 @@ export const CartActionsProvider = ({ children }: { children: ReactNode }) => {
 
   const removeItemFromCart = async (
     participantId: string,
-    commodityId: string
+    commodityId: string,
+    variantId?: string,
   ): Promise<void> => {
     try {
       const updated = await axios.patch<{ status: boolean; data: CartType }>(
         `${url}/api/cart/${participantId}/items`,
         {
           commodityId,
+          variantId,
           quantity: -99999, // TODO ugly
         }
       );
