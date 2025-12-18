@@ -96,9 +96,12 @@ export const createCommoditySchema = z
     name: z.string().min(1, 'Name is required').max(200),
     description: z.string().max(2000).optional(),
     category: z.array(z.string()).default([]), // ✅ matches Mongoose
-    price: z.number().min(0, 'Price must be non-negative'),
+
+    // ⬇️ ΑΛΛΑΓΗ: optional για variants προϊόντα
+    price: z.number().min(0, 'Price must be non-negative').optional(),
     currency: z.string().default('eur'),
-    stripePriceId: z.string().min(1, 'Stripe Price ID is required'),
+    stripePriceId: z.string().min(1, 'Stripe Price ID is required').optional(),
+
     stock: z.number().int().min(0).default(0),
     active: z.boolean().default(true),
     images: z.array(z.string()).optional(),
@@ -106,6 +109,7 @@ export const createCommoditySchema = z
     requiresProcessing: z.boolean().optional().default(false),
     processingTimeDays: z.number().int().min(0).optional(),
   })
+
   .refine(
     // Αν ΔΕΝ υπάρχουν variants → OK
     // Αν ΥΠΑΡΧΟΥΝ variants → ΠΡΕΠΕΙ να έχουν τουλάχιστον 1 στοιχείο
@@ -120,6 +124,25 @@ export const createCommoditySchema = z
       path: ['variants'],
     }
   );
+
+// .refine(
+//   // Αν ΔΕΝ υπάρχουν variants → απαιτούνται price + stripePriceId
+//   // Αν ΥΠΑΡΧΟΥΝ variants → ΔΕΝ απαιτούνται price / stripePriceId
+//   (data) => {
+//     if (!data.variants || data.variants.length === 0) {
+//       return (
+//         typeof data.price === 'number' &&
+//         typeof data.stripePriceId === 'string'
+//       );
+//     }
+//     return true;
+//   },
+//   {
+//     message:
+//       'Price and Stripe Price ID are required when no variants are provided',
+//     path: ['price'],
+//   }
+// );
 
 export const updateCommoditySchema = createCommoditySchema.partial();
 

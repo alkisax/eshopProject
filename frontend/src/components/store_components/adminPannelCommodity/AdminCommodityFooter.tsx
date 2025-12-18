@@ -22,6 +22,7 @@ import { VariablesContext } from "../../../context/VariablesContext";
 import axios from "axios";
 import { slugify } from "../../../utils/slugify";
 import AdminVariantsEditor from "./AdminCommodityFooterComponents/AdminVariantsEditor";
+import type { EditableVariant } from "./AdminCommodityFooterComponents/AdminVariantsEditor";
 
 interface CommodityFooterProps {
   setExpanded: (id: string | null) => void;
@@ -63,7 +64,9 @@ const AdminCommodityFooter = ({
     active: commodity.active ?? true,
     images: commodity.images || [],
   });
-
+  const [editableVariants, setEditableVariants] = useState<EditableVariant[]>(
+    []
+  );
   // εχουμε ανάγκη ένα state για να φυλαμε τα αρχεια για το suggestion
   const [files, setFiles] = useState<string[]>([]);
 
@@ -88,6 +91,15 @@ const AdminCommodityFooter = ({
       images: commodity.images || [],
       variants: commodity.variants ?? [],
     });
+    setEditableVariants(
+      (commodity.variants ?? []).map((v) => ({
+        ...v,
+        attributes: Object.entries(v.attributes || {}).map(([key, value]) => ({
+          key,
+          value,
+        })),
+      }))
+    );
   }, [commodity]);
 
   const handleChange = (
@@ -152,6 +164,43 @@ const AdminCommodityFooter = ({
     };
     loadRecentFiles();
   }, [ready, getFileUrl, listFiles]);
+
+  const handleSaveCommodity = async () => {
+    // 1) Normalize categories
+    const categoryNames = (form.category || [])
+      .map((c) => (typeof c === "string" ? c.trim() : c))
+      .filter(Boolean) as string[];
+
+    // 2) Ensure categories exist
+    await ensureCategoriesExist(categoryNames);
+
+    // 3) Transform editable variants → backend shape
+    const normalizedVariants = editableVariants.map((v) => ({
+      ...v,
+      attributes: Object.fromEntries(
+        v.attributes
+          .filter((a) => a.key.trim())
+          .map((a) => [a.key.trim(), a.value])
+      ),
+    }));
+
+    // 4) Save
+    const payload: Partial<CommodityType> = {
+      ...form,
+      category: categoryNames,
+      variants: normalizedVariants,
+    };
+
+    // CRITICAL: strip price fields if variants exist
+    if (normalizedVariants.length > 0) {
+      delete payload.price;
+      delete payload.stripePriceId;
+    }
+
+    onSave(commodity._id!, payload);
+
+    setEditMode(false);
+  };
 
   return (
     <>
@@ -227,10 +276,8 @@ const AdminCommodityFooter = ({
               />
 
               <AdminVariantsEditor
-                variants={form.variants}
-                onChange={(variants) =>
-                  setForm((prev) => ({ ...prev, variants }))
-                }
+                variants={editableVariants}
+                onChange={setEditableVariants}
               />
 
               <TextField
@@ -402,25 +449,7 @@ const AdminCommodityFooter = ({
               </>
 
               <Stack spacing={1} direction="row">
-                <Button
-                  variant="contained"
-                  onClick={async () => {
-                    // 1) Normalize categories from input
-                    const categoryNames = (form.category || [])
-                      .map((c) => (typeof c === "string" ? c.trim() : c))
-                      .filter(Boolean) as string[];
-
-                    // 2) Ensure they exist in DB (creates missing, refreshes context)
-                    await ensureCategoriesExist(categoryNames);
-
-                    // 3) Save — category stays as array of names (όπως στο create)
-                    onSave(commodity._id!, {
-                      ...form,
-                      category: categoryNames,
-                    });
-                    setEditMode(false);
-                  }}
-                >
+                <Button variant="contained" onClick={handleSaveCommodity}>
                   Save
                 </Button>
 

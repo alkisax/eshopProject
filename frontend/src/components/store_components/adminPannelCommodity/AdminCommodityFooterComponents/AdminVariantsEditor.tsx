@@ -1,32 +1,60 @@
-import { Box, Button, TextField, Stack, Switch, Typography } from '@mui/material';
-import type { CommodityVariantType } from '../../../../types/commerce.types';
+import {
+  Box,
+  Button,
+  TextField,
+  Stack,
+  Switch,
+  Typography,
+} from "@mui/material";
+import type { CommodityVariantType } from "../../../../types/commerce.types";
+
+/**
+ * Admin-only editable attribute model
+ */
+type EditableAttribute = {
+  key: string;
+  value: string;
+};
+
+export type EditableVariant = Omit<CommodityVariantType, "attributes"> & {
+  attributes: EditableAttribute[];
+};
 
 interface Props {
-  variants: CommodityVariantType[];
-  onChange: (variants: CommodityVariantType[]) => void;
+  variants: EditableVariant[];
+  onChange: (variants: EditableVariant[]) => void;
 }
 
 const AdminVariantsEditor = ({ variants, onChange }: Props) => {
-
-  const updateAttribute = (
+  const updateAttributeKey = (
     variantIdx: number,
-    attrKey: string,
+    attrIdx: number,
     value: string
   ) => {
     const copy = structuredClone(variants);
-    copy[variantIdx].attributes[attrKey] = value;
+    copy[variantIdx].attributes[attrIdx].key = value;
     onChange(copy);
   };
 
-  const removeAttribute = (variantIdx: number, attrKey: string) => {
+  const updateAttributeValue = (
+    variantIdx: number,
+    attrIdx: number,
+    value: string
+  ) => {
     const copy = structuredClone(variants);
-    delete copy[variantIdx].attributes[attrKey];
+    copy[variantIdx].attributes[attrIdx].value = value;
     onChange(copy);
   };
 
   const addAttribute = (variantIdx: number) => {
     const copy = structuredClone(variants);
-    copy[variantIdx].attributes['new'] = '';
+    copy[variantIdx].attributes.push({ key: "", value: "" });
+    onChange(copy);
+  };
+
+  const removeAttribute = (variantIdx: number, attrIdx: number) => {
+    const copy = structuredClone(variants);
+    copy[variantIdx].attributes.splice(attrIdx, 1);
     onChange(copy);
   };
 
@@ -34,8 +62,9 @@ const AdminVariantsEditor = ({ variants, onChange }: Props) => {
     onChange([
       ...variants,
       {
-        attributes: {},
+        _id: crypto.randomUUID(),
         active: true,
+        attributes: [],
       },
     ]);
   };
@@ -49,40 +78,36 @@ const AdminVariantsEditor = ({ variants, onChange }: Props) => {
       <Typography variant="subtitle1">Variants</Typography>
 
       {variants.map((variant, vIdx) => (
-        <Box key={variant._id} sx={{ border: '1px solid #ddd', p: 1, mb: 2 }}>
+        <Box key={variant._id} sx={{ border: "1px solid #ddd", p: 1, mb: 2 }}>
           <Typography variant="body2" sx={{ mb: 1 }}>
             Variant #{vIdx + 1}
           </Typography>
 
-          {Object.entries(variant.attributes).map(([key, value]) => (
-            <Stack direction="row" spacing={1} key={key} sx={{ mb: 1 }}>
+          {variant.attributes.map((attr, aIdx) => (
+            <Stack direction="row" spacing={1} key={aIdx} sx={{ mb: 1 }}>
               <TextField
                 size="small"
                 label="Attribute"
-                value={key}
-                disabled
+                value={attr.key}
+                onChange={(e) => updateAttributeKey(vIdx, aIdx, e.target.value)}
               />
+
               <TextField
                 size="small"
                 label="Value"
-                value={value}
+                value={attr.value}
                 onChange={(e) =>
-                  updateAttribute(vIdx, key, e.target.value)
+                  updateAttributeValue(vIdx, aIdx, e.target.value)
                 }
               />
-              <Button
-                color="error"
-                onClick={() => removeAttribute(vIdx, key)}
-              >
+
+              <Button color="error" onClick={() => removeAttribute(vIdx, aIdx)}>
                 ✕
               </Button>
             </Stack>
           ))}
 
-          <Button
-            size="small"
-            onClick={() => addAttribute(vIdx)}
-          >
+          <Button size="small" onClick={() => addAttribute(vIdx)}>
             + Add Attribute
           </Button>
 
@@ -109,4 +134,4 @@ const AdminVariantsEditor = ({ variants, onChange }: Props) => {
   );
 };
 
-export default AdminVariantsEditor
+export default AdminVariantsEditor;
