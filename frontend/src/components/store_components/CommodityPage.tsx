@@ -28,7 +28,8 @@ import ReviewSection from "./commodity_page_components/ItemReviews";
 import CommodityPageMobile from "./CommodityPageMobile";
 
 import { useRef, useLayoutEffect } from "react";
-import VariantSelector from "./commodity_page_components/VariantSelector";
+// import VariantSelector from "./commodity_page_components/VariantSelector";
+import VariantAttributeSelector from "./commodity_page_components/VariantAttributeSelector";
 
 /* suspence
 React.lazy() is a built-in React function that allows you to dynamically import a component only when it’s needed. Normally, when you do: 
@@ -464,7 +465,12 @@ const CommodityPage = () => {
               <ItemDescription commodity={commodity} />
 
               {commodity.variants && commodity.variants.length > 0 && (
-                <VariantSelector
+                // <VariantSelector
+                //   variants={commodity.variants}
+                //   value={selectedVariantId}
+                //   onChange={setSelectedVariantId}
+                // />
+                <VariantAttributeSelector
                   variants={commodity.variants}
                   value={selectedVariantId}
                   onChange={setSelectedVariantId}

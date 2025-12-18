@@ -1,3 +1,4 @@
+// frontend\src\components\store_components\adminPannelCommodity\AdminCommodityFooterComponents\AdminVariantsEditor.tsx
 import {
   Box,
   Button,
