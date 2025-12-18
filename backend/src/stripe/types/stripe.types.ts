@@ -13,10 +13,16 @@ export interface ParticipantType {
   updatedAt?: Date;
 }
 
+export interface TransactionItemType {
+  commodity: Types.ObjectId | string | CommodityType;
+  variantId?: Types.ObjectId | string;   // ✅ new
+  quantity: number;
+  priceAtPurchase: number;
+}
 export interface TransactionType extends Document {
   _id: Types.ObjectId;
   participant: Types.ObjectId | string | ParticipantType; // links to Participant
-  items: CartItemType[];   // reuse the same type
+  items: TransactionItemType[];
   amount: number; // total
   processed?: boolean;
   cancelled?: boolean;
@@ -91,6 +97,13 @@ export interface CartItemType {
   quantity: number;
   priceAtPurchase: number;
 }
+
+export type PopulatedCartItem = {
+  commodity: CommodityType; // always the full commodity now
+  variantId?: string | Types.ObjectId;
+  quantity: number;
+  priceAtPurchase: number;
+};
 
 export interface lineItemsType {
   price: string;
