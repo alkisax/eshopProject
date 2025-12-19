@@ -241,6 +241,10 @@ const AdminTransactionsPanel = () => {
               <List dense>
                 {selected.items.map((item, idx) => {
                   console.log("🧪 TRANSACTION ITEM", idx, item);
+                  // δεν θέλουμε στα variants να μας δείχνει το id
+                  const variant = item.commodity?.variants?.find(
+                    (v) => v._id === item.variantId
+                  );
 
                   return (
                     <ListItem key={idx}>
@@ -249,10 +253,15 @@ const AdminTransactionsPanel = () => {
                         secondary={
                           <>
                             <span>{`${item.priceAtPurchase}€ each`}</span>
-                            {item.variantId && (
+                            {item.variantId && variant && (
                               <>
                                 <br />
-                                <span>{`Variant: ${item.variantId}`}</span>
+                                <span>
+                                  Variant:{" "}
+                                  {Object.entries(variant.attributes)
+                                    .map(([key, value]) => `${key}: ${value}`)
+                                    .join(", ")}
+                                </span>
                               </>
                             )}
                           </>
