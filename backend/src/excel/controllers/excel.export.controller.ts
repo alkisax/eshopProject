@@ -4,16 +4,56 @@ import type { Request, Response } from 'express';
 import XLSX from 'xlsx';
 import Commodity from '../../stripe/models/commodity.models';
 
+// helper func για την μορφή των variant στο excel
+// αν υπάρχουν variants → κάνουμε ένα map σε κάθε variant οπου εννώνουμε key|value ως string καθε σετ με ';'. αν δεν υπάρχουν variants → ''
+const formatVariantsForExcel = (
+  variants?: {
+    attributes?: Record<string, string>;
+    active?: boolean;
+  }[]
+): string => {
+  if (!Array.isArray(variants) || variants.length === 0) {
+    return '';
+  }
+
+  return (
+    variants
+      // για κάθε variant φτιάχνουμε "key=value|key=value|_active=true ;"
+      .map((variant) => {
+        const attrs = Object.entries(variant.attributes ?? {}).map(
+          ([key, value]) => `${key}=${value}`
+        );
+
+        if (attrs.length === 0) {
+          return '';
+        }
+
+        const active =
+          variant.active !== undefined
+            ? `_active=${variant.active}`
+            : '_active=true';
+
+        return [...attrs, active].join('|');
+      })
+      // κόβουμε empty variants (π.χ. {})
+      .filter((v) => v.length > 0)
+      // ενώνουμε variants με ';'
+      .join(' ; ')
+  );
+};
+
 export const exportProductsToExcel = async (_req: Request, res: Response) => {
   try {
     // 1️⃣ Fetch all products
-    const products = await Commodity.find({}).lean(); // TODO: replace with DAO if needed
+    const products = await Commodity.find({}).lean(); // TODO: replace with DAO
 
     // 2️⃣ Transform DB → Excel rows
     const rows = products.map((p) => ({
       uuid: p.uuid ?? '',
       slug: p.slug ?? '',
       name: p.name,
+      // επειδή μπορεί να έχει πολλά variants με διαφορετικά attributes (πχ size=S|color=red ; size=M|color=blue) δεν αρκεί μια απλή csv μορφή
+      variants: formatVariantsForExcel(p.variants),
       description: p.description,
       category: Array.isArray(p.category) ? p.category.join(', ') : '',
       price: p.price,
