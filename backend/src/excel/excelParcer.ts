@@ -3,6 +3,7 @@
 // Παίρνει ένα Buffer (αρχείο Excel ανεβασμένο στο Appwrite)
 // και επιστρέφει έναν πίνακα από "καθαρά" προϊόντα
 import * as XLSX from 'xlsx';
+import { CommodityVariantType } from '../stripe/types/stripe.types';
 
 // Η τελική μορφή που θέλουμε να πάρουμε από το Excel.
 // Αυτή είναι η "καθαρή" και έτοιμη για χρήση δομή προϊόντος.
@@ -10,6 +11,7 @@ export interface CommodityExcelRow {
   uuid?: string;
   slug?: string;
   name: string;
+  variants?: CommodityVariantType[];
   description: string;
   category: string[]; // μετατροπή από comma-separated string → array
   price: number;
@@ -29,6 +31,7 @@ interface CommodityExcelRowRaw {
   uuid: string | null;
   slug: string | null;
   name: string | null;
+  variants: string | null;
   description: string | null;
   category: string | null;
   price: number | string | null;
@@ -37,6 +40,60 @@ interface CommodityExcelRowRaw {
   stripePriceId: string | null;
   images: string | null;
 }
+
+// helper συναρτηση για την διαχείρηση των variants. Τα variants-attributes-active βρίσκονται στο excel μου σε μια μορφή σαν "size=S|color=red|_active=true ;"
+// επιστρέφει array από variants, όπου κάθε variant έχει
+// attributes (key=value pairs) και flag active (boolean)
+// Παράδειγμα:
+// input: // "size=S|color=red|_active=true ; size=M|color=blue|_active=0"
+// output: [ { attributes: { size: "S", color: "red" }, active: true }, { attributes: { size: "M", color: "blue" }, active: false } ]
+const parseVariantsFromExcel = (
+  value: string | null
+): CommodityVariantType[] | undefined => {
+  if (!value || typeof value !== 'string') {
+    return undefined;
+  }
+
+  const variants = value
+    // size=S|color=red|_active=true ; size=L|color=red|_active=true → size=S|color=red|_active=true
+    .split(';')
+    .map((v) => v.trim())
+    .filter((v) => v.length > 0)
+    .map((variantStr) => {
+      // size=S|color=red|_active=true → size=S color=red _active=true
+      const parts = variantStr.split('|').map((p) => p.trim());
+
+      const attributes: Record<string, string> = {};
+      let active = true;
+
+      for (const part of parts) {
+        // _active=true → true/false ή _active=1
+        if (part.startsWith('_active=')) {
+          const raw = part.split('=')[1]?.trim().toLowerCase();
+          active = raw === 'true' || raw === '1';
+        } else {
+          // size=S → key:size, val=S
+          const [key, val] = part.split('=').map(s => s.trim());
+          if (key && val) {
+            attributes[key] = val;
+          }
+        }
+      }
+
+      //Guard για κενά attributes
+      if (Object.keys(attributes).length === 0) {
+        return null;
+      }
+
+      return {
+        attributes,
+        active,
+      };
+    })
+    .filter((v) => v !== null);
+
+  return variants.length > 0 ? variants : undefined;
+};
 
 // parseExcelBuffer
 // Παίρνει ένα Buffer (αρχείο Excel ανεβασμένο στο Appwrite)
@@ -62,6 +119,7 @@ export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
     slug: row.slug ?? undefined,
     // Αν κάποιο κελί είναι null → βάζουμε κενή τιμή
     name: row.name ?? '',
+    variants: parseVariantsFromExcel(row.variants),
     description: row.description ?? '',
     // Category:
     // - Αν υπάρχει string π.χ. "cat1, cat2"

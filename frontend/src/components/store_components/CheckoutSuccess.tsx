@@ -18,10 +18,11 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { VariablesContext } from "../../context/VariablesContext";
-import type { TransactionType } from "../../types/commerce.types";
+import type { CartItemType, TransactionType } from "../../types/commerce.types";
 
 const CheckoutSuccess = () => {
-  const { url, globalParticipant, setGlobalParticipant } = useContext(VariablesContext);
+  const { url, globalParticipant, setGlobalParticipant } =
+    useContext(VariablesContext);
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,17 +47,23 @@ const CheckoutSuccess = () => {
       try {
         const token = localStorage.getItem("token");
 
-        console.log("📡 Fetching transactions for participant:", globalParticipant._id);
-
-        const res = await axios.get<{ status: boolean; data: TransactionType[] }>(
-          `${url}/api/transaction/participant/${globalParticipant._id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+        console.log(
+          "📡 Fetching transactions for participant:",
+          globalParticipant._id
         );
+
+        const res = await axios.get<{
+          status: boolean;
+          data: TransactionType[];
+        }>(`${url}/api/transaction/participant/${globalParticipant._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         console.log("🔥 RAW TRANSACTIONS FROM BACKEND:", res.data.data);
 
         const sorted = res.data.data.sort(
-          (a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+          (a, b) =>
+            new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
         );
 
         console.log("🔥 SORTED TRANSACTIONS:", sorted);
@@ -92,7 +99,11 @@ const CheckoutSuccess = () => {
   }
 
   if (!globalParticipant?._id) {
-    return <Typography color="error">❌ No participant info found. Please log in again.</Typography>;
+    return (
+      <Typography color="error">
+        ❌ No participant info found. Please log in again.
+      </Typography>
+    );
   }
 
   const lastTransaction = transactions[0];
@@ -107,6 +118,22 @@ const CheckoutSuccess = () => {
       console.log("👉 (render) images:", item.commodity?.images);
     });
   }
+
+  // variants
+  const getVariantLabel = (item: CartItemType): string | null => {
+    if (!item.variantId || !item.commodity?.variants) return null;
+
+    const variant = item.commodity.variants.find((v) => {
+      const vid = v._id?.toString?.() ?? v._id;
+      return vid === item.variantId;
+    });
+
+    if (!variant?.attributes) return null;
+
+    return Object.entries(variant.attributes)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(", ");
+  };
 
   return (
     <Box sx={{ mt: 6, display: "flex", justifyContent: "center" }}>
@@ -146,27 +173,41 @@ const CheckoutSuccess = () => {
             <List dense>
               {lastTransaction.items.map((item, idx) => (
                 <ListItem key={idx} sx={{ borderBottom: "1px dashed #ddd" }}>
-                  {item.commodity.images && item.commodity.images?.length > 0 && (
-                    <Box
-                      component="img"
-                      src={item.commodity.images[0]}
-                      alt={item.commodity?.name}
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 2,
-                        mr: 2,
-                        objectFit: "cover",
-                      }}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder.jpg";
-                      }}
-                    />
-                  )}
+                  {item.commodity.images &&
+                    item.commodity.images?.length > 0 && (
+                      <Box
+                        component="img"
+                        src={item.commodity.images[0]}
+                        alt={item.commodity?.name}
+                        sx={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: 2,
+                          mr: 2,
+                          objectFit: "cover",
+                        }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            "/placeholder.jpg";
+                        }}
+                      />
+                    )}
 
                   <ListItemText
                     primary={`${item.commodity.name} × ${item.quantity}`}
                     secondary={`${item.priceAtPurchase}€ / τεμ.`}
+                  />
+                  <ListItemText
+                    secondary={
+                      <>
+                        {getVariantLabel(item) && (
+                          <>
+                            <br />
+                            <span>Variant: {getVariantLabel(item)}</span>
+                          </>
+                        )}
+                      </>
+                    }
                   />
                 </ListItem>
               ))}
@@ -198,11 +239,29 @@ const CheckoutSuccess = () => {
                           {new Date(t.createdAt!).toLocaleString()}
                         </Typography>
 
-                        {t.items.map((item, idx) => (
-                          <Typography key={idx} variant="body2">
-                            {item.commodity.name} × {item.quantity} — {item.priceAtPurchase}€
-                          </Typography>
-                        ))}
+                        {t.items.map((item, idx) => {
+                          const variantLabel = getVariantLabel(item);
+
+                          return (
+                            <Typography key={idx} variant="body2">
+                              {item.commodity.name} × {item.quantity} —{" "}
+                              {item.priceAtPurchase}€
+                              {variantLabel && (
+                                <>
+                                  <br />
+                                  <span
+                                    style={{
+                                      color: "#666",
+                                      fontSize: "0.85em",
+                                    }}
+                                  >
+                                    Variant: {variantLabel}
+                                  </span>
+                                </>
+                              )}
+                            </Typography>
+                          );
+                        })}
 
                         <Typography variant="body2" sx={{ mt: 1 }}>
                           <strong>Σύνολο:</strong> {t.amount}€

@@ -19,7 +19,7 @@ export interface TransactionType {
   processed?: boolean;
   cancelled?: boolean;
   sessionId?: string;
-  shipping?: ShippingInfoType;   // ✅ add this
+  shipping?: ShippingInfoType;
   createdAt?: Date;
   updatedAt?: Date;
 }

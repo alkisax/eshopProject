@@ -47,8 +47,13 @@ export const addProductsFromExcel = async (products: CommodityExcelRow[]) => {
       } else {
         // 4️⃣ UPDATE EXISTING — update only allowed fields
         // δεν θέλουμε να περάσουμε όλο το product οπως έρχετε απο το excel, για αυτό του αφαιρούμε τα uuid και slug ώστε να μην αλλάζουν
-        const { uuid: _uuid, slug: _slug, ...safeUpdate } = p;
-        await commodityDAO.updateCommodityByUUID(existing.uuid!, safeUpdate);
+        // βγάζουμε ακόμα εκτός τα variants για να δούμε πρωτα αν είναι undefined και αν οχι τα ξαναπερνάμε
+        const { uuid: _uuid, slug: _slug, variants, ...safeUpdate } = p;
+        const updatePayload = {
+          ...safeUpdate,
+          ...(variants !== undefined && { variants }),
+        };
+        await commodityDAO.updateCommodityByUUID(existing.uuid!, updatePayload);
         results.updated++;
       }
     } catch (err: unknown) {

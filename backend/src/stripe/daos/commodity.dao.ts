@@ -78,7 +78,9 @@ const createCommodity = async (
     // Πράγματι θέλουμε να ξέρουμε το mongo duplicate key error:
     if (err instanceof Error && (err as any).code === 11000) {
       console.error('"❌ [DAO] Duplicate key:"', (err as any).keyValue);
-      throw new ValidationError('"Duplicate key: "' + JSON.stringify((err as any).keyValue));
+      throw new ValidationError(
+        '"Duplicate key: "' + JSON.stringify((err as any).keyValue)
+      );
     }
 
     console.error('"❌ [DAO] Unexpected error:"', err);
@@ -269,13 +271,14 @@ const updateCommodityByUUID = async (
   updateData: Partial<CommodityType>
 ): Promise<CommodityType> => {
   try {
-    // 🆕 VARIANT GUARD
-    if (updateData.variants && updateData.variants.length > 0) {
-      if ('price' in updateData || 'stripePriceId' in updateData) {
-        throw new ValidationError(
-          'Cannot change price or stripePriceId on products with variants'
-        );
-      }
+    // ❗ Guard μόνο αν πάμε σε variant-level pricing (future)
+    if (
+      updateData.variants &&
+      updateData.variants.length > 0 &&
+      Array.isArray(updateData.variants) &&
+      updateData.variants.some((v) => 'price' in v)
+    ) {
+      throw new ValidationError('Variant-level pricing is not supported');
     }
 
     const updated = await Commodity.findOneAndUpdate({ uuid }, updateData, {

@@ -21,7 +21,7 @@ import { VariablesContext } from "../context/VariablesContext";
 import { frontendValidatePassword } from "../utils/registerBackend";
 import Loading from "../components/Loading";
 import type { UpdateUser, IUser } from "../types/types";
-import type { CommentType } from "../types/commerce.types";
+import type { CartItemType, CommentType } from "../types/commerce.types";
 import type { TransactionType } from "../types/commerce.types";
 
 interface Props {
@@ -309,6 +309,22 @@ const ProfileUser = ({ userToEdit }: Props) => {
     }
   };
 
+  // variants
+  const getVariantLabel = (item: CartItemType): string | null => {
+    if (!item.variantId || !item.commodity?.variants) return null;
+
+    const variant = item.commodity.variants.find((v) => {
+      const vid = v._id?.toString?.() ?? v._id;
+      return vid === item.variantId;
+    });
+
+    if (!variant?.attributes) return null;
+
+    return Object.entries(variant.attributes)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(", ");
+  };
+
   return (
     <>
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
@@ -535,21 +551,32 @@ const ProfileUser = ({ userToEdit }: Props) => {
                     {new Date(order.createdAt!).toLocaleString()}
                   </Typography>
 
-                  {order.items.map((item, i) => (
-                    <Box
-                      key={i}
-                      component={Link}
-                      to={`/commodity/${item.commodity?._id}`}
-                      sx={{
-                        color: "primary.main",
-                        textDecoration: "none",
-                        "&:hover": { textDecoration: "underline" },
-                      }}
-                    >
-                      {item.commodity?.name} × {item.quantity} —{" "}
-                      {item.priceAtPurchase}€
-                    </Box>
-                  ))}
+                  {order.items.map((item, i) => {
+                    const variantLabel = getVariantLabel(item);
+                    return (
+                      <Box
+                        key={i}
+                        component={Link}
+                        to={`/commodity/${item.commodity?._id}`}
+                        sx={{
+                          color: "primary.main",
+                          textDecoration: "none",
+                          "&:hover": { textDecoration: "underline" },
+                        }}
+                      >
+                        {item.commodity?.name} × {item.quantity} —{" "}
+                        {item.priceAtPurchase}€
+                        {variantLabel && (
+                          <>
+                            <br />
+                            <span style={{ fontSize: "0.85em", color: "#666" }}>
+                              Variant: {variantLabel}
+                            </span>
+                          </>
+                        )}
+                      </Box>
+                    );
+                  })}
 
                   <Divider sx={{ my: 1 }} />
 

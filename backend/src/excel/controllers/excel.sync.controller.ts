@@ -1,4 +1,6 @@
 // backend\src\excel\controllers\excel.sync.controller.ts
+// sync ≠ import
+// sync = Excel is source of truth
 
 import type { Request, Response } from 'express';
 import path from 'path';
@@ -15,6 +17,7 @@ import { handleControllerError } from '../../utils/error/errorHandler';
 
 // import { slugify } from '../../utils/slugify';
 import { commodityDAO } from '../../stripe/daos/commodity.dao';
+import { CommodityType } from '../../stripe/types/stripe.types';
 
 export const syncProductsFromExcel = async (req: Request, res: Response) => {
   try {
@@ -103,7 +106,7 @@ export const syncProductsFromExcel = async (req: Request, res: Response) => {
         results.checked++;
 
         // UPDATE allowed fields
-        const updateData: Partial<typeof product> = {
+        const updateData: Partial<CommodityType> = {
           name: product.name,
           description: product.description,
           category: product.category,
@@ -112,7 +115,14 @@ export const syncProductsFromExcel = async (req: Request, res: Response) => {
           active: product.active,
           stripePriceId: product.stripePriceId,
           images: product.images,
+          // Το ...(condition && { variants }) σημαίνει: «βάλε το field ΜΟΝΟ αν το Excel το όρισε ρητά».
+          ...(product.variants !== undefined && { variants: product.variants }),
         };
+
+        const variantsChanged =
+          product.variants !== undefined &&
+          JSON.stringify(existing.variants ?? []) !==
+            JSON.stringify(product.variants);
 
         // 🧠 CHECK IF ANYTHING CHANGED
         const hasChanged =
@@ -120,11 +130,13 @@ export const syncProductsFromExcel = async (req: Request, res: Response) => {
           existing.description !== updateData.description ||
           JSON.stringify(existing.category) !==
             JSON.stringify(updateData.category) ||
+          variantsChanged ||
           existing.price !== updateData.price ||
           existing.stock !== updateData.stock ||
           existing.active !== updateData.active ||
           existing.stripePriceId !== updateData.stripePriceId ||
-          JSON.stringify(existing.images) !== JSON.stringify(updateData.images);
+          JSON.stringify(existing.images) !==
+            JSON.stringify(updateData.images);
 
         // 👉 If nothing changed → skip update
         if (!hasChanged) {
