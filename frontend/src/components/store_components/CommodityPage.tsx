@@ -30,6 +30,7 @@ import CommodityPageMobile from "./CommodityPageMobile";
 import { useRef, useLayoutEffect } from "react";
 // import VariantSelector from "./commodity_page_components/VariantSelector";
 import VariantAttributeSelector from "./commodity_page_components/VariantAttributeSelector";
+import { confirmRequiresProcessing } from "../../utils/confirmRequiresProcessing";
 
 /* suspence
 React.lazy() is a built-in React function that allows you to dynamically import a component only when it’s needed. Normally, when you do: 
@@ -532,9 +533,10 @@ const CommodityPage = () => {
               isFavorite={isFavorite}
               hasVariants={!!commodity.variants?.length}
               variantSelected={!!selectedVariantId}
-              onAddToCart={() =>
-                addOneToCart(commodity._id, selectedVariantId ?? undefined)
-              }
+              onAddToCart={() => {
+                if (!confirmRequiresProcessing(commodity)) return;
+                addOneToCart(commodity._id, selectedVariantId ?? undefined);
+              }}
               onToggleFavorite={
                 isFavorite ? handleRemoveFromFavorites : handleAddToFavorites
               }

@@ -115,6 +115,8 @@ export const syncProductsFromExcel = async (req: Request, res: Response) => {
           active: product.active,
           stripePriceId: product.stripePriceId,
           images: product.images,
+          requiresProcessing: product.requiresProcessing,
+          processingTimeDays: product.processingTimeDays,
           // Το ...(condition && { variants }) σημαίνει: «βάλε το field ΜΟΝΟ αν το Excel το όρισε ρητά».
           ...(product.variants !== undefined && { variants: product.variants }),
         };
@@ -134,9 +136,10 @@ export const syncProductsFromExcel = async (req: Request, res: Response) => {
           existing.price !== updateData.price ||
           existing.stock !== updateData.stock ||
           existing.active !== updateData.active ||
+          existing.requiresProcessing !== updateData.requiresProcessing ||
+          existing.processingTimeDays !== updateData.processingTimeDays ||
           existing.stripePriceId !== updateData.stripePriceId ||
-          JSON.stringify(existing.images) !==
-            JSON.stringify(updateData.images);
+          JSON.stringify(existing.images) !== JSON.stringify(updateData.images);
 
         // 👉 If nothing changed → skip update
         if (!hasChanged) {

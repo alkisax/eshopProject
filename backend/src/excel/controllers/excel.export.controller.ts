@@ -61,6 +61,9 @@ export const exportProductsToExcel = async (_req: Request, res: Response) => {
       active: p.active,
       stripePriceId: p.stripePriceId,
       images: Array.isArray(p.images) ? p.images.join(', ') : '',
+      requiresProcessing: p.requiresProcessing ?? false,
+      processingTimeDays:
+        p.processingTimeDays !== undefined ? p.processingTimeDays : '',
 
       // Προαιρετικά: useful metadata
       createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : '',

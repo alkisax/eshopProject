@@ -20,6 +20,7 @@ import { slugify } from "../../../utils/slugify";
 import AdminVariantsEditor from "./AdminCommodityFooterComponents/AdminVariantsEditor";
 import type { EditableVariant } from "./AdminCommodityFooterComponents/AdminVariantsEditor";
 import type { CommodityType } from "../../../types/commerce.types";
+import AdminRequiresProcessingRow from "./AdminCommodityFooterComponents/RequiresProcessingRow";
 
 const AdminAddNewCommodity = () => {
   const { url, categories, refreshCategories } = useContext(VariablesContext);
@@ -31,6 +32,8 @@ const AdminAddNewCommodity = () => {
     name: "",
     description: "",
     category: [] as string[],
+    requiresProcessing: false,
+    processingTimeDays: 0,
     price: 0,
     currency: "eur",
     stripePriceId: "",
@@ -124,6 +127,10 @@ const AdminAddNewCommodity = () => {
         description: form.description,
         category: categoryNames,
         price: form.price,
+        requiresProcessing: form.requiresProcessing,
+        processingTimeDays: form.requiresProcessing
+          ? form.processingTimeDays
+          : undefined,
         currency: form.currency,
         stripePriceId: form.stripePriceId,
         stock: form.stock === "" ? 0 : form.stock,
@@ -205,6 +212,17 @@ const AdminAddNewCommodity = () => {
               placeholder="Type and press Enter…"
             />
           )}
+        />
+
+        <AdminRequiresProcessingRow
+          requiresProcessing={form.requiresProcessing}
+          processingTimeDays={form.processingTimeDays}
+          onChange={(data) =>
+            setForm((prev) => ({
+              ...prev,
+              ...data,
+            }))
+          }
         />
 
         <AdminVariantsEditor

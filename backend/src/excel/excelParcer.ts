@@ -19,6 +19,8 @@ export interface CommodityExcelRow {
   active: boolean;
   stripePriceId: string;
   images: string[]; // μετατροπή από comma-separated string → array
+  requiresProcessing?: boolean;
+  processingTimeDays?: number;
 }
 
 // Ένα ExcelParseResult είναι απλά ένας πίνακας από προϊόντα
@@ -39,6 +41,8 @@ interface CommodityExcelRowRaw {
   active: boolean | string | null;
   stripePriceId: string | null;
   images: string | null;
+  requiresProcessing: boolean | string | null;
+  processingTimeDays: number | string | null;
 }
 
 // helper συναρτηση για την διαχείρηση των variants. Τα variants-attributes-active βρίσκονται στο excel μου σε μια μορφή σαν "size=S|color=red|_active=true ;"
@@ -73,7 +77,7 @@ const parseVariantsFromExcel = (
           active = raw === 'true' || raw === '1';
         } else {
           // size=S → key:size, val=S
-          const [key, val] = part.split('=').map(s => s.trim());
+          const [key, val] = part.split('=').map((s) => s.trim());
           if (key && val) {
             attributes[key] = val;
           }
@@ -173,6 +177,20 @@ export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
         .split(',')
         .map((i) => i.trim())
       : [],
+    requiresProcessing: (() => {
+      if (row.requiresProcessing === true) {
+        return true;
+      }
+      if (row.requiresProcessing === false) {
+        return false;
+      }
+      const val = String(row.requiresProcessing).trim().toLowerCase();
+      return val === 'true' || val === '1';
+    })(),
+    processingTimeDays:
+      row.processingTimeDays !== null && row.processingTimeDays !== ''
+        ? Number(row.processingTimeDays)
+        : undefined,
   }));
 
   // Debug (προαιρετικά)

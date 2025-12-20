@@ -34,13 +34,13 @@ export interface ShippingInfoType {
   country: string;
   phone?: string;
   notes?: string;
-  shippingMethod?: 'courier' | 'boxnow' | 'pickup';
+  shippingMethod?: "courier" | "boxnow" | "pickup";
 }
 
 export interface CommodityType {
   _id: string;
   uuid?: string;
-  slug?: string;  
+  slug?: string;
   name: string;
   description?: string;
   category: string | string[] | { _id: string; name: string; slug: string };
@@ -51,8 +51,10 @@ export interface CommodityType {
   stock: number;
   active: boolean;
   variants?: CommodityVariantType[];
+  requiresProcessing?: boolean;
+  processingTimeDays?: number;
   images?: string[];
-  vector?: number[]
+  vector?: number[];
   comments?: CommentType[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -73,8 +75,8 @@ export interface CommodityVariantType {
 }
 
 export interface CommentType {
-  _id: string;              // commodity id
-  commentId?: string;        // comment id
+  _id: string; // commodity id
+  commentId?: string; // comment id
   commodity?: {
     _id: string;
     name: string;
@@ -113,7 +115,7 @@ export interface CategoryType {
   slug: string;
   description?: string;
   parent?: string | { _id: string; name: string; slug: string }; // can be populated
-  children?: string[]; 
+  children?: string[];
   isTag?: boolean;
   featured?: boolean;
   image?: string;

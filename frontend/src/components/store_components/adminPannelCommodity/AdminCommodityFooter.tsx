@@ -23,6 +23,7 @@ import axios from "axios";
 import { slugify } from "../../../utils/slugify";
 import AdminVariantsEditor from "./AdminCommodityFooterComponents/AdminVariantsEditor";
 import type { EditableVariant } from "./AdminCommodityFooterComponents/AdminVariantsEditor";
+import RequiresProcessingRow from "./AdminCommodityFooterComponents/RequiresProcessingRow";
 
 interface CommodityFooterProps {
   setExpanded: (id: string | null) => void;
@@ -51,6 +52,8 @@ const AdminCommodityFooter = ({
     active: boolean;
     images: string[];
     variants: CommodityVariantType[];
+    requiresProcessing: boolean;
+    processingTimeDays?: number;
   }>({
     name: commodity.name || "",
     description: commodity.description || "",
@@ -63,6 +66,8 @@ const AdminCommodityFooter = ({
     stock: commodity.stock || 0,
     active: commodity.active ?? true,
     images: commodity.images || [],
+    requiresProcessing: commodity.requiresProcessing ?? false,
+    processingTimeDays: commodity.processingTimeDays,
   });
   const [editableVariants, setEditableVariants] = useState<EditableVariant[]>(
     []
@@ -87,6 +92,8 @@ const AdminCommodityFooter = ({
       currency: commodity.currency || "eur",
       stripePriceId: commodity.stripePriceId || "",
       stock: commodity.stock || 0,
+      requiresProcessing: commodity.requiresProcessing ?? false,
+      processingTimeDays: commodity.processingTimeDays ?? 0,
       active: commodity.active ?? true,
       images: commodity.images || [],
       variants: commodity.variants ?? [],
@@ -308,6 +315,17 @@ const AdminCommodityFooter = ({
                 type="number"
                 value={form.stock}
                 onChange={(e) => handleChange("stock", Number(e.target.value))}
+              />
+
+              <RequiresProcessingRow
+                requiresProcessing={form.requiresProcessing}
+                processingTimeDays={form.processingTimeDays}
+                onChange={(data) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    ...data,
+                  }))
+                }
               />
 
               <FormControlLabel
