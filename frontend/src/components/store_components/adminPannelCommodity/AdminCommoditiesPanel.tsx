@@ -97,6 +97,8 @@ const AdminCommoditiesPanel = () => {
           active: data.active,
           images: data.images,
           variants: data.variants,
+          requiresProcessing: data.requiresProcessing,
+          processingTimeDays: data.processingTimeDays,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );

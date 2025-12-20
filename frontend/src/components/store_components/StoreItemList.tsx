@@ -11,6 +11,7 @@ import { UserAuthContext } from "../../context/UserAuthContext";
 import { useEffect } from "react"; // GA
 import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
 import StoreItemListSkeleton from "../skeletons/StoreItemListSkeleton";
+import { confirmRequiresProcessing } from "../../utils/confirmRequiresProcessing";
 
 type ContextType = {
   commodities: CommodityType[]; // already paginated in StoreLayout
@@ -154,6 +155,7 @@ const StoreItemList = () => {
                   size="small"
                   onClick={async (e) => {
                     e.preventDefault();
+                    if (!confirmRequiresProcessing(commodity)) return;
                     await addOneToCart(commodity._id);
                     await fetchCart();
                   }}
