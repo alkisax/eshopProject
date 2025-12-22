@@ -63,5 +63,18 @@ nano /var/www/eshop/backend/.env
 pm2 restart eshop-backend --update-env
 nano /var/www/eshop/frontend/.env
 npm run build
-
-
+ping haveanidea.gr
+- ωσπου να εγγριθεί το domain θα τρέξουμε απο την ip
+curl http://91.99.145.154:3001/api/ping && echo
+```
+  Αν (προσωρινά) θες να το δεις από browser με IP ❌ (όχι recommended)
+  ΜΟΝΟ για debug:
+  ufw allow 3001
+  Μετά:
+  http://91.99.145.154:3001/api/ping
+  ⚠️ Και μετά ΚΛΕΙΣΤΟ ΠΑΛΙ:
+  ufw deny 3001
+```
+- κάναμε server_name haveanidea.gr www.haveanidea.gr eshop.haveanidea.gr; → server_name _;
+rm /etc/nginx/sites-enabled/default
+nginx -t && systemctl reload nginx

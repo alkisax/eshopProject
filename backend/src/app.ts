@@ -1,6 +1,6 @@
 /* eslint-disable quotes */
 /* eslint-disable no-console */
- 
+
 import express from 'express';
 import cors from 'cors';
 import type { Request, Response } from 'express';
@@ -32,6 +32,8 @@ import settingsRoutes from './settings/settings.routes';
 const app = express();
 
 const allowedOrigins = [
+  'http://91.99.145.154',
+  'http://91.99.145.154:80', // το be removed when i have domain
   `${process.env.FRONTEND_URL}`,
   `${process.env.BACKEND_URL}`,
   `${process.env.DEPLOY_URL}`,
@@ -75,48 +77,49 @@ app.use(
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
-        "https://js.stripe.com",
-        "https://www.googletagmanager.com",   // google analytics
-        "https://www.google-analytics.com",
-        "https://www.youtube.com",
-        "https://s.ytimg.com"        
+        'https://js.stripe.com',
+        'https://www.googletagmanager.com', // google analytics
+        'https://www.google-analytics.com',
+        'https://www.youtube.com',
+        'https://s.ytimg.com',
       ],
       frameSrc: [
         "'self'",
-        "https://js.stripe.com",
-        "https://www.google.com",
-        "https://maps.google.com",
-        "https://analytics.google.com",
-        "https://lookerstudio.google.com",
-        "https://www.youtube.com",
-        "https://youtube.com",
-        "https://www.youtube-nocookie.com" 
+        'https://js.stripe.com',
+        'https://www.google.com',
+        'https://maps.google.com',
+        'https://analytics.google.com',
+        'https://lookerstudio.google.com',
+        'https://www.youtube.com',
+        'https://youtube.com',
+        'https://www.youtube-nocookie.com',
       ],
       // imgSrc: ["'self'", "data:", "https://cloud.appwrite.io", "https://fra.cloud.appwrite.io"], // αυτο λειτουργούσε αλλλα αφαιρέθηκε, **ΝΑ ΠΡΟΣΤΕΘΕΙ ΞΑΝΑ** δες επόμενο σχόλιο
       imgSrc: [
         "'self'",
-        "data:",
-        "https://i.ytimg.com",
-        "https://s.ytimg.com",
-        "https://cloud.appwrite.io",
-        "https://fra.cloud.appwrite.io",        
-        "https:"], // η εφαρμογή μου είχε πολλές φωτογραφίες απο διάφορα url απο το ιντερνετ. βάλαμε αυτό γιατί τις έκοβε το helmet αλλα τώρα δεν είναι ασφαλές
+        'data:',
+        'https://i.ytimg.com',
+        'https://s.ytimg.com',
+        'https://cloud.appwrite.io',
+        'https://fra.cloud.appwrite.io',
+        'https:',
+      ], // η εφαρμογή μου είχε πολλές φωτογραφίες απο διάφορα url απο το ιντερνετ. βάλαμε αυτό γιατί τις έκοβε το helmet αλλα τώρα δεν είναι ασφαλές
       connectSrc: [
         "'self'",
-        "https://eshop.portfolio-projects.space",
-        "https://cloud.appwrite.io",
-        "https://fra.cloud.appwrite.io",
-        "https://region1.google-analytics.com",
-        "https://www.google-analytics.com",
-        "https://www.youtube.com",
-        "https://youtube.com",
-        "https://*.googlevideo.com",
-        "https://*.ytimg.com",
+        'http://91.99.145.154', // ⬅️ ΠΡΟΣΘΕΣΕ
+        'http://91.99.145.154:80',
+        'https://haveanidea.gr',
+        'https://eshop.portfolio-projects.space',
+        'https://cloud.appwrite.io',
+        'https://fra.cloud.appwrite.io',
+        'https://region1.google-analytics.com',
+        'https://www.google-analytics.com',
+        'https://www.youtube.com',
+        'https://youtube.com',
+        'https://*.googlevideo.com',
+        'https://*.ytimg.com',
       ],
-      mediaSrc: [
-        "'self'",
-        "https://*.googlevideo.com",
-      ],
+      mediaSrc: ["'self'", 'https://*.googlevideo.com'],
       styleSrc: ["'self'", "'unsafe-inline'"],
     },
   })
@@ -132,7 +135,7 @@ app.set('trust proxy', 1);
 
 // global limiter η βιβλιοθήκε αυτή βάζει όριο στο πόσα req θα δεχτεί απο κάθε ip με αποτέλεσμα να εμποδίζει DDOS επιθέσεις
 // const globalLimiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, 
+//   windowMs: 15 * 60 * 1000,
 //   max: 2000, // TODO CHANGE BACK!!!// 200 requests / 15 min per IP
 //   standardHeaders: true,
 //   legacyHeaders: false,
@@ -164,13 +167,13 @@ app.use('/api/category', categoryRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/subpage', subPageRoutes);
 
-app.use ('/api/moderationAi', modarationRoutes);
+app.use('/api/moderationAi', modarationRoutes);
 app.use('/api/ai-embeddings', gptEmbeddingsRoutes);
 app.use('/api/upload-multer', uploadMulterRoutes);
 
 app.use('/api/excel', excelRoutes);
 
-app.use(express.static('dist')); 
+app.use(express.static('dist'));
 
 // swagger test page
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
