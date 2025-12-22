@@ -47,6 +47,7 @@ const Home = () => {
           textAlign: "center",
         }}
       > */}
+      
       {/* αυτό είναι ένα αόρατο h1 που προστέθηκε για λόγους seo */}
       {/* <Typography
           variant="h1"
