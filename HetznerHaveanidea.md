@@ -89,7 +89,8 @@ VITE_UPLOAD_USER=upload@eshop.local
 VITE_UPLOAD_PASS=superSecretPass123
 επιτρέψαμε στο appwrite το ανέβασμα εικονών (σε λιγο και excel)
 κάναμε αλλαγές στο backend app σε cors και helmet
-για sync main και client:
+
+- για sync main και client:
 ```bash
 git checkout main
 git pull origin main
