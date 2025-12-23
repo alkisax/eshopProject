@@ -10,6 +10,7 @@ import {
   Pagination,
 } from "@mui/material";
 import { useAppwriteUploader } from "../../../hooks/useAppwriteUploader";
+import { resizeImageIfNeeded } from "../../../utils/resizeImage";
 
 interface CloudFile {
   $id: string;
@@ -24,6 +25,7 @@ const AdminCloudUploadsPanel = () => {
     useAppwriteUploader();
   const [files, setFiles] = useState<CloudFile[]>([]);
   const [file, setFile] = useState<File | null>(null);
+  const [resizeInfo, setResizeInfo] = useState<string | null>(null);
   //pagination state
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -44,7 +46,18 @@ const AdminCloudUploadsPanel = () => {
 
   const handleUpload = async () => {
     if (!file) return;
-    await uploadFile(file);
+    const result = await resizeImageIfNeeded(file, 2);
+    if (result.resized) {
+      const before = (result.originalSize / 1024 / 1024).toFixed(2);
+      const after = (result.newSize / 1024 / 1024).toFixed(2);
+
+      console.log(`Image resized: ${before}MB → ${after}MB`);
+      setResizeInfo(`Image resized: ${before}MB → ${after}MB`);
+    } else {
+      console.log("Image uploaded without resize");
+      setResizeInfo("Image uploaded without resize");
+    }
+    await uploadFile(result.file);
     setFile(null);
     loadPage(page); // reload current page
   };
@@ -74,6 +87,12 @@ const AdminCloudUploadsPanel = () => {
         >
           Upload
         </Button>
+
+        {resizeInfo && (
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            {resizeInfo}
+          </Typography>
+        )}
 
         <List>
           {files.map((f) => (
