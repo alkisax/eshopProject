@@ -36,6 +36,7 @@ systemctl reload nginx
 ufw allow 'Nginx Full'
 pm2 startup
 pm2 save
+
 - αγόρασα απο papaki το domain haveanidea.gr
 nano /etc/nginx/sites-available/eshop
 ```js
@@ -64,8 +65,10 @@ pm2 restart eshop-backend --update-env
 nano /var/www/eshop/frontend/.env
 npm run build
 ping haveanidea.gr
+
 - ωσπου να εγγριθεί το domain θα τρέξουμε απο την ip
-curl http://91.99.145.154:3001/api/ping && echo
+`curl http://91.99.145.154:3001/api/ping && echo`
+και επισκεψη σε http://91.99.145.154
 ```
   Αν (προσωρινά) θες να το δεις από browser με IP ❌ (όχι recommended)
   ΜΟΝΟ για debug:
@@ -78,3 +81,66 @@ curl http://91.99.145.154:3001/api/ping && echo
 - κάναμε server_name haveanidea.gr www.haveanidea.gr eshop.haveanidea.gr; → server_name _;
 rm /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
+
+# Διάφορα αρχικοποίησης της λειτουργικότητας του frontend
+Περάσαμε στην Mongo τον superadmin alkisax
+Περάσαμε στο appwrite τον user
+VITE_UPLOAD_USER=upload@eshop.local
+VITE_UPLOAD_PASS=superSecretPass123
+επιτρέψαμε στο appwrite το ανέβασμα εικονών (σε λιγο και excel)
+κάναμε αλλαγές στο backend app σε cors και helmet
+για sync main και client:
+```bash
+git checkout main
+git pull origin main
+git merge wip
+git push origin main
+git push client main
+git checkout wip
+```
+- για redeploy στον server
+```bash
+cd /var/www/eshop \
+&& git pull origin main \
+&& cd frontend \
+&& npm install --legacy-peer-deps \
+&& npm run build \
+&& cd ../backend \
+&& npm install \
+&& npm run build \
+&& pm2 restart eshop-backend --update-env \
+&& nginx -t && systemctl reload nginx \
+&& sleep 5 \
+&& curl https://haveanidea.gr/api/ping; echo
+```
+Θυμίζω: token απο env για password
+- η σελίδα πρέπει να προστεθεί και στο appwrite platform
+
+αφου έκανε ping ο σερβερ
+ping haveanidea.gr
+nano /etc/nginx/sites-available/eshop
+
+certbot --nginx \
+  -d haveanidea.gr \
+  -d www.haveanidea.gr \
+  -d eshop.haveanidea.gr
+curl https://haveanidea.gr/api/ping
+
+- μετά απο αλλαγές σε .env
+`pm2 restart eshop-backend --update-env`
+
+# one line deploy
+```bash
+cd /var/www/eshop \
+&& git pull origin main \
+&& cd frontend \
+&& npm install --legacy-peer-deps \
+&& npm run build \
+&& cd ../backend \
+&& npm install \
+&& npm run build \
+&& NODE_ENV=production pm2 restart eshop-backend --update-env \
+&& nginx -t && systemctl reload nginx \
+&& sleep 5 \
+&& curl https://haveanidea.gr/api/ping; echo
+```

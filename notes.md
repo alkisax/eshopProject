@@ -122,6 +122,16 @@ tab me iframe απο looker studio και ga4 σε εμφάνιση προιόν
 
 είναι deploy στο Hetzner με domain απο namecheap
 
+- συγχρονισμός του δικού μου main και του πελάτη
+```bash
+git checkout main
+git pull origin main
+git merge wip
+git push origin main
+git push client main
+git checkout wip
+```
+
 # security  
 
 ### ⚠️ Still important to consider
