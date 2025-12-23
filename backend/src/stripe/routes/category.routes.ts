@@ -1,3 +1,4 @@
+// D:\coding\eshopProject\backend\src\stripe\routes\category.routes.ts
 import { Router } from 'express';
 import { categoryController } from '../controllers/category.controller';
 import { middleware } from '../../login/middleware/verification.middleware';

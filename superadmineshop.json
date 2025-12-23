@@ -1,0 +1,24 @@
+[{
+  "_id": {
+    "$oid": "6899cde7d44b228fa6f1e6e8"
+  },
+  "username": "alkisax",
+  "name": "Alkis Kopakakis",
+  "roles": [
+    "ADMIN"
+  ],
+  "email": "alkisax@gmail.com",
+  "hashedPassword": "$2b$10$stgUkUfeH6zZQLom92QSDO3pvtxPsFW.DPSBN5TpVBis34fsNI7vG",
+  "createdAt": {
+    "$date": "2025-08-11T11:03:03.592Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-13T10:00:31.777Z"
+  },
+  "__v": 0,
+  "favorites": [
+    {
+      "$oid": "68c94cfdf17824b6e859d3fc"
+    }
+  ]
+}]

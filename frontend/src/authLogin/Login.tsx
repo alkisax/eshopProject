@@ -1,9 +1,10 @@
+// frontend\src\authLogin\Login.tsx
 import { useState } from "react";
 import { Box, Tab, Tabs, Typography, Paper, Divider } from "@mui/material";
 import LoginBackend from "./loginBackend/LoginBackend";
-import LoginAppwriteLogin from "./loginAppwrite/LoginAppwrite";
+// import LoginAppwriteLogin from "./loginAppwrite/LoginAppwrite";
 import GoogleLogin from "./loginGoogle/GoogleLogin";
-import GithubLogin from "./loginGithub/LoginGithub";
+// import GithubLogin from "./loginGithub/LoginGithub";
 import { Helmet } from "react-helmet-async";
 
 interface Params {
@@ -67,40 +68,49 @@ const Login = ({ url }: Params) => {
               id="tab-backend-login"
               label="Login"
             />
+            {/* 
             <Tab
               id="tab-appwrite-login"
               label="Appwrite alt"
-            />
+            /> 
+            */}
           </Tabs>
 
           <Divider />
 
           {/* Conditional rendering of login forms */}
           {tab === 0 && <LoginBackend url={url} />}
-          {tab === 1 && <LoginAppwriteLogin url={url} />}
+          {/* {tab === 1 && <LoginAppwriteLogin url={url} />} */}
 
           <Divider sx={{ my: 0 }} />
 
-          <Box sx={{ maxWidth: 400, margin: "auto", display: "flex", flexDirection: "column", gap: 0 }}>
+          <Box
+            sx={{
+              maxWidth: 400,
+              margin: "auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: 0,
+            }}
+          >
             <Box sx={{ display: "flex", gap: 0 }}>
               <Box sx={{ flex: 1 }}>
-                <GoogleLogin url={url} /> 
+                <GoogleLogin url={url} />
               </Box>
             </Box>
+            {/* 
             <Box sx={{ width: "100%" }}>
               <GithubLogin />
-            </Box>
+            </Box> 
+            */}
           </Box>
         </Paper>
-      </Box>    
+      </Box>
     </>
-
   );
 };
 
 export default Login;
-
-
 
 // import GoogleLogin from "./loginGoogle/GoogleLogin"
 // import LoginAppwriteLogin from "./loginAppwrite/LoginAppwrite"
