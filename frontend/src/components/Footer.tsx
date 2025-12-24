@@ -109,10 +109,10 @@ const Footer = () => {
               Ακολουθήστε μας
             </Typography>
             <Box>
-              <IconButton href="#" color="inherit"><Facebook /></IconButton>
+              <IconButton href="https://www.facebook.com/exomiaidea" color="inherit"><Facebook /></IconButton>
               <IconButton href="#" color="inherit"><Instagram /></IconButton>
-              <IconButton href="mailto:info@example.com" color="inherit"><Email /></IconButton>
-              <IconButton href="tel:+302100000000" color="inherit"><Phone /></IconButton>
+              <IconButton href="mailto:elenifrag@hotmail.com" color="inherit"><Email /></IconButton>
+              <IconButton href="tel:+306945236233" color="inherit"><Phone /></IconButton>
             </Box>
           </Grid>
         </Grid>
