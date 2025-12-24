@@ -23,6 +23,7 @@ const Footer = () => {
       }}
     >
       FOOTER_VERSION_2025_01_04_OK
+      {/* FOOTER_VERSION_2025_01_04_OK */}
       <Container maxWidth="lg">
         <Grid container spacing={2}>
           {/* Logo column */}
