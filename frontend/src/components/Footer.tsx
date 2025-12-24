@@ -18,7 +18,8 @@ const Footer = () => {
       sx={{
         mt: 6,
         py: 4,
-        backgroundColor: "#f2efe9", // ελαφρύ earthy beige
+        // backgroundColor: "#f2efe9", // ελαφρύ earthy beige
+        backgroundColor: "red", // 👈 ΠΡΟΣΩΡΙΝΑ
         color: "#4a3f35", // σκούρο earthy καφέ
       }}
     >
