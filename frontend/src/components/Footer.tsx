@@ -170,8 +170,8 @@ const Footer = () => {
               >
                 <Facebook />
               </IconButton>
-              <IconButton href="#" color="inherit">
-                <Instagram />
+              <IconButton disabled color="inherit">
+                <Instagram />.
               </IconButton>
               <IconButton
                 component="a"
