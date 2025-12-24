@@ -1,4 +1,11 @@
-import { Box, Typography, IconButton, Link as MuiLink } from "@mui/material";
+// frontend\src\Layouts\deisgnComponents\FooterDesigner.tsx
+import {
+  Box,
+  Typography,
+  IconButton,
+  Link as MuiLink,
+  // Grid,
+} from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { Facebook, Instagram, Email, Phone } from "@mui/icons-material";
 
@@ -53,8 +60,6 @@ const FooterDesigner = () => {
         >
           <VerticalLine />
           <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
-
-
             <MuiLink
               id="footer-info-about"
               component={RouterLink}
@@ -96,7 +101,6 @@ const FooterDesigner = () => {
             >
               Επικοινωνία
             </MuiLink>
-
           </Box>
         </Box>
 
@@ -159,27 +163,29 @@ const FooterDesigner = () => {
             py: 1,
           }}
         >
-          <IconButton id="footer-social-facebook" href="#" color="inherit">
+          <IconButton
+            component="a"
+            href="https://www.facebook.com/exomiaidea"
+            target="_blank"
+            rel="noopener noreferrer"
+            color="inherit"
+          >
             <Facebook />
           </IconButton>
 
-          <IconButton id="footer-social-instagram" href="#" color="inherit">
+          <IconButton disabled color="inherit">
             <Instagram />
           </IconButton>
 
           <IconButton
-            id="footer-social-email"
-            href="mailto:info@example.com"
+            component="a"
+            href="mailto:elenifrag@hotmail.com"
             color="inherit"
           >
             <Email />
           </IconButton>
 
-          <IconButton
-            id="footer-social-phone"
-            href="tel:+302100000000"
-            color="inherit"
-          >
+          <IconButton component="a" href="tel:+306945236233" color="inherit">
             <Phone />
           </IconButton>
         </Box>
