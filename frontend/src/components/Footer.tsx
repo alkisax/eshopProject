@@ -22,6 +22,7 @@ const Footer = () => {
         color: "#4a3f35", // σκούρο earthy καφέ
       }}
     >
+      testtest
       <Container maxWidth="lg">
         <Grid container spacing={2}>
           {/* Logo column */}
