@@ -1,9 +1,15 @@
 // frontend\src\components\Footer.tsx
-import { Box, Container, IconButton, Link as MuiLink, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  IconButton,
+  Link as MuiLink,
+  Typography,
+} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { Facebook, Instagram, Email, Phone } from "@mui/icons-material";
 import { Link as RouterLink } from "react-router-dom";
-import bannerIdea from '../assets/banner-idea.png'
+import bannerIdea from "../assets/banner-idea.png";
 
 const Footer = () => {
   return (
@@ -18,7 +24,6 @@ const Footer = () => {
     >
       <Container maxWidth="lg">
         <Grid container spacing={2}>
-
           {/* Logo column */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -34,7 +39,7 @@ const Footer = () => {
 
           {/* Πληροφορίες */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography 
+            <Typography
               variant="h6"
               component="h4"
               gutterBottom
@@ -43,16 +48,39 @@ const Footer = () => {
               Πληροφορίες
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <MuiLink component={RouterLink} to="/payment-methods" underline="hover" color="inherit" variant="body2">
+              <MuiLink
+                component={RouterLink}
+                to="/payment-methods"
+                underline="hover"
+                color="inherit"
+                variant="body2"
+              >
                 Τρόποι Πληρωμής
               </MuiLink>
-              <MuiLink component={RouterLink} to="/shipping-methods" underline="hover" color="inherit" variant="body2">
+              <MuiLink
+                component={RouterLink}
+                to="/shipping-methods"
+                underline="hover"
+                color="inherit"
+                variant="body2"
+              >
                 Τρόποι Αποστολής
               </MuiLink>
-              <MuiLink href="#" underline="hover" color="inherit" variant="body2">
+              <MuiLink
+                href="#"
+                underline="hover"
+                color="inherit"
+                variant="body2"
+              >
                 Συχνές Ερωτήσεις
               </MuiLink>
-              <MuiLink component={RouterLink} to="/terms" underline="hover" color="inherit" variant="body2">
+              <MuiLink
+                component={RouterLink}
+                to="/terms"
+                underline="hover"
+                color="inherit"
+                variant="body2"
+              >
                 Όροι Χρήσης
               </MuiLink>
             </Box>
@@ -69,7 +97,13 @@ const Footer = () => {
               Εταιρεία
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <MuiLink component={RouterLink} to="/contact" underline="hover" color="inherit" variant="body2">
+              <MuiLink
+                component={RouterLink}
+                to="/contact"
+                underline="hover"
+                color="inherit"
+                variant="body2"
+              >
                 Επικοινωνία
               </MuiLink>
             </Box>
@@ -86,13 +120,31 @@ const Footer = () => {
               Πολιτικές
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <MuiLink component={RouterLink} to="/privacy-policy" underline="hover" color="inherit" variant="body2">
+              <MuiLink
+                component={RouterLink}
+                to="/privacy-policy"
+                underline="hover"
+                color="inherit"
+                variant="body2"
+              >
                 Πολιτική Απορρήτου
               </MuiLink>
-              <MuiLink component={RouterLink} to="/return-policy" underline="hover" color="inherit" variant="body2">
+              <MuiLink
+                component={RouterLink}
+                to="/return-policy"
+                underline="hover"
+                color="inherit"
+                variant="body2"
+              >
                 Πολιτική Επιστροφών
               </MuiLink>
-              <MuiLink component={RouterLink} to="/cookie-policy" underline="hover" color="inherit" variant="body2">
+              <MuiLink
+                component={RouterLink}
+                to="/cookie-policy"
+                underline="hover"
+                color="inherit"
+                variant="body2"
+              >
                 Πολιτική Cookies
               </MuiLink>
             </Box>
@@ -105,19 +157,49 @@ const Footer = () => {
               component="h4"
               gutterBottom
               sx={{ fontWeight: "bold" }}
-              >
+            >
               Ακολουθήστε μας
             </Typography>
             <Box>
-              <IconButton href="https://www.facebook.com/exomiaidea" color="inherit"><Facebook /></IconButton>
-              <IconButton href="#" color="inherit"><Instagram /></IconButton>
-              <IconButton href="mailto:elenifrag@hotmail.com" color="inherit"><Email /></IconButton>
-              <IconButton href="tel:+306945236233" color="inherit"><Phone /></IconButton>
+              <IconButton
+                component="a"
+                href="https://www.facebook.com/exomiaidea"
+                target="_blank"
+                rel="noopener noreferrer"
+                color="inherit"
+              >
+                <Facebook />
+              </IconButton>
+              <IconButton href="#" color="inherit">
+                <Instagram />
+              </IconButton>
+              <IconButton
+                component="a"
+                href="mailto:elenifrag@hotmail.com"
+                color="inherit"
+              >
+                <Email />
+              </IconButton>
+
+              <IconButton
+                component="a"
+                href="tel:+306945236233"
+                color="inherit"
+              >
+                <Phone />
+              </IconButton>
             </Box>
           </Grid>
         </Grid>
 
-        <Box sx={{ textAlign: "center", mt: 4, borderTop: "1px solid #d6d2c4", pt: 2 }}>
+        <Box
+          sx={{
+            textAlign: "center",
+            mt: 4,
+            borderTop: "1px solid #d6d2c4",
+            pt: 2,
+          }}
+        >
           <Typography variant="body2" color="text.secondary">
             © {new Date().getFullYear()} Έχω μια Ιδέα... | Χειροποίητο Κόσμημα.
           </Typography>
