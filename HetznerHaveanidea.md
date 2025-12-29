@@ -133,10 +133,16 @@ curl https://haveanidea.gr/api/ping
 # one line deploy
 - για sync main και client:
 ```bash
-- για sync main και client:
+git checkout main
+git pull origin main
+git merge wip
+git push origin main
+git push client main
+git checkout wip
+```
+- για sync main και client/main:
 ```bash
 git push client clients/eleni:main
-```
 ```
 - `ssh root@91.99.145.154`
 ```bash
