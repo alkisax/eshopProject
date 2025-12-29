@@ -36,8 +36,7 @@ const AdminCommoditiesPanel = () => {
   const { setIsLoading, isLoading } = useContext(UserAuthContext);
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_pageCount, setPageCount] = useState(0);
+  const [pageCount, setPageCount] = useState(1);
   const [expanded, setExpanded] = useState<string | null>("");
   const [search, setSearch] = useState(""); // 🔍 added search state
 
@@ -47,33 +46,65 @@ const AdminCommoditiesPanel = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const fetchCommodities = useCallback(async () => {
+  // αυτό ήταν το παλιο που έκανε client size pagination αφού έφερνε πρωτα ολα τα εμπορεύματα. Που είναι λάθος αρχιτεκτονική
+  // const fetchCommodities = useCallback(async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     const token = localStorage.getItem("token");
+  //     const res = await axios.get<{ status: boolean; data: CommodityType[] }>(
+  //       `${url}/api/commodity`,
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
+  //     setCommodities(res.data.data);
+  //     setPageCount(Math.ceil(res.data.data.length / ITEMS_PER_PAGE));
+  //   } catch (err) {
+  //     console.error("Error fetching commodities:", err);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }, [setIsLoading, url]);
+
+  // useEffect(() => {
+  //   fetchCommodities();
+  // }, [fetchCommodities, url]);
+
+  // αυτο προστέθηκε για να μπορεί το new commodity που βρίσκετε σε διαφορετικό endpoint αλλα κάνει render στην ιδια σελίδα να προκαλεί refresh στα αντικείμενα οταν προστήθετε κάτι νέο. Χρησιμοποιεί useLocation. δες σχολιο παραπάνω
+  // useEffect(() => {
+  //   if (location.state?.refresh) {
+  //     fetchCommodities();
+  //   }
+  // }, [location.state, fetchCommodities]);
+
+  const fetchPaginatedCommodities = useCallback(async () => {
+    console.log('paginated');
+    
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      const res = await axios.get<{ status: boolean; data: CommodityType[] }>(
-        `${url}/api/commodity`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setCommodities(res.data.data);
-      setPageCount(Math.ceil(res.data.data.length / ITEMS_PER_PAGE));
+
+      const res = await axios.get(`${url}/api/commodity/search`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+          search: search || undefined,
+        },
+      });
+
+      const data = res.data.data;
+      setCommodities(data.items);
+      setPageCount(data.pageCount);
     } catch (err) {
-      console.error("Error fetching commodities:", err);
+      console.error("Error fetching paginated commodities:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [setIsLoading, url]);
-
-  useEffect(() => {
-    fetchCommodities();
-  }, [fetchCommodities, url]);
+  }, [url, currentPage, search, setIsLoading]);
 
   // αυτο προστέθηκε για να μπορεί το new commodity που βρίσκετε σε διαφορετικό endpoint αλλα κάνει render στην ιδια σελίδα να προκαλεί refresh στα αντικείμενα οταν προστήθετε κάτι νέο. Χρησιμοποιεί useLocation. δες σχολιο παραπάνω
   useEffect(() => {
-    if (location.state?.refresh) {
-      fetchCommodities();
-    }
-  }, [location.state, fetchCommodities]);
+    fetchPaginatedCommodities();
+  }, [location.state, fetchPaginatedCommodities]);
 
   const handleSaveCommodity = async (
     id: string,
@@ -104,7 +135,7 @@ const AdminCommoditiesPanel = () => {
       );
 
       console.log("Commodity updated:", res.data.data);
-      await fetchCommodities(); // refresh
+      await fetchPaginatedCommodities(); // refresh
     } catch (err) {
       console.error("Error updating commodity:", err);
     } finally {
@@ -124,7 +155,7 @@ const AdminCommoditiesPanel = () => {
       );
 
       console.log("Commodity restocked:", res.data.data);
-      await fetchCommodities(); // refresh list
+      await fetchPaginatedCommodities(); // refresh list
     } catch (err) {
       console.error("Error restocking commodity:", err);
     } finally {
@@ -139,7 +170,7 @@ const AdminCommoditiesPanel = () => {
       await axios.delete(`${url}/api/commodity/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchCommodities();
+      fetchPaginatedCommodities();
     } catch (err) {
       console.error("Error deleting commodity:", err);
     }
@@ -159,7 +190,7 @@ const AdminCommoditiesPanel = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("created vector for commodity");
-      await fetchCommodities();
+      await fetchPaginatedCommodities();
     } catch (err) {
       console.error("Error vectorizing commodity:", err);
     } finally {
@@ -169,26 +200,28 @@ const AdminCommoditiesPanel = () => {
 
   // edit logic in footer
 
+  // client side pagination removed but kept commented out for history
   // 🔍 client-side filter for small datasets (<100)
-  const filtered = commodities.filter((c) => {
-    const lower = search.toLowerCase();
-    return (
-      c.name?.toLowerCase().includes(lower) ||
-      c.description?.toLowerCase().includes(lower) ||
-      (Array.isArray(c.category) &&
-        c.category.some(
-          (cat) => typeof cat === "string" && cat.toLowerCase().includes(lower)
-        ))
-    );
-  });
+  // const filtered = commodities.filter((c) => {
+  //   const lower = search.toLowerCase();
+  //   return (
+  //     c.name?.toLowerCase().includes(lower) ||
+  //     c.description?.toLowerCase().includes(lower) ||
+  //     (Array.isArray(c.category) &&
+  //       c.category.some(
+  //         (cat) => typeof cat === "string" && cat.toLowerCase().includes(lower)
+  //       ))
+  //   );
+  // });
 
-  const dynamicPageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  // client side pagination removed but kept commented out for history
+  // const dynamicPageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
-  // pagination slice
-  const paginated = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  // // pagination slice
+  // const paginated = filtered.slice(
+  //   (currentPage - 1) * ITEMS_PER_PAGE,
+  //   currentPage * ITEMS_PER_PAGE
+  // );
 
   return (
     <div>
@@ -239,7 +272,7 @@ const AdminCommoditiesPanel = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {paginated.map((c) => (
+              {commodities.map((c) => (
                 <React.Fragment key={c._id?.toString()}>
                   <TableRow>
                     <TableCell>{c.name}</TableCell>
@@ -348,11 +381,11 @@ const AdminCommoditiesPanel = () => {
         </TableContainer>
       )}
 
-      {dynamicPageCount > 1 && (
+      {pageCount > 1 && (
         <Pagination
-          count={dynamicPageCount}
+          count={pageCount}
           page={currentPage}
-          onChange={(_e, p) => setCurrentPage(p)}
+          onChange={(_, p) => setCurrentPage(p)}
           sx={{ mt: 2, display: "flex", justifyContent: "center" }}
         />
       )}
