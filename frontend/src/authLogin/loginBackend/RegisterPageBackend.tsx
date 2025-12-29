@@ -1,9 +1,20 @@
+// frontend\src\authLogin\loginBackend\RegisterPageBackend.tsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Box, Button, TextField, Typography, Paper, Stack } from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  Stack,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import { frontendValidatePassword } from "../../utils/registerBackend";
 import { frontEndValidateEmail } from "../../utils/registerBackend";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 interface Props {
   url: string;
@@ -17,6 +28,8 @@ const RegisterPageBackend = ({ url }: Props) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -63,14 +76,19 @@ const RegisterPageBackend = ({ url }: Props) => {
         navigate("/");
       } else {
         // backend might return structured validation errors
-        setErrorMessage(res.data.error || res.data.data || "Registration failed");
+        setErrorMessage(
+          res.data.error || res.data.data || "Registration failed"
+        );
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         // extract backend error messages from Zod or controller
-        const backendMsg = err.response?.data?.error || err.response?.data?.message;
+        const backendMsg =
+          err.response?.data?.error || err.response?.data?.message;
         if (backendMsg) {
-          setErrorMessage(Array.isArray(backendMsg) ? backendMsg.join(", ") : backendMsg);
+          setErrorMessage(
+            Array.isArray(backendMsg) ? backendMsg.join(", ") : backendMsg
+          );
         } else {
           setErrorMessage("An unknown error occurred during registration");
         }
@@ -121,20 +139,52 @@ const RegisterPageBackend = ({ url }: Props) => {
             <TextField
               id="backend-form-password"
               label="Password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               fullWidth
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <TextField
               id="backend-form-confirm-password"
               label="Confirm Password"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               fullWidth
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        edge="end"
+                      >
+                        {showConfirmPassword ? (
+                          <VisibilityOff />
+                        ) : (
+                          <Visibility />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
 
             {errorMessage && (
