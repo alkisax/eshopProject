@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import banner2 from "../../assets/banner2.jpg";
+// import banner2 from "../../assets/banner2.jpg";
+import SiteLogo from "../../components/settings_components/SiteLogo";
 
 const lineColor = "#008482";
 
@@ -124,12 +125,13 @@ const TopCategoryGridHeader = () => {
           display: { xs: "none", sm: "block" },
         }}
       >
-        <Box
+        {/* <Box
           component="img"
           src={banner2}
           alt="Have an Idea logo"
           sx={{ height: "220px", objectFit: "contain" }}
-        />
+        /> */}
+        <SiteLogo height={220} />
       </Box>
 
       <Box
@@ -148,7 +150,7 @@ const TopCategoryGridHeader = () => {
             mb: 3,
           }}
         >
-          <Box
+          {/* <Box
             component="img"
             src={banner2}
             alt="Have an Idea logo"
@@ -157,7 +159,8 @@ const TopCategoryGridHeader = () => {
               objectFit: "contain",
               mx: "auto",
             }}
-          />
+          /> */}
+          {/* <SiteLogo height={220} /> */}
         </Box>
 
         {/* Left area with categories */}

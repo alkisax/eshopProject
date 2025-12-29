@@ -11,7 +11,8 @@ import { AiModerationProvider } from "./context/AiModerationContext.tsx";
 import { ConsentProvider } from "./context/ConsentContext.tsx";
 import AppWithConsent from "./AppWithConsent.tsx";
 import { ThemeProvider } from "@emotion/react";
-import theme  from './theme/theme'
+import theme from "./theme/theme";
+import { SettingsProvider } from "./context/SettingsContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   // <StrictMode>
@@ -20,15 +21,17 @@ createRoot(document.getElementById("root")!).render(
     <HelmetProvider>
       <UserProvider>
         <VariablesProvider>
-          <CartActionsProvider>
-            <AiModerationProvider>
-              <ThemeProvider theme={theme}>
-                <ConsentProvider>
-                  <AppWithConsent />
-                </ConsentProvider>
-              </ThemeProvider>
-            </AiModerationProvider>
-          </CartActionsProvider>
+          <SettingsProvider>
+            <CartActionsProvider>
+              <AiModerationProvider>
+                <ThemeProvider theme={theme}>
+                  <ConsentProvider>
+                    <AppWithConsent />
+                  </ConsentProvider>
+                </ThemeProvider>
+              </AiModerationProvider>
+            </CartActionsProvider>
+          </SettingsProvider>
         </VariablesProvider>
       </UserProvider>
     </HelmetProvider>
