@@ -8,12 +8,9 @@ const router = express.Router();
 /**
  * GET /settings
  * Επιστρέφει ΟΛΑ τα global settings
- * Μόνο για ADMIN
  */
 router.get(
   '/',
-  middleware.verifyToken,
-  middleware.checkRole('ADMIN'),
   settingsController.getSettings
 );
 
