@@ -108,6 +108,7 @@ function App() {
           <Route path="/google-success" element={<GoogleSuccess />} />
           <Route path="/github-success" element={<GithubSuccess />} />
           <Route path="/checkout-success" element={<CheckoutSuccess />} />
+          <Route path="/cancel" element={<Cart />} />
 
           <Route element={<PrivateRoute />}>
             <Route path="/protected" element={<HomeAppwriteLogin />} />
