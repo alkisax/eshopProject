@@ -123,19 +123,19 @@ curl https://haveanidea.gr/api/ping
 
 # one line deploy
 - για sync main και client:
-- ❌
+```bash
+git checkout main
+git pull origin main
+git merge wip
+git push origin main
+git push client main
+git checkout wip
+```
+- για sync main και client/main:
 ```bash
 git push client clients/eleni:main
 ```
-- αυτό ↑ δεν θα χρησιμοποιείτε πια γιατί αποκτήσαμε git Branch μόνο για την Ελένη. οπότε μετά το git add/commit/ push θα κάνουμε ↓
-- ✅
-```bash
-git checkout clients/eleni
-git pull origin clients/eleni
-git push client clients/eleni:main
-```
-
-ssh root@91.99.145.154
+- `ssh root@91.99.145.154`
 ```bash
 cd /var/www/eshop \
 && git pull origin main \
