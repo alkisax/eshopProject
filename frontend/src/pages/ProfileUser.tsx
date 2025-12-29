@@ -15,6 +15,8 @@ import {
   DialogContent,
   DialogActions,
   Divider,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { UserAuthContext } from "../context/UserAuthContext";
 import { VariablesContext } from "../context/VariablesContext";
@@ -23,6 +25,7 @@ import Loading from "../components/Loading";
 import type { UpdateUser, IUser } from "../types/types";
 import type { CartItemType, CommentType } from "../types/commerce.types";
 import type { TransactionType } from "../types/commerce.types";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 interface Props {
   userToEdit?: IUser;
@@ -43,6 +46,9 @@ const ProfileUser = ({ userToEdit }: Props) => {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [lastProvider, setLastProvider] = useState<string>("none");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [userId, setUserId] = useState<string>(targetUser?._id || "");
   const [hasPassword, setHasPassword] = useState<boolean>(
@@ -390,21 +396,61 @@ const ProfileUser = ({ userToEdit }: Props) => {
                       <p>Add or change password</p>
                       <TextField
                         label="Password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         autoComplete="new-password"
                         required
                         fullWidth
+                        slotProps={{
+                          input: {
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={() =>
+                                    setShowPassword((prev) => !prev)
+                                  }
+                                  edge="end"
+                                >
+                                  {showPassword ? (
+                                    <VisibilityOff />
+                                  ) : (
+                                    <Visibility />
+                                  )}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          },
+                        }}
                       />
                       <TextField
                         label="Confirm Password"
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         autoComplete="new-password"
                         required
                         fullWidth
+                        slotProps={{
+                          input: {
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={() =>
+                                    setShowConfirmPassword((prev) => !prev)
+                                  }
+                                  edge="end"
+                                >
+                                  {showConfirmPassword ? (
+                                    <VisibilityOff />
+                                  ) : (
+                                    <Visibility />
+                                  )}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          },
+                        }}
                       />
                     </Stack>
                   </Paper>
