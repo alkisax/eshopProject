@@ -9,6 +9,7 @@ import Upload from '../uploadMulter/upload.model';
 import Category from '../stripe/models/category.models';
 import Post from '../blog/models/post.model';
 import SubPage from '../blog/models/subPage.model';
+import Settings from '../settings/settings.model';
 import swaggerJsdoc from 'swagger-jsdoc';
 import yaml from 'yamljs';
 import path from 'path';
@@ -58,6 +59,9 @@ const embedingsRoutesDocs = yaml.load(
 const excelRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'excelRoutes.swagger.yml')
 );
+const settingsRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'settingsRoutes.swagger.yml')
+);
 
 const options = {
   definition: {
@@ -77,7 +81,8 @@ const options = {
         Multer: m2s(Upload),
         Category: m2s(Category),
         Post: m2s(Post),
-        SubPage: m2s(SubPage)
+        SubPage: m2s(SubPage),
+        Settings: m2s(Settings)
       },
       securitySchemes: {
         bearerAuth: {
@@ -103,7 +108,8 @@ const options = {
       ...postRoutesDocs.paths,
       ...subPageRoutesDocs.paths,
       ...moderatorRoutesDocs.paths,
-      ...embedingsRoutesDocs.paths, // merge
+      ...embedingsRoutesDocs.paths,
+      ...settingsRoutesDocs.paths, // merge
     },
   },
   apis: []

@@ -125,12 +125,7 @@ curl https://haveanidea.gr/api/ping
 - για sync main και client:
 - ❌
 ```bash
-git checkout main
-git pull origin main
-git merge wip
-git push origin main
-git push client main
-git checkout wip
+git push client clients/eleni:main
 ```
 - αυτό ↑ δεν θα χρησιμοποιείτε πια γιατί αποκτήσαμε git Branch μόνο για την Ελένη. οπότε μετά το git add/commit/ push θα κάνουμε ↓
 - ✅

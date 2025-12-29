@@ -1,0 +1,228 @@
+openapi: 3.1.0
+info:
+  title: Global Settings API
+  version: '1.0.0'
+  description: |
+    Endpoints for managing global application settings.
+    There is a single settings document identified by key = "global".
+
+tags:
+  - name: Settings
+    description: Global configuration, branding and content settings (ADMIN only)
+
+paths:
+  ###############################################################
+  # GET GLOBAL SETTINGS
+  ###############################################################
+  /api/settings:
+    get:
+      tags: [Settings]
+      summary: Get global application settings
+      description: |
+        Returns the full global settings document.
+        Requires ADMIN role.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Global settings fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    example:
+                      key: global
+                      branding:
+                        themeLogo: 'https://cdn.example.com/logo-main.png'
+                        headerFooterLogo: 'https://cdn.example.com/logo-footer.png'
+                      theme:
+                        primaryColor: '#008482'
+                        secondaryColor: '#a6ddd8'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Settings not found
+
+    ###############################################################
+    # CREATE GLOBAL SETTINGS (ONE-TIME)
+    ###############################################################
+    post:
+      tags: [Settings]
+      summary: Create global settings document
+      description: |
+        Creates the initial global settings document (key = "global").
+
+        ⚠️ IMPORTANT:
+        - This endpoint must be called ONLY ONCE.
+        - If the document already exists, MongoDB will throw a duplicate key error.
+        - Intended for:
+          • seed
+          • first deploy
+          • development setup
+
+        Requires ADMIN role.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branding:
+                  type: object
+                  properties:
+                    themeLogo:
+                      type: string
+                      format: uri
+                      example: 'https://cdn.example.com/logo-main.png'
+                    headerFooterLogo:
+                      type: string
+                      format: uri
+                      example: 'https://cdn.example.com/logo-footer.png'
+                theme:
+                  type: object
+                  properties:
+                    primaryColor:
+                      type: string
+                      example: '#008482'
+                    secondaryColor:
+                      type: string
+                      example: '#a6ddd8'
+                homeTexts:
+                  type: object
+                  properties:
+                    homeText1:
+                      type: string
+                      example: 'Καλώς ήρθατε στο εργαστήρι μας'
+      responses:
+        '201':
+          description: Global settings created successfully
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '409':
+          description: Settings already exist
+        '500':
+          description: Server error
+
+    ###############################################################
+    # PATCH GLOBAL SETTINGS (GENERIC UPDATE)
+    ###############################################################
+    patch:
+      tags: [Settings]
+      summary: Update global settings (partial update)
+      description: |
+        Updates one or more sections of the global settings document.
+
+        ✔ Only provided fields are updated
+        ✔ Existing values are preserved
+        ✔ Protected by guards (e.g. logos cannot be removed accidentally)
+
+        Example use cases:
+        - Update branding logos
+        - Change theme colors
+        - Update homepage texts
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branding:
+                  type: object
+                  properties:
+                    themeLogo:
+                      type: string
+                      format: uri
+                      example: 'https://cdn.example.com/logo-main.png'
+                    headerFooterLogo:
+                      type: string
+                      format: uri
+                      example: 'https://cdn.example.com/logo-footer.png'
+                theme:
+                  type: object
+                  properties:
+                    primaryColor:
+                      type: string
+                      example: '#008482'
+                    secondaryColor:
+                      type: string
+                      example: '#a6ddd8'
+                homeTexts:
+                  type: object
+                  properties:
+                    homeText1:
+                      type: string
+                      example: 'Καλώς ήρθατε στο εργαστήρι μας'
+      responses:
+        '200':
+          description: Settings updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Server error
+
+  ###############################################################
+  # UPDATE ADMIN NOTIFICATIONS (FOCUSED – LEGACY)
+  ###############################################################
+  /api/settings/admin-notifications:
+    put:
+      tags: [Settings]
+      summary: Update admin notification settings
+      description: |
+        Updates only admin notification-related settings.
+        Kept for backward compatibility.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                salesNotificationsEnabled:
+                  type: boolean
+                  example: true
+                adminEmail:
+                  type: string
+                  example: 'admin@example.com'
+      responses:
+        '200':
+          description: Admin notifications updated
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
