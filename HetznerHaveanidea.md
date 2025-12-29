@@ -131,6 +131,19 @@ curl https://haveanidea.gr/api/ping
 `pm2 restart eshop-backend --update-env`
 
 # one line deploy
+- για sync main και client:
+```bash
+- για sync main και client:
+```bash
+git checkout main
+git pull origin main
+git merge wip
+git push origin main
+git push client main
+git checkout wip
+```
+```
+- `ssh root@91.99.145.154`
 ```bash
 cd /var/www/eshop \
 && git pull origin main \
