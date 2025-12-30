@@ -1,3 +1,4 @@
+// frontend\src\components\Navbar.tsx
 import {
   AppBar,
   Toolbar,
@@ -24,7 +25,8 @@ import { UserAuthContext } from "../context/UserAuthContext";
 import { handleLogout } from "../authLogin/authFunctions";
 import { VariablesContext } from "../context/VariablesContext";
 import { CartActionsContext } from "../context/CartActionsContext";
-import bannerIdea from '../assets/banner-idea.png'
+// import bannerIdea from '../assets/banner-idea.png'
+import SettingsLogo from "./settings_components/SettingsLogo";
 
 const NavbarAppwrite = () => {
   const { setHasCart, hasFavorites, setHasFavorites } = useContext(VariablesContext);
@@ -54,13 +56,13 @@ const NavbarAppwrite = () => {
             to="/"
             sx={{ display: "flex", alignItems: "center", textDecoration: "none", color: "inherit" }}
           >
-            <Box
+            {/* <Box
               component="img"
-              // src="/bulb-transp.svg"
               src={bannerIdea}
               alt="Έχω μια Ιδέα Logo"
               sx={{ height: 40, mr: 1 }}
-            />
+            /> */}
+            <SettingsLogo height={40} />
             <Typography variant="h6" sx={{ fontWeight: "bold" }}>
               Έχω μια Ιδέα
             </Typography>

@@ -26,6 +26,7 @@ import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import { CloudUpload } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import SsidChartIcon from "@mui/icons-material/SsidChart";
+import BrushIcon from "@mui/icons-material/Brush";
 
 interface AdminSidebarProps {
   onSelect: (panel: string) => void;
@@ -195,6 +196,18 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
               <Inventory2Icon />
             </ListItemIcon>
             <ListItemText primary="Excel Tools" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton
+            id="admin-sidebar-branding"
+            onClick={() => onSelect("branding")}
+          >
+            <ListItemIcon>
+              <BrushIcon />
+            </ListItemIcon>
+            <ListItemText primary="Customization" />
           </ListItemButton>
         </ListItem>
       </List>
