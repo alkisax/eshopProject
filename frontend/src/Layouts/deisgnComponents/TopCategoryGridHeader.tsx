@@ -125,6 +125,7 @@ const TopCategoryGridHeader = () => {
           display: { xs: "none", sm: "block" },
         }}
       >
+        {/* changed for using modular logo on admin dashboard */}
         {/* <Box
           component="img"
           src={banner2}
@@ -150,6 +151,7 @@ const TopCategoryGridHeader = () => {
             mb: 3,
           }}
         >
+          {/* changed for using modular logo on admin dashboard */}
           {/* <Box
             component="img"
             src={banner2}
@@ -160,7 +162,7 @@ const TopCategoryGridHeader = () => {
               mx: "auto",
             }}
           /> */}
-          {/* <SiteLogo height={220} /> */}
+          <SiteLogo height={220} />
         </Box>
 
         {/* Left area with categories */}
