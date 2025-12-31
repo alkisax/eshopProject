@@ -1,6 +1,8 @@
+// frontend\src\Layouts\deisgnComponents\FooterDesigner.tsx
 import { Box, Typography, IconButton, Link as MuiLink } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { Facebook, Instagram, Email, Phone } from "@mui/icons-material";
+import { useSettings } from "../../context/SettingsContext";
 
 const lineColor = "#008482"; // πράσινο του template
 const bgColor = "#b7e0db"; // aqua background από designer
@@ -20,6 +22,11 @@ const VerticalLine = () => (
 );
 
 const FooterDesigner = () => {
+  const { settings } = useSettings();
+
+  const social = settings?.socialLinks;
+  const company = settings?.companyInfo;
+
   return (
     <Box
       component="footer"
@@ -53,8 +60,6 @@ const FooterDesigner = () => {
         >
           <VerticalLine />
           <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
-
-
             <MuiLink
               id="footer-info-about"
               component={RouterLink}
@@ -96,7 +101,6 @@ const FooterDesigner = () => {
             >
               Επικοινωνία
             </MuiLink>
-
           </Box>
         </Box>
 
@@ -157,31 +161,52 @@ const FooterDesigner = () => {
             borderRadius: 1,
             px: 2,
             py: 1,
+            gap: 1,
           }}
         >
-          <IconButton id="footer-social-facebook" href="#" color="inherit">
-            <Facebook />
-          </IconButton>
+          {social?.facebook && (
+            <IconButton
+              id="footer-social-facebook"
+              href={social.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              color="inherit"
+            >
+              <Facebook />
+            </IconButton>
+          )}
 
-          <IconButton id="footer-social-instagram" href="#" color="inherit">
-            <Instagram />
-          </IconButton>
+          {social?.instagram && (
+            <IconButton
+              id="footer-social-instagram"
+              href={social.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              color="inherit"
+            >
+              <Instagram />
+            </IconButton>
+          )}
 
-          <IconButton
-            id="footer-social-email"
-            href="mailto:info@example.com"
-            color="inherit"
-          >
-            <Email />
-          </IconButton>
+          {company?.email && (
+            <IconButton
+              id="footer-social-email"
+              href={`mailto:${company.email}`}
+              color="inherit"
+            >
+              <Email />
+            </IconButton>
+          )}
 
-          <IconButton
-            id="footer-social-phone"
-            href="tel:+302100000000"
-            color="inherit"
-          >
-            <Phone />
-          </IconButton>
+          {company?.phone && (
+            <IconButton
+              id="footer-social-phone"
+              href={`tel:${company.phone}`}
+              color="inherit"
+            >
+              <Phone />
+            </IconButton>
+          )}
         </Box>
       </Box>
     </Box>

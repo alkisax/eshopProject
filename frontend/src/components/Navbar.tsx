@@ -27,15 +27,21 @@ import { VariablesContext } from "../context/VariablesContext";
 import { CartActionsContext } from "../context/CartActionsContext";
 // import bannerIdea from '../assets/banner-idea.png'
 import SettingsLogo from "./settings_components/SettingsLogo";
+import { useSettings } from "../context/SettingsContext";
 
 const NavbarAppwrite = () => {
-  const { setHasCart, hasFavorites, setHasFavorites } = useContext(VariablesContext);
+  const { setHasCart, hasFavorites, setHasFavorites } =
+    useContext(VariablesContext);
   const { user, setUser } = useContext(UserAuthContext);
   const { cartCount, setCartCount } = useContext(CartActionsContext);
   const navigate = useNavigate();
+  const { settings, loading } = useSettings();
+
+  const companyName = !loading && settings?.companyInfo?.companyName;
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) =>
+    setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
 
   return (
@@ -44,7 +50,7 @@ const NavbarAppwrite = () => {
         position="fixed"
         sx={{
           backgroundColor: "#fffdf7", // bright warm white
-          color: "#4a3f35",           // earthy brown text/icons
+          color: "#4a3f35", // earthy brown text/icons
           borderBottom: "1px solid #e5e0d8", // λεπτό διακριτικό border
         }}
       >
@@ -54,17 +60,16 @@ const NavbarAppwrite = () => {
             id="navbar-home"
             component={Link}
             to="/"
-            sx={{ display: "flex", alignItems: "center", textDecoration: "none", color: "inherit" }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              textDecoration: "none",
+              color: "inherit",
+            }}
           >
-            {/* <Box
-              component="img"
-              src={bannerIdea}
-              alt="Έχω μια Ιδέα Logo"
-              sx={{ height: 40, mr: 1 }}
-            /> */}
             <SettingsLogo height={40} />
             <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-              Έχω μια Ιδέα
+              {companyName}
             </Typography>
           </Box>
 
@@ -174,7 +179,10 @@ const NavbarAppwrite = () => {
                       sx={{
                         color: "inherit",
                         borderRadius: "50%",
-                        "&.active": { backgroundColor: "#48C4Cf", color: "#fff" },
+                        "&.active": {
+                          backgroundColor: "#48C4Cf",
+                          color: "#fff",
+                        },
                       }}
                     >
                       <AccountCircleIcon />
@@ -186,7 +194,13 @@ const NavbarAppwrite = () => {
                       id="navbar-logout"
                       sx={{ color: "inherit" }}
                       onClick={() =>
-                        handleLogout(setUser, setHasCart, setCartCount, setHasFavorites, navigate)
+                        handleLogout(
+                          setUser,
+                          setHasCart,
+                          setCartCount,
+                          setHasFavorites,
+                          navigate
+                        )
                       }
                     >
                       <LogoutIcon />
@@ -212,14 +226,26 @@ const NavbarAppwrite = () => {
               <IconButton color="inherit" onClick={handleMenuOpen}>
                 <MenuIcon />
               </IconButton>
-              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
                 {user && user.roles?.includes("ADMIN") && (
-                  <MenuItem component={NavLink} to="/admin-panel" onClick={handleMenuClose}>
+                  <MenuItem
+                    component={NavLink}
+                    to="/admin-panel"
+                    onClick={handleMenuClose}
+                  >
                     <AdminPanelSettingsIcon sx={{ mr: 1 }} /> Admin Panel
                   </MenuItem>
                 )}
                 {user && (
-                  <MenuItem component={NavLink} to="/profile" onClick={handleMenuClose}>
+                  <MenuItem
+                    component={NavLink}
+                    to="/profile"
+                    onClick={handleMenuClose}
+                  >
                     <AccountCircleIcon sx={{ mr: 1 }} /> Profile
                   </MenuItem>
                 )}
@@ -227,13 +253,23 @@ const NavbarAppwrite = () => {
                   <MenuItem
                     onClick={() => {
                       handleMenuClose();
-                      handleLogout(setUser, setHasCart, setCartCount, setHasFavorites, navigate);
+                      handleLogout(
+                        setUser,
+                        setHasCart,
+                        setCartCount,
+                        setHasFavorites,
+                        navigate
+                      );
                     }}
                   >
                     <LogoutIcon sx={{ mr: 1 }} /> Logout
                   </MenuItem>
                 ) : (
-                  <MenuItem component={Link} to="/login" onClick={handleMenuClose}>
+                  <MenuItem
+                    component={Link}
+                    to="/login"
+                    onClick={handleMenuClose}
+                  >
                     <LoginIcon sx={{ mr: 1 }} /> Login
                   </MenuItem>
                 )}
