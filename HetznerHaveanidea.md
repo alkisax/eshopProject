@@ -135,7 +135,10 @@ git checkout wip
 ```bash
 git push client clients/eleni:main
 ```
-- `ssh root@91.99.145.154`
+- 
+```bash
+ssh root@91.99.145.154
+```
 ```bash
 cd /var/www/eshop \
 && git pull origin main \
@@ -150,3 +153,6 @@ cd /var/www/eshop \
 && sleep 5 \
 && curl https://haveanidea.gr/api/ping; echo
 ```
+
+- see backend logs: `pm2 logs eshop-backend --out --lines 200`
+- clear logs: `pm2 flush eshop-backend`
