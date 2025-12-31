@@ -1,7 +1,18 @@
-import { Container, Typography, Box } from "@mui/material";
-import { Helmet } from "react-helmet-async";
+// frontend/src/pages/minorPages/Terms.tsx
+import { Container } from '@mui/material';
+import { Helmet } from 'react-helmet-async';
+import ReactMarkdown from 'react-markdown';
+import { useSettings } from '../../context/SettingsContext';
 
 const Terms = () => {
+  const { settings, loading } = useSettings();
+
+  const markdown =
+    settings?.staticPages?.termsOfUse ??
+    `## Όροι Χρήσης
+
+Το περιεχόμενο δεν έχει οριστεί ακόμα.`;
+
   return (
     <>
       <Helmet>
@@ -10,113 +21,16 @@ const Terms = () => {
           name="description"
           content="Διαβάστε τους όρους χρήσης και πώλησης του eshop μας. Η χρήση της ιστοσελίδας προϋποθέτει την αποδοχή των όρων."
         />
-        <link rel="canonical" href={window.location.origin + window.location.pathname} />
+        <link
+          rel="canonical"
+          href={window.location.origin + window.location.pathname}
+        />
       </Helmet>
 
       <Container maxWidth="md" sx={{ py: 6 }}>
-        {/* <Typography
-          variant="h4"
-          component="h1"
-          gutterBottom
-          fontWeight="bold"
-          textAlign="center"
-        >
-          Όροι Χρήσης
-        </Typography> */}
-
-        <Typography variant="subtitle1" gutterBottom>
-          Ημερομηνία Εφαρμογής: Ισχύουν από 01/11/2023
-        </Typography>
-
-        <Box mt={4}>
-          <Typography variant="h6">Ειδικά στοιχεία – Πληροφορίες εταιρείας</Typography>
-          <Typography>
-            Η παρούσα ιστοσελίδα (εφ’ εξής «Ιστοσελίδα») ανήκει στην εταιρεία με την
-            επωνυμία «*****» και τον διακριτικό τίτλο «*****» (εφ’ εξής “Εταιρεία“).
-          </Typography>
-          <Typography>
-            Δραστηριότητα: *****. Τα προϊόντα παρέχονται προς χονδρική ή λιανική πώληση
-            μέσω του Ηλεκτρονικού Καταστήματος ή μέσω της φυσικής έδρας.
-          </Typography>
-          <Typography>Διεύθυνση Έδρας: *****</Typography>
-          <Typography>E-mail: *****</Typography>
-          <Typography>ΑΦΜ: *****</Typography>
-          <Typography>Γ.Ε.Μ.Η.: *****</Typography>
-        </Box>
-
-        <Box mt={4}>
-          <Typography variant="h6">Όροι Χρήσης & Πώλησης</Typography>
-          <Typography>
-            Η χρήση της Ιστοσελίδας και οι αγορές σας σε αυτή διέπονται από τους
-            παρακάτω όρους χρήσης («Όροι Χρήσης») και πώλησης («Όροι Πώλησης»),
-            συλλογικά «οι Όροι». Με την πρόσβασή σας στην Ιστοσελίδα ή τη χρήση της,
-            δηλώνετε ότι αποδέχεστε τους Όρους.
-          </Typography>
-        </Box>
-
-        <Box mt={4}>
-          <Typography variant="h6">Εφαρμοστέοι Νόμοι</Typography>
-          <Typography>
-            Οι Όροι διέπονται από το σύνολο των ευρωπαϊκών και εθνικών νόμων περί
-            ηλεκτρονικού εμπορίου, συμπεριλαμβανομένων ενδεικτικά του ΠΔ 131/2003, του
-            Ν.2251/1994, της Οδηγίας 2011/83/ΕΕ και άλλων.
-          </Typography>
-        </Box>
-
-        <Box mt={4}>
-          <Typography variant="h6">Υποχρεώσεις Χρηστών</Typography>
-          <Typography>
-            Η Ιστοσελίδα προορίζεται αποκλειστικά για προσωπική και μη εμπορική χρήση.
-            Απαγορεύεται η αποστολή, μετάδοση, δημοσίευση ή διάδοση παράνομου,
-            προσβλητικού, ενοχλητικού ή βλαβερού περιεχομένου.
-          </Typography>
-        </Box>
-
-        <Box mt={4}>
-          <Typography variant="h6">Περιορισμός Ευθύνης</Typography>
-          <Typography>
-            Η Εταιρεία δεν ευθύνεται για τυχόν τεχνικά προβλήματα, σφάλματα περιεχομένου
-            ή τιμών, καθώς και για καθυστερήσεις που οφείλονται σε λόγους πέρα από τη
-            σφαίρα επιρροής της. Οι υπηρεσίες και τα προϊόντα παρέχονται «ως έχουν».
-          </Typography>
-        </Box>
-
-        <Box mt={4}>
-          <Typography variant="h6">Πνευματικά Δικαιώματα</Typography>
-          <Typography>
-            Όλα τα δικαιώματα πνευματικής και βιομηχανικής ιδιοκτησίας της Ιστοσελίδας
-            και του περιεχομένου της ανήκουν στην Εταιρεία ή στους νόμιμους δικαιούχους.
-            Απαγορεύεται η αντιγραφή, αναδημοσίευση ή χρήση χωρίς άδεια.
-          </Typography>
-        </Box>
-
-        <Box mt={4}>
-          <Typography variant="h6">Προστασία Δεδομένων</Typography>
-          <Typography>
-            Η Εταιρεία συμμορφώνεται με τον GDPR (Κανονισμός 2016/679) και την ισχύουσα
-            ελληνική νομοθεσία. Διαβάστε την Πολιτική Απορρήτου και Cookies για
-            περισσότερες πληροφορίες.
-          </Typography>
-        </Box>
-
-        <Box mt={4}>
-          <Typography variant="h6">Επικοινωνία</Typography>
-          <Typography>
-            Για οποιοδήποτε θέμα σχετικό με την Ιστοσελίδα ή τους Όρους, επικοινωνήστε
-            με e-mail στο ***** ή στη διεύθυνση *****.
-          </Typography>
-        </Box>
-
-        <Box mt={4}>
-          <Typography variant="caption" color="text.secondary">
-            Οι Όροι Χρήσης μπορούν να τροποποιηθούν οποιαδήποτε στιγμή χωρίς
-            προειδοποίηση, σύμφωνα με την ισχύουσα νομοθεσία. Παρακαλούμε ελέγχετε
-            συχνά για ενημερώσεις.
-          </Typography>
-        </Box>
-      </Container>    
+        {!loading && <ReactMarkdown>{markdown}</ReactMarkdown>}
+      </Container>
     </>
-
   );
 };
 
