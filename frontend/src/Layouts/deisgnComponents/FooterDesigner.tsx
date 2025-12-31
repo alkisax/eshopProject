@@ -3,17 +3,19 @@ import { Box, Typography, IconButton, Link as MuiLink } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { Facebook, Instagram, Email, Phone } from "@mui/icons-material";
 import { useSettings } from "../../context/SettingsContext";
+import { useThemeColors } from "../../hooks/useThemeColors";
+import { shade, shiftHue, shiftSaturation } from "../../utils/colorUtils";
 
-const lineColor = "#008482"; // πράσινο του template
-const bgColor = "#b7e0db"; // aqua background από designer
-const textColor = "#006f6d"; // dark greenish text
+// const lineColor = "#008482"; // πράσινο του template
+// const bgColor = "#b7e0db"; // aqua background από designer
+// const textColor = "#006f6d"; // dark greenish text
 
 // Vertical line — hides automatically in mobile
-const VerticalLine = () => (
+const VerticalLine = ({ color }: { color: string }) => (
   <Box
     sx={{
       width: "3px",
-      backgroundColor: lineColor,
+      backgroundColor: color,
       height: "60px",
       mr: 2,
       display: { xs: "none", sm: "block" }, // ❗ hide on mobile
@@ -22,7 +24,17 @@ const VerticalLine = () => (
 );
 
 const FooterDesigner = () => {
+  const { primary } = useThemeColors();
   const { settings } = useSettings();
+
+  // χρησιμοποιούσαμε χρώμματα απο τον designer που δεν ήταν ίδια με το primary μας για αυτό φτιάξαμε τρεις συναρτήσεις (gpt) που μετατρέπουν το έαν χρώμα στο αλλο. Δεν είναι ιδανική λύση γιατί σε άλλα χρώμματα μπορεί να μην δουλεύει αλλα θα το αφήσουμε προς το παρόν TODO
+  const baseHue = shiftHue(primary, -25);
+  const baseSat = shiftSaturation(baseHue, -20);
+  const base = shade(baseSat, -20);
+
+  const textColor = shade(base, -45);
+  const lineColor = shade(base, 15);
+  const bgColor = shade(base, 35);
 
   const social = settings?.socialLinks;
   const company = settings?.companyInfo;
@@ -58,7 +70,7 @@ const FooterDesigner = () => {
             justifyContent: { xs: "center", sm: "flex-start" },
           }}
         >
-          <VerticalLine />
+          <VerticalLine color={lineColor} />
           <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
             <MuiLink
               id="footer-info-about"
@@ -112,7 +124,7 @@ const FooterDesigner = () => {
             justifyContent: { xs: "center", sm: "flex-start" },
           }}
         >
-          <VerticalLine />
+          <VerticalLine color={lineColor} />
           <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
             <MuiLink
               id="footer-privacy-policy"

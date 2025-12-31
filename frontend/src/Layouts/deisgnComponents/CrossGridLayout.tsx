@@ -3,6 +3,8 @@ import { Box, Typography } from "@mui/material";
 import { useRef, useLayoutEffect, useState } from "react";
 import type { ReactNode } from "react";
 import TopCategoryGridHeader from "./TopCategoryGridHeader";
+import { useThemeColors } from "../../hooks/useThemeColors";
+import { shade, shiftHue, shiftSaturation } from "../../utils/colorUtils";
 
 interface Props {
   children: ReactNode;
@@ -11,7 +13,14 @@ interface Props {
 
 const CrossGridLayout = ({ children, title }: Props) => {
   // Βασικό χρώμα γραμμών (πράσινο από το γραφιστικό template)
-  const lineColor = "#008482";
+  const { primary } = useThemeColors();
+
+  // χρησιμοποιούσαμε χρώμματα απο τον designer που δεν ήταν ίδια με το primary μας για αυτό φτιάξαμε τρεις συναρτήσεις (gpt) που μετατρέπουν το έαν χρώμα στο αλλο. Δεν είναι ιδανική λύση γιατί σε άλλα χρώμματα μπορεί να μην δουλεύει αλλα θα το αφήσουμε προς το παρόν TODO
+  const baseHue = shiftHue(primary, -12);
+  const baseSat = shiftSaturation(baseHue, -20);
+  const base = shade(baseSat, -20);
+
+  const lineColor = base;
 
   /**
    * === ΣΤΑΘΕΡΟ ΣΤΥΛ ΚΑΘΕΤΗΣ ΓΡΑΜΜΗΣ ===
@@ -157,14 +166,14 @@ const CrossGridLayout = ({ children, title }: Props) => {
                   textAlign: "left",
                   mb: 4,
                   mt: 2,
-                  color: lineColor
+                  color: lineColor,
                 }}
               >
                 {title}
               </Typography>
             )}
 
-          {/* === ΠΡΑΓΜΑΤΙΚΟ ΠΕΡΙΕΧΟΜΕΝΟ ===
+            {/* === ΠΡΑΓΜΑΤΙΚΟ ΠΕΡΙΕΧΟΜΕΝΟ ===
           Το contentRef μας επιτρέπει να μετράμε το ύψος του */}
             <Box ref={contentRef}>{children}</Box>
           </Box>

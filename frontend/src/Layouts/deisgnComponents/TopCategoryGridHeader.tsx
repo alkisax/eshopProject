@@ -2,10 +2,20 @@ import { Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 // import banner2 from "../../assets/banner2.jpg";
 import SiteLogo from "../../components/settings_components/SiteLogo";
+import { useThemeColors } from "../../hooks/useThemeColors";
+import { shade, shiftHue, shiftSaturation } from "../../utils/colorUtils";
 
-const lineColor = "#008482";
+// const lineColor = "#008482";
 
 const TopCategoryGridHeader = () => {
+  const { primary } = useThemeColors();
+
+  // χρησιμοποιούσαμε χρώμματα απο τον designer που δεν ήταν ίδια με το primary μας για αυτό φτιάξαμε τρεις συναρτήσεις (gpt) που μετατρέπουν το έαν χρώμα στο αλλο. Δεν είναι ιδανική λύση γιατί σε άλλα χρώμματα μπορεί να μην δουλεύει αλλα θα το αφήσουμε προς το παρόν TODO
+  const baseHue = shiftHue(primary, -12);
+  const baseSat = shiftSaturation(baseHue, -20);
+  const base = shade(baseSat, -20);
+  const lineColor = base
+
   return (
     <Box
       sx={{
