@@ -66,6 +66,8 @@
 - email notification on buy✅
 - admin commodity pannel προβληματική φόρτωση όλων των εμπορευμάτων✅
 - θα θέλαμε το variant να συνδέετε με συγκεκριμένη εικόνα
+- markdown texts in custom
+- hero image in custom (also on/off)
 - οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
 
 προτάσεις
@@ -179,6 +181,7 @@ test success stripe
 `http://localhost:5173/checkout-success?session_id=cs_live_a1egwCT3aaLnGV1nyDUZh7gy6M6R4duEluiYuickNdaLKr4FbGyqhK1Ls1`
 και μέσο deployed
 `https://eshop.portfolio-projects.space/checkout-success?session_id=cs_live_a15zdzmTsUPlwOdLCAoJNocUcqfBqZZQk588jPOblet9ik6nnbW50CYUUz`
+`https://haveanidea.gr/checkout-success?session_id=cs_live_a1qdvmtmWKVP36FEtuSAJK8BR2wL5OzW6N41Efxie0ChKi3ywsFmpsr2g8`
 
 - 'as any' not allowed, follow strict types
 - avoid using mock. if have to use spy on
