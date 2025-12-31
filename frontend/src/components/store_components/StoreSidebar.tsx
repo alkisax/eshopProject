@@ -22,6 +22,7 @@ import { useTheme } from "@mui/material/styles";
 import type { CategoryType } from "../../types/commerce.types";
 import StoreSidebarSkeleton from "../skeletons/StoreSidebarSkeleton";
 import { useDebouncedCallback } from "use-debounce";
+import { useThemeColors } from "../../hooks/useThemeColors";
 
 interface StoreSidebarProps {
   search: string;
@@ -49,6 +50,8 @@ const StoreSidebar = ({
   // ένα boolean που έρχετε απο το MUI
   // Εδώ: true αν το πλάτος της οθόνης <= "sm".
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const { primary, secondary } = useThemeColors();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(search);
@@ -202,11 +205,11 @@ const StoreSidebar = ({
             // sx={{ mb: 1 }}
             sx={{
               mb: 1,
-              backgroundColor: "#48C4Cf",
+              backgroundColor: primary,
               color: "#fff",
               fontWeight: "bold",
               "&:hover": {
-                backgroundColor: "#FFd500",
+                backgroundColor: secondary,
                 color: "#4a3f35",
               },
             }}

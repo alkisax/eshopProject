@@ -12,6 +12,7 @@ import { useEffect } from "react"; // GA
 import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
 import StoreItemListSkeleton from "../skeletons/StoreItemListSkeleton";
 import { confirmRequiresProcessing } from "../../utils/confirmRequiresProcessing";
+import { useThemeColors } from "../../hooks/useThemeColors";
 
 type ContextType = {
   commodities: CommodityType[]; // already paginated in StoreLayout
@@ -26,6 +27,7 @@ const StoreItemList = () => {
   const { addOneToCart } = useContext(CartActionsContext)!;
   const { isLoading } = useContext(UserAuthContext);
   const { tracker } = useAnalytics() || {}; //GA
+  const { primary, secondary } = useThemeColors();
 
   // επειδή αυτό δεν είναι ένα κανονικό παιδί του layout αλλα μπάινει στο outlet του layout, 
   // τα props έρχονται με την useOutletContext (δες και σχόλια στο layout)
@@ -160,11 +162,11 @@ const StoreItemList = () => {
                     await fetchCart();
                   }}
                   sx={{
-                    backgroundColor: "#48C4Cf",
+                    backgroundColor: primary,
                     color: "#fff",
                     fontWeight: "bold",
                     "&:hover": {
-                      backgroundColor: "#FFd500",
+                      backgroundColor: secondary,
                       color: "#4a3f35",
                     },
                   }}
