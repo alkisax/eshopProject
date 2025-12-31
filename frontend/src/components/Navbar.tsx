@@ -28,6 +28,7 @@ import { CartActionsContext } from "../context/CartActionsContext";
 // import bannerIdea from '../assets/banner-idea.png'
 import SettingsLogo from "./settings_components/SettingsLogo";
 import { useSettings } from "../context/SettingsContext";
+import { useThemeColors } from "../hooks/useThemeColors";
 
 const NavbarAppwrite = () => {
   const { setHasCart, hasFavorites, setHasFavorites } =
@@ -36,6 +37,7 @@ const NavbarAppwrite = () => {
   const { cartCount, setCartCount } = useContext(CartActionsContext);
   const navigate = useNavigate();
   const { settings, loading } = useSettings();
+  const { primary, secondary } = useThemeColors();
 
   const companyName = !loading && settings?.companyInfo?.companyName;
 
@@ -87,7 +89,7 @@ const NavbarAppwrite = () => {
                 sx={{
                   color: "inherit",
                   borderRadius: "50%",
-                  "&.active": { backgroundColor: "#48C4Cf", color: "#fff" },
+                  "&.active": { backgroundColor: primary, color: "#fff" },
                 }}
               >
                 <StorefrontIcon />
@@ -104,7 +106,7 @@ const NavbarAppwrite = () => {
                   sx={{
                     color: "inherit",
                     borderRadius: "50%",
-                    "&.active": { backgroundColor: "#48C4Cf", color: "#fff" },
+                    "&.active": { backgroundColor: primary, color: "#fff" },
                   }}
                 >
                   <Badge
@@ -112,7 +114,7 @@ const NavbarAppwrite = () => {
                     badgeContent={cartCount}
                     sx={{
                       "& .MuiBadge-badge": {
-                        backgroundColor: "#FFD500",
+                        backgroundColor: secondary,
                         color: "#4a3f35",
                       },
                     }}
@@ -133,7 +135,7 @@ const NavbarAppwrite = () => {
                   sx={{
                     color: "inherit",
                     borderRadius: "50%",
-                    "&.active": { backgroundColor: "#48C4Cf", color: "#fff" },
+                    "&.active": { backgroundColor: primary, color: "#fff" },
                   }}
                 >
                   <FavoriteIcon />
@@ -153,7 +155,7 @@ const NavbarAppwrite = () => {
                     sx={{
                       color: "inherit",
                       borderRadius: "50%",
-                      "&.active": { backgroundColor: "#48C4Cf", color: "#fff" },
+                      "&.active": { backgroundColor: primary, color: "#fff" },
                     }}
                   >
                     <AdminPanelSettingsIcon />
@@ -180,7 +182,7 @@ const NavbarAppwrite = () => {
                         color: "inherit",
                         borderRadius: "50%",
                         "&.active": {
-                          backgroundColor: "#48C4Cf",
+                          backgroundColor: primary,
                           color: "#fff",
                         },
                       }}
