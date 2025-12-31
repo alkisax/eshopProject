@@ -1,3 +1,4 @@
+// frontend\src\pages\Home.tsx
 import {
   Box,
   Button,
@@ -14,9 +15,16 @@ import { Helmet } from "react-helmet-async";
 import { Suspense } from "react";
 import LatestCommoditiesSkeleton from "../components/skeletons/LatestCommoditiesSkeleton";
 import LastAnnouncementSkeleton from "../components/skeletons/LastAnnouncementSkeleton ";
+import { useSettings } from "../context/SettingsContext";
+import ReactMarkdown from "react-markdown";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { settings, loading } = useSettings();
+
+  const homeText1 = settings?.homeTexts?.homeText1;
+  const homeText2 = settings?.homeTexts?.homeText2;
+  const homeText3 = settings?.homeTexts?.homeText3;
 
   return (
     <>
@@ -32,35 +40,6 @@ const Home = () => {
           content="Ανακαλύψτε μοναδικά χειροποίητα κοσμήματα από το εργαστήρι μας. Δαχτυλίδια, σκουλαρίκια και δημιουργίες που αφηγούνται ιστορίες."
         />
       </Helmet>
-
-      {/* <Box
-        sx={{
-          width: "100%",
-          height: { xs: 200, md: 350 }, // responsive height
-          backgroundImage: `url(https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c955c9001658ee7294/view?project=6898d8be0020602b146e)`, // put the file inside public/
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "white",
-          textAlign: "center",
-        }}
-      > */}
-      
-      {/* αυτό είναι ένα αόρατο h1 που προστέθηκε για λόγους seo */}
-      {/* <Typography
-          variant="h1"
-          sx={{
-            fontSize: { xs: "1.8rem", md: "3rem" },
-            fontWeight: "bold",
-            textShadow: "0 2px 6px rgba(0,0,0,0.6)", 
-            display: { xs: "none" }, // hide for users if you want
-          }}
-        >
-          Έχω μια Ιδέα  – Χειροποίητα Κοσμήματα
-        </Typography>   
-      </Box> */}
 
       <Box
         sx={{
@@ -90,7 +69,7 @@ const Home = () => {
             <Typography
               variant="body1"
               color="text.secondary"
-              component="p"
+              component="div" // οχι "p" για markdown
               sx={{
                 maxWidth: 700,
                 mx: "auto",
@@ -99,30 +78,32 @@ const Home = () => {
                 fontWeight: 400,
               }}
             >
-Γεια σας είμαι η Ελένη! ή αλλιώς ''Έχω μια ιδέα...". Κατασκευάζω κοσμήματα από μέταλλο. Ξεκίνησα να ασχολούμαι με την κατασκευή κοσμήματος όταν παρακολούθησα σεμινάρια χειροποίητου κοσμήματος, τελείωσα και την επαγγελματική σχολή αργυροχρυσοχοϊας και έτσι σιγά- σιγά δημιουργήθηκε το "Έχω μια ιδέα".
-
-Σχεδόν κάθε φορά και ιδιαίτερα τα πρώτα χρόνια η πρώτη λέξη που ερχόταν στο μυαλό μου πριν ξεκινήσω να κατασκευάζω κάτι νέο είναι ''Έχω μια ιδέα...!!!''. Νομίζω αποδίδει και συμπυκνώνει όλο τον ενθουσιασμό και την ανυπομονησία για κάθε νέα ιδέα που πρόκειται να πάρει μορφή. Έτσι αποφάσισα να ονομάσω και το κατάστημά μου και ελπίζω να συνεχίσω με τον ίδιο ενθουσιασμό και τα επόμενα χρόνια! Δεν θα σας πω από τι εμπνέομαι γιατί κι εγώ δεν έχω μία απάντηση γι' αυτό, το ψάχνω ακόμα!
-
-Μαζί στην κατασκευή κοσμήματος ο Βικ. όχι μόνο βοηθός αλλά κατασκευαστής και σχεδιαστής, η βοήθειά του πολύτιμη...
-
-Ευχαριστώ που επισκεφθήκατε το κατάστημα μου! Μην διστάσετε να με ρωτήσετε για ότι πληροφορία χρειαστείτε.
+              {!loading && homeText1 ? (
+                <ReactMarkdown>{homeText1}</ReactMarkdown>
+              ) : (
+                "Καλώς ήρθατε στο κατάστημά μας"
+              )}
             </Typography>
+            <br />
+
             <Typography
               variant="body1"
               color="text.secondary"
-              component="p"
+              component="div" // ⚠️ ΟΧΙ "p"
               sx={{
                 maxWidth: 700,
                 mx: "auto",
                 lineHeight: 1.6,
                 fontSize: "1.25rem",
                 fontWeight: 400,
+                textAlign: "center", // ή left/right
               }}
             >
-              Σας καλωσορίζουμε στον κόσμο μας, με νέες συλλογές,
-              δημιουργικότητα και κοσμήματα που ξεχωρίζουν.
+              {!loading && homeText2 && (
+                <ReactMarkdown>{homeText2}</ReactMarkdown>
+              )}
             </Typography>
-
+            
             {/* Buttons */}
             <Stack
               direction="column"
@@ -170,7 +151,7 @@ const Home = () => {
             <Typography
               variant="body1"
               color="text.secondary"
-              component="p"
+              component="div"
               sx={{
                 maxWidth: 700,
                 mx: "auto",
@@ -179,41 +160,11 @@ const Home = () => {
                 fontWeight: 400,
               }}
             >
-              Τι θα βρείτε στο εργαστήρι μας
-            </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              component="p"
-              sx={{
-                maxWidth: 700,
-                mx: "auto",
-                lineHeight: 1.6,
-                fontSize: "1.25rem",
-                fontWeight: 400,
-              }}
-            >
-              Χειροποίητα κοσμήματα από ασήμι, ορείχαλκο και άλλα υλικά,
-              σχεδιασμένα με δημιουργικότητα και φροντίδα. Κάθε κομμάτι είναι
-              φτιαγμένο για να σας συνοδεύει καθημερινά και να αναδεικνύει το
-              προσωπικό σας στυλ.
-            </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              component="p"
-              sx={{
-                maxWidth: 700,
-                mx: "auto",
-                lineHeight: 1.6,
-                fontSize: "1.25rem",
-                fontWeight: 400,
-              }}
-            >
-              Μείνετε συντονισμένοι με τις <strong>Ανακοινώσεις</strong> μας για
-              νέες συλλογές και ειδικές προσφορές και δείτε τα{" "}
-              <strong>Νέα</strong> μας για έμπνευση και ιστορίες πίσω από τα
-              κοσμήματα.
+              <ReactMarkdown>
+                {!loading && homeText3
+                  ? homeText3
+                  : "Μείνετε συντονισμένοι με τις **Ανακοινώσεις** μας"}
+              </ReactMarkdown>
             </Typography>
           </Box>
 
