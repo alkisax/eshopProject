@@ -76,8 +76,8 @@ const AdminCommoditiesPanel = () => {
   // }, [location.state, fetchCommodities]);
 
   const fetchPaginatedCommodities = useCallback(async () => {
-    console.log('paginated');
-    
+    console.log("paginated");
+
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
@@ -121,6 +121,8 @@ const AdminCommoditiesPanel = () => {
           // only allow some fields to be updated
           name: data.name,
           description: data.description,
+          details: data.details,
+          tips: data.tips,
           category: data.category,
           price: data.price,
           currency: data.currency,

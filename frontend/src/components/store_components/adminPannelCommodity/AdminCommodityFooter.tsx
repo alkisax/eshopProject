@@ -44,6 +44,8 @@ const AdminCommodityFooter = ({
   const [form, setForm] = useState<{
     name: string;
     description: string;
+    details?: string;
+    tips?: string;
     category: string[];
     price: number;
     currency: string;
@@ -57,6 +59,8 @@ const AdminCommodityFooter = ({
   }>({
     name: commodity.name || "",
     description: commodity.description || "",
+    details: commodity.details || "",
+    tips: commodity.tips || "",
     // ΠΡΟΣΟΧΗ: εδώ πια δουλεύουμε με categories ως λίστα ονομάτων (string[])
     category: (commodity.category as string[]) || [],
     variants: commodity.variants ?? [],
@@ -87,6 +91,8 @@ const AdminCommodityFooter = ({
     setForm({
       name: commodity.name || "",
       description: commodity.description || "",
+      details: commodity.details || "",
+      tips: commodity.tips || "",
       category: (commodity.category as string[]) || [],
       price: commodity.price || 0,
       currency: commodity.currency || "eur",
@@ -263,6 +269,22 @@ const AdminCommodityFooter = ({
                 multiline
                 value={form.description}
                 onChange={(e) => handleChange("description", e.target.value)}
+              />
+
+              <TextField
+                label="Details"
+                size="small"
+                multiline
+                value={form.details}
+                onChange={(e) => handleChange("details", e.target.value)}
+              />
+
+              <TextField
+                label="Tips"
+                size="small"
+                multiline
+                value={form.tips}
+                onChange={(e) => handleChange("tips", e.target.value)}
               />
 
               {/* multiple: πολλές τιμές, freesolo: επιτρέπει να προσθέσεις και τιμές που δεν είναι στην λίστα, options={categoryNameOptions}: η λίστα με τις τιμές μου */}

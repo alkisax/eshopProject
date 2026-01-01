@@ -31,6 +31,8 @@ const AdminAddNewCommodity = () => {
   const [form, setForm] = useState({
     name: "",
     description: "",
+    details: "",
+    tips: "",
     category: [] as string[],
     requiresProcessing: false,
     processingTimeDays: 0,
@@ -125,6 +127,8 @@ const AdminAddNewCommodity = () => {
       const payload: Partial<CommodityType> = {
         name: form.name,
         description: form.description,
+        details: form.details,
+        tips: form.tips,        
         category: categoryNames,
         price: form.price,
         requiresProcessing: form.requiresProcessing,
@@ -198,6 +202,20 @@ const AdminAddNewCommodity = () => {
           onChange={(e) => handleChange("description", e.target.value)}
         />
 
+        <TextField
+          label="Details"
+          multiline
+          value={form.details}
+          onChange={(e) => handleChange("details", e.target.value)}
+        />
+
+        <TextField
+          label="Tips"
+          multiline
+          value={form.tips}
+          onChange={(e) => handleChange("tips", e.target.value)}
+        />
+        
         {/* multiple: πολλές τιμές, freesolo: επιτρέπει να προσθέσεις και τιμές που δεν είναι στην λίστα, opions={nameOptions}: η λίστα με τις τιμές μου, renderInput={(params) => (): κανει ένα Loop  */}
         <Autocomplete
           multiple
