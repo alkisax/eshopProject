@@ -15,7 +15,7 @@ import {
   Typography,
   IconButton,
   useMediaQuery,
-  // Button,
+  Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
@@ -30,9 +30,9 @@ interface StoreSidebarProps {
   selectedCategories: string[];
   onSearch: (query: string) => void;
   onToggleCategory: (category: string, checked: boolean) => void;
-  // onApplyFilters: () => void;
-  // onClearFilters: () => void;
-  // onSemanticSearch: (query: string) => void;
+  onApplyFilters: () => void;
+  onClearFilters: () => void;
+  onSemanticSearch: (query: string) => void;
 }
 
 const StoreSidebar = ({
@@ -41,9 +41,9 @@ const StoreSidebar = ({
   selectedCategories,
   onSearch,
   onToggleCategory,
-  // onApplyFilters,
-  // onClearFilters,
-  // onSemanticSearch,
+  onApplyFilters,
+  onClearFilters,
+  onSemanticSearch,
 }: StoreSidebarProps) => {
   // Είναι React hook από το Material-UI (@mui/material/styles). Σου δίνει πρόσβαση στο theme Το theme είναι κάτι σαν "παγκόσμιο config" για styling. Το ορίζει το ThemeProvider που συνήθως βάζεις γύρω από όλη την app σου. και επειδή εδώ δεν έχουμε είναι default
   const theme = useTheme();
@@ -55,7 +55,7 @@ const StoreSidebar = ({
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(search);
-  // const [semanticQuery, setSemanticQuery] = useState<string>("");
+  const [semanticQuery, setSemanticQuery] = useState<string>("");
 
   // // debounce 1/2
   // // αντι να ψάχνει κάθε φορα που γράφφετε ένα γράμμα έχει ένα μικρό delay
@@ -94,7 +94,7 @@ const StoreSidebar = ({
         sx={{ mb: 2, mt: 8 }}
       />
 
-      {/* <TextField
+      <TextField
         id="semantic-search"
         label="Semantic Search - beta"
         variant="outlined"
@@ -112,7 +112,7 @@ const StoreSidebar = ({
           }
         }}
         sx={{ mb: 2 }}
-      /> */}
+      />
 
       {/* Categories */}
       <Typography id="sidebar-title" variant="subtitle1" sx={{ mb: 1 }}>
@@ -189,7 +189,7 @@ const StoreSidebar = ({
         </div>
 
         {/* pinned bottom buttons */}
-        {/* <div
+        <div
           style={{
             padding: "16px",
             borderTop: "1px solid #ddd",
@@ -226,7 +226,7 @@ const StoreSidebar = ({
           >
             Clear Filters
           </Button>
-        </div> */}
+        </div>
       </Drawer>
     </>
   );
