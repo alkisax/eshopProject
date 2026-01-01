@@ -34,6 +34,7 @@
 - Amount-based checkout
 - vectorise order history
 - sitemap for dynamic pages in backend
+- commodity description/ details /info
 
 # frontend
 - minimal shop ✅
@@ -66,7 +67,7 @@
 - email notification on buy✅
 - admin commodity pannel προβληματική φόρτωση όλων των εμπορευμάτων✅
 - θα θέλαμε το variant να συνδέετε με συγκεκριμένη εικόνα
-- markdown texts in custom
+- markdown texts in custom ✅
 - hero image in custom (also on/off)
 - οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
 
