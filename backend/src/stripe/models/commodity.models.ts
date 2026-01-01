@@ -45,6 +45,9 @@ const variantSchema = new Schema(
     sku: {
       type: String,
     },
+    stripePriceId: {
+      type: String,
+    },
     active: {
       type: Boolean,
       default: true,

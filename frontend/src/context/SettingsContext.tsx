@@ -13,13 +13,15 @@ type Settings = {
   branding?: {
     themeLogo?: string;
     headerFooterLogo?: string;
+    heroImage?: string;
+    isHeroImageActive?: boolean;
   };
   homeTexts?: {
     homeText1?: string;
     homeText2?: string;
     homeText3?: string;
   };
-    companyInfo?: {
+  companyInfo?: {
     companyName?: string;
     vatNumber?: string;
     address?: string;

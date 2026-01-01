@@ -23,6 +23,12 @@ const AdminCustomizationPanel = () => {
   const [headerFooterLogo, setHeaderFooterLogo] = useState(
     settings?.branding?.headerFooterLogo || ""
   );
+  const [heroImage, setHeroImage] = useState(
+    settings?.branding?.heroImage || ""
+  );
+  const [isHeroImageActive, setIsHeroImageActive] = useState(
+    settings?.branding?.isHeroImageActive || false
+  );
   const [recentFiles, setRecentFiles] = useState<string[]>([]);
   const [homeTexts, setHomeTexts] = useState({
     homeText1: settings?.homeTexts?.homeText1 || "",
@@ -64,6 +70,8 @@ const AdminCustomizationPanel = () => {
     if (!settings) return;
     setThemeLogo(settings.branding?.themeLogo || "");
     setHeaderFooterLogo(settings.branding?.headerFooterLogo || "");
+    setHeroImage(settings.branding?.heroImage || "");
+    setIsHeroImageActive(settings.branding?.isHeroImageActive || false);
     setHomeTexts({
       homeText1: settings.homeTexts?.homeText1 || "",
       homeText2: settings.homeTexts?.homeText2 || "",
@@ -120,6 +128,8 @@ const AdminCustomizationPanel = () => {
         branding: {
           themeLogo,
           headerFooterLogo,
+          heroImage,
+          isHeroImageActive,
         },
       },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
@@ -212,10 +222,15 @@ const AdminCustomizationPanel = () => {
           ready={ready}
           onThemeLogoChange={setThemeLogo}
           onHeaderFooterLogoChange={setHeaderFooterLogo}
+          heroImage={heroImage}
+          isHeroImageActive={isHeroImageActive}
           onUploadThemeLogo={(file) => uploadAndSet(file, setThemeLogo)}
           onUploadHeaderFooterLogo={(file) =>
             uploadAndSet(file, setHeaderFooterLogo)
           }
+          onHeroImageChange={setHeroImage}
+          onUploadHeroImage={(file) => uploadAndSet(file, setHeroImage)}
+          onToggleHeroImageActive={setIsHeroImageActive}
           onSave={handleSaveBranding}
         />
       </SettingsSection>

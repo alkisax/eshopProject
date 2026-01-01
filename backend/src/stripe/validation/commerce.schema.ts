@@ -88,6 +88,7 @@ const variantAttributesSchema = z.record(z.string().min(1), z.string().min(1));
 const commodityVariantSchema = z.object({
   attributes: variantAttributesSchema,
   sku: z.string().optional(),
+  stripePriceId: z.string().min(1).optional(),
   active: z.boolean().optional().default(true),
 });
 

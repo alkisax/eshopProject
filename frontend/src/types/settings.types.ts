@@ -3,6 +3,8 @@ export type Settings = {
   branding?: {
     themeLogo?: string;
     headerFooterLogo?: string;
+    heroImage?: string;
+    isHeroImageActive?: boolean;
   };
   homeTexts?: {
     homeText1?: string;

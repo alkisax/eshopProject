@@ -9,6 +9,8 @@ export interface AdminNotificationsSettings {
 export interface BrandingSettings {
   themeLogo?: string;
   headerFooterLogo?: string;
+  heroImage?: string;
+  isHeroImageActive?: boolean;
 }
 
 export interface HomeTextsSettings {
@@ -42,7 +44,7 @@ export interface StaticPagesSettings {
 }
 
 export interface ThemeSettings {
-  primaryColor?: string;   // π.χ. '#008482'
+  primaryColor?: string; // π.χ. '#008482'
   secondaryColor?: string; // π.χ. '#a6ddd8'
 }
 

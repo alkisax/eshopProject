@@ -21,6 +21,8 @@ const brandingSchema = new Schema(
   {
     themeLogo: { type: String },
     headerFooterLogo: { type: String },
+    heroImage: { type: String },
+    isHeroImageActive: { type: Boolean, default: false },
   },
   { _id: false }
 );

@@ -25,6 +25,8 @@ const Home = () => {
   const homeText1 = settings?.homeTexts?.homeText1;
   const homeText2 = settings?.homeTexts?.homeText2;
   const homeText3 = settings?.homeTexts?.homeText3;
+  const heroImage = settings?.branding?.heroImage;
+  const isHeroImageActive = settings?.branding?.isHeroImageActive;
 
   return (
     <>
@@ -52,6 +54,24 @@ const Home = () => {
         }}
       >
         <Container maxWidth="md">
+          {heroImage && isHeroImageActive && (
+            <Paper
+              elevation={0}
+              sx={{
+                mb: 4,
+                overflow: "hidden",
+                borderRadius: 3,
+              }}
+            >
+              <Box
+                component="img"
+                src={heroImage}
+                alt="Hero"
+                sx={{ width: "100%", display: "block" }}
+              />
+            </Paper>
+          )}
+
           {/* Hero Section */}
           <Paper
             elevation={4}
@@ -103,7 +123,7 @@ const Home = () => {
                 <ReactMarkdown>{homeText2}</ReactMarkdown>
               )}
             </Typography>
-            
+
             {/* Buttons */}
             <Stack
               direction="column"

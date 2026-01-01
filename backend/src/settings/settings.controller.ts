@@ -60,13 +60,11 @@ const updateSettings = async (req: Request, res: Response) => {
        * - Π.χ. PATCH { branding: {} }
        */
       if (
-        'themeLogo' in parsed.branding &&       // το field στάλθηκε
-        !parsed.branding.themeLogo &&            // αλλά είναι άδειο
-        currentBranding.themeLogo               // ενώ υπήρχε ήδη
+        'themeLogo' in parsed.branding && // το field στάλθηκε
+        !parsed.branding.themeLogo && // αλλά είναι άδειο
+        currentBranding.themeLogo // ενώ υπήρχε ήδη
       ) {
-        throw new BadRequestError(
-          'themeLogo cannot be removed accidentally'
-        );
+        throw new BadRequestError('themeLogo cannot be removed accidentally');
       }
 
       /**
@@ -86,6 +84,19 @@ const updateSettings = async (req: Request, res: Response) => {
         throw new BadRequestError(
           'headerFooterLogo cannot be removed accidentally'
         );
+      }
+
+      /**
+       * GUARD 3: heroImage
+       *
+       * Προστατεύει το hero image ώστε να μην σβηστεί από μερικό update
+       */
+      if (
+        'heroImage' in parsed.branding &&
+        !parsed.branding.heroImage &&
+        currentBranding.heroImage
+      ) {
+        throw new BadRequestError('heroImage cannot be removed accidentally');
       }
     }
 

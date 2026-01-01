@@ -68,6 +68,7 @@ export interface CommodityVariantType {
   attributes: VariantAttributes;
   stock?: number;
   sku?: string;
+  stripePriceId?: string;
   active?: boolean;
 }
 
