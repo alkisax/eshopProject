@@ -87,6 +87,9 @@ const search = async (req: Request, res: Response) => {
     const pageParam = req.query.page;
     const limitParam = req.query.limit;
 
+    // το πρόβλημα που είχαμε είναι οτι θέλουμε να μην φαίνονται τα inactive στο κατάστημα αλλά θέλουμε να φαίνονται τα inactive στο admin panel, οπότε το αλλάζουμε ωστε να παίρνει και αυτή την παράμετρο που θα έρχετε απο το front (η αλλάγή αφορά και το dao και το πως το καλούμε)
+    const includeInactive = req.query.includeInactive === 'true';
+
     // απο το query μου έρχονται όλα σε string
     if (typeof pageParam === 'string') {
       const parsed = Number(pageParam);
@@ -129,6 +132,7 @@ const search = async (req: Request, res: Response) => {
       limit,
       search,
       categories,
+      includeInactive,
     });
 
     // --- response ---
