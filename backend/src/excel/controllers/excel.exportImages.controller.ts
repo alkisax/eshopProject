@@ -17,10 +17,10 @@ export const exportProductImagesZip = async (_req: Request, res: Response) => {
     const archive = archiver('zip', { zlib: { level: 9 } });
     archive.pipe(res);
 
-    const VALID_PREFIX = 'https://cloud.appwrite.io/v1/storage/buckets/';
-
     for (const p of products) {
-      if (!p.images?.length) { continue; }
+      if (!p.images?.length) {
+        continue;
+      }
 
       const folder =
         p.slug?.trim() ||
@@ -30,8 +30,11 @@ export const exportProductImagesZip = async (_req: Request, res: Response) => {
       for (let i = 0; i < p.images.length; i++) {
         const url = p.images[i];
 
-        // 1) Ignore invalid URLs (like ".../bucketts/")
-        if (!url.startsWith(VALID_PREFIX)) {
+        // 1) Ignore invalid URLs
+        if (
+          typeof url !== 'string' ||
+          (!url.startsWith('http://') && !url.startsWith('https://'))
+        ) {
           archive.append(`INVALID URL (skipped): ${url}`, {
             name: `${folder}/ERROR_${i + 1}.txt`,
           });

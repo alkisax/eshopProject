@@ -124,15 +124,24 @@ curl https://haveanidea.gr/api/ping
 # one line deploy
 - για sync main και client:
 ```bash
+# 1. δουλεύουμε στο wip
+git checkout wip
+git add .
+git commit -m 'wip: ___'
+git push origin wip
+# 2. συγχρονίζουμε main = wip
 git checkout main
 git pull origin main
 git merge wip
 git push origin main
-git push client main
-git checkout wip
-```
-- για sync main και client/main:
-```bash
+# 3. βρίσκουμε commit για client
+git log --oneline -5
+# 4. cherry-pick στο clients/eleni
+git checkout clients/eleni
+git pull origin clients/eleni
+git cherry-pick <COMMIT_HASH>
+git push origin clients/eleni
+# 5. sync client repo main = clients/eleni
 git push client clients/eleni:main
 ```
 - 
