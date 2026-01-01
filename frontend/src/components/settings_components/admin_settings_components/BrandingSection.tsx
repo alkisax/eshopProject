@@ -6,29 +6,41 @@ import {
   Stack,
   TextField,
   Autocomplete,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 
 type Props = {
   themeLogo: string;
   headerFooterLogo: string;
+  heroImage: string;
+  isHeroImageActive: boolean;
   recentFiles: string[];
   ready: boolean;
   onThemeLogoChange: (v: string) => void;
   onHeaderFooterLogoChange: (v: string) => void;
+  onHeroImageChange: (v: string) => void;
   onUploadThemeLogo: (file: File) => void;
   onUploadHeaderFooterLogo: (file: File) => void;
+  onUploadHeroImage: (file: File) => void;
+  onToggleHeroImageActive: (value: boolean) => void;
   onSave: () => void;
 };
 
 const BrandingSection = ({
   themeLogo,
   headerFooterLogo,
+  heroImage,
+  isHeroImageActive,
   recentFiles,
   ready,
   onThemeLogoChange,
   onHeaderFooterLogoChange,
+  onHeroImageChange,
   onUploadThemeLogo,
   onUploadHeaderFooterLogo,
+  onUploadHeroImage,
+  onToggleHeroImageActive,
   onSave,
 }: Props) => {
   return (
@@ -90,8 +102,7 @@ const BrandingSection = ({
           accept="image/*"
           disabled={!ready}
           onChange={(e) =>
-            e.target.files?.[0] &&
-            onUploadHeaderFooterLogo(e.target.files[0])
+            e.target.files?.[0] && onUploadHeaderFooterLogo(e.target.files[0])
           }
         />
 
@@ -103,6 +114,51 @@ const BrandingSection = ({
               height: 60,
               maxWidth: "100%",
               objectFit: "contain",
+            }}
+          />
+        )}
+
+                {/* HERO IMAGE */}
+        <Typography variant="subtitle1">Hero Image</Typography>
+
+        <FormControlLabel
+          control={
+            <Switch
+              checked={isHeroImageActive}
+              onChange={(e) => onToggleHeroImageActive(e.target.checked)}
+            />
+          }
+          label={isHeroImageActive ? "Hero ενεργό" : "Hero ανενεργό"}
+        />
+
+        <Autocomplete
+          freeSolo
+          options={recentFiles}
+          value={heroImage}
+          onChange={(_, v) => onHeroImageChange(v || "")}
+          renderInput={(params) => (
+            <TextField {...params} label="Hero Image URL" size="small" />
+          )}
+        />
+
+        <input
+          type="file"
+          accept="image/*"
+          disabled={!ready}
+          onChange={(e) =>
+            e.target.files?.[0] && onUploadHeroImage(e.target.files[0])
+          }
+        />
+
+        {heroImage && (
+          <img
+            src={heroImage}
+            alt="Hero preview"
+            style={{
+              width: "100%",
+              maxHeight: 240,
+              objectFit: "cover",
+              borderRadius: 8,
             }}
           />
         )}

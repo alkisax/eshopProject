@@ -9,6 +9,8 @@ export const adminNotificationsSchema = z.object({
 export const brandingSchema = z.object({
   themeLogo: z.url().optional(),
   headerFooterLogo: z.url().optional(),
+  heroImage: z.url().optional(),
+  isHeroImageActive: z.boolean().optional(),
 });
 
 export const homeTextsSchema = z.object({
@@ -65,4 +67,3 @@ export const createSettingsSchema = z.object({
   staticPages: staticPagesSchema.optional(),
   theme: themeSchema.optional(),
 });
-

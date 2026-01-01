@@ -34,7 +34,7 @@
 - Amount-based checkout
 - vectorise order history
 - sitemap for dynamic pages in backend
-- commodity description/ details /info
+- commodity description/ details /info ✅
 
 # frontend
 - minimal shop ✅
