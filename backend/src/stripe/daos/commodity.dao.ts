@@ -168,11 +168,13 @@ const searchCommodities = async ({
   limit, // πόσα προϊόντα δείχνουμε ανά σελίδα
   search,
   categories,
+  includeInactive,
 }: {
   page: number;
   limit: number;
   search?: string;
   categories?: string[];
+  includeInactive?: boolean;
 }): Promise<{
   items: CommodityType[];
   total: number;
@@ -181,7 +183,11 @@ const searchCommodities = async ({
 }> => {
   // επειδή δεν ξέρουμε αν θα είναι search bar, category filter ή και τα δύο, φτιάχνουμε την μεταβλητή filter που αργότερα θα μπεί μέσα στην αναζήτηση στην εντολή της mongo. Ειναι type unknown γιατι θα είναι παραμέτροι query της mongo
   //  Αν υπάρχουν ΚΑΙ categories ΚΑΙ search, το filter γίνεται: { category: { $in: ["Silver", "Gold"] }, name: { $regex: "ring", $options: "i" } }
-  const filter: Record<string, unknown> = { active: true };
+  const filter: Record<string, unknown> = {};
+
+  if (!includeInactive) {
+    filter.active = true;
+  }  
 
   // 📌 category filtering
   // normalize('NFC') → λύνει πρόβλημα με ελληνικούς χαρακτήρες που μπορεί να σταλούν σε διαφορετική unicode μορφή (π.χ. τα τονισμένα γράμματα. Έτσι "Σκουλαρίκια" από browser και DB θα συγκρίνονται 100% ίδια.
