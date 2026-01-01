@@ -55,6 +55,8 @@ export const exportProductsToExcel = async (_req: Request, res: Response) => {
       // επειδή μπορεί να έχει πολλά variants με διαφορετικά attributes (πχ size=S|color=red ; size=M|color=blue) δεν αρκεί μια απλή csv μορφή
       variants: formatVariantsForExcel(p.variants),
       description: p.description,
+      details: p.details ?? '',
+      tips: p.tips ?? '',
       category: Array.isArray(p.category) ? p.category.join(', ') : '',
       price: p.price,
       stock: p.stock,

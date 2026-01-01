@@ -43,6 +43,8 @@ export interface CommodityType {
   slug?: string;
   name: string;
   description?: string;
+  details?: string;
+  tips?: string;
   category: string | string[] | { _id: string; name: string; slug: string };
   price: number;
   currency: string;

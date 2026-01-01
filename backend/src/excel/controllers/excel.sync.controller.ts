@@ -109,6 +109,8 @@ export const syncProductsFromExcel = async (req: Request, res: Response) => {
         const updateData: Partial<CommodityType> = {
           name: product.name,
           description: product.description,
+          details: product.details,
+          tips: product.tips,
           category: product.category,
           price: product.price,
           stock: product.stock,
@@ -130,6 +132,8 @@ export const syncProductsFromExcel = async (req: Request, res: Response) => {
         const hasChanged =
           existing.name !== updateData.name ||
           existing.description !== updateData.description ||
+          existing.details !== updateData.details ||
+          existing.tips !== updateData.tips ||
           JSON.stringify(existing.category) !==
             JSON.stringify(updateData.category) ||
           variantsChanged ||
