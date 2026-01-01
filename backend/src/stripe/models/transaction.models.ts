@@ -58,6 +58,11 @@ const transactionSchema = new Schema(
       required: [true, 'amount is required'],
     },
     shipping: shippingSchema,
+    status: {
+      type: String,
+      enum: ['pending', 'confirmed', 'shipped'],
+      default: 'pending',
+    },
     processed: {
       type: Boolean,
       default: false,

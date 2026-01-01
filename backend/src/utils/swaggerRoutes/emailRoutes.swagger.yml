@@ -1,16 +1,20 @@
 openapi: 3.1.0
 info:
   title: Email API
-  version: 1.0.0
-  description: Routes for sending transactional emails (e.g. donation thank you).
+  version: 1.1.0
+  description: >
+    Routes for sending transactional emails related to orders
+    (order confirmation, shipping notification).
 
 paths:
   /api/email/{transactionId}:
     post:
-      summary: Send thank you email
+      summary: Send order confirmation email
       description: >
-        Sends a thank you email to the participant associated with the given transaction ID.  
-        Requires that the transaction exists and is linked to a participant with a valid email.
+        Sends an order confirmation email to the participant associated
+        with the given transaction ID.
+        This email is typically triggered when an order moves from
+        pending to confirmed.
       tags:
         - Email
       parameters:
@@ -19,10 +23,23 @@ paths:
           required: true
           schema:
             type: string
-          description: The ID of the transaction whose participant will receive the email.
+          description: The ID of the transaction whose participant will receive the confirmation email.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                emailSubject:
+                  type: string
+                  example: Order confirmed
+                emailTextBody:
+                  type: string
+                  example: Your order has been confirmed and is being processed.
       responses:
         "200":
-          description: Email successfully sent
+          description: Confirmation email successfully sent
           content:
             application/json:
               schema:
@@ -36,32 +53,31 @@ paths:
                     description: Nodemailer response object
         "400":
           description: Missing or invalid transaction ID
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: false
-                  error:
-                    type: string
-                    example: "Missing transaction ID"
         "404":
           description: Transaction or participant not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: false
-                  error:
-                    type: string
-                    example: "Transaction does not exist"
         "500":
-          description: Server error when sending email
+          description: Server error when sending confirmation email
+
+  /api/email/shipped/{transactionId}:
+    post:
+      summary: Send order shipped email
+      description: >
+        Sends a shipping notification email to the participant associated
+        with the given transaction ID.
+        This email is typically triggered when an order moves from
+        confirmed to shipped.
+      tags:
+        - Email
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          schema:
+            type: string
+          description: The ID of the transaction whose participant will receive the shipped email.
+      responses:
+        "200":
+          description: Shipping email successfully sent
           content:
             application/json:
               schema:
@@ -69,7 +85,13 @@ paths:
                 properties:
                   status:
                     type: boolean
-                    example: false
-                  error:
-                    type: string
-                    example: "Thnx email Internal server error"
+                    example: true
+                  data:
+                    type: object
+                    description: Nodemailer response object
+        "400":
+          description: Missing or invalid transaction ID
+        "404":
+          description: Transaction or participant not found
+        "500":
+          description: Server error when sending shipped email

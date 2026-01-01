@@ -68,8 +68,9 @@
 - admin commodity pannel προβληματική φόρτωση όλων των εμπορευμάτων✅
 - θα θέλαμε το variant να συνδέετε με συγκεκριμένη εικόνα
 - markdown texts in custom ✅
-- hero image in custom (also on/off)
+- hero image in custom (also on/off) ✅
 - οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
+- πρσθήκη custom emails
 
 προτάσεις
 - 1. Order state machine pending → paid → packed → shipped → delivered
@@ -124,13 +125,26 @@ tab me iframe απο looker studio και ga4 σε εμφάνιση προιόν
 
 είναι deploy στο Hetzner με domain απο namecheap
 
-- συγχρονισμός του δικού μου main και του πελάτη
+- συγχρονισμός του δικού μου wip και του πελάτη
 ```bash
+git checkout wip
+git add .
+git commit -m 'wip: ___'
+git push origin wip
+# 2. συγχρονίζουμε main = wip
 git checkout main
 git pull origin main
 git merge wip
 git push origin main
-git push client main
+# 3. βρίσκουμε commit για client
+git log --oneline -5
+# 4. cherry-pick στο clients/eleni
+git checkout clients/eleni
+git pull origin clients/eleni
+git cherry-pick <COMMIT_HASH>
+git push origin clients/eleni
+# 5. sync client repo main = clients/eleni
+git push client clients/eleni:main
 git checkout wip
 ```
 

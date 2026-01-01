@@ -22,6 +22,7 @@ import {
   ListItemText,
   Box,
 } from "@mui/material";
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
 import type {
@@ -78,6 +79,26 @@ const AdminTransactionsPanel = () => {
     } catch (err) {
       console.error("Error toggling transaction:", err);
     }
+  };
+
+  const markConfirmed = async (transactionId: string) => {
+    const token = localStorage.getItem("token");
+    await axios.post(
+      `${url}/api/transaction/confirm/${transactionId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    fetchTransactions();
+  };
+
+  const markShipped = async (transactionId: string) => {
+    const token = localStorage.getItem("token");
+    await axios.post(
+      `${url}/api/transaction/ship/${transactionId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    fetchTransactions();
   };
 
   const mailCreator = (transaction: TransactionType) => {
@@ -209,7 +230,32 @@ const AdminTransactionsPanel = () => {
                           : ""}
                       </TableCell>
                       <TableCell>
-                        <Button
+                        {t.status === "pending" && (
+                          <Button
+                            size="small"
+                            color="primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markConfirmed(t._id!.toString());
+                            }}
+                          >
+                            Confirm & Send Email
+                          </Button>
+                        )}
+
+                        {t.status === "confirmed" && (
+                          <Button
+                            size="small"
+                            color="success"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markShipped(t._id!.toString());
+                            }}
+                          >
+                            Mark Shipped
+                          </Button>
+                        )}
+                        {/* <Button
                           variant={t.processed ? "outlined" : "contained"}
                           color={t.processed ? "warning" : "success"}
                           size="small"
@@ -221,7 +267,20 @@ const AdminTransactionsPanel = () => {
                           {t.processed
                             ? "Mark Unprocessed"
                             : "Send Email & Mark Processed"}
-                        </Button>
+                        </Button> */}
+                        {t.processed && (
+                          <Button
+                            size="small"
+                            color="warning"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markProcessed(t._id!.toString(), t);
+                            }}
+                            title="DEV: reset transaction to pending"
+                          >
+                            <RestartAltIcon fontSize="small" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   );
