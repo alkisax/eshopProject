@@ -88,6 +88,7 @@ const AdminCommoditiesPanel = () => {
           page: currentPage,
           limit: ITEMS_PER_PAGE,
           search: search || undefined,
+          includeInactive: true,
         },
       });
 
