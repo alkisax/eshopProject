@@ -205,10 +205,12 @@ const AdminCommodityFooter = ({
     };
 
     // CRITICAL: strip price fields if variants exist
-    if (normalizedVariants.length > 0) {
-      delete payload.price;
-      delete payload.stripePriceId;
-    }
+    // TEMP: allow shared price even with variants
+    // TODO: αργότερα θα πρέπει η τιμή να αφορά τα variants και οχι το commodity
+    // if (normalizedVariants.length > 0) {
+    //   delete payload.price;
+    //   delete payload.stripePriceId;
+    // }
 
     onSave(commodity._id!, payload);
 
