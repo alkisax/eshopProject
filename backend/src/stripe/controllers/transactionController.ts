@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // backend\src\stripe\controllers\transactionController.ts
 import type { Request, Response } from 'express';
 import { transactionDAO } from '../daos/transaction.dao';
@@ -93,6 +94,7 @@ const findByParticipant = async (req: Request, res: Response) => {
   }
 };
 
+// έχει αλλάξει η λογική μας και πια δεν έχουμε μόνο state processed true/false αλλά pending/confirmed/shipped=processed. Εδώ την αφήνουμε οπως είναι γιατί θα την χρησιμοποιούμε όσο είμαστε σε dev διαδικασία για να μπορέσουμε να γυρίσουμε στην αρχική μας κατάσταση processed: false, status: pending
 // αυτή είναι σημαντική γιατί στέλνει αυτόματα το email
 const toggleProcessed = async (req: Request, res: Response) => {
   const transactionId = req.params.id;
@@ -124,6 +126,66 @@ const toggleProcessed = async (req: Request, res: Response) => {
       });
 
     return res.status(200).json({ status: true, data: updatedTransaction });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+const markConfirmed = async (req: Request, res: Response) => {
+  const transactionId = req.params.id;
+
+  if (!transactionId) {
+    return res.status(400).json({
+      status: false,
+      message: 'transaction ID is required',
+    });
+  }
+
+  try {
+    const updatedTransaction = await transactionDAO.markTransactionConfirmed(
+      transactionId
+    );
+
+    // 📧 Email: ORDER CONFIRMED
+    axios
+      .post(`${BACKEND_URL}/api/email/${transactionId}`, req.body || {})
+      .catch((err) => {
+        console.error('Confirmed email failed', err.message);
+      });
+
+    return res.status(200).json({
+      status: true,
+      data: updatedTransaction,
+    });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+const markShipped = async (req: Request, res: Response) => {
+  const transactionId = req.params.id;
+
+  if (!transactionId) {
+    return res.status(400).json({
+      status: false,
+      message: 'transaction ID is required',
+    });
+  }
+
+  try {
+    const updatedTransaction = await transactionDAO.markShipped(transactionId);
+
+    // 📧 Email: ORDER SHIPPED
+    axios
+      .post(`${BACKEND_URL}/api/email/shipped/${transactionId}`)
+      .catch((err) => {
+        console.error('Shipped email failed', err.message);
+      });
+
+    return res.status(200).json({
+      status: true,
+      data: updatedTransaction,
+    });
   } catch (error) {
     return handleControllerError(res, error);
   }
@@ -178,6 +240,8 @@ export const transactionController = {
   findUnprocessed,
   findByParticipant,
   toggleProcessed,
+  markConfirmed,
+  markShipped,
   deleteById,
   deleteOldProcessedTransactions,
 };

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import mongoose from 'mongoose';
 import Transaction from '../models/transaction.models';
 import Participant from '../models/participant.models';
@@ -129,6 +130,7 @@ const createTransaction = async (
       amount,
       shipping: shipping || {},
       sessionId,
+      status: 'pending',
       processed: false,
     });
 
@@ -236,6 +238,62 @@ const findTransactionsByProcessed = async (
   return response;
 };
 
+const markTransactionConfirmed = async (
+  transactionId: string
+): Promise<TransactionType> => {
+  const transaction = await Transaction.findById(transactionId);
+  if (!transaction) {
+    throw new NotFoundError('Transaction not found');
+  }
+
+  if (transaction.status !== 'pending') {
+    throw new ValidationError(
+      `Cannot confirm transaction in status ${transaction.status}`
+    );
+  }
+
+  transaction.status = 'confirmed';
+  transaction.processed = false;
+
+  await transaction.save();
+
+  const populated = await Transaction.findById(transactionId)
+    .populate('participant')
+    .populate('items.commodity');
+
+  if (!populated) {
+    throw new NotFoundError('Transaction not found after update');
+  }
+
+  return populated;
+};
+
+const markShipped = async (transactionId: string): Promise<TransactionType> => {
+  const transaction = await Transaction.findById(transactionId);
+  if (!transaction) {
+    throw new NotFoundError('Transaction not found');
+  }
+
+  if (transaction.status !== 'confirmed') {
+    throw new ValidationError('Only confirmed transactions can be shipped');
+  }
+
+  transaction.status = 'shipped';
+  transaction.processed = true; // legacy sync
+
+  await transaction.save();
+
+  const populated = await Transaction.findById(transactionId)
+    .populate('participant')
+    .populate('items.commodity');
+
+  if (!populated) {
+    throw new NotFoundError('Transaction not found after update');
+  }
+
+  return populated;
+};
+
 // Update a transaction (επιτρέπετε μόνο το toggle του processed γιατι είναι απόδειξη αγοράς)
 const updateTransactionById = async (
   transactionId: string | Types.ObjectId,
@@ -249,19 +307,34 @@ const updateTransactionById = async (
       );
     }
 
-    const updated = await Transaction.findByIdAndUpdate(
-      transactionId,
-      { processed: updateData.processed },
-      { new: true, runValidators: true }
-    )
-      .populate('participant')
-      .populate('items.commodity');
-
-    if (!updated) {
+    const transaction = await Transaction.findById(transactionId);
+    if (!transaction) {
       throw new NotFoundError('Transaction not found');
     }
 
-    return updated;
+    // 🔁 TOGGLE LOGIC
+    if (transaction.processed === true && updateData.processed === false) {
+      // ⏪ FULL RESET
+      transaction.processed = false;
+      transaction.status = 'pending';
+    } else if (
+      transaction.processed === false &&
+      updateData.processed === true
+    ) {
+      transaction.processed = true;
+    }
+
+    await transaction.save();
+
+    const populated = await Transaction.findById(transactionId)
+      .populate('participant')
+      .populate('items.commodity');
+
+    if (!populated) {
+      throw new NotFoundError('Transaction not found after update');
+    }
+
+    return populated;
   } catch (err: unknown) {
     if (err instanceof Error && err.name === 'ValidationError') {
       throw new ValidationError(err.message);
@@ -355,6 +428,8 @@ export const transactionDAO = {
   createTransaction,
   deleteTransactionById,
   deleteOldProcessedTransactions,
+  markTransactionConfirmed,
+  markShipped,
   updateTransactionById,
   findTransactionsByProcessed,
   findByParticipantId,

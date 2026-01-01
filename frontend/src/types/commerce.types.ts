@@ -11,7 +11,13 @@ export interface ParticipantType {
   updatedAt?: Date;
 }
 
+type TransactionStatus =
+  | "pending" // μόλις δημιουργήθηκε από Stripe
+  | "confirmed" // ο admin την είδε + έστειλε email
+  | "shipped"; // στάλθηκε πραγματικά
+
 export interface TransactionType {
+  status: TransactionStatus;
   _id: string;
   participant: string | ParticipantType;
   items: CartItemType[];

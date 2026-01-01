@@ -14,16 +14,23 @@ export interface ParticipantType {
 }
 
 export interface TransactionItemType {
-  commodity: Types.ObjectId | string | CommodityType;
-  variantId?: Types.ObjectId | string;   // ✅ new
   quantity: number;
+  commodity: Types.ObjectId | string | CommodityType;
+  variantId?: Types.ObjectId | string;
   priceAtPurchase: number;
 }
+
+type TransactionStatus =
+  | 'pending'      // μόλις δημιουργήθηκε από Stripe
+  | 'confirmed'    // ο admin την είδε + έστειλε email
+  | 'shipped';     // στάλθηκε πραγματικά
+
 export interface TransactionType extends Document {
   _id: Types.ObjectId;
   participant: Types.ObjectId | string | ParticipantType; // links to Participant
   items: TransactionItemType[];
   amount: number; // total
+  status?: TransactionStatus;
   processed?: boolean;
   cancelled?: boolean;
   sessionId?: string;

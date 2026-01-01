@@ -8,7 +8,11 @@ import Participant from '../models/participant.models';
 import Commodity from '../models/commodity.models';
 import Cart from '../models/cart.models';
 import { transactionDAO } from '../daos/transaction.dao';
-import { NotFoundError, ValidationError, DatabaseError } from '../../utils/error/errors.types';
+import {
+  NotFoundError,
+  ValidationError,
+  DatabaseError,
+} from '../../utils/error/errors.types';
 // import { DatabaseError } from '../types/errors.types';
 
 beforeAll(async () => {
@@ -41,7 +45,7 @@ describe('transactionDAO', () => {
       name: 'TxUser',
       surname: 'Test',
       email: `txuser_${Date.now()}@example.com`,
-      transactions: []
+      transactions: [],
     });
     participantId = participant._id.toString();
 
@@ -85,19 +89,28 @@ describe('transactionDAO', () => {
   it('should throw ValidationError if cart is empty', async () => {
     await Cart.deleteMany({});
     await expect(
-      transactionDAO.createTransaction(participantId, `test-session-${Date.now()}`)
+      transactionDAO.createTransaction(
+        participantId,
+        `test-session-${Date.now()}`
+      )
     ).rejects.toBeInstanceOf(ValidationError);
   });
 
   it('should find all transactions', async () => {
-    await transactionDAO.createTransaction(participantId, `test-session-${Date.now()}`);
+    await transactionDAO.createTransaction(
+      participantId,
+      `test-session-${Date.now()}`
+    );
     const all = await transactionDAO.findAllTransactions();
     expect(Array.isArray(all)).toBe(true);
     expect(all.length).toBeGreaterThan(0);
   });
 
   it('should find transaction by id', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `test-session-${Date.now()}`);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `test-session-${Date.now()}`
+    );
     const found = await transactionDAO.findTransactionById(tx._id.toString());
     expect(found._id.toString()).toBe(tx._id.toString());
   });
@@ -109,20 +122,36 @@ describe('transactionDAO', () => {
   });
 
   it('should find transactions by processed status', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `test-session-${Date.now()}`);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `test-session-${Date.now()}`
+    );
     const unprocessed = await transactionDAO.findTransactionsByProcessed(false);
-    expect(unprocessed.map(t => t._id.toString())).toContain(tx._id.toString());
+    expect(unprocessed.map((t) => t._id.toString())).toContain(
+      tx._id.toString()
+    );
   });
 
   it('should toggle processed status with updateTransactionById', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `test-session-${Date.now()}`);
-    const updated = await transactionDAO.updateTransactionById(tx._id.toString(), { processed: true });
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `test-session-${Date.now()}`
+    );
+    const updated = await transactionDAO.updateTransactionById(
+      tx._id.toString(),
+      { processed: true }
+    );
     expect(updated.processed).toBe(true);
   });
 
   it('should soft delete a transaction', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `test-session-${Date.now()}`);
-    const deleted = await transactionDAO.deleteTransactionById(tx._id.toString());
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `test-session-${Date.now()}`
+    );
+    const deleted = await transactionDAO.deleteTransactionById(
+      tx._id.toString()
+    );
     expect(deleted.cancelled).toBe(true);
   });
 
@@ -153,22 +182,34 @@ describe('transactionDAO', () => {
   });
 
   it('should throw ValidationError if trying to update immutable fields', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `sess-${Date.now()}`
+    );
     await expect(
       transactionDAO.updateTransactionById(tx._id, { amount: 999 })
     ).rejects.toBeInstanceOf(ValidationError);
   });
 
   it('should throw NotFoundError if participant does not exist when adding transaction', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `sess-${Date.now()}`
+    );
     await expect(
-      transactionDAO.addTransactionToParticipant('507f1f77bcf86cd799439011', tx._id)
+      transactionDAO.addTransactionToParticipant(
+        '507f1f77bcf86cd799439011',
+        tx._id
+      )
     ).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it('should throw NotFoundError if transaction does not exist when adding', async () => {
     await expect(
-      transactionDAO.addTransactionToParticipant(participantId, '507f1f77bcf86cd799439011')
+      transactionDAO.addTransactionToParticipant(
+        participantId,
+        '507f1f77bcf86cd799439011'
+      )
     ).rejects.toBeInstanceOf(NotFoundError);
   });
   // **
@@ -176,7 +217,10 @@ describe('transactionDAO', () => {
 
   it('should throw NotFoundError if participant does not exist when creating transaction', async () => {
     await expect(
-      transactionDAO.createTransaction(new mongoose.Types.ObjectId().toString(), `sess-${Date.now()}`)
+      transactionDAO.createTransaction(
+        new mongoose.Types.ObjectId().toString(),
+        `sess-${Date.now()}`
+      )
     ).rejects.toBeInstanceOf(NotFoundError);
   });
 
@@ -191,18 +235,22 @@ describe('transactionDAO', () => {
     });
 
     // Mock Transaction.save to throw
-    const spy = jest.spyOn(Transaction.prototype, 'save').mockRejectedValue(new Error('boom'));
+    const spy = jest
+      .spyOn(Transaction.prototype, 'save')
+      .mockRejectedValue(new Error('boom'));
 
     await expect(
       transactionDAO.createTransaction(participantId, `sess-${Date.now()}`)
-    ).rejects.toBeInstanceOf(DatabaseError);   // now consistent
+    ).rejects.toBeInstanceOf(DatabaseError); // now consistent
 
     spy.mockRestore();
   });
 
   it('should throw NotFoundError when updateTransactionById cannot find transaction', async () => {
     await expect(
-      transactionDAO.updateTransactionById('507f1f77bcf86cd799439011', { processed: true })
+      transactionDAO.updateTransactionById('507f1f77bcf86cd799439011', {
+        processed: true,
+      })
     ).rejects.toBeInstanceOf(NotFoundError);
   });
 
@@ -220,8 +268,13 @@ describe('transactionDAO', () => {
   // });
 
   it('should throw NotFoundError if Participant.findByIdAndUpdate returns null in addTransactionToParticipant', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
-    const spy = jest.spyOn(Participant, 'findByIdAndUpdate').mockResolvedValueOnce(null);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `sess-${Date.now()}`
+    );
+    const spy = jest
+      .spyOn(Participant, 'findByIdAndUpdate')
+      .mockResolvedValueOnce(null);
 
     await expect(
       transactionDAO.addTransactionToParticipant(participantId, tx._id)
@@ -231,12 +284,15 @@ describe('transactionDAO', () => {
   });
 
   it('should throw DatabaseError if updateTransactionById fails unexpectedly', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `sess-${Date.now()}`
+    );
 
-    // Mock findByIdAndUpdate to return a query object with .exec() that rejects
-    const spy = jest.spyOn(Transaction, 'findByIdAndUpdate').mockReturnValueOnce({
-      exec: () => Promise.reject(new Error('boom'))
-    } as unknown as ReturnType<typeof Transaction.findByIdAndUpdate>);
+    // 🔥 mock save() to throw
+    const spy = jest
+      .spyOn(Transaction.prototype, 'save')
+      .mockRejectedValueOnce(new Error('boom'));
 
     await expect(
       transactionDAO.updateTransactionById(tx._id, { processed: true })
@@ -246,12 +302,17 @@ describe('transactionDAO', () => {
   });
 
   it('should throw DatabaseError if deleteTransactionById fails unexpectedly', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `sess-${Date.now()}`
+    );
 
     // Same trick for delete
-    const spy = jest.spyOn(Transaction, 'findByIdAndUpdate').mockReturnValueOnce({
-      exec: () => Promise.reject(new Error('boom'))
-    } as unknown as ReturnType<typeof Transaction.findByIdAndUpdate>);
+    const spy = jest
+      .spyOn(Transaction, 'findByIdAndUpdate')
+      .mockReturnValueOnce({
+        exec: () => Promise.reject(new Error('boom')),
+      } as unknown as ReturnType<typeof Transaction.findByIdAndUpdate>);
 
     await expect(
       transactionDAO.deleteTransactionById(tx._id)
@@ -300,7 +361,9 @@ describe('transactionDAO', () => {
     // Spy on Transaction.save and force a Mongoose-style validation error
     const err = new Error('bad mongoose validation');
     err.name = 'ValidationError';
-    const spy = jest.spyOn(Transaction.prototype, 'save').mockRejectedValueOnce(err);
+    const spy = jest
+      .spyOn(Transaction.prototype, 'save')
+      .mockRejectedValueOnce(err);
 
     await expect(
       transactionDAO.createTransaction(participantId, `sess-${Date.now()}`)
@@ -311,7 +374,10 @@ describe('transactionDAO', () => {
 
   it('should rethrow as ValidationError if Mongoose throws ValidationError in addTransactionToParticipant', async () => {
     // Arrange: valid participant + transaction
-    const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `sess-${Date.now()}`
+    );
 
     const err = new Error('fake mongoose validation');
     err.name = 'ValidationError';
@@ -330,7 +396,10 @@ describe('transactionDAO', () => {
 
   it('should rethrow as ValidationError if Mongoose throws ValidationError in addTransactionToParticipant', async () => {
     // Arrange: valid participant + transaction
-    const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `sess-${Date.now()}`
+    );
 
     const err = new Error('fake mongoose validation');
     err.name = 'ValidationError';
@@ -349,7 +418,10 @@ describe('transactionDAO', () => {
 
   it('should throw DatabaseError if addTransactionToParticipant fails unexpectedly', async () => {
     // Arrange: valid participant + transaction
-    const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `sess-${Date.now()}`
+    );
 
     const spy = jest
       .spyOn(Participant, 'findByIdAndUpdate')
@@ -364,9 +436,14 @@ describe('transactionDAO', () => {
   });
 
   it('should throw DatabaseError if findByIdAndUpdate returns null in deleteTransactionById', async () => {
-    const tx = await transactionDAO.createTransaction(participantId, `sess-${Date.now()}`);
+    const tx = await transactionDAO.createTransaction(
+      participantId,
+      `sess-${Date.now()}`
+    );
 
-    const spy = jest.spyOn(Transaction, 'findByIdAndUpdate').mockResolvedValueOnce(null);
+    const spy = jest
+      .spyOn(Transaction, 'findByIdAndUpdate')
+      .mockResolvedValueOnce(null);
 
     await expect(
       transactionDAO.deleteTransactionById(tx._id)
@@ -374,6 +451,4 @@ describe('transactionDAO', () => {
 
     spy.mockRestore();
   });
-
-
 });

@@ -1,3 +1,5 @@
+// src/stripe/__tests__/email.test.ts
+
 // ✅ Fake env vars at top
 process.env.EMAIL_USER = 'test@mock.com';
 process.env.EMAIL_PASS = 'mockpassword';
@@ -8,9 +10,8 @@ import request from 'supertest';
 import express from 'express';
 import emailRoutes from '../routes/email.routes';
 import { transactionDAO } from '../daos/transaction.dao';
-// import nodemailer from 'nodemailer';
 
-// ✅ single consistent mock
+// ✅ single consistent nodemailer mock
 const mockSendMail = jest.fn();
 jest.mock('nodemailer', () => ({
   createTransport: jest.fn(() => ({
@@ -24,20 +25,36 @@ const app = express();
 app.use(express.json());
 app.use('/api/email', emailRoutes);
 
+// ✅ FULL realistic mock transaction
+const mockTransaction = {
+  _id: 'mockTransactionId',
+  participant: {
+    _id: 'mockParticipantId',
+    email: 'test@example.com',
+    name: 'John Doe',
+  },
+  items: [
+    {
+      quantity: 2,
+      priceAtPurchase: 10,
+      commodity: {
+        _id: 'mockCommodityId',
+        name: 'Test Product',
+      },
+    },
+  ],
+  amount: 20,
+};
+
 describe('POST /api/email/:transactionId', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('should send thank you email successfully', async () => {
-    (transactionDAO.findTransactionById as jest.Mock).mockResolvedValue({
-      _id: 'mockTransactionId',
-      participant: {
-        _id: 'mockParticipantId',
-        email: 'test@example.com',
-        name: 'John Doe',
-      },
-    });
+    (transactionDAO.findTransactionById as jest.Mock).mockResolvedValue(
+      mockTransaction
+    );
 
     mockSendMail.mockResolvedValue({
       accepted: ['test@example.com'],
@@ -47,26 +64,14 @@ describe('POST /api/email/:transactionId', () => {
 
     const res = await request(app).post('/api/email/mockTransactionId').send({});
 
-    // 🟢 Log response for debugging
-    // console.log('TEST DEBUG response.status:', res.status);
-    // console.log('TEST DEBUG response.body:', res.body);
-    // console.log('TEST DEBUG response.text:', res.text);
-
-    // 🟢 Add explicit checks before fail
-    if (res.status !== 200) {
-      // console.error('❌ Unexpected response:', {
-      //   status: res.status,
-      //   body: res.body,
-      //   text: res.text,
-      // });
-    }
     expect(res.status).toBe(200);
-
     expect(res.body.status).toBe(true);
+
     expect(mockSendMail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: 'test@example.com',
         subject: 'Thank You for Your Donation',
+        text: expect.stringContaining('Test Product'),
       })
     );
   });
@@ -84,10 +89,9 @@ describe('POST /api/email/:transactionId', () => {
 
   it('should use subject and body from frontend request if provided', async () => {
     (transactionDAO.findTransactionById as jest.Mock).mockResolvedValue({
-      _id: 'mockTransactionId',
+      ...mockTransaction,
       participant: {
-        _id: 'mockParticipantId',
-        email: 'test@example.com',
+        ...mockTransaction.participant,
         name: 'Jane Doe',
       },
     });
@@ -102,6 +106,7 @@ describe('POST /api/email/:transactionId', () => {
       });
 
     expect(res.status).toBe(200);
+
     expect(mockSendMail).toHaveBeenCalledWith(
       expect.objectContaining({
         subject: 'Custom Subject',
@@ -117,14 +122,9 @@ describe('POST /api/email/:transactionId', () => {
     delete process.env.EMAIL_EMAILSUBJECT;
     delete process.env.EMAIL_EMAILTEXTBODY;
 
-    (transactionDAO.findTransactionById as jest.Mock).mockResolvedValue({
-      _id: 'mockTransactionId',
-      participant: {
-        _id: 'mockParticipantId',
-        email: 'test@example.com',
-        name: 'Fallback User',
-      },
-    });
+    (transactionDAO.findTransactionById as jest.Mock).mockResolvedValue(
+      mockTransaction
+    );
 
     mockSendMail.mockResolvedValue({ accepted: ['test@example.com'] });
 
@@ -132,9 +132,10 @@ describe('POST /api/email/:transactionId', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.status).toBe(true);
+
     expect(mockSendMail).toHaveBeenCalledWith(
       expect.objectContaining({
-        subject: 'Thank You', // fallback hardcoded
+        subject: 'Thank You',
         text: expect.stringContaining('transaction is being processed'),
       })
     );
