@@ -95,7 +95,9 @@ export const createCommoditySchema = z
   .object({
     name: z.string().min(1, 'Name is required').max(200),
     description: z.string().max(2000).optional(),
-    category: z.array(z.string()).default([]), // ✅ matches Mongoose
+    details: z.string().optional(),
+    tips: z.string().optional(),
+    category: z.array(z.string()).default([]),
 
     // ⬇️ ΑΛΛΑΓΗ: optional για variants προϊόντα
     price: z.number().min(0, 'Price must be non-negative').optional(),

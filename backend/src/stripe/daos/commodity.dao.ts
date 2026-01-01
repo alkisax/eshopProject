@@ -35,14 +35,16 @@ const createCommodity = async (
       }
     }
 
+    // TEMP: allow price edits even when variants exist
+    // ΤODO αργότερα η τιμή θα πρέπει να αφορα το variant και όχι το commodity
     // 🆕 VARIANT GUARD
-    if (data.variants && data.variants.length > 0) {
-      for (const v of data.variants) {
-        if (!v.attributes || Object.keys(v.attributes).length === 0) {
-          throw new ValidationError('Variant attributes cannot be empty');
-        }
-      }
-    }
+    // if (data.variants && data.variants.length > 0) {
+    //   for (const v of data.variants) {
+    //     if (!v.attributes || Object.keys(v.attributes).length === 0) {
+    //       throw new ValidationError('Variant attributes cannot be empty');
+    //     }
+    //   }
+    // }
 
     const commodity = new Commodity(data);
 
@@ -187,7 +189,7 @@ const searchCommodities = async ({
 
   if (!includeInactive) {
     filter.active = true;
-  }  
+  }
 
   // 📌 category filtering
   // normalize('NFC') → λύνει πρόβλημα με ελληνικούς χαρακτήρες που μπορεί να σταλούν σε διαφορετική unicode μορφή (π.χ. τα τονισμένα γράμματα. Έτσι "Σκουλαρίκια" από browser και DB θα συγκρίνονται 100% ίδια.
@@ -241,14 +243,16 @@ const updateCommodityById = async (
   updateData: Partial<CommodityType>
 ): Promise<CommodityType> => {
   try {
+    // TEMP: allow price edits even when variants exist
+    // ΤODO αργότερα η τιμή θα πρέπει να αφορα το variant και όχι το commodity
     // 🆕 VARIANT GUARD
-    if (updateData.variants && updateData.variants.length > 0) {
-      if ('price' in updateData || 'stripePriceId' in updateData) {
-        throw new ValidationError(
-          'Cannot change price or stripePriceId on products with variants'
-        );
-      }
-    }
+    // if (updateData.variants && updateData.variants.length > 0) {
+    //   if ('price' in updateData || 'stripePriceId' in updateData) {
+    //     throw new ValidationError(
+    //       'Cannot change price or stripePriceId on products with variants'
+    //     );
+    //   }
+    // }
 
     const updated = await Commodity.findByIdAndUpdate(id, updateData, {
       new: true,
