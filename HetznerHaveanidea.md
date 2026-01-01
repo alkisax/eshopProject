@@ -143,8 +143,8 @@ git cherry-pick <COMMIT_HASH>
 git push origin clients/eleni
 # 5. sync client repo main = clients/eleni
 git push client clients/eleni:main
+git checkout wip
 ```
-- 
 ```bash
 ssh root@91.99.145.154
 ```
