@@ -78,6 +78,14 @@ const commoditySchema = new Schema(
       type: String,
       default: '',
     },
+    details: {
+      type: String,
+      default: '',
+    },
+    tips: {
+      type: String,
+      default: '',
+    },
     category: {
       type: [String],
       default: [],

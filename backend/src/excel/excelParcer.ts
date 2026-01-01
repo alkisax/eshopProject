@@ -13,6 +13,8 @@ export interface CommodityExcelRow {
   name: string;
   variants?: CommodityVariantType[];
   description: string;
+  details: string;
+  tips: string;
   category: string[]; // μετατροπή από comma-separated string → array
   price: number;
   stock: number;
@@ -35,6 +37,8 @@ interface CommodityExcelRowRaw {
   name: string | null;
   variants: string | null;
   description: string | null;
+  details: string | null;
+  tips: string | null;
   category: string | null;
   price: number | string | null;
   stock: number | string | null;
@@ -125,6 +129,8 @@ export const parseExcelBuffer = (buffer: Buffer): ExcelParseResult => {
     name: row.name ?? '',
     variants: parseVariantsFromExcel(row.variants),
     description: row.description ?? '',
+    details: row.details ?? '',
+    tips: row.tips ?? '',
     // Category:
     // - Αν υπάρχει string π.χ. "cat1, cat2"
     // - Το κάνουμε .split(',') → ["cat1", "cat2"]

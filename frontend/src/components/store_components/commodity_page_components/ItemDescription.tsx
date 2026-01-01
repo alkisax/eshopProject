@@ -37,6 +37,18 @@ const ItemDescription = ({ commodity }: Props) => {
         {commodity.description || "No description available."}
       </Typography>
 
+      {commodity.details && commodity.details.trim().length > 0 && (
+        <Typography id="item-details" variant="body1" component="p">
+          <strong>Details:</strong> {commodity.details}
+        </Typography>
+      )}
+
+      {commodity.tips && commodity.tips.trim().length > 0 && (
+        <Typography id="item-tips" variant="body1" component="p">
+          <strong>Tips:</strong> {commodity.tips}
+        </Typography>
+      )}
+
       {/* === Categories === */}
       {(commodity.category as string[])?.length > 0 && (
         <Typography id="item-categories" variant="body2">

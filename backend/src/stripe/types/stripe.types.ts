@@ -38,6 +38,8 @@ export interface CommodityType extends Document {
   sku?: string;
   name: string;
   description?: string;
+  details?: string;
+  tips?: string;
   category: string[]
   price: number; //must be /100 to be in euro cents
   currency: string;
