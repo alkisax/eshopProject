@@ -23,7 +23,7 @@ const StoreLayout = () => {
   const [allCategories, setAllCategories] = useState<CategoryType[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
-  // const [semanticResults, setSemanticResults] = useState<CommodityType[]>([]);
+  const [semanticResults, setSemanticResults] = useState<CommodityType[]>([]);
 
   const [pageCount, setPageCount] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -148,18 +148,18 @@ const StoreLayout = () => {
     setCurrentPage(1);
   };
 
-  // const handleApplyFilters = () => {
-  //   setFiltersApplied((prev) => !prev); // just toggle to re-trigger effect
-  //   setCurrentPage(1);
-  // };
+  const handleApplyFilters = () => {
+    setFiltersApplied((prev) => !prev); // just toggle to re-trigger effect
+    setCurrentPage(1);
+  };
 
-  // const handleClearFilters = () => {
-  //   setSearch("");
-  //   // setSemanticResults([]);
-  //   setSelectedCategories([]);
-  //   setFiltersApplied((prev) => !prev);
-  //   setCurrentPage(1);
-  // };
+  const handleClearFilters = () => {
+    setSearch("");
+    setSemanticResults([]);
+    setSelectedCategories([]);
+    setFiltersApplied((prev) => !prev);
+    setCurrentPage(1);
+  };
 
   const handleSearch = (query: string) => {
     setSearch((prev) => {
@@ -173,27 +173,27 @@ const StoreLayout = () => {
   // απλό toggle που μπορεί να χρησιμοποιηθεί για re-render ή future side effects
   console.log("filters applied", filtersApplied);
 
-  // const handleSemanticSearch = async (query: string) => {
-  //   if (!query.trim()) {
-  //     setSemanticResults([]);
-  //     return;
-  //   }
+  const handleSemanticSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSemanticResults([]);
+      return;
+    }
 
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const res = await axios.get<{
-  //       status: boolean;
-  //       data: { commodity: CommodityType; score: number }[];
-  //     }>(`${url}/api/ai-embeddings/search`, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //       params: { query },
-  //     });
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get<{
+        status: boolean;
+        data: { commodity: CommodityType; score: number }[];
+      }>(`${url}/api/ai-embeddings/search`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { query },
+      });
 
-  //     setSemanticResults(res.data.data.map((r) => r.commodity).slice(0, 5));
-  //   } catch (err) {
-  //     console.error("Semantic search failed", err);
-  //   }
-  // };
+      setSemanticResults(res.data.data.map((r) => r.commodity).slice(0, 5));
+    } catch (err) {
+      console.error("Semantic search failed", err);
+    }
+  };
 
   // FOOTER LOGIC
   const { hasCart, globalParticipant } = useContext(VariablesContext);
@@ -233,9 +233,9 @@ const StoreLayout = () => {
             selectedCategories={selectedCategories}
             onSearch={handleSearch}
             onToggleCategory={handleToggleCategory}
-            // onApplyFilters={handleApplyFilters}
-            // onClearFilters={handleClearFilters}
-            // onSemanticSearch={handleSemanticSearch}
+            onApplyFilters={handleApplyFilters}
+            onClearFilters={handleClearFilters}
+            onSemanticSearch={handleSemanticSearch}
           />
           <main
             style={{
@@ -252,9 +252,8 @@ const StoreLayout = () => {
             <div style={{ flexGrow: 1 }}>
               <Outlet
                 context={{
-                  // commodities:
-                  //   semanticResults.length > 0 ? semanticResults : commodities,
-                  commodities: commodities,
+                  commodities:
+                    semanticResults.length > 0 ? semanticResults : commodities,
                   pageCount,
                   currentPage,
                   fetchCart,
