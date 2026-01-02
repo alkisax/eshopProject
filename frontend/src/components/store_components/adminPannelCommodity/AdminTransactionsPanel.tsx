@@ -22,7 +22,7 @@ import {
   ListItemText,
   Box,
 } from "@mui/material";
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
 import type {
@@ -30,6 +30,7 @@ import type {
   ParticipantType,
 } from "../../../types/commerce.types";
 import AdminNotificationsMailer from "./AdminNotificationsMailer";
+import TransactionPdfActions from "./AdminTransactionPanelComponents/TransactionPdfActions";
 
 const AdminTransactionsPanel = () => {
   const { url } = useContext(VariablesContext);
@@ -256,6 +257,10 @@ const AdminTransactionsPanel = () => {
                             Mark Shipped
                           </Button>
                         )}
+                        {/* PDF ACTIONS */}
+                        <TransactionPdfActions
+                          transactionId={t._id!.toString()}
+                        />
                         {/* <Button
                           variant={t.processed ? "outlined" : "contained"}
                           color={t.processed ? "warning" : "success"}
