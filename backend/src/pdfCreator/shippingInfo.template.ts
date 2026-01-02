@@ -1,3 +1,4 @@
+// backend\src\pdfCreator\shippingInfo.template.ts
 type ShippingInfoTemplateParams = {
   companyName: string;
   companyAddress: string;
