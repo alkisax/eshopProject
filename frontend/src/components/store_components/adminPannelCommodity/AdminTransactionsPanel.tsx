@@ -101,6 +101,7 @@ const AdminTransactionsPanel = () => {
     fetchTransactions();
   };
 
+  // αυτή η συνάρτηση που δημιουργεί μέηλ αφορούσε όταν είχαμε μόνο toggle processed και είναι πια depricated. δεν την σβήνουμε ομως γιατι την χρησιμοποιούμε σε dev περιβάλλον για δοκιμες
   const mailCreator = (transaction: TransactionType) => {
     const itemsList = transaction.items
       .map(

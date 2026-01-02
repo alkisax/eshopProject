@@ -36,4 +36,14 @@ export type Settings = {
     primaryColor?: string;
     secondaryColor?: string;
   };
+  emailTemplates?: {
+    orderConfirmed?: {
+      subject?: string;
+      body?: string;
+    };
+    orderShipped?: {
+      subject?: string;
+      body?: string;
+    };
+  };
 };

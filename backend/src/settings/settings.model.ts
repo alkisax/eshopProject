@@ -77,6 +77,22 @@ const themeSchema = new Schema(
   { _id: false }
 );
 
+const emailTemplateSchema = new Schema(
+  {
+    subject: { type: String },
+    body: { type: String },
+  },
+  { _id: false }
+);
+
+const emailTemplatesSchema = new Schema(
+  {
+    orderConfirmed: { type: emailTemplateSchema, default: {} },
+    orderShipped: { type: emailTemplateSchema, default: {} },
+  },
+  { _id: false }
+);
+
 const settingsSchema = new Schema(
   {
     key: {
@@ -118,6 +134,11 @@ const settingsSchema = new Schema(
       type: themeSchema,
       default: {},
     },
+
+    emailTemplates: {
+      type: emailTemplatesSchema,
+      default: {},
+    },    
   },
   {
     collection: 'Settings',

@@ -31,10 +31,15 @@
 - swagger για uuid, slug, pagination all ✅
 - user order history ✅
 - fix email error on Hetzner (port 587)✅
+- commodity description/ details /info ✅
+- Order state machine pending → confirmed → shipped = processed✅
+- thnx email & shipped email✅
+- custom mails on settings ✅
+- fix spageti code in stripe dao
+- pdf download shippment info
 - Amount-based checkout
 - vectorise order history
 - sitemap for dynamic pages in backend
-- commodity description/ details /info ✅
 
 # frontend
 - minimal shop ✅
@@ -70,10 +75,10 @@
 - markdown texts in custom ✅
 - hero image in custom (also on/off) ✅
 - οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
-- πρσθήκη custom emails
+- πρσθήκη custom emails ✅
 
 προτάσεις
-- 1. Order state machine pending → paid → packed → shipped → delivered
+- ✅ 1. Order state machine pending → paid → packed → shipped → delivered
 - 3. Shipment tracking + tracking number
 - 5. “People also bought” - Όχι vector - transaction-based co-occurrence
 - 6. Profile behavior vector (frequency-biased)

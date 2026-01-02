@@ -48,6 +48,16 @@ export interface ThemeSettings {
   secondaryColor?: string; // π.χ. '#a6ddd8'
 }
 
+export interface EmailTemplate {
+  subject?: string;
+  body?: string;
+}
+
+export interface EmailTemplatesSettings {
+  orderConfirmed?: EmailTemplate;
+  orderShipped?: EmailTemplate;
+}
+
 export interface SettingsType extends Document {
   key: string; // π.χ. 'global'
   adminNotifications: AdminNotificationsSettings;
@@ -57,6 +67,7 @@ export interface SettingsType extends Document {
   socialLinks: SocialLinksSettings;
   staticPages: StaticPagesSettings;
   theme: ThemeSettings;
+  emailTemplates?: EmailTemplatesSettings;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -69,4 +80,5 @@ export type SettingsUpdateInput = {
   socialLinks?: Partial<SocialLinksSettings>;
   staticPages?: Partial<StaticPagesSettings>;
   theme?: Partial<ThemeSettings>;
+  emailTemplates?: Partial<EmailTemplatesSettings>;
 };

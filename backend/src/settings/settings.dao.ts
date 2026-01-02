@@ -26,6 +26,20 @@ const updateAdminNotifications = async (
   );
 };
 
+const getEmailTemplates = async () => {
+  const settings = await getGlobalSettings();
+  return settings.emailTemplates || {};
+};
+
+const updateEmailTemplates = async (
+  emailTemplates: SettingsType['emailTemplates']
+): Promise<SettingsType> => {
+  return await Settings.findOneAndUpdate(
+    { key: GLOBAL_KEY },
+    { $set: { emailTemplates } },
+    { new: true, upsert: true }
+  );
+};
 
 // Generic update for settings
 // Δέχεται μόνο όσα fields θέλουμε να αλλάξουμε
@@ -62,6 +76,8 @@ const createGlobalSettings = async (
 export const settingsDAO = {
   getGlobalSettings,
   updateAdminNotifications,
+  getEmailTemplates,
+  updateEmailTemplates,
   updateSettings,
   createGlobalSettings,
 };
