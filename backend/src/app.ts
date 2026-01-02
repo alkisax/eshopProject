@@ -28,6 +28,7 @@ import modarationRoutes from './aiModeration/moderation.routes';
 import gptEmbeddingsRoutes from './aiEmbedings/gptEmbeddings.routes';
 import excelRoutes from './excel/routes/excel.routes';
 import settingsRoutes from './settings/settings.routes';
+import pdfRoutes from './pdfCreator/pdf.routes';
 
 const app = express();
 
@@ -172,6 +173,7 @@ app.use('/api/ai-embeddings', gptEmbeddingsRoutes);
 app.use('/api/upload-multer', uploadMulterRoutes);
 
 app.use('/api/excel', excelRoutes);
+app.use('/api/pdf', pdfRoutes);
 
 app.use(express.static('dist'));
 

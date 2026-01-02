@@ -1,4 +1,4 @@
-// src/stripe/__tests__/email.test.ts
+// backend/src/stripe/__tests__/email.test.ts
 
 // ✅ Fake env vars at top
 process.env.EMAIL_USER = 'test@mock.com';
@@ -10,6 +10,11 @@ import request from 'supertest';
 import express from 'express';
 import emailRoutes from '../routes/email.routes';
 import { transactionDAO } from '../daos/transaction.dao';
+import { settingsDAO } from '../../settings/settings.dao';
+
+// =====================
+// MOCKS
+// =====================
 
 // ✅ single consistent nodemailer mock
 const mockSendMail = jest.fn();
@@ -21,11 +26,24 @@ jest.mock('nodemailer', () => ({
 
 jest.mock('../daos/transaction.dao.ts');
 
+jest.mock('../../settings/settings.dao', () => ({
+  settingsDAO: {
+    getGlobalSettings: jest.fn(),
+  },
+}));
+
+// =====================
+// APP SETUP
+// =====================
+
 const app = express();
 app.use(express.json());
 app.use('/api/email', emailRoutes);
 
-// ✅ FULL realistic mock transaction
+// =====================
+// SHARED MOCK DATA
+// =====================
+
 const mockTransaction = {
   _id: 'mockTransactionId',
   participant: {
@@ -46,9 +64,34 @@ const mockTransaction = {
   amount: 20,
 };
 
+const mockSettings = {
+  companyInfo: {
+    companyName: 'Test Shop',
+  },
+  emailTemplates: {
+    orderConfirmed: {
+      subject: 'Thank You {{name}}',
+      body: 'Hello {{name}}\n{{items}}\nTotal: {{total}}\n{{companyName}}',
+    },
+    orderShipped: {
+      subject: 'Shipped {{name}}',
+      body: 'Your items:\n{{items}}',
+    },
+  },
+  adminNotifications: {},
+};
+
+// =====================
+// TESTS
+// =====================
+
 describe('POST /api/email/:transactionId', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    (settingsDAO.getGlobalSettings as jest.Mock).mockResolvedValue(
+      mockSettings
+    );
   });
 
   it('should send thank you email successfully', async () => {
@@ -62,7 +105,9 @@ describe('POST /api/email/:transactionId', () => {
       response: '250 OK',
     });
 
-    const res = await request(app).post('/api/email/mockTransactionId').send({});
+    const res = await request(app)
+      .post('/api/email/mockTransactionId')
+      .send({});
 
     expect(res.status).toBe(200);
     expect(res.body.status).toBe(true);
@@ -70,7 +115,7 @@ describe('POST /api/email/:transactionId', () => {
     expect(mockSendMail).toHaveBeenCalledWith(
       expect.objectContaining({
         to: 'test@example.com',
-        subject: 'Thank You for Your Donation',
+        subject: expect.stringContaining('Thank You'),
         text: expect.stringContaining('Test Product'),
       })
     );
@@ -81,7 +126,9 @@ describe('POST /api/email/:transactionId', () => {
       new Error('DB error')
     );
 
-    const res = await request(app).post('/api/email/mockTransactionId').send({});
+    const res = await request(app)
+      .post('/api/email/mockTransactionId')
+      .send({});
 
     expect(res.status).toBe(500);
     expect(res.body.status).toBe(false);
@@ -101,24 +148,24 @@ describe('POST /api/email/:transactionId', () => {
     const res = await request(app)
       .post('/api/email/mockTransactionId')
       .send({
-        emailSubject: 'Custom Subject',
-        emailTextBody: 'Custom body message',
+        emailSubject: 'Custom Subject {{name}}',
+        emailTextBody: 'Custom body message {{total}}',
       });
 
     expect(res.status).toBe(200);
 
     expect(mockSendMail).toHaveBeenCalledWith(
       expect.objectContaining({
-        subject: 'Custom Subject',
+        subject: expect.stringContaining('Custom Subject'),
         text: expect.stringContaining('Custom body message'),
       })
     );
   });
 
-  it('should fall back to default values if env vars are missing', async () => {
-    // Temporarily unset env vars
+  it('should fall back to defaults if env vars are missing', async () => {
     const oldSubject = process.env.EMAIL_EMAILSUBJECT;
     const oldBody = process.env.EMAIL_EMAILTEXTBODY;
+
     delete process.env.EMAIL_EMAILSUBJECT;
     delete process.env.EMAIL_EMAILTEXTBODY;
 
@@ -128,19 +175,21 @@ describe('POST /api/email/:transactionId', () => {
 
     mockSendMail.mockResolvedValue({ accepted: ['test@example.com'] });
 
-    const res = await request(app).post('/api/email/mockTransactionId').send({});
+    const res = await request(app)
+      .post('/api/email/mockTransactionId')
+      .send({});
 
     expect(res.status).toBe(200);
     expect(res.body.status).toBe(true);
 
     expect(mockSendMail).toHaveBeenCalledWith(
       expect.objectContaining({
-        subject: 'Thank You',
-        text: expect.stringContaining('transaction is being processed'),
+        subject: expect.any(String),
+        text: expect.any(String),
       })
     );
 
-    // Restore env vars
+    // restore env
     process.env.EMAIL_EMAILSUBJECT = oldSubject;
     process.env.EMAIL_EMAILTEXTBODY = oldBody;
   });

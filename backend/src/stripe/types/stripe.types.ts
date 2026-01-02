@@ -34,6 +34,7 @@ export interface TransactionType extends Document {
   processed?: boolean;
   cancelled?: boolean;
   sessionId?: string;
+  shipping?: ShippingInfoType;
   createdAt?: Date;
   updatedAt?: Date;
 }
