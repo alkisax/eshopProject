@@ -1,5 +1,26 @@
 // backend\src\pdfCreator\pdf.controller.ts
 // https://www.youtube.com/watch?v=Di0lsxQoI9k
+
+/**
+ * TODO (security / robustness):
+ * ------------------------------------------------------------
+ * Τα PDF templates κάνουν interpolate raw values (company info,
+ * customer name, shipping fields, product names) απευθείας σε HTML.
+ *
+ * Προς το παρόν θεωρείται χαμηλού ρίσκου γιατί:
+ * - Τα δεδομένα προέρχονται από admin-controlled inputs
+ * - Τα PDF είναι internal / admin-only
+ * - Δεν εκτελούνται σε browser context
+ *
+ * Παρ’ όλα αυτά, σε μελλοντικό refactor πρέπει:
+ * - Να προστεθεί escapeHtml helper
+ * - Να γίνεται escaping σε όλα τα user / settings strings
+ * - Να αποφεύγεται raw HTML concatenation όπου είναι δυνατό
+ *
+ * (ειδικά αν τα PDFs γίνουν customer-facing ή public)
+ * ------------------------------------------------------------
+ */
+
 import puppeteer from 'puppeteer';
 import type { Request, Response } from 'express';
 import { handleControllerError } from '../utils/error/errorHandler';
