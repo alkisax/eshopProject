@@ -76,6 +76,7 @@
 - hero image in custom (also on/off) ✅
 - οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
 - πρσθήκη custom emails ✅
+- search transaction by id frontend
 
 προτάσεις
 - ✅ 1. Order state machine pending → paid → packed → shipped → delivered
