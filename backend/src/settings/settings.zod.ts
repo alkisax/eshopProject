@@ -48,6 +48,16 @@ export const themeSchema = z.object({
   secondaryColor: z.string().optional(),
 });
 
+export const emailTemplateSchema = z.object({
+  subject: z.string().optional(),
+  body: z.string().optional(),
+});
+
+export const emailTemplatesSchema = z.object({
+  orderConfirmed: emailTemplateSchema.optional(),
+  orderShipped: emailTemplateSchema.optional(),
+});
+
 export const updateSettingsSchema = z.object({
   adminNotifications: adminNotificationsSchema.optional(),
   branding: brandingSchema.optional(),
@@ -56,6 +66,7 @@ export const updateSettingsSchema = z.object({
   socialLinks: socialLinksSchema.optional(),
   staticPages: staticPagesSchema.optional(),
   theme: themeSchema.optional(),
+  emailTemplates: emailTemplatesSchema.optional(),
 });
 
 export const createSettingsSchema = z.object({
@@ -66,4 +77,5 @@ export const createSettingsSchema = z.object({
   socialLinks: socialLinksSchema.optional(),
   staticPages: staticPagesSchema.optional(),
   theme: themeSchema.optional(),
+  emailTemplates: emailTemplatesSchema.optional(),
 });

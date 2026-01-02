@@ -1,3 +1,4 @@
+// frontend\src\context\SettingsContext.tsx
 /* eslint-disable react-refresh/only-export-components */
 import {
   createContext,
@@ -8,45 +9,46 @@ import {
 } from "react";
 import axios from "axios";
 import { VariablesContext } from "./VariablesContext";
+import type { Settings } from "../types/settings.types";
 
-type Settings = {
-  branding?: {
-    themeLogo?: string;
-    headerFooterLogo?: string;
-    heroImage?: string;
-    isHeroImageActive?: boolean;
-  };
-  homeTexts?: {
-    homeText1?: string;
-    homeText2?: string;
-    homeText3?: string;
-  };
-  companyInfo?: {
-    companyName?: string;
-    vatNumber?: string;
-    address?: string;
-    phone?: string;
-    email?: string;
-  };
-  socialLinks?: {
-    facebook?: string;
-    instagram?: string;
-    etsy?: string;
-    tiktok?: string;
-  };
-  staticPages?: {
-    aboutUs?: string;
-    returnPolicy?: string;
-    paymentMethods?: string;
-    shippingMethods?: string;
-    privacyPolicy?: string;
-    termsOfUse?: string;
-  };
-  theme?: {
-    primaryColor?: string;
-    secondaryColor?: string;
-  };
-};
+// type Settings = {
+//   branding?: {
+//     themeLogo?: string;
+//     headerFooterLogo?: string;
+//     heroImage?: string;
+//     isHeroImageActive?: boolean;
+//   };
+//   homeTexts?: {
+//     homeText1?: string;
+//     homeText2?: string;
+//     homeText3?: string;
+//   };
+//   companyInfo?: {
+//     companyName?: string;
+//     vatNumber?: string;
+//     address?: string;
+//     phone?: string;
+//     email?: string;
+//   };
+//   socialLinks?: {
+//     facebook?: string;
+//     instagram?: string;
+//     etsy?: string;
+//     tiktok?: string;
+//   };
+//   staticPages?: {
+//     aboutUs?: string;
+//     returnPolicy?: string;
+//     paymentMethods?: string;
+//     shippingMethods?: string;
+//     privacyPolicy?: string;
+//     termsOfUse?: string;
+//   };
+//   theme?: {
+//     primaryColor?: string;
+//     secondaryColor?: string;
+//   };
+// };
 
 //ΣΥΜΒΟΛΑΙΟ: όποιος κάνει useContext θα πάρει ΑΥΤΟ.
 type SettingsContextValue = {

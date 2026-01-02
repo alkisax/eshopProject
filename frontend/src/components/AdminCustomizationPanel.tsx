@@ -11,6 +11,7 @@ import SocialLinksSection from "./settings_components/admin_settings_components/
 import ThemeColorsSection from "./settings_components/admin_settings_components/ThemeColorsSection";
 import HomeTextsSection from "./settings_components/admin_settings_components/HomeTextsSection";
 import StaticPagesSection from "./settings_components/admin_settings_components/StaticPagesSection";
+import EmailTemplatesSection from "./settings_components/admin_settings_components/EmailTemplatesSection";
 
 const AdminCustomizationPanel = () => {
   const { url } = useContext(VariablesContext);
@@ -64,6 +65,16 @@ const AdminCustomizationPanel = () => {
     privacyPolicy: "",
     termsOfUse: "",
   });
+  const [emailTemplates, setEmailTemplates] = useState({
+    orderConfirmed: {
+      subject: "",
+      body: "",
+    },
+    orderShipped: {
+      subject: "",
+      body: "",
+    },
+  });
 
   // sync όταν αλλάξουν τα settings
   useEffect(() => {
@@ -103,6 +114,16 @@ const AdminCustomizationPanel = () => {
       shippingMethods: settings.staticPages?.shippingMethods || "",
       privacyPolicy: settings.staticPages?.privacyPolicy || "",
       termsOfUse: settings.staticPages?.termsOfUse || "",
+    });
+    setEmailTemplates({
+      orderConfirmed: {
+        subject: settings?.emailTemplates?.orderConfirmed?.subject || "",
+        body: settings?.emailTemplates?.orderConfirmed?.body || "",
+      },
+      orderShipped: {
+        subject: settings?.emailTemplates?.orderShipped?.subject || "",
+        body: settings?.emailTemplates?.orderShipped?.body || "",
+      },
     });
   }, [settings]);
 
@@ -212,6 +233,20 @@ const AdminCustomizationPanel = () => {
     await refreshSettings();
   };
 
+  const handleSaveEmailTemplates = async () => {
+    await axios.patch(
+      `${url}/api/settings`,
+      { emailTemplates },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    await refreshSettings();
+  };
+
   return (
     <>
       <SettingsSection title="Branding">
@@ -268,6 +303,14 @@ const AdminCustomizationPanel = () => {
           homeTexts={homeTexts}
           setHomeTexts={setHomeTexts}
           onSave={handleSaveHomeTexts}
+        />
+      </SettingsSection>
+
+      <SettingsSection title="Email templates">
+        <EmailTemplatesSection
+          emailTemplates={emailTemplates}
+          setEmailTemplates={setEmailTemplates}
+          onSave={handleSaveEmailTemplates}
         />
       </SettingsSection>
 
