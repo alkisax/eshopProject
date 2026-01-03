@@ -20,4 +20,12 @@ router.get(
   pdfController.shippingInfoPdf
 );
 
+router.get(
+  '/example',
+  middleware.verifyToken,
+  middleware.checkRole('ADMIN'),
+  pdfController.examplePdf
+);
+
+
 export default router;

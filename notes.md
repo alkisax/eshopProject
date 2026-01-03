@@ -40,6 +40,7 @@
 - Amount-based checkout
 - vectorise order history
 - sitemap for dynamic pages in backend
+⚠️ swagger pdf
 
 # frontend
 - minimal shop ✅
