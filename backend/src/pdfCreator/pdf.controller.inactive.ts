@@ -2,6 +2,10 @@
 // backend\src\pdfCreator\pdf.controller.ts
 // https://www.youtube.com/watch?v=Di0lsxQoI9k
 
+// αυτό το αρχείο είχε σοβαρά προβλήματα γιατί ένώ έτρεχε όταν το είχα ως Local όταν το ανέβαζα στον hetzener μου έρειχνε error 500. παρ΄όλα αυτά δεν θα το σβήσω γιατί κατα μια έννοια λειτουργούσε
+
+
+
 /**
  * TODO (security / robustness):
  * ------------------------------------------------------------
@@ -347,85 +351,36 @@ export const shippingInfoPdf = async (req: Request, res: Response) => {
   }
 };
 
-// example not for use
 const examplePdf = async (_req: Request, res: Response) => {
+  // αρχικοποιώ τον browser εκτος try γιατι θα τον κλείσω με finally. θέλω να κλείσει και στο κακό σενάριο
   let browser;
-
-  console.log('[PDF][EXAMPLE] START');
-
   try {
-    console.log('[PDF][EXAMPLE] launching puppeteer...');
-
+    // τα headless/args προστέθηκαν γιατι θα έχω προβλήματα σε Hetzner
     browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage' ],
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
-
-    console.log('[PDF][EXAMPLE] puppeteer launched');
-
     const page = await browser.newPage();
-    console.log('[PDF][EXAMPLE] newPage created');
-
-    console.log('[PDF][EXAMPLE] setting page content');
-
-    // waitUntil: 'networkidle0' → για test σταθερότητας
+    // waitUntil: 'networkidle0' → το await του puppeteer για να έχει γίνει fetch το περιεχόμεο πριν την δημιουργεία του pdf
     await page.setContent('<h1>hello</h1>', { waitUntil: 'networkidle0' });
 
-    console.log('[PDF][EXAMPLE] content set, generating pdf');
-
     const pdfBuffer = await page.pdf();
-    console.log('[PDF][EXAMPLE] pdf generated, size:', pdfBuffer.length);
 
+    // 'Content-Disposition' → για να είναι downloadable και οχι preview
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'attachment; filename=invoice.pdf',
     });
 
-    console.log('[PDF][EXAMPLE] sending response');
-
     return res.status(200).contentType('application/pdf').send(pdfBuffer);
   } catch (error) {
-    console.error('[PDF][EXAMPLE] ERROR:', error);
     return handleControllerError(res, error);
   } finally {
     if (browser) {
-      console.log('[PDF][EXAMPLE] closing browser');
       await browser.close();
     }
-    console.log('[PDF][EXAMPLE] END');
   }
 };
-// // example not for use
-// const examplePdf = async (_req: Request, res: Response) => {
-//   // αρχικοποιώ τον browser εκτος try γιατι θα τον κλείσω με finally. θέλω να κλείσει και στο κακό σενάριο
-//   let browser;
-//   try {
-//     // τα headless/args προστέθηκαν γιατι θα έχω προβλήματα σε Hetzner
-//     browser = await puppeteer.launch({
-//       headless: true,
-//       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-//     });
-//     const page = await browser.newPage();
-//     // waitUntil: 'networkidle0' → το await του puppeteer για να έχει γίνει fetch το περιεχόμεο πριν την δημιουργεία του pdf
-//     await page.setContent('<h1>hello</h1>', { waitUntil: 'networkidle0' });
-
-//     const pdfBuffer = await page.pdf();
-
-//     // 'Content-Disposition' → για να είναι downloadable και οχι preview
-//     res.set({
-//       'Content-Type': 'application/pdf',
-//       'Content-Disposition': 'attachment; filename=invoice.pdf',
-//     });
-
-//     return res.status(200).contentType('application/pdf').send(pdfBuffer);
-//   } catch (error) {
-//     return handleControllerError(res, error);
-//   } finally {
-//     if (browser) {
-//       await browser.close();
-//     }
-//   }
-// };
 
 export const pdfController = {
   createInternalOrderPdf,
