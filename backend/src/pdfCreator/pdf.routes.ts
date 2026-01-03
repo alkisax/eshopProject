@@ -2,8 +2,7 @@ import { Router } from 'express';
 import { pdfController } from './pdf.controller';
 import { middleware } from '../login/middleware/verification.middleware';
 
-console.log('🔥 PDF ROUTES FILE LOADED');
-
+// console.log('🔥 PDF ROUTES FILE LOADED');
 const router = Router();
 
 router.get(
