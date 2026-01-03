@@ -46,6 +46,23 @@ const create = async (req: Request, res: Response) => {
   }
 };
 
+const findById = async (req: Request, res: Response) => {
+  try {
+    const transactionId = req.params.id;
+
+    const transaction = await transactionDAO.findTransactionById(
+      transactionId
+    );
+
+    return res.status(200).json({
+      status: true,
+      data: transaction,
+    });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 const findAll = async (_req: Request, res: Response) => {
   try {
     // done by middleware
@@ -236,6 +253,7 @@ const deleteOldProcessedTransactions = async (
 
 export const transactionController = {
   create,
+  findById,
   findAll,
   findUnprocessed,
   findByParticipant,
