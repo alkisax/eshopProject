@@ -1,29 +1,30 @@
 import { Router } from 'express';
-import { pdfController } from './pdf.controller';
+// import { pdfController } from './pdf.controller';
+import { createInternalOrderPdf, createShippingInfoPdf, examplePdf } from './pdfkit.controller';
 import { middleware } from '../login/middleware/verification.middleware';
 
-// console.log('🔥 PDF ROUTES FILE LOADED');
+
 const router = Router();
 
 router.get(
   '/internal-order/:transactionId',
   middleware.verifyToken,
   middleware.checkRole('ADMIN'),
-  pdfController.createInternalOrderPdf
+  createInternalOrderPdf
 );
 
 router.get(
   '/shipping-info/:transactionId',
   middleware.verifyToken,
   middleware.checkRole('ADMIN'),
-  pdfController.shippingInfoPdf
+  createShippingInfoPdf
 );
 
 router.get(
   '/example',
   middleware.verifyToken,
   middleware.checkRole('ADMIN'),
-  pdfController.examplePdf
+  examplePdf
 );
 
 
