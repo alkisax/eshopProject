@@ -79,6 +79,8 @@
 - πρσθήκη custom emails ✅
 - search transaction by id frontend
 - iris payment
+- check transaction with variant
+- iris qr, shipping prices, shipping stripe price id on custom
 
 προτάσεις
 - ✅ 1. Order state machine pending → paid → packed → shipped → delivered
