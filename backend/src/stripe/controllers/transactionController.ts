@@ -7,6 +7,7 @@ import { handleControllerError } from '../../utils/error/errorHandler';
 // import type { TransactionType } from '../types/stripe.types';
 import { Types } from 'mongoose';
 import { emailController } from './email.controller';
+import { ShippingInfoType } from '../types/stripe.types';
 // const sendThnxEmail = require('../controllers/email.controller') // !!!
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
@@ -14,6 +15,7 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
 const create = async (req: Request, res: Response) => {
   const participantId = req.body.participant as Types.ObjectId;
   const sessionId = req.body.sessionId as string;
+  const shipping = req.body.shipping as ShippingInfoType;
 
   if (!participantId || !sessionId) {
     return res.status(400).json({
@@ -25,7 +27,8 @@ const create = async (req: Request, res: Response) => {
   try {
     const newTransaction = await transactionDAO.createTransaction(
       participantId,
-      sessionId
+      sessionId,
+      shipping
     );
 
     const notificationPromise = emailController.sendAdminSaleNotification(

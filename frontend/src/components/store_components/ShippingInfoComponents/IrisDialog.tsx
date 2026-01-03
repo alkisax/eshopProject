@@ -1,5 +1,6 @@
 // frontend\src\components\store_components\ShippingInfoComponents\IrisDialog.tsx
 import { useSettings } from "../../../context/SettingsContext";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogTitle,
@@ -9,16 +10,37 @@ import {
   Button,
   Box,
 } from "@mui/material";
+import { useIrisCheckout } from "../../../hooks/useIrisCheckout";
+import type { ShippingInfoType } from "../../../types/commerce.types";
 
 type IrisDialogProps = {
   open: boolean;
   onClose: () => void;
   totalAmount: number;
+  shippingInfo: ShippingInfoType;
 };
 
-const IrisDialog = ({ open, onClose, totalAmount }: IrisDialogProps) => {
+const IrisDialog = ({
+  open,
+  onClose,
+  totalAmount,
+  shippingInfo,
+}: IrisDialogProps) => {
   const { settings } = useSettings();
   const supportEmail = settings?.companyInfo?.email;
+  const { handleIrisCheckout } = useIrisCheckout();
+
+  const navigate = useNavigate();
+
+  const handleIrisComplete = async () => {
+    try {
+      await handleIrisCheckout(shippingInfo);
+      onClose();
+      navigate("/checkout-success");
+    } catch (err) {
+      console.error("IRIS checkout failed", err);
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
@@ -72,10 +94,7 @@ const IrisDialog = ({ open, onClose, totalAmount }: IrisDialogProps) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => {
-            // TODO: manual payment flow (future)
-            onClose();
-          }}
+          onClick={handleIrisComplete}
         >
           Ολοκλήρωση αγοράς
         </Button>

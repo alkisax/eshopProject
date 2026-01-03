@@ -36,11 +36,12 @@
 - thnx email & shipped email✅
 - custom mails on settings ✅
 - fix spageti code in stripe dao
-- pdf download shippment info
+- pdf download shippment info ✅
 - Amount-based checkout
 - vectorise order history
 - sitemap for dynamic pages in backend
-⚠️ swagger pdf
+- ⚠️ swagger pdf
+- transaction dao fetch all iris "sessionId": "IRIS_...",
 
 # frontend
 - minimal shop ✅

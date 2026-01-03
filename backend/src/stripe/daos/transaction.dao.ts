@@ -1,3 +1,4 @@
+// TODO transfer bussines logic out of dao. spageti code
 /* eslint-disable no-console */
 import mongoose from 'mongoose';
 import Transaction from '../models/transaction.models';

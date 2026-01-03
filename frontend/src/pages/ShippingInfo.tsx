@@ -268,6 +268,7 @@ const ShippingInfo = () => {
         open={openIris}
         onClose={() => setOpenIris(false)}
         totalAmount={total}
+        shippingInfo={form}
       />
 
       {/* {form.shippingMethod === "boxnow" && (
