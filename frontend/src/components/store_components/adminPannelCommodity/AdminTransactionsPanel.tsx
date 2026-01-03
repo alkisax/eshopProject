@@ -31,6 +31,7 @@ import type {
 } from "../../../types/commerce.types";
 import AdminNotificationsMailer from "./AdminNotificationsMailer";
 import TransactionPdfActions from "./AdminTransactionPanelComponents/TransactionPdfActions";
+import TransactionSearchById from "./AdminTransactionPanelComponents/TransactionSearchById";
 
 const AdminTransactionsPanel = () => {
   const { url } = useContext(VariablesContext);
@@ -158,6 +159,8 @@ const AdminTransactionsPanel = () => {
       </Typography>
 
       {isLoading && <p>Loading...</p>}
+
+      <TransactionSearchById />
 
       {!isLoading && transactions.length === 0 && (
         <Typography>No transactions found.</Typography>
@@ -378,7 +381,7 @@ const AdminTransactionsPanel = () => {
           <Button onClick={handleClose}>Close</Button>
         </DialogActions>
       </Dialog>
-      {/* ===================== ADMIN TRANSACTIONS PANEL – INSTRUCTIONS ===================== */}
+      {/* ADMIN TRANSACTIONS PANEL – INSTRUCTIONS */}
       <Paper
         sx={{ p: 2, mt: 4, backgroundColor: "#f7f7f7" }}
         variant="outlined"

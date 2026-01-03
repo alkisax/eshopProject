@@ -78,6 +78,7 @@
 - οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
 - πρσθήκη custom emails ✅
 - search transaction by id frontend
+- iris payment
 
 προτάσεις
 - ✅ 1. Order state machine pending → paid → packed → shipped → delivered
@@ -86,7 +87,7 @@
 - 6. Profile behavior vector (frequency-biased)
 - 7. AI features Review summarization per product
 - 8. Fraud / anomaly detection (basic): πολλά orders / ίδια IP, weird quantities, repeated failed payments
-- 2. Invoice / receipt generation: PDF, αριθμός παραστατικού, VAT field
+- ✅ 2. Invoice / receipt generation: PDF, αριθμός παραστατικού, VAT field
 - 4. Data export (GDPR): “download my data”
 
 - ## e2e test
