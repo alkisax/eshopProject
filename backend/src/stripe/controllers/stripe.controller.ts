@@ -36,7 +36,7 @@ const createCheckoutSession = async (req: Request, res: Response) => {
 
 // επειδή το τεστ γινόνταν με κανονικα λεφτα κράτησα μερικα url επιστροφής. αν τα βάλεις στον browser θα συμπεριφερθει σαν επιτυχεία συναλαγής δημιουργόντας transaction και ανανεώνοντας τον participant.
 // user:
-//http://localhost:5173/checkout-success?session_id=cs_live_a1u5Qn0yiHn2hmITy0VHBIDEyT1LsWT7Xd4R7QQZTi4jFDVn3F4uLXSYyQ
+// http://localhost:5173/checkout-success?session_id=cs_live_a1u5Qn0yiHn2hmITy0VHBIDEyT1LsWT7Xd4R7QQZTi4jFDVn3F4uLXSYyQ
 // guest:
 // http://localhost:5173/checkout-success?session_id=cs_live_a1Pw0WJbxkHY4HcPZr6zqZhuh1akVcWPrM4oHDpvMV8iEEnbnUaO5TFHsx
 

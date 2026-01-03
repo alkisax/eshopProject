@@ -1,0 +1,87 @@
+// frontend\src\components\store_components\ShippingInfoComponents\IrisDialog.tsx
+import { useSettings } from "../../../context/SettingsContext";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  Button,
+  Box,
+} from "@mui/material";
+
+type IrisDialogProps = {
+  open: boolean;
+  onClose: () => void;
+  totalAmount: number;
+};
+
+const IrisDialog = ({ open, onClose, totalAmount }: IrisDialogProps) => {
+  const { settings } = useSettings();
+  const supportEmail = settings?.companyInfo?.email;
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle>Πληρωμή με IRIS</DialogTitle>
+
+      <DialogContent>
+        <Typography variant="body2" gutterBottom>
+          Σκανάρετε το QR ή πληρώστε μέσω IRIS με το παρακάτω ποσό.
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          Ολοκληρώστε την τραπεζική συναλλαγή μέσω της τράπεζάς σας και στείλτε
+          την απόδειξη στο <strong>{supportEmail}</strong>.
+        </Typography>
+
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          Στην αιτιολογία παρακαλούμε αναγράψτε το ονοματεπώνυμό σας.
+        </Typography>
+
+        {/* Στατικό QR απο public */}
+        <Box
+          component="img"
+          src="/bank/IrisBankQR.png"
+          alt="IRIS Bank QR"
+          sx={{
+            width: "100%",
+            maxWidth: 220,
+            display: "block",
+            mx: "auto",
+            my: 2,
+          }}
+        />
+
+        <Typography variant="h4" align="center">
+          Σύνολο: <strong>{totalAmount.toFixed(2)} €</strong>
+        </Typography>
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ display: "block", mt: 2, textAlign: "center" }}
+        >
+          Η παραγγελία θα εκτελεστεί αφού επιβεβαιωθεί η πληρωμή.
+        </Typography>
+      </DialogContent>
+
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={onClose} color="inherit">
+          Ακύρωση
+        </Button>
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            // TODO: manual payment flow (future)
+            onClose();
+          }}
+        >
+          Ολοκλήρωση αγοράς
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default IrisDialog;
