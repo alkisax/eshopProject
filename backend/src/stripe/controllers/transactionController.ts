@@ -114,6 +114,11 @@ const findByParticipant = async (req: Request, res: Response) => {
   }
 };
 
+const getIrisTransactions = async (_req: Request, res: Response) => {
+  const transactions = await transactionDAO.findIrisTransactions();
+  return res.json({ status: true, data: transactions });
+};
+
 // έχει αλλάξει η λογική μας και πια δεν έχουμε μόνο state processed true/false αλλά pending/confirmed/shipped=processed. Εδώ την αφήνουμε οπως είναι γιατί θα την χρησιμοποιούμε όσο είμαστε σε dev διαδικασία για να μπορέσουμε να γυρίσουμε στην αρχική μας κατάσταση processed: false, status: pending
 // αυτή είναι σημαντική γιατί στέλνει αυτόματα το email
 const toggleProcessed = async (req: Request, res: Response) => {
@@ -260,6 +265,7 @@ export const transactionController = {
   findAll,
   findUnprocessed,
   findByParticipant,
+  getIrisTransactions,
   toggleProcessed,
   markConfirmed,
   markShipped,

@@ -62,6 +62,9 @@ const excelRoutesDocs = yaml.load(
 const settingsRoutesDocs = yaml.load(
   path.join(__dirname, 'swaggerRoutes', 'settingsRoutes.swagger.yml')
 );
+const pdfRoutesDocs = yaml.load(
+  path.join(__dirname, 'swaggerRoutes', 'pdfRoutes.swagger.yml')
+);
 
 const options = {
   definition: {
@@ -109,7 +112,8 @@ const options = {
       ...subPageRoutesDocs.paths,
       ...moderatorRoutesDocs.paths,
       ...embedingsRoutesDocs.paths,
-      ...settingsRoutesDocs.paths, // merge
+      ...settingsRoutesDocs.paths,
+      ...pdfRoutesDocs.paths, // merge
     },
   },
   apis: []

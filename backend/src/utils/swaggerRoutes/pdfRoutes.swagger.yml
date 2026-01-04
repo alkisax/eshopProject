@@ -1,0 +1,96 @@
+# backend\src\utils\swaggerRoutes\pdfRoutes.swagger.yml
+tags:
+  - name: PDF
+    description: PDF generation (admin only)
+
+paths:
+  /api/pdf/internal-order/{transactionId}:
+    get:
+      summary: Download internal order PDF
+      description: >
+        Generates an internal printable PDF for a transaction.  
+        Used by admins for order processing and bookkeeping.  
+        ❌ Not a legal invoice.
+      tags: [PDF]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          schema:
+            type: string
+            format: objectId
+          description: Transaction ID
+      responses:
+        '200':
+          description: Internal order PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '404':
+          description: Transaction not found
+        '500':
+          description: PDF generation failed
+
+  /api/pdf/shipping-info/{transactionId}:
+    get:
+      summary: Download shipping label PDF
+      description: >
+        Generates a printable shipping information PDF  
+        intended to be attached directly on the package.
+      tags: [PDF]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          schema:
+            type: string
+            format: objectId
+          description: Transaction ID
+      responses:
+        '200':
+          description: Shipping info PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '404':
+          description: No shipping info found
+        '500':
+          description: PDF generation failed
+
+  /api/pdf/example:
+    get:
+      summary: Generate example PDF (debug only)
+      description: >
+        Smoke-test endpoint to verify PDF generation works on the server.  
+        ❌ Not used in production flows.
+      tags: [PDF]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Example PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden

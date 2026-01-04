@@ -31,6 +31,7 @@ const IrisDialog = ({
   const { handleIrisCheckout } = useIrisCheckout();
 
   const navigate = useNavigate();
+  const irisBankQR = settings?.companyInfo?.irisBankQR;
 
   const handleIrisComplete = async () => {
     try {
@@ -60,7 +61,7 @@ const IrisDialog = ({
         </Typography>
 
         {/* Στατικό QR απο public */}
-        <Box
+        {/* <Box
           component="img"
           src="/bank/IrisBankQR.png"
           alt="IRIS Bank QR"
@@ -71,7 +72,22 @@ const IrisDialog = ({
             mx: "auto",
             my: 2,
           }}
-        />
+        /> */}
+
+        {irisBankQR && (
+          <Box
+            component="img"
+            src={irisBankQR}
+            alt="IRIS Bank QR"
+            sx={{
+              width: "100%",
+              maxWidth: 220,
+              display: "block",
+              mx: "auto",
+              my: 2,
+            }}
+          />
+        )}
 
         <Typography variant="h4" align="center">
           Σύνολο: <strong>{totalAmount.toFixed(2)} €</strong>

@@ -6,11 +6,14 @@ export interface AdminNotificationsSettings {
   adminEmail?: string;
 }
 
+export type ThemeSelectorMode = 'TRUE' | 'FALSE';
+
 export interface BrandingSettings {
   themeLogo?: string;
   headerFooterLogo?: string;
   heroImage?: string;
   isHeroImageActive?: boolean;
+  themeSelector?: ThemeSelectorMode[];
 }
 
 export interface HomeTextsSettings {
@@ -25,6 +28,7 @@ export interface CompanyInfoSettings {
   address?: string;
   phone?: string;
   email?: string;
+  irisBankQR?: string;
 }
 
 export interface SocialLinksSettings {

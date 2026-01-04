@@ -37,11 +37,12 @@
 - custom mails on settings ✅
 - fix spageti code in stripe dao
 - pdf download shippment info ✅
+- transaction dao fetch all iris "sessionId": "IRIS_...",✅
+- theme customisation
 - Amount-based checkout
 - vectorise order history
 - sitemap for dynamic pages in backend
-- ⚠️ swagger pdf
-- transaction dao fetch all iris "sessionId": "IRIS_...",
+
 
 # frontend
 - minimal shop ✅
@@ -73,15 +74,14 @@
 - αυτή τη στιγμή όποτε χρειάζετε μου φαίρνει ΌΛΑ τα εμπορεύματα και μετά κανει search ή ότι άλλο client side. Πρέπει να αλλάξει✅
 - email notification on buy✅
 - admin commodity pannel προβληματική φόρτωση όλων των εμπορευμάτων✅
-- θα θέλαμε το variant να συνδέετε με συγκεκριμένη εικόνα
 - markdown texts in custom ✅
 - hero image in custom (also on/off) ✅
-- οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
 - πρσθήκη custom emails ✅
-- search transaction by id frontend
-- iris payment
-- check transaction with variant
+- search transaction by id frontend ✅
+- iris payment ✅
 - iris qr, shipping prices, shipping stripe price id on custom
+- οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
+- θα θέλαμε το variant να συνδέετε με συγκεκριμένη εικόνα
 
 προτάσεις
 - ✅ 1. Order state machine pending → paid → packed → shipped → delivered

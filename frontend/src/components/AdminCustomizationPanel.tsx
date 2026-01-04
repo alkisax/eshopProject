@@ -42,6 +42,7 @@ const AdminCustomizationPanel = () => {
     address: "",
     phone: "",
     email: "",
+    irisBankQR: "",
   });
   const [socialLinks, setSocialLinks] = useState({
     facebook: settings?.socialLinks?.facebook || "",
@@ -75,6 +76,9 @@ const AdminCustomizationPanel = () => {
       body: "",
     },
   });
+  const [themeSelector, setThemeSelector] = useState<("TRUE" | "FALSE")[]>(
+    settings?.branding?.themeSelector || []
+  );
 
   // sync όταν αλλάξουν τα settings
   useEffect(() => {
@@ -83,6 +87,7 @@ const AdminCustomizationPanel = () => {
     setHeaderFooterLogo(settings.branding?.headerFooterLogo || "");
     setHeroImage(settings.branding?.heroImage || "");
     setIsHeroImageActive(settings.branding?.isHeroImageActive || false);
+    setThemeSelector(settings.branding?.themeSelector || []);
     setHomeTexts({
       homeText1: settings.homeTexts?.homeText1 || "",
       homeText2: settings.homeTexts?.homeText2 || "",
@@ -94,6 +99,7 @@ const AdminCustomizationPanel = () => {
       address: settings.companyInfo?.address || "",
       phone: settings.companyInfo?.phone || "",
       email: settings.companyInfo?.email || "",
+      irisBankQR: settings.companyInfo?.irisBankQR || "",
     });
     setSocialLinks({
       facebook: settings.socialLinks?.facebook || "",
@@ -151,6 +157,7 @@ const AdminCustomizationPanel = () => {
           headerFooterLogo,
           heroImage,
           isHeroImageActive,
+          themeSelector,
         },
       },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
@@ -259,6 +266,7 @@ const AdminCustomizationPanel = () => {
           onHeaderFooterLogoChange={setHeaderFooterLogo}
           heroImage={heroImage}
           isHeroImageActive={isHeroImageActive}
+          themeSelector={themeSelector}
           onUploadThemeLogo={(file) => uploadAndSet(file, setThemeLogo)}
           onUploadHeaderFooterLogo={(file) =>
             uploadAndSet(file, setHeaderFooterLogo)
@@ -266,6 +274,7 @@ const AdminCustomizationPanel = () => {
           onHeroImageChange={setHeroImage}
           onUploadHeroImage={(file) => uploadAndSet(file, setHeroImage)}
           onToggleHeroImageActive={setIsHeroImageActive}
+          onThemeSelectorChange={setThemeSelector}
           onSave={handleSaveBranding}
         />
       </SettingsSection>
@@ -273,8 +282,15 @@ const AdminCustomizationPanel = () => {
       <SettingsSection title="Company Info">
         <CompanyInfoSection
           companyInfo={companyInfo}
+          recentFiles={recentFiles}
           onChange={setCompanyInfo}
           onSave={handleSaveCompanyInfo}
+          ready={ready}
+          onUploadIrisQR={(file) =>
+            uploadAndSet(file, (url) =>
+              setCompanyInfo((p) => ({ ...p, irisBankQR: url }))
+            )
+          }
         />
       </SettingsSection>
 

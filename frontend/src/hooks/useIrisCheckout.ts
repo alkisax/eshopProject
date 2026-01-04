@@ -3,6 +3,7 @@ import axios from "axios";
 import { useContext } from "react";
 import { VariablesContext } from "../context/VariablesContext";
 import type { ShippingInfoType } from "../types/commerce.types";
+import { appendShippingMethodToNotes } from "../utils/shippingNotes";
 
 export const useIrisCheckout = () => {
   const { url, globalParticipant } = useContext(VariablesContext);
@@ -15,9 +16,11 @@ export const useIrisCheckout = () => {
 
     const sessionId = `IRIS_${crypto.randomUUID()}`;
 
+    const shippingWithNotes = appendShippingMethodToNotes(shippingInfo);
+
     const shippingWithIrisNote: ShippingInfoType = {
-      ...shippingInfo,
-      notes: [shippingInfo.notes, "⚠️⚠️ αυτή είναι μια αγορά μέσω IRIS ⚠️⚠️"]
+      ...shippingWithNotes,
+      notes: [shippingWithNotes.notes, "⚠️⚠️ αυτή είναι μια αγορά μέσω IRIS ⚠️⚠️"]
         .filter(Boolean)
         .join("\n"),
     };
