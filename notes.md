@@ -79,6 +79,7 @@
 - πρσθήκη custom emails ✅
 - search transaction by id frontend ✅
 - iris payment ✅
+- ugly shipping page
 - iris qr, shipping prices, shipping stripe price id on custom
 - οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
 - θα θέλαμε το variant να συνδέετε με συγκεκριμένη εικόνα
