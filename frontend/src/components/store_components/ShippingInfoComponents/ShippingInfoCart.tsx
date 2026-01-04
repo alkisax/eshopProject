@@ -18,7 +18,7 @@ type Props = {
 
 const ShippingInfoCart = ({ cart, subtotal, shippingCost, total }: Props) => {
   return (
-    <Paper sx={{ p: 2, position: 'sticky', top: 80 }}>
+    <Paper sx={{ p: 2, top: 80 }}>
       <Typography variant='h6'>Σύνοψη Παραγγελίας</Typography>
 
       <List dense>
