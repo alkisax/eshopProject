@@ -4,20 +4,34 @@
 import { useMediaQuery } from "@mui/material";
 import CrossGridLayout from "./deisgnComponents/CrossGridLayout";
 import TopCategoryGridHeader from "./deisgnComponents/TopCategoryGridHeader";
+import { useSettings } from "../context/SettingsContext";
 
 const HomeResponsiveWrapper = ({ children }: { children: React.ReactNode }) => {
   const isSmUp = useMediaQuery("(min-width:600px)");
+  const { settings } = useSettings();
 
+  const isThemeEnabled =
+    !settings?.branding?.themeSelector?.includes("FALSE");
+  console.log(' from HomeResponsiveWrapper, isThemeEnabled: ', isThemeEnabled);
+  
+
+  // 1️⃣ Theme DISABLED → τίποτα extra
+  if (!isThemeEnabled) {
+    return <>{children}</>;
+  }
+
+  // 2️⃣ Theme ENABLED + Desktop
   if (isSmUp) {
     return <CrossGridLayout>{children}</CrossGridLayout>;
   }
 
+  // 3️⃣ Theme ENABLED + Mobile
   return (
     <>
       <TopCategoryGridHeader />
       {children}
     </>
-  ); // μικρή οθόνη → χωρίς CrossGrid
+  );
 };
 
 export default HomeResponsiveWrapper;

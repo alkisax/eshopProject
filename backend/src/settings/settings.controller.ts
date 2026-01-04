@@ -93,22 +93,6 @@ const updateSettings = async (req: Request, res: Response) => {
       ) {
         throw new BadRequestError('heroImage cannot be removed accidentally');
       }
-
-      /**
-       * GUARD 4: themeSelector
-       * Προστατεύει το themeSelector από accidental wipe
-       */
-      if (
-        'themeSelector' in parsed.branding &&
-        (!parsed.branding.themeSelector ||
-          parsed.branding.themeSelector.length === 0) &&
-        currentBranding.themeSelector &&
-        currentBranding.themeSelector.length > 0
-      ) {
-        throw new BadRequestError(
-          'themeSelector cannot be removed accidentally'
-        );
-      }
     }
 
     if (parsed.companyInfo) {

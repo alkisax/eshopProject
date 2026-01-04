@@ -46,6 +46,7 @@ import { CartActionsContext } from "./context/CartActionsContext";
 import HomeResponsiveWrapper from "./Layouts/HomeResponsiveWrapper";
 import CrossGridLayout from "./Layouts/deisgnComponents/CrossGridLayout";
 import AboutPage from "./pages/minorPages/AboutPage";
+import { useSettings } from "./context/SettingsContext";
 
 function App() {
   const { user } = useContext(UserAuthContext);
@@ -64,6 +65,11 @@ function App() {
     setCartCount
   );
 
+  const { settings } = useSettings();
+  const isThemeDisabled =
+    settings?.branding?.themeSelector?.includes("FALSE") ?? false;
+  const isThemeEnabled = !isThemeDisabled;
+
   return (
     <>
       {/* Google analytics initializer */}
@@ -75,9 +81,13 @@ function App() {
           <Route
             path="/"
             element={
-              <HomeResponsiveWrapper>
+              isThemeEnabled ? (
+                <HomeResponsiveWrapper>
+                  <Home />
+                </HomeResponsiveWrapper>
+              ) : (
                 <Home />
-              </HomeResponsiveWrapper>
+              )
             }
           />
           <Route path="/news" element={<News />} />
