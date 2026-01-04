@@ -29,6 +29,7 @@ import gptEmbeddingsRoutes from './aiEmbedings/gptEmbeddings.routes';
 import excelRoutes from './excel/routes/excel.routes';
 import settingsRoutes from './settings/settings.routes';
 import pdfRoutes from './pdfCreator/pdf.routes';
+import sitemapRoutes from './sitemap/sitemap.routes';
 
 const app = express();
 
@@ -152,6 +153,8 @@ app.get('/api/ping', (_req: Request, res: Response) => {
 app.get('/health', (_req, res) => {
   res.send('ok');
 });
+
+app.use('/', sitemapRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
