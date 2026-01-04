@@ -11,6 +11,7 @@ export const brandingSchema = z.object({
   headerFooterLogo: z.url().optional(),
   heroImage: z.url().optional(),
   isHeroImageActive: z.boolean().optional(),
+  themeSelector: z.array(z.enum(['TRUE', 'FALSE'])).optional(),
 });
 
 export const homeTextsSchema = z.object({
@@ -25,6 +26,7 @@ export const companyInfoSchema = z.object({
   address: z.string().optional(),
   phone: z.string().optional(),
   email: z.email().optional(),
+  irisBankQR: z.url().optional(),
 });
 
 export const socialLinksSchema = z.object({

@@ -5,6 +5,7 @@ export type Settings = {
     headerFooterLogo?: string;
     heroImage?: string;
     isHeroImageActive?: boolean;
+    themeSelector?: ("TRUE" | "FALSE")[];
   };
   homeTexts?: {
     homeText1?: string;
@@ -17,6 +18,7 @@ export type Settings = {
     address?: string;
     phone?: string;
     email?: string;
+    irisBankQR?: string; 
   };
   socialLinks?: {
     facebook?: string;

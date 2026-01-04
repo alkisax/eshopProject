@@ -264,19 +264,6 @@ const AdminTransactionsPanel = () => {
                         <TransactionPdfActions
                           transactionId={t._id!.toString()}
                         />
-                        {/* <Button
-                          variant={t.processed ? "outlined" : "contained"}
-                          color={t.processed ? "warning" : "success"}
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation(); // prevent row click
-                            markProcessed(t._id!.toString(), t);
-                          }}
-                        >
-                          {t.processed
-                            ? "Mark Unprocessed"
-                            : "Send Email & Mark Processed"}
-                        </Button> */}
                         {t.processed && (
                           <Button
                             size="small"

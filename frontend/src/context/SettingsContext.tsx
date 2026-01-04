@@ -81,10 +81,11 @@ export const SettingsProvider = ({
 
   useEffect(() => {
     fetchSettings();
-    axios
-      .get(`${url}/api/settings`)
-      .then((res) => setSettings(res.data.data))
-      .finally(() => setLoading(false));
+    // κάνει ήδη axios to fetchsettings. οταν το ξαναδείς μπορεί να σβηστεί
+    // axios
+    //   .get(`${url}/api/settings`)
+    //   .then((res) => setSettings(res.data.data))
+    //   .finally(() => setLoading(false));
   }, [fetchSettings, url]);
 
   return (

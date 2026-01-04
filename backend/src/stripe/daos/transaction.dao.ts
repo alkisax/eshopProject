@@ -20,6 +20,18 @@ import {
 
 import { Types } from 'mongoose';
 
+const findIrisTransactions = async () => {
+  return await Transaction.find({
+    sessionId: { $regex: '^IRIS_' },
+  })
+    .sort({ createdAt: -1 })
+    .populate('participant')
+    .populate({
+      path: 'items.commodity',
+      select: '-vector',
+    });
+};
+
 const createTransaction = async (
   participantId: string | Types.ObjectId,
   sessionId: string,
@@ -426,6 +438,7 @@ const deleteOldProcessedTransactions = async (years = 5): Promise<number> => {
 export const transactionDAO = {
   findAllTransactions,
   findTransactionById,
+  findIrisTransactions,
   createTransaction,
   deleteTransactionById,
   deleteOldProcessedTransactions,

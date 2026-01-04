@@ -21,6 +21,14 @@ router.get(
   transactionController.findUnprocessed
 );
 
+// get all iris transactions
+router.get(
+  '/iris',
+  middleware.verifyToken,
+  middleware.checkRole('ADMIN'),
+  transactionController.getIrisTransactions
+);
+
 // get all transactions by participant id. to create an "previous pirchaces" - needs login or else can acces other people transactions
 // router.get('/participant/:participantId', middleware.verifyToken, transactionController.findByParticipant);
 router.get(

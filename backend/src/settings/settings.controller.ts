@@ -49,12 +49,10 @@ const updateSettings = async (req: Request, res: Response) => {
 
       /**
        * GUARD 1: themeLogo
-       *
        * ΤΙ ΕΛΕΓΧΕΙ:
        * - Αν ο client ΕΣΤΕΙΛΕ themeLogo (υπάρχει στο payload)
        * - ΚΑΙ η τιμή είναι falsy (undefined, '', null)
        * - ΚΑΙ στη βάση ΥΠΑΡΧΕΙ ήδη themeLogo
-       *
        * ΤΙ ΠΡΟΣΤΑΤΕΥΕΙ:
        * - Να μην σβηστεί υπάρχον logo από μερικό update
        * - Π.χ. PATCH { branding: {} }
@@ -69,9 +67,7 @@ const updateSettings = async (req: Request, res: Response) => {
 
       /**
        * GUARD 2: headerFooterLogo
-       *
        * Ίδια λογική με το themeLogo
-       *
        * Προστατεύει:
        * - το logo header/footer
        * - από overwrite με undefined
@@ -88,7 +84,6 @@ const updateSettings = async (req: Request, res: Response) => {
 
       /**
        * GUARD 3: heroImage
-       *
        * Προστατεύει το hero image ώστε να μην σβηστεί από μερικό update
        */
       if (
@@ -97,6 +92,34 @@ const updateSettings = async (req: Request, res: Response) => {
         currentBranding.heroImage
       ) {
         throw new BadRequestError('heroImage cannot be removed accidentally');
+      }
+
+      /**
+       * GUARD 4: themeSelector
+       * Προστατεύει το themeSelector από accidental wipe
+       */
+      if (
+        'themeSelector' in parsed.branding &&
+        (!parsed.branding.themeSelector ||
+          parsed.branding.themeSelector.length === 0) &&
+        currentBranding.themeSelector &&
+        currentBranding.themeSelector.length > 0
+      ) {
+        throw new BadRequestError(
+          'themeSelector cannot be removed accidentally'
+        );
+      }
+    }
+
+    if (parsed.companyInfo) {
+      const currentCompany = current.companyInfo ?? {};
+
+      if (
+        'irisBankQR' in parsed.companyInfo &&
+        !parsed.companyInfo.irisBankQR &&
+        currentCompany.irisBankQR
+      ) {
+        throw new BadRequestError('irisBankQR cannot be removed accidentally');
       }
     }
 

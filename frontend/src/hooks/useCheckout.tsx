@@ -5,6 +5,7 @@ import { useContext } from "react";
 // import { UserAuthContext } from "../../context/UserAuthContext";
 import { VariablesContext } from "../context/VariablesContext";
 import type { ShippingInfoType } from '../types/commerce.types';
+import { appendShippingMethodToNotes } from '../utils/shippingNotes';
 
 const PUBLIC_STRIPE_KEY = import.meta.env.VITE_PUBLIC_STRIPE_KEY
 
@@ -31,13 +32,15 @@ const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
     console.log("👉 participantInfo being sent to backend:", participantInfo);
     console.log(">>> button clicked, participant_id =", globalParticipant._id)
 
+    const shippingWithNotes = appendShippingMethodToNotes(form);
+
     try {
       // added participant info to be sent to back via url params
       // added shipping inf to be sent to back in body
       const response = await axios.post(`${url}/api/stripe/checkout/cart`, {
         participantId: globalParticipant._id, 
         participantInfo,
-        shippingInfo: form
+        shippingInfo: shippingWithNotes
       })
 
       const { data } = response.data;

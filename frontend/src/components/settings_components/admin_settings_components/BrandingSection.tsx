@@ -15,6 +15,7 @@ type Props = {
   headerFooterLogo: string;
   heroImage: string;
   isHeroImageActive: boolean;
+  themeSelector: ("TRUE" | "FALSE")[];
   recentFiles: string[];
   ready: boolean;
   onThemeLogoChange: (v: string) => void;
@@ -24,6 +25,7 @@ type Props = {
   onUploadHeaderFooterLogo: (file: File) => void;
   onUploadHeroImage: (file: File) => void;
   onToggleHeroImageActive: (value: boolean) => void;
+  onThemeSelectorChange: (v: ("TRUE" | "FALSE")[]) => void;
   onSave: () => void;
 };
 
@@ -34,6 +36,7 @@ const BrandingSection = ({
   isHeroImageActive,
   recentFiles,
   ready,
+  themeSelector,
   onThemeLogoChange,
   onHeaderFooterLogoChange,
   onHeroImageChange,
@@ -41,6 +44,7 @@ const BrandingSection = ({
   onUploadHeaderFooterLogo,
   onUploadHeroImage,
   onToggleHeroImageActive,
+  onThemeSelectorChange,
   onSave,
 }: Props) => {
   return (
@@ -118,7 +122,7 @@ const BrandingSection = ({
           />
         )}
 
-                {/* HERO IMAGE */}
+        {/* HERO IMAGE */}
         <Typography variant="subtitle1">Hero Image</Typography>
 
         <FormControlLabel
@@ -163,6 +167,18 @@ const BrandingSection = ({
           />
         )}
 
+        {/* theme selector */}
+        <Typography variant="subtitle1">Theme Selector</Typography>
+
+        <Autocomplete<"TRUE" | "FALSE", true>
+          multiple
+          options={["TRUE", "FALSE"]}
+          value={themeSelector}
+          onChange={(_, v) => onThemeSelectorChange(v)}
+          renderInput={(params) => (
+            <TextField {...params} label="Theme selector" size="small" />
+          )}
+        />
         <Button variant="contained" onClick={onSave}>
           Save Branding
         </Button>

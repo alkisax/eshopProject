@@ -101,8 +101,18 @@ export const createInternalOrderPdf = async (
         .text(s.addressLine2 ?? '')
         .text(`${s.postalCode} ${s.city}`)
         .text(s.country)
-        .text(`Phone: ${s.phone ?? '-'}`)
-        .moveDown();
+        .text(`Phone: ${s.phone ?? '-'}`);
+
+      if (s.notes) {
+        doc
+          .moveDown(0.5)
+          .fontSize(9)
+          .fillColor('gray')
+          .text(`Notes: ${s.notes}`)
+          .fillColor('black');
+      }
+
+      doc.moveDown();
     }
 
     // ITEMS TABLE (manual)
@@ -122,17 +132,49 @@ export const createInternalOrderPdf = async (
     y += 10;
 
     transaction.items.forEach((item, index) => {
-      const productName =
-        typeof item.commodity === 'object' && 'name' in item.commodity
-          ? item.commodity.name
-          : 'Product';
+      const commodity =
+        item.commodity &&
+        typeof item.commodity === 'object' &&
+        'name' in item.commodity
+          ? item.commodity
+          : null;
+
+      const productName = commodity?.name ?? 'Product';
+
+      const variant =
+        item.variantId && commodity?.variants
+          ? commodity.variants.find(
+            (v) => v._id?.toString() === item.variantId?.toString()
+          )
+          : null;
 
       doc.text(String(index + 1), startX, y);
       doc.text(productName, startX + 30, y, { width: 250 });
       doc.text(String(item.quantity), startX + 300, y);
       doc.text(`${item.priceAtPurchase} €`, startX + 350, y);
 
-      y += 18;
+      y += 14;
+
+      if (variant?.attributes) {
+        const attributes =
+          variant.attributes instanceof Map
+            ? Object.fromEntries(variant.attributes.entries())
+            : variant.attributes;
+
+        const variantLabel = Object.entries(attributes)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(', ');
+
+        doc
+          .fontSize(9)
+          .fillColor('gray')
+          .text(`Variant: ${variantLabel}`, startX + 30, y);
+
+        doc.fillColor('black');
+        y += 12;
+      }
+
+      y += 6;
     });
 
     doc.moveDown(2);
@@ -150,7 +192,6 @@ export const createInternalOrderPdf = async (
     handleControllerError(res, error);
   }
 };
-
 
 export const createShippingInfoPdf = async (
   req: Request,
@@ -211,28 +252,17 @@ export const createShippingInfoPdf = async (
     doc.moveDown(3);
 
     // SHIPPING BLOCK (printable label style)
-    doc
-      .fontSize(12)
-      .text('Recipient', { underline: true })
-      .moveDown(0.5);
+    doc.fontSize(12).text('Recipient', { underline: true }).moveDown(0.5);
 
-    doc
-      .fontSize(14)
-      .text(s.fullName)
-      .moveDown(0.3);
+    doc.fontSize(14).text(s.fullName).moveDown(0.3);
 
-    doc
-      .fontSize(12)
-      .text(s.addressLine1);
+    doc.fontSize(12).text(s.addressLine1);
 
     if (s.addressLine2) {
       doc.text(s.addressLine2);
     }
 
-    doc
-      .text(`${s.postalCode} ${s.city}`)
-      .text(s.country)
-      .moveDown();
+    doc.text(`${s.postalCode} ${s.city}`).text(s.country).moveDown();
 
     doc.fontSize(10).text(`Phone: ${s.phone ?? '-'}`);
 
@@ -262,7 +292,6 @@ export const examplePdf = async (
   console.log('[PDFKIT][EXAMPLE] START');
 
   try {
-
     // Δημιουργούμε νέο PDF document
     const doc = new PDFDocument({
       size: 'A4',
@@ -287,10 +316,7 @@ export const examplePdf = async (
      * - όχι preview στον browser
      */
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      'attachment; filename=example.pdf'
-    );
+    res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
 
     /**
      * Συνδέουμε το PDF stream απευθείας στο response
@@ -308,22 +334,16 @@ export const examplePdf = async (
       .text('PDFKit Example PDF', { align: 'center' })
       .moveDown(2);
 
-
     doc
       .fontSize(11)
-      .text(
-        'Χρησιμοποιείται μόνο για δοκιμές (smoke-test) και debugging.',
-        {
-          align: 'left',
-        }
-      )
+      .text('Χρησιμοποιείται μόνο για δοκιμές (smoke-test) και debugging.', {
+        align: 'left',
+      })
       .moveDown(2);
 
-    doc
-      .fontSize(10)
-      .text(`Generated at: ${new Date().toLocaleString()}`, {
-        align: 'right',
-      });
+    doc.fontSize(10).text(`Generated at: ${new Date().toLocaleString()}`, {
+      align: 'right',
+    });
 
     /**
      * Κλείνουμε το PDF stream
@@ -337,4 +357,3 @@ export const examplePdf = async (
     handleControllerError(res, error);
   }
 };
-

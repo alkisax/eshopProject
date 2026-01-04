@@ -23,6 +23,11 @@ const brandingSchema = new Schema(
     headerFooterLogo: { type: String },
     heroImage: { type: String },
     isHeroImageActive: { type: Boolean, default: false },
+    themeSelector: {
+      type: [String],
+      enum: ['TRUE', 'FALSE'],
+      default: ['FALSE'],
+    },
   },
   { _id: false }
 );
@@ -43,6 +48,7 @@ const companyInfoSchema = new Schema(
     address: { type: String },
     phone: { type: String },
     email: { type: String },
+    irisBankQR: { type: String },
   },
   { _id: false }
 );
@@ -138,7 +144,7 @@ const settingsSchema = new Schema(
     emailTemplates: {
       type: emailTemplatesSchema,
       default: {},
-    },    
+    },
   },
   {
     collection: 'Settings',
