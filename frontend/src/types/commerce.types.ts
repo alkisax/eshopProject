@@ -40,7 +40,7 @@ export interface ShippingInfoType {
   country: string;
   phone?: string;
   notes?: string;
-  shippingMethod?: "courier" | "boxnow" | "pickup";
+  shippingMethod: "courier" | "boxnow" | "pickup";
 }
 
 export interface CommodityType {

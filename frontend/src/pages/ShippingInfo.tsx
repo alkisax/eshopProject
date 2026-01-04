@@ -2,10 +2,10 @@
 import {
   Box,
   Button,
-  FormControlLabel,
-  Paper,
-  Radio,
-  RadioGroup,
+  // FormControlLabel,
+  // Paper,
+  // Radio,
+  // RadioGroup,
   Stack,
   TextField,
   Typography,
@@ -14,10 +14,12 @@ import { useContext, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useCheckout } from "../hooks/useCheckout";
 import type { CartType, ShippingInfoType } from "../types/commerce.types";
-import ShippingInfoCart from "../components/store_components/ShippingInfoComponents/ShippingInfoCart";
+// import ShippingInfoCart from "../components/store_components/ShippingInfoComponents/ShippingInfoCart";
 import axios from "axios";
 import { VariablesContext } from "../context/VariablesContext";
 import IrisDialog from "../components/store_components/ShippingInfoComponents/IrisDialog";
+import { useRef } from "react";
+import ShippingSummaryPanel from "../components/store_components/ShippingInfoComponents/ShippingSummaryPanel";
 
 // import BoxNowWidget from "../components/store_components/BoxNowWidget";
 
@@ -37,6 +39,10 @@ const ShippingInfo = () => {
   const [openIris, setOpenIris] = useState<boolean>(false);
 
   const { handleCheckout } = useCheckout();
+
+  // το checkout του stripe είναι submit και έτσι δεν πατιόταν αν δεν είχαμε συμπληρώσει την φορμα. αλλα του iris δεν είναι submit και θα πρέπει να το εμποδισουμε να εμφανίζετε χωρίς συμπληρωμένη φόρμα αλλιώς
+  // φτιάχνουμε ένα ref και το βάζουμε στο κουμπί της φορμας με ref={formRef}
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -87,6 +93,15 @@ const ShippingInfo = () => {
   const shippingCost = SHIPPING_COSTS[method];
   const total = subtotal + shippingCost;
 
+  const handleOpenIris = () => {
+    if (!formRef.current) return;
+    if (!formRef.current.checkValidity()) {
+      formRef.current.reportValidity(); // δείχνει native errors
+      return;
+    }
+    setOpenIris(true);
+  };
+
   return (
     <>
       <Helmet>
@@ -107,6 +122,7 @@ const ShippingInfo = () => {
 
       <Box
         component="form"
+        ref={formRef}
         sx={{
           display: "flex",
           flexDirection: { xs: "column", sm: "row" }, // 👈 responsive
@@ -114,6 +130,18 @@ const ShippingInfo = () => {
         }}
         onSubmit={handleSubmit}
       >
+        {/* 🟢 RIGHT column — FIRST on mobile */}
+        <Box sx={{ order: { xs: 0, sm: 1 }, flex: 1 }}>
+          <ShippingSummaryPanel
+            cart={cart}
+            subtotal={subtotal}
+            shippingCost={shippingCost}
+            total={total}
+            shippingMethod={form.shippingMethod}
+            onChange={(v) => handleChange("shippingMethod", v)}
+          />
+        </Box>
+        
         {/* 🟢 Left column: address fields */}
         <Stack spacing={2} flex={1}>
           <TextField
@@ -187,7 +215,7 @@ const ShippingInfo = () => {
             <Button
               variant="outlined"
               color="secondary"
-              onClick={() => setOpenIris(true)}
+              onClick={handleOpenIris}
             >
               Πληρωμή με IRIS / Τραπεζικό QR
               <br />
@@ -207,7 +235,7 @@ const ShippingInfo = () => {
         </Stack>
 
         {/* 🟢 Right column: shipping methods */}
-        <Paper
+        {/* <Paper
           sx={{
             flex: 1,
             p: 2,
@@ -261,8 +289,8 @@ const ShippingInfo = () => {
               label="Παραλαβή από το κατάστημα: 0 €"
             />
           </RadioGroup>
-        </Paper>
-      </Box>
+        </Paper>*/}
+      </Box> 
 
       <IrisDialog
         open={openIris}
