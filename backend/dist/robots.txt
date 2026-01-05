@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin-panel
+Disallow: /api
+Disallow: /login
+Disallow: /profile
+Disallow: /cart
+Disallow: /shipping-info
+
+Sitemap: https://haveanidea.gr/sitemap.xml
