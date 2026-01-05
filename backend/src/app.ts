@@ -180,14 +180,18 @@ app.use('/api/pdf', pdfRoutes);
 
 app.use(express.static('dist'));
 
+// robots.txt serve
+app.get('/robots.txt', (_req, res) => {
+  res.type('text/plain');
+  res.sendFile(path.resolve(__dirname, '../../public/robots.txt'));
+});
+
 // swagger test page
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ✅ SERVE UPLOADS BEFORE DIST
 // ΠΡΟΣΟΧΗ το ../ στο path είναι συμαντικο. τα αρχεια μας βρίσκονται τελικά στον φάκελο dist
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
-app.use(express.static(path.join(__dirname, '../public')));
 
 // για να σερβίρει τον φακελο dist του front μετα το npm run build
 // app.use(express.static('dist'));
