@@ -36,6 +36,65 @@ systemctl reload nginx
 ufw allow 'Nginx Full'
 pm2 startup
 pm2 save
+- μετά απο διαφορες προσθήκες για να μπορώ να δω απο το front τα backend dist api-docs sitemap robots etc το nginx Μου γίνετε
+```
+server {
+  server_name haveanidea.gr www.haveanidea.gr eshop.haveanidea.gr;
+
+  location = /sitemap.xml {
+    proxy_pass http://localhost:3001/sitemap.xml;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+  location /api-docs {
+    proxy_pass http://localhost:3001/api-docs;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+  location /api/ {
+    proxy_pass http://localhost:3001;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+  location = /robots.txt {
+    root /var/www/eshop/backend/dist;
+  }
+  location / {
+    root /var/www/eshop/backend/dist;
+    index index.html;
+    try_files $uri $uri/ /index.html;
+  }
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/haveanidea.gr/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/haveanidea.gr/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+server {
+    if ($host = eshop.haveanidea.gr) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    if ($host = www.haveanidea.gr) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    if ($host = haveanidea.gr) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+  listen 80;
+  server_name haveanidea.gr www.haveanidea.gr eshop.haveanidea.gr;
+    return 404; # managed by Certbot
+}
+```
 
 - αγόρασα απο papaki το domain haveanidea.gr
 nano /etc/nginx/sites-available/eshop
