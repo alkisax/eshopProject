@@ -2,12 +2,14 @@
 // backend\src\stripe\controllers\transactionController.ts
 import type { Request, Response } from 'express';
 import { transactionDAO } from '../daos/transaction.dao';
+import { participantDao } from '../daos/participant.dao';
 import axios from 'axios';
 import { handleControllerError } from '../../utils/error/errorHandler';
 // import type { TransactionType } from '../types/stripe.types';
 import { Types } from 'mongoose';
 import { emailController } from './email.controller';
 import { ShippingInfoType } from '../types/stripe.types';
+import { AuthRequest } from '../../login/types/user.types';
 // const sendThnxEmail = require('../controllers/email.controller') // !!!
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
@@ -108,6 +110,33 @@ const findByParticipant = async (req: Request, res: Response) => {
     const transactions = await transactionDAO.findByParticipantId(
       participantId
     );
+    return res.status(200).json({ status: true, data: transactions });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
+const findMyTransactions = async (req: AuthRequest, res: Response) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ status: false, message: 'Unauthorized' });
+  }
+
+  try {
+    // 1. βρίσκουμε participant από userId
+    const participant = await participantDao.findParticipantByUserId(user.id);
+
+    if (!participant || !participant._id) {
+      // δεν είναι false. σημαίνει ο user δεν έχει κάνει αγορές ακόμα και άρα δεν έχει Participant
+      return res.status(200).json({ status: true, data: [] });
+    }
+
+    // 2. βρίσκουμε transactions
+    const transactions = await transactionDAO.findByParticipantId(
+      participant._id
+    );
+
     return res.status(200).json({ status: true, data: transactions });
   } catch (error) {
     return handleControllerError(res, error);
@@ -265,6 +294,7 @@ export const transactionController = {
   findAll,
   findUnprocessed,
   findByParticipant,
+  findMyTransactions,
   getIrisTransactions,
   toggleProcessed,
   markConfirmed,

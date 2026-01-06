@@ -30,10 +30,18 @@ router.get(
 );
 
 // get all transactions by participant id. to create an "previous pirchaces" - needs login or else can acces other people transactions
-// router.get('/participant/:participantId', middleware.verifyToken, transactionController.findByParticipant);
+// αυτή σχετίζετε με την /my παρακάτω και ποιο πριν ήταν μια που έσπασε σε δύο. Το πρόβλημα είναι οτι τα transaction πρέπει να τα βλέπει ο admin αλλά πρέπει να τα βλέπει και ο user (τα δικά του) για να μπορέι να δεί τις παλιές αγορές του. Το πρόβλημα ήταν πως ένας user θα βλέπει τα δικά του και όχι άλλων
 router.get(
   '/participant/:participantId',
+  middleware.verifyToken,
+  middleware.checkRole('ADMIN'),
   transactionController.findByParticipant
+);
+
+router.get(
+  '/my',
+  middleware.verifyToken,
+  transactionController.findMyTransactions
 );
 
 router.get(
@@ -42,6 +50,7 @@ router.get(
   middleware.checkRole('ADMIN'),
   transactionController.findById
 );
+
 // POST create a new transaction (no auth yet)
 router.post('/', limiter(15, 5), transactionController.create);
 

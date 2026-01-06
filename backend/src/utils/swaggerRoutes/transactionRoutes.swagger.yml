@@ -26,13 +26,13 @@ paths:
         '401':
           description: Unauthorized
         '403':
-          description: Forbidden
+          description: Forbidden (admin only)
+
     post:
-      summary: Create a new transaction from a participant's cart
+      summary: Create a new transaction (internal / checkout flow)
       description: >
-        Creates a transaction after a successful Stripe checkout.  
-        Requires the participant ID and the Stripe sessionId.  
-        The transaction will automatically snapshot cart items, calculate total amount, link to participant, and clear the cart.
+        Creates a transaction after a successful Stripe or IRIS checkout.
+        This endpoint is used internally by the checkout flow.
       tags: [Transactions]
       requestBody:
         required: true
@@ -50,7 +50,6 @@ paths:
                   example: "68ad7e285d9e6a24a76b249e"
                 sessionId:
                   type: string
-                  description: Stripe Checkout session ID
                   example: "cs_test_a1b2c3d4e5"
       responses:
         '201':
@@ -65,7 +64,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Transaction'
         '400':
-          description: Invalid input (missing participantId, empty cart, or duplicate sessionId)
+          description: Invalid input
 
   /api/transaction/unprocessed:
     get:
@@ -90,8 +89,8 @@ paths:
         '401':
           description: Unauthorized
         '403':
-          description: Forbidden
-          
+          description: Forbidden (admin only)
+
   /api/transaction/iris:
     get:
       summary: Get all IRIS transactions (admin only)
@@ -121,26 +120,19 @@ paths:
         '403':
           description: Forbidden (admin only)
 
-  /api/transaction/{id}:
+  /api/transaction/my:
     get:
-      summary: Get transaction by ID (admin only)
+      summary: Get my transactions (logged-in user)
       description: >
-        Fetch a single transaction by its ID.  
-        Used for admin search, debugging, and customer support.
+        Returns all transactions belonging to the currently authenticated user.
+        The backend resolves the participant internally from the JWT user id.
+        Returns an empty array if the user has no transactions yet.
       tags: [Transactions]
       security:
         - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: objectId
-          description: Transaction ID
       responses:
         '200':
-          description: Transaction found
+          description: List of user transactions
           content:
             application/json:
               schema:
@@ -150,75 +142,18 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    $ref: '#/components/schemas/Transaction'
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
         '401':
           description: Unauthorized
-        '403':
-          description: Forbidden (admin only)
-        '404':
-          description: Transaction not found
 
-  /api/transaction/{id}:
-    delete:
-      summary: Delete (cancel) a transaction by ID (admin only)
-      description: Marks a transaction as cancelled.  
-        Transactions are not hard-deleted to preserve history.
-      tags: [Transactions]
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: Transaction ID
-      responses:
-        '200':
-          description: Transaction cancelled successfully
-        '404':
-          description: Transaction not found
-        '400':
-          description: Bad request (missing or invalid ID)
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-
-  /api/transaction/toggle/{id}:
-    put:
-      summary: Toggle the processed status of a transaction (admin only)
-      description: >
-        Flips the `processed` flag for a transaction.  
-        Also triggers an automated thank-you email to the participant.
-      tags: [Transactions]
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: Transaction ID
-      responses:
-        '200':
-          description: Transaction updated successfully
-        '404':
-          description: Transaction not found
-        '400':
-          description: Bad request (missing or invalid ID)
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden (admin access required)
-          
   /api/transaction/participant/{participantId}:
     get:
-      summary: Get all transactions for a participant
+      summary: Get all transactions for a participant (admin only)
       description: >
-        Returns all transactions for a specific participant, sorted by most recent first.  
-        Requires authentication — only the participant’s owner can access their own transactions.
+        Returns all transactions for a specific participant.
+        Admin access only.
       tags: [Transactions]
       security:
         - bearerAuth: []
@@ -229,11 +164,10 @@ paths:
           schema:
             type: string
             format: objectId
-          description: The ID of the participant whose transactions you want to fetch
-          example: "68ad7e285d9e6a24a76b249e"
+          description: Participant ID
       responses:
         '200':
-          description: A list of participant transactions
+          description: List of participant transactions
           content:
             application/json:
               schema:
@@ -244,82 +178,109 @@ paths:
                   data:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                          example: "68ad7e285d9e6a24a76b249e"
-                        participant:
-                          type: string
-                          example: "68ad7e285d9e6a24a76b249f"
-                        items:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              commodity:
-                                type: object
-                                properties:
-                                  _id:
-                                    type: string
-                                    example: "68ad7e285d9e6a24a76b2500"
-                                  name:
-                                    type: string
-                                    example: "Sample Commodity"
-                                  price:
-                                    type: number
-                                    example: 9.99
-                                  currency:
-                                    type: string
-                                    example: "EUR"
-                              quantity:
-                                type: integer
-                                example: 2
-                              priceAtPurchase:
-                                type: number
-                                example: 9.99
-                        amount:
-                          type: number
-                          example: 19.98
-                        processed:
-                          type: boolean
-                          example: false
-                        cancelled:
-                          type: boolean
-                          example: false
-                        sessionId:
-                          type: string
-                          example: "cs_test_a1b2c3d4e5"
-                        createdAt:
-                          type: string
-                          format: date-time
-                          example: "2025-09-01T15:32:42.296Z"
-                        updatedAt:
-                          type: string
-                          format: date-time
-                          example: "2025-09-01T15:32:42.296Z"
+                      $ref: '#/components/schemas/Transaction'
         '400':
           description: Missing participantId
         '401':
           description: Unauthorized
         '403':
-          description: Forbidden (user not owner of participant)
+          description: Forbidden (admin only)
         '404':
-          description: Participant or transactions not found
-          
+          description: Participant not found
+
+  /api/transaction/{id}:
+    get:
+      summary: Get transaction by ID (admin only)
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: objectId
+      responses:
+        '200':
+          description: Transaction found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Transaction'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '404':
+          description: Transaction not found
+
+    delete:
+      summary: Cancel a transaction (admin only)
+      description: >
+        Marks a transaction as cancelled.
+        Transactions are not hard-deleted.
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction cancelled successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '404':
+          description: Transaction not found
+
+  /api/transaction/toggle/{id}:
+    put:
+      summary: Toggle the processed status of a transaction (admin only)
+      description: >
+        Flips the `processed` flag for a transaction
+        and triggers a thank-you email.
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction updated successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '404':
+          description: Transaction not found
+
   /api/transaction/clear/old:
     delete:
-      summary: Delete processed transactions older than 5 days (admin only)
+      summary: Delete old processed transactions (admin only)
       description: >
-        Permanently deletes all transactions that are marked as `processed: true`  
-        and have an `updatedAt` timestamp older than 5 days.  
-        Useful for cleanup and database hygiene.
+        Permanently deletes transactions marked as processed
+        and older than 5 days.
       tags: [Transactions]
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Old processed transactions deleted
+          description: Old transactions deleted
           content:
             application/json:
               schema:
@@ -330,10 +291,9 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "3 processed transactions older than 5 days were deleted."
         '401':
-          description: Unauthorized (no token provided)
+          description: Unauthorized
         '403':
-          description: Forbidden (non-admin user)
+          description: Forbidden (admin only)
         '500':
           description: Server error

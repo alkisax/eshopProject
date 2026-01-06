@@ -48,12 +48,17 @@ type TxDoc = {
   updatedAt: string | Date;
 };
 
+/**
+ * ⚠️ ΣΗΜΑΝΤΙΚΟ
+ * Το endpoint /transaction/participant/:id είναι ADMIN-only.
+ * Άρα το test user ΠΡΕΠΕΙ να είναι ADMIN.
+ */
 const TEST_USER = {
   username: 'testuser_tx',
   name: 'Test User',
   email: 'tx_user@example.com',
   password: 'supersecret',
-  roles: ['USER'],
+  roles: ['ADMIN'], // ✅ FIX: ADMIN instead of USER
 };
 
 let token: string;
@@ -61,7 +66,7 @@ let userId: Types.ObjectId;
 let participantId: Types.ObjectId;
 let commodityId: Types.ObjectId;
 
-describe('GET /api/transaction/participant/:participantId', () => {
+describe('GET /api/transaction/participant/:participantId (ADMIN)', () => {
   beforeAll(async () => {
     await connect(process.env.MONGODB_TEST_URI!);
 
@@ -73,7 +78,7 @@ describe('GET /api/transaction/participant/:participantId', () => {
       Commodity.deleteMany({}),
     ]);
 
-    // Create user
+    // Create admin user
     const hashedPassword = await hash(TEST_USER.password, 10);
     const user = await User.create({
       username: TEST_USER.username,
@@ -88,6 +93,7 @@ describe('GET /api/transaction/participant/:participantId', () => {
     const loginRes = await request(app)
       .post('/api/auth')
       .send({ username: TEST_USER.username, password: TEST_USER.password });
+
     expect(loginRes.status).toBe(200);
 
     const loginBody = loginRes.body as LoginResponse;
@@ -105,7 +111,7 @@ describe('GET /api/transaction/participant/:participantId', () => {
     });
     participantId = participant._id;
 
-    // Create a commodity
+    // Create commodity
     const commodity = await Commodity.create({
       name: 'Demo Product',
       description: 'For tx tests',
@@ -120,7 +126,7 @@ describe('GET /api/transaction/participant/:participantId', () => {
     });
     commodityId = commodity._id;
 
-    // Create 2 transactions for this participant (later one should appear first)
+    // Create first transaction
     await Transaction.create({
       participant: participantId,
       items: [{ commodity: commodityId, quantity: 1, priceAtPurchase: 5 }],
@@ -130,9 +136,10 @@ describe('GET /api/transaction/participant/:participantId', () => {
       sessionId: `cs_${Date.now()}_a`,
     });
 
-    // ensure different createdAt for sort
+    // ensure different createdAt
     await new Promise((r) => setTimeout(r, 10));
 
+    // Create second transaction (newer)
     await Transaction.create({
       participant: participantId,
       items: [{ commodity: commodityId, quantity: 2, priceAtPurchase: 5 }],
@@ -153,12 +160,7 @@ describe('GET /api/transaction/participant/:participantId', () => {
     await disconnect();
   });
 
-  // it('returns 401 when no token is provided', async () => {
-  //   const res = await request(app).get(`/api/transaction/participant/${participantId.toString()}`);
-  //   expect(res.status).toBe(401);
-  // });
-
-  it('returns transactions for the participant (sorted desc, with populated items.commodity)', async () => {
+  it('returns transactions for the participant (sorted desc, populated items.commodity)', async () => {
     const res = await request(app)
       .get(`/api/transaction/participant/${participantId.toString()}`)
       .set('Authorization', `Bearer ${token}`);
@@ -170,14 +172,12 @@ describe('GET /api/transaction/participant/:participantId', () => {
     expect(Array.isArray(body.data)).toBe(true);
     expect(body.data.length).toBe(2);
 
-    // Sorted desc by createdAt → first is the *second* we created (amount 10)
     const [first, second] = body.data;
 
-    // basic shape
+    // Sorted DESC by createdAt
     expect(first.amount).toBe(10);
     expect(second.amount).toBe(5);
 
-    // createdAt sorting check
     const firstCreated = new Date(first.createdAt).getTime();
     const secondCreated = new Date(second.createdAt).getTime();
     expect(firstCreated).toBeGreaterThanOrEqual(secondCreated);
@@ -185,14 +185,15 @@ describe('GET /api/transaction/participant/:participantId', () => {
     // populated commodity checks
     expect(first.items.length).toBe(1);
     expect(first.items[0].commodity).toBeDefined();
-    expect(first.items[0].commodity._id.toString()).toBe(commodityId.toString());
+    expect(first.items[0].commodity._id.toString()).toBe(
+      commodityId.toString()
+    );
     expect(first.items[0].commodity.name).toBe('Demo Product');
     expect(first.items[0].commodity.price).toBe(5);
     expect(first.items[0].commodity.currency).toBe('eur');
   });
 
-  it('returns an empty list for a participant with no transactions', async () => {
-    // create another participant owned by the same user
+  it('returns empty list for participant with no transactions', async () => {
     const emptyParticipant = await Participant.create({
       name: 'NoTx',
       email: 'no-tx@example.com',
@@ -205,6 +206,7 @@ describe('GET /api/transaction/participant/:participantId', () => {
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(200);
+
     const body = res.body as ApiListResponse<TxDoc[]>;
     expect(body.status).toBe(true);
     expect(Array.isArray(body.data)).toBe(true);
