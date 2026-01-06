@@ -6,6 +6,7 @@
 
 import jwt from 'jsonwebtoken';
 import User from '../models/users.models';
+import crypto from 'crypto';
 import { account } from '../../utils/appwrite';
 // import { OAuthProvider } from 'appwrite';
 import querystring from 'querystring';
@@ -16,6 +17,7 @@ import type { IUser } from '../types/user.types';
 import { AuthRequest } from '../types/user.types';
 import { handleControllerError } from '../../utils/error/errorHandler';
 import { loginSchema } from '../validation/auth.schema';
+import { createExchangeCode } from './exchangeCodeForToken';
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -220,7 +222,7 @@ export const googleLogin = async (req: Request, res: Response) => {
   if (req.query.error === 'access_denied') {
     return res.redirect(`${frontendUrl}/login`);
   }
-  
+
   // 1. Controller receives the Google code from Google
   const code = req.query.code;
 
@@ -252,39 +254,51 @@ export const googleLogin = async (req: Request, res: Response) => {
     );
   }
 
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error('JWT secret is not defined in environment variables');
-  }
+  // η δημιουργία token μεταφέρθηκε στο exchangeCodeForToken.ts.
+  // const secret = process.env.JWT_SECRET;
+  // if (!secret) {
+  //   throw new Error('JWT secret is not defined in environment variables');
+  // }
 
-  // 4. Generate your app’s JWT
-  const payload = {
-    id: dbUser._id,
-    name: dbUser.name,
-    email: dbUser.email,
-    roles: dbUser.roles,
-    provider: 'google',
-  };
-  const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+  // // 4. Generate your app’s JWT
+  // const payload = {
+  //   id: dbUser._id,
+  //   name: dbUser.name,
+  //   email: dbUser.email,
+  //   roles: dbUser.roles,
+  //   provider: 'google',
+  // };
+  // const token = jwt.sign(payload, secret, { expiresIn: '1d' });
 
   // 5. Redirect to front if sign in
   // const frontendUrl = process.env.FRONTEND_URL;
+
   const message = `user ${dbUser.name} signed in`;
+  // αυτό είναι το προβληματικό σημείο με το token στο url
+  // return res.redirect(
+  //   `${frontendUrl}/google-success?token=${token}&email=${
+  //     dbUser.email
+  //   }&message=${encodeURIComponent(message)}`
+  // );
+
+  const exchangeCode = crypto.randomUUID();
+
+  createExchangeCode(exchangeCode, {
+    userId: dbUser._id.toString(),
+    provider: 'google',
+    expiresAt: Date.now() + 60_000, // 60s TTL
+  });
+
   return res.redirect(
-    `${frontendUrl}/google-success?token=${token}&email=${
+    `${frontendUrl}/google-success?code=${exchangeCode}&email=${
       dbUser.email
     }&message=${encodeURIComponent(message)}`
   );
 };
 
-// DRY problem
 export const googleSignup = async (req: Request, res: Response) => {
   const redirectUri = process.env.GOOGLE_REDIRECT_URI_SIGNUP as string;
   const frontendUrl = process.env.FRONTEND_URL;
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error('JWT secret is not defined in environment variables');
-  }
 
   // ✅ HANDLE CANCEL FROM GOOGLE
   if (req.query.error === 'access_denied') {
@@ -339,30 +353,323 @@ export const googleSignup = async (req: Request, res: Response) => {
   }
 
   // 4. Generate your app’s JWT
-
   if (!dbUser) {
     return res
       .status(500)
       .json({ status: false, error: 'User not found or failed to create' });
   }
 
-  const payload = {
-    id: dbUser._id,
-    name: dbUser.name,
-    email: dbUser.email,
-    roles: dbUser.roles,
-    provider: 'google',
-  };
-  const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+  // η δημιουργία token μεταφέρθηκε στο exchangeCodeForToken.ts.
 
-  // 5. Redirect to front if sign in
+  // const secret = process.env.JWT_SECRET;
+  // if (!secret) {
+  //   throw new Error('JWT secret is not defined in environment variables');
+  // }
+
+  // const payload = {
+  //   id: dbUser._id,
+  //   name: dbUser.name,
+  //   email: dbUser.email,
+  //   roles: dbUser.roles,
+  //   provider: 'google',
+  // };
+  // const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+
+  /* 5. Redirect to front if sign in */
+  // αυτό είναι το προβληματικό σημείο με το token στο url
+  // return res.redirect(
+  //   `${frontendUrl}/google-success?token=${token}&email=${
+  //     dbUser.email
+  //   }&message=${encodeURIComponent(message)}`
+  // );
+  const exchangeCode = crypto.randomUUID();
+
+  createExchangeCode(exchangeCode, {
+    userId: dbUser._id.toString(),
+    provider: 'google',
+    expiresAt: Date.now() + 60_000, // 60s TTL
+  });
+
   return res.redirect(
-    `${frontendUrl}/google-success?token=${token}&email=${
+    `${frontendUrl}/google-success?code=${exchangeCode}&email=${
       dbUser.email
     }&message=${encodeURIComponent(message)}`
   );
 };
 
+export const githubCallback = async (_req: Request, res: Response) => {
+  try {
+    // IMPORTANT: The browser must send Appwrite session cookie here,
+    const appwriteUser = await account.get(); // gets logged-in user from Appwrite session
+
+    if (!appwriteUser || !appwriteUser.email) {
+      return res.redirect(`${process.env.FRONTEND_URL}/signup`);
+    }
+
+    // Check if user exists in your DB
+    const dbUser = await User.findOne({ email: appwriteUser.email });
+
+    if (!dbUser) {
+      // Redirect to frontend signup page if user not found in your DB
+      return res.redirect(`${process.env.FRONTEND_URL}/signup`);
+    }
+
+    /*
+    δεν δημιουργούμε JWT εδώ πια αλλά στο exchangeCodeForToken.ts
+    */
+    // // Generate your JWT for your app
+    // const secret = process.env.JWT_SECRET;
+    // if (!secret) {
+    //   throw new Error('JWT secret is missing');
+    // }
+
+    // const token = jwt.sign({ id: dbUser._id, roles: dbUser.roles }, secret, {
+    //   expiresIn: '1d',
+    // });
+
+    // Redirect frontend with token & email
+
+    /*
+    αυτό είναι το προβληματικό σημείο με το token στο url
+    */
+    // res.redirect(
+    //   `${process.env.FRONTEND_URL}/github-success?token=${token}&email=${dbUser.email}`
+    // );
+    const exchangeCode = crypto.randomUUID();
+
+    createExchangeCode(exchangeCode, {
+      userId: dbUser._id.toString(),
+      provider: 'github',
+      expiresAt: Date.now() + 60_000, // 60s TTL
+    });
+
+    // ✅ redirect ΜΟΝΟ με code
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/github-success?code=${exchangeCode}&email=${dbUser.email}`
+    );
+  } catch (error) {
+    console.error('GitHub OAuth callback error:', error);
+    res
+      .status(500)
+      .json({ status: false, error: 'GitHub OAuth callback failed' });
+  }
+};
+
+export const authController = {
+  login,
+  refreshToken,
+  getGoogleOAuthUrlLogin,
+  getGoogleOAuthUrlSignup,
+  googleLogin,
+  googleSignup,
+  // githubLogin,
+  githubCallback,
+};
+
+/*
+ Do not delete. Αυτή εδώ άλλαξε για να μην στέλνω token μέσα σε url params δες σχολια exchangeCodeForToken.ts. αλλα θα μείνει για ένα διαστημα εδώ για λόγους ασφαλείας αλλα και γιατί έχει τον πιο απλό κώδικα για μελλοντική χρήση.
+*/
+// export const googleLogin = async (req: Request, res: Response) => {
+//   const redirectUri = process.env.GOOGLE_REDIRECT_URI_LOGIN as string;
+
+//   const frontendUrl = process.env.FRONTEND_URL;
+//   // ✅ HANDLE CANCEL FROM GOOGLE
+//   if (req.query.error === 'access_denied') {
+//     return res.redirect(`${frontendUrl}/login`);
+//   }
+
+//   // 1. Controller receives the Google code from Google
+//   const code = req.query.code;
+
+//   if (typeof code !== 'string') {
+//     console.log('Auth code is missing during Google login attempt');
+//     return res
+//       .status(400)
+//       .json({ status: false, data: 'auth code is missing' });
+//   }
+
+//   const { user, error } = await authService.googleAuth(code, redirectUri);
+
+//   if (error || !user || !user.email) {
+//     console.log('Google login failed or incomplete');
+//     return res.status(401).json({ status: false, data: 'Google login failed' });
+//   }
+
+//   // 3 - If user does not exist → redirect to frontend signup
+
+//   // Check if user exists
+//   const dbUser = await User.findOne({ email: user.email });
+
+//   if (!dbUser) {
+//     // const frontendUrl = process.env.FRONTEND_URL;
+//     // Redirect to signup page
+//     const message = `user ${user.email} doesn’t exist please sign up`;
+//     return res.redirect(
+//       `${frontendUrl}/login?message=${encodeURIComponent(message)}`
+//     );
+//   }
+
+//   const secret = process.env.JWT_SECRET;
+//   if (!secret) {
+//     throw new Error('JWT secret is not defined in environment variables');
+//   }
+
+//   // 4. Generate your app’s JWT
+//   const payload = {
+//     id: dbUser._id,
+//     name: dbUser.name,
+//     email: dbUser.email,
+//     roles: dbUser.roles,
+//     provider: 'google',
+//   };
+//   const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+
+//   // 5. Redirect to front if sign in
+//   // const frontendUrl = process.env.FRONTEND_URL;
+//   const message = `user ${dbUser.name} signed in`;
+//   return res.redirect(
+//     `${frontendUrl}/google-success?token=${token}&email=${
+//       dbUser.email
+//     }&message=${encodeURIComponent(message)}`
+//   );
+// };
+
+// DRY problem
+
+/*
+Do not delete. Αυτή εδώ άλλαξε για να μην στέλνω token μέσα σε url params δες σχολια exchangeCodeForToken.ts. αλλα θα μείνει για ένα διαστημα εδώ για λόγους ασφαλείας αλλα και γιατί έχει τον πιο απλό κώδικα για μελλοντική χρήση.
+*/
+// export const googleSignup = async (req: Request, res: Response) => {
+//   const redirectUri = process.env.GOOGLE_REDIRECT_URI_SIGNUP as string;
+//   const frontendUrl = process.env.FRONTEND_URL;
+//   const secret = process.env.JWT_SECRET;
+//   if (!secret) {
+//     throw new Error('JWT secret is not defined in environment variables');
+//   }
+
+//   // ✅ HANDLE CANCEL FROM GOOGLE
+//   if (req.query.error === 'access_denied') {
+//     return res.redirect(`${frontendUrl}/login`);
+//   }
+
+//   // 1. Controller receives the Google code from Google
+//   const code = req.query.code;
+
+//   if (typeof code !== 'string') {
+//     console.log('Auth code is missing during Google login attempt');
+//     return res
+//       .status(400)
+//       .json({ status: false, data: 'auth code is missing' });
+//   }
+
+//   // 2 – Authenticate with Google calls service which:
+//   // a. Uses Google’s OAuth2 client to exchange the code for tokens (access_token, id_token, etc.).
+//   // b. Verifies the id_token to ensure it’s really from Google.
+//   // c. Extracts user profile info (email, name, etc.) from Google’s payload.
+//   const { user, error } = await authService.googleAuth(code, redirectUri);
+
+//   if (error || !user || !user.email) {
+//     console.log('Google login failed or incomplete');
+//     return res.status(401).json({ status: false, data: 'Google login failed' });
+//   }
+
+//   // 3 - If user exists signs them in else create user
+//   // Check if user exists
+//   let dbUser = await User.findOne({ email: user.email });
+//   let message: string;
+
+//   if (!dbUser) {
+//     try {
+//       dbUser = await User.findOneAndUpdate(
+//         { email: user.email },
+//         {
+//           $setOnInsert: { email: user.email, name: user.name, roles: ['USER'] },
+//         },
+//         { upsert: true, new: true }
+//       );
+//       message = `user ${user.email} created and signed in`;
+//     } catch (error: unknown) {
+//       if (error instanceof Error) {
+//         return res.status(500).json({ status: false, error: error.message });
+//       } else {
+//         return res.status(500).json({ status: false, error: 'Unknown error' });
+//       }
+//     }
+//   } else {
+//     message = `user ${dbUser.name} already exists. ${dbUser.name} is signed in`;
+//   }
+
+//   // 4. Generate your app’s JWT
+
+//   if (!dbUser) {
+//     return res
+//       .status(500)
+//       .json({ status: false, error: 'User not found or failed to create' });
+//   }
+
+//   const payload = {
+//     id: dbUser._id,
+//     name: dbUser.name,
+//     email: dbUser.email,
+//     roles: dbUser.roles,
+//     provider: 'google',
+//   };
+//   const token = jwt.sign(payload, secret, { expiresIn: '1d' });
+
+//   // 5. Redirect to front if sign in
+//   return res.redirect(
+//     `${frontendUrl}/google-success?token=${token}&email=${
+//       dbUser.email
+//     }&message=${encodeURIComponent(message)}`
+//   );
+// };
+
+/*Do not delete. Αυτή εδώ άλλαξε για να μην στέλνω token μέσα σε url params δες σχολια exchangeCodeForToken.ts. αλλα θα μείνει για ένα διαστημα εδώ για λόγους ασφαλείας αλλα και γιατί έχει τον πιο απλό κώδικα για μελλοντική χρήση. 
+// (/auth/github/callback)
+*/
+
+// export const githubCallback = async (_req: Request, res: Response) => {
+//   try {
+//     // IMPORTANT: The browser must send Appwrite session cookie here,
+//     const appwriteUser = await account.get(); // gets logged-in user from Appwrite session
+
+//     if (!appwriteUser || !appwriteUser.email) {
+//       return res.redirect(`${process.env.FRONTEND_URL}/signup`);
+//     }
+
+//     // Check if user exists in your DB
+//     const dbUser = await User.findOne({ email: appwriteUser.email });
+
+//     if (!dbUser) {
+//       // Redirect to frontend signup page if user not found in your DB
+//       return res.redirect(`${process.env.FRONTEND_URL}/signup`);
+//     }
+
+//     // Generate your JWT for your app
+//     const secret = process.env.JWT_SECRET;
+//     if (!secret) {
+//       throw new Error('JWT secret is missing');
+//     }
+
+//     const token = jwt.sign({ id: dbUser._id, roles: dbUser.roles }, secret, {
+//       expiresIn: '1d',
+//     });
+
+//     // Redirect frontend with token & email
+//     res.redirect(
+//       `${process.env.FRONTEND_URL}/github-success?token=${token}&email=${dbUser.email}`
+//     );
+//   } catch (error) {
+//     console.error('GitHub OAuth callback error:', error);
+//     res
+//       .status(500)
+//       .json({ status: false, error: 'GitHub OAuth callback failed' });
+//   }
+// };
+
+/*
+αυτό είναι ακομα πιο παλιό και δεν ξέρω γιατί το κρατάω
+*/
 // export const githubLogin = async (_req: Request, res: Response) => {
 
 //   const frontendUrl = process.env.FRONTEND_URL
@@ -384,54 +691,3 @@ export const googleSignup = async (req: Request, res: Response) => {
 //     }
 //   }
 // }
-
-// Create a route in your backend (for example, /auth/github/callback)
-export const githubCallback = async (_req: Request, res: Response) => {
-  try {
-    // IMPORTANT: The browser must send Appwrite session cookie here,
-    const appwriteUser = await account.get(); // gets logged-in user from Appwrite session
-
-    if (!appwriteUser || !appwriteUser.email) {
-      return res.redirect(`${process.env.FRONTEND_URL}/signup`);
-    }
-
-    // Check if user exists in your DB
-    const dbUser = await User.findOne({ email: appwriteUser.email });
-
-    if (!dbUser) {
-      // Redirect to frontend signup page if user not found in your DB
-      return res.redirect(`${process.env.FRONTEND_URL}/signup`);
-    }
-
-    // Generate your JWT for your app
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error('JWT secret is missing');
-    }
-
-    const token = jwt.sign({ id: dbUser._id, roles: dbUser.roles }, secret, {
-      expiresIn: '1d',
-    });
-
-    // Redirect frontend with token & email
-    res.redirect(
-      `${process.env.FRONTEND_URL}/github-success?token=${token}&email=${dbUser.email}`
-    );
-  } catch (error) {
-    console.error('GitHub OAuth callback error:', error);
-    res
-      .status(500)
-      .json({ status: false, error: 'GitHub OAuth callback failed' });
-  }
-};
-
-export const authController = {
-  login,
-  refreshToken,
-  getGoogleOAuthUrlLogin,
-  getGoogleOAuthUrlSignup,
-  googleLogin,
-  googleSignup,
-  // githubLogin,
-  githubCallback,
-};

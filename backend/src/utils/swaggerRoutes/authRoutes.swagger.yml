@@ -58,6 +58,7 @@ paths:
           description: Missing username or password
         '401':
           description: Invalid username or password
+
   /api/auth/appwrite/sync:
     post:
       summary: Sync Appwrite user to backend and return JWT
@@ -118,3 +119,44 @@ paths:
           description: Error creating or fetching user from backend
         '500':
           description: Server error
+
+  /api/auth/exchange-code:
+    post:
+      summary: Exchange one-time OAuth code for JWT
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+              properties:
+                code:
+                  type: string
+                  example: 7c2c0e5a-4b63-4f5a-9c6e-1a8b3f6d2e1a
+      responses:
+        '200':
+          description: Token issued successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI...
+        '400':
+          description: Missing exchange code
+        '401':
+          description: Invalid or expired exchange code
+        '404':
+          description: User not found

@@ -1,23 +1,76 @@
-import { useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-// import { account } from "../appwriteConfig";
-// import axios from "axios";
-import { UserAuthContext } from "../../context/UserAuthContext";
-// import type { IUser } from "../../types/types";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import axios from "axios";
+
+/*
+  Github OAuth SUCCESS PAGE
+  ΠΑΛΙΑ:
+  - βασιζόμασταν σε Appwrite session
+  - καλούσαμε refreshUser()
+  - δεν υπήρχε ασφαλές token exchange
+  ΤΩΡΑ:
+  - το backend κάνει redirect με ?code=...
+  - κάνουμε POST /api/auth/exchange-code
+  - αποθηκεύουμε JWT στο localStorage
+  - κάνουμε hard reload
+  - το UserAuthContext.fetchUser() γεμίζει το user
+*/
 
 const GithubSuccess = () => {
-  const navigate = useNavigate();
-  // const { setUser, refreshUser } = useContext(UserAuthContext);
-  const { refreshUser } = useContext(UserAuthContext);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    if (window.location.hash === "#") {
-      console.log('reachded finished login');
-      refreshUser?.(); // fetches Appwrite session and backend sync
-      navigate("/");        // redirect after login       
+    const exchange = async () => {
+      const code = searchParams.get("code");
+
+      if (!code) {
+        console.warn("No exchange code found in GitHub success");
+        return;
+      }
+
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/api/auth/exchange-code`,
+          { code }
+        );
+
+        const token = res.data.data.token;
+
+        // αποθηκεύουμε το token
+        localStorage.setItem("token", token);
+
+        // ΔΕΝ κάνουμε setUser εδώ
+        // το UserAuthContext.fetchUser() θα τρέξει στο reload
+        window.location.href = "/";
+      } catch (err) {
+        console.error("GitHub exchange code failed", err);
+      }
     };
+
+    exchange();
+  }, [searchParams]);
+
+  return <p>GitHub login successful. Redirecting…</p>;
+};
+
+export default GithubSuccess;
+
+/*
+ ΠΑΛΙΑ ΛΟΓΙΚΗ (ΚΡΑΤΗΜΕΝΗ ΓΙΑ REFERENCE)
+
+import { useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { UserAuthContext } from "../../context/UserAuthContext";
+const GithubSuccess = () => {
+  const navigate = useNavigate();
+  const { refreshUser } = useContext(UserAuthContext);
+  useEffect(() => {
+    if (window.location.hash === "#") {
+      refreshUser?.();
+      navigate("/");
+    }
   }, [refreshUser, navigate]);
   return <p>Github login succesfull.</p>;
 };
 
-export default GithubSuccess;
+*/

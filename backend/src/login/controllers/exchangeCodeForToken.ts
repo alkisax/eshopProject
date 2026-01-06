@@ -36,10 +36,21 @@ export const githubCallback = async (_req: Request, res: Response) => {
 θα κάνουμε
   URL μεταφέρει code (άχρηστο αν κλαπεί) → Frontend POST exchange → Backend επιστρέφει token → localStorage → jwtDecode
 
-  ΣΗΜΑΝΤΙΚΟ:
-  - Δεν αλλάζει το backend login (username/password)
-  - Δεν αλλάζει το frontend validation
-  - Αλλάζει ΜΟΝΟ ο τρόπος που φτάνει το token στο frontend
+ΣΗΜΑΝΤΙΚΟ:
+- Δεν αλλάζει το backend login (username/password)
+- Δεν αλλάζει το frontend validation
+- Αλλάζει ΜΟΝΟ ο τρόπος που φτάνει το token στο frontend
+
+θα πάμε μετά στον controller και θα αλλάξουμε αντι για 
+  res.redirect(`${frontendUrl}/google-success?token=${token}`);
+να κάνει
+  const code = crypto.randomUUID();
+  createExchangeCode(code, {
+    userId: dbUser._id.toString(),
+    provider: 'google',
+    expiresAt: Date.now() + 60_000, // 60 δευτερόλεπτα
+  });
+  res.redirect(`${frontendUrl}/google-success?code=${code}`);
 */
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
