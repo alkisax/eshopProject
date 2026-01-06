@@ -65,7 +65,12 @@ server {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
   }
   location = /robots.txt {
-    root /var/www/eshop/backend/dist;
+    proxy_pass http://localhost:3001/robots.txt;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
   }
   location / {
     root /var/www/eshop/backend/dist;
@@ -149,21 +154,6 @@ VITE_UPLOAD_PASS=superSecretPass123
 επιτρέψαμε στο appwrite το ανέβασμα εικονών (σε λιγο και excel)
 κάναμε αλλαγές στο backend app σε cors και helmet
 
-- για redeploy στον server
-```bash
-cd /var/www/eshop \
-&& git pull origin main \
-&& cd frontend \
-&& npm install --legacy-peer-deps \
-&& npm run build \
-&& cd ../backend \
-&& npm install \
-&& npm run build \
-&& pm2 restart eshop-backend --update-env \
-&& nginx -t && systemctl reload nginx \
-&& sleep 5 \
-&& curl https://haveanidea.gr/api/ping; echo
-```
 Θυμίζω: token απο env για password
 - η σελίδα πρέπει να προστεθεί και στο appwrite platform
 

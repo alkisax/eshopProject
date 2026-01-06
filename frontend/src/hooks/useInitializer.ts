@@ -1,4 +1,4 @@
-
+// frontend\src\hooks\useInitializer.ts
 import { useEffect } from "react";
 import axios from "axios";
 import type { ParticipantType, CartType } from "../types/commerce.types";

@@ -38,10 +38,10 @@
 - fix spageti code in stripe dao
 - pdf download shippment info ✅
 - transaction dao fetch all iris "sessionId": "IRIS_...",✅
-- theme customisation
+- sitemap for dynamic pages in backend ✅
+- theme customisation🫳🫴
 - Amount-based checkout
 - vectorise order history
-- sitemap for dynamic pages in backend
 
 
 # frontend

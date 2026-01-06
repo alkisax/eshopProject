@@ -1,3 +1,4 @@
+// frontend\src\authLogin\service\AdminPrivateRoute.tsx
 import { useContext } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { UserAuthContext } from "../../context/UserAuthContext";
