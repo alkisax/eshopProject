@@ -1,3 +1,4 @@
+// backend\src\login\controllers\auth.appwrite.controller.ts
 import { userDAO } from '../dao/user.dao';
 import { handleControllerError } from '../../utils/error/errorHandler';
 import type { Request, Response } from 'express';
