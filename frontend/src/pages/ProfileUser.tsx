@@ -106,17 +106,19 @@ const ProfileUser = ({ userToEdit }: Props) => {
   }, [fetchParticipant]);
 
   const fetchOrders = useCallback(async () => {
-    if (!participantId) return;
-
     setLoadingOrders(true);
 
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get(
-        `${url}/api/transaction/participant/${participantId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // 🧠 ADMIN mode (edit άλλον user)
+      const endpoint = userToEdit
+        ? `${url}/api/transaction/participant/${participantId}`
+        : `${url}/api/transaction/my`;
+
+      const res = await axios.get(endpoint, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const sorted = res.data.data.sort(
         (a: TransactionType, b: TransactionType) =>
@@ -129,7 +131,7 @@ const ProfileUser = ({ userToEdit }: Props) => {
     } finally {
       setLoadingOrders(false);
     }
-  }, [participantId, url]);
+  }, [url, userToEdit, participantId]);
 
   useEffect(() => {
     fetchOrders();

@@ -13,7 +13,7 @@ router.post('/', limiter(15,5), authController.login);
 router.post('/refresh', limiter(15,5), authController.refreshToken);
 
 // δες αρχειο exchangeCodeForToken για σχολια
-router.post('/exchange-code', exchangeCodeForToken);
+router.post('/exchange-code', limiter(5, 5), exchangeCodeForToken);
 
 router.get('/google/url/login', authController.getGoogleOAuthUrlLogin);
 router.get('/google/url/signup', limiter(15,5), authController.getGoogleOAuthUrlSignup);
