@@ -65,6 +65,11 @@ const findParticipantById = async (id: string): Promise<ParticipantType> => {
   return response;
 };
 
+
+const findParticipantByUserId = async (userId: string) => {
+  return Participant.findOne({ user: userId });
+};
+
 const updateParticipantById = async (
   id: string,
   updateData: Partial<ParticipantType>
@@ -139,6 +144,7 @@ export const participantDao = {
   findAllParticipants,
   findParticipantByEmail,
   findParticipantById,
+  findParticipantByUserId,
   updateParticipantById,
   deleteParticipantById,
   addTransactionToParticipant,
