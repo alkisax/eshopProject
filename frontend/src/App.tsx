@@ -33,8 +33,9 @@ import HomeResponsiveWrapper from "./Layouts/HomeResponsiveWrapper";
 import CrossGridLayout from "./Layouts/deisgnComponents/CrossGridLayout";
 import AboutPage from "./pages/minorPages/AboutPage";
 import { useSettings } from "./context/SettingsContext";
+import Store from "./pages/Store";
+import LoadingSkeleton from "./components/skeletons/LoadingSkeleton";
 // lazy loads  + suspense
-const Store = lazy(() => import("./pages/Store"));
 const CommodityPage = lazy(
   () => import("./components/store_components/CommodityPage")
 );
@@ -102,23 +103,18 @@ function App() {
             }
           />
 
+          {/* STORE */}
           {/* used layout as origin of logic for store because its the component that encapsulates al the components. but this propably is not right because thats not the "layout" function. but will leave it as is */}
           {/* layout works together with sidebar and item list */}
-          {/* STORE */}
           <Route element={<StoreLayout />}>
-            <Route
-              path="/store"
-              element={
-                <Suspense fallback={null}>
-                  <Store />
-                </Suspense>
-              }
-            />
+            <Route path="/store" element={<Store />} />
           </Route>
+
+          {/* lazy pages */}
           <Route
             path="/commodity/:slugOrId"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <CommodityPage />
               </Suspense>
             }
@@ -126,7 +122,7 @@ function App() {
           <Route
             path="/news"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <News />
               </Suspense>
             }
@@ -134,7 +130,7 @@ function App() {
           <Route
             path="/announcements"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <Announcements />
               </Suspense>
             }
@@ -142,7 +138,7 @@ function App() {
           <Route
             path="/posts/:slug"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <BlogPost />
               </Suspense>
             }
@@ -151,7 +147,7 @@ function App() {
           <Route
             path="/contact"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <CrossGridLayout title="Επικοινωνία">
                   <Contact />
                 </CrossGridLayout>
@@ -161,7 +157,7 @@ function App() {
           <Route
             path="/privacy-policy"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <CrossGridLayout title="Πολιτική Απορρήτου">
                   <PrivacyPolicy />
                 </CrossGridLayout>
@@ -171,7 +167,7 @@ function App() {
           <Route
             path="/payment-methods"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <CrossGridLayout title="Τρόποι Πληρωμής">
                   <PaymentMethods />
                 </CrossGridLayout>
@@ -181,7 +177,7 @@ function App() {
           <Route
             path="/shipping-methods"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <CrossGridLayout title="Τρόποι Αποστολής">
                   <ShippingMethods />
                 </CrossGridLayout>
@@ -191,7 +187,7 @@ function App() {
           <Route
             path="/return-policy"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <CrossGridLayout title="Πολιτική Επιστροφών">
                   <ReturnPolicy />
                 </CrossGridLayout>
@@ -201,7 +197,7 @@ function App() {
           <Route
             path="/cookie-policy"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <CrossGridLayout title="Πολιτική Cookies">
                   <CookiePolicy />
                 </CrossGridLayout>
@@ -212,7 +208,7 @@ function App() {
           <Route
             path="/about"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <CrossGridLayout title="Σχετικά με Εμάς">
                   <AboutPage />
                 </CrossGridLayout>
@@ -222,7 +218,7 @@ function App() {
           <Route
             path="/terms"
             element={
-              <Suspense fallback={null}>
+              <Suspense fallback={<LoadingSkeleton />}>
                 <CrossGridLayout title="Όροι Χρήσης">
                   <Terms />
                 </CrossGridLayout>
@@ -263,7 +259,7 @@ function App() {
               <Route
                 path="/admin-panel"
                 element={
-                  <Suspense fallback={null}>
+                  <Suspense fallback={<LoadingSkeleton />}>
                     <AdminPanel />
                   </Suspense>
                 }
@@ -271,7 +267,7 @@ function App() {
               <Route
                 path="/admin-panel/commodity/new"
                 element={
-                  <Suspense fallback={null}>
+                  <Suspense fallback={<LoadingSkeleton />}>
                     <AdminAddNewCommodity />
                   </Suspense>
                 }
