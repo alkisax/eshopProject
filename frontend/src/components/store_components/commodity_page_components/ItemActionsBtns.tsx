@@ -21,8 +21,8 @@ const ItemActionsBtns = ({
   isFavorite,
   onAddToCart,
   onToggleFavorite,
-  showSuggestions,
-  onToggleSuggestions,
+  // showSuggestions,
+  // onToggleSuggestions,
   hasVariants,
   variantSelected,
 }: Props) => {
@@ -91,8 +91,9 @@ const ItemActionsBtns = ({
         {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
       </Button>
 
+      {/* hide only on eleni */}
       {/* === SUGGESTIONS === */}
-      <Button
+      {/* <Button
         id="item-suggestions"
         variant="contained"
         sx={{
@@ -110,7 +111,7 @@ const ItemActionsBtns = ({
         onClick={onToggleSuggestions}
       >
         {showSuggestions ? "Hide Suggestions" : "Show Suggestions"}
-      </Button>
+      </Button> */}
     </Box>
   );
 };
