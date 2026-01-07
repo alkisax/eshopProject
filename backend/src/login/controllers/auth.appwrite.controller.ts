@@ -8,7 +8,11 @@ import { IUser } from '../types/user.types';
 import { syncUserSchema } from '../validation/auth.schema';
 import { appwriteUsers } from '../lib/appwrite.client';
 
-const secret = process.env.JWT_SECRET || 'secret';
+const secret = process.env.JWT_SECRET;
+
+if (!secret) {
+  throw new Error('JWT_SECRET is not defined');
+}
 
 export const syncUser = async (req: Request, res: Response) => {
   try {

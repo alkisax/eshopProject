@@ -187,6 +187,7 @@ app.get('/robots.txt', (_req, res) => {
 });
 
 // swagger test page
+// να εξεταστεί αν θα γίνει comment out στο μέλλον TODO
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ✅ SERVE UPLOADS BEFORE DIST
