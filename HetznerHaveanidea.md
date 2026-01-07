@@ -173,11 +173,9 @@ curl https://haveanidea.gr/api/ping
 # only eleni deploy
 ```bash
 git checkout clients/eleni
-git status
 git add .
 git commit -m 'eleni-only: ___'
 git log --oneline -3
-git diff origin/main
 git push origin clients/eleni
 git push client clients/eleni:main
 git checkout clients/eleni
