@@ -581,6 +581,7 @@ const ProfileUser = ({ userToEdit }: Props) => {
       </Dialog>
 
       {/* jsx dialog fro view previous orders */}
+      {/* TODO use later frontend\src\components\store_components\adminPannelCommodity\AdminTransactionPanelComponents\UserTransactionsList.tsx */}
       <Dialog
         open={openOrdersDialog}
         onClose={() => setOpenOrdersDialog(false)}

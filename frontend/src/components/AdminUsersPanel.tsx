@@ -22,8 +22,11 @@ import {
   Stack,
   Typography,
   IconButton,
+  Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import type { TransactionType } from "../types/commerce.types";
+import UserTransactionsList from "./store_components/adminPannelCommodity/AdminTransactionPanelComponents/UserTransactionsList";
 
 const AdminPanel = () => {
   // const { user, setUser, isLoading, setIsLoading, refreshUser } = useContext(UserAuthContext);
@@ -33,6 +36,8 @@ const AdminPanel = () => {
   const [users, setUsers] = useState<IUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [viewUser, setViewUser] = useState<IUser | null>(null);
+  const [orders, setOrders] = useState<TransactionType[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
 
   const fetchAllUsers = useCallback(async () => {
     try {
@@ -140,6 +145,29 @@ const AdminPanel = () => {
     }
   };
 
+  const fetchUserOrders = async (email: string) => {
+    setLoadingOrders(true);
+    try {
+      const token = localStorage.getItem("token");
+
+      const p = await axios.get(
+        `${url}/api/participant/by-email?email=${email}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const res = await axios.get(
+        `${url}/api/transaction/participant/${p.data.data._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setOrders(res.data.data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -205,7 +233,10 @@ const AdminPanel = () => {
                       <Button
                         variant="outlined"
                         size="small"
-                        onClick={() => setViewUser(user)}
+                        onClick={() => {
+                          setViewUser(user);
+                          fetchUserOrders(user.email);
+                        }}
                       >
                         View More
                       </Button>
@@ -261,33 +292,47 @@ const AdminPanel = () => {
       {/* View More Modal */}
       <Dialog
         open={!!viewUser}
-        onClose={() => setViewUser(null)}
+        onClose={() => {
+          setViewUser(null);
+          setOrders([]); // reset
+        }}
         maxWidth="sm"
         fullWidth
       >
         <DialogTitle>User Details</DialogTitle>
-        <DialogContent>
+
+        <DialogContent dividers>
           {viewUser && (
-            <Stack spacing={1}>
-              <Typography>
-                <b>ID:</b> {viewUser.id}
-              </Typography>
-              <Typography>
-                <b>Name:</b> {viewUser.name}
-              </Typography>
-              <Typography>
-                <b>Email:</b> {viewUser.email}
-              </Typography>
-              <Typography>
-                <b>Username:</b> {viewUser.username}
-              </Typography>
-              <Typography>
-                <b>Roles:</b> {viewUser.roles.join(", ")}
-              </Typography>
-            </Stack>
+            <>
+              <Stack spacing={1}>
+                <Typography>
+                  <b>ID:</b> {viewUser._id || viewUser.id}
+                </Typography>
+                <Typography>
+                  <b>Name:</b> {viewUser.name}
+                </Typography>
+                <Typography>
+                  <b>Email:</b> {viewUser.email}
+                </Typography>
+                <Typography>
+                  <b>Username:</b> {viewUser.username || "—"}
+                </Typography>
+                <Typography>
+                  <b>Roles:</b> {viewUser.roles.join(", ")}
+                </Typography>
+              </Stack>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle1">Previous Transactions</Typography>
+              {loadingOrders ? (
+                <Typography>Loading orders…</Typography>
+              ) : (
+                <UserTransactionsList orders={orders} showTransactionId />
+              )}
+            </>
           )}
         </DialogContent>
       </Dialog>
+
       {/* ADMIN USERS PANEL – INSTRUCTIONS */}
       <Paper
         sx={{ p: 2, mt: 4, backgroundColor: "#f7f7f7" }}
