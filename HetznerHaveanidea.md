@@ -170,6 +170,37 @@ curl https://haveanidea.gr/api/ping
 - μετά απο αλλαγές σε .env
 `pm2 restart eshop-backend --update-env`
 
+# only eleni deploy
+```bash
+git checkout clients/eleni
+git status
+git add .
+git commit -m 'eleni-only: ___'
+git log --oneline -3
+git diff origin/main
+git push origin clients/eleni
+git push client clients/eleni:main
+git checkout clients/eleni
+echo ⚠️⚠️⚠️⚠️ YOU ARE ON clients/eleni
+```
+```bash
+ssh root@91.99.145.154
+```
+```bash
+cd /var/www/eshop \
+&& git pull origin main \
+&& cd frontend \
+&& npm install --legacy-peer-deps \
+&& npm run build \
+&& cd ../backend \
+&& npm install \
+&& npm run build \
+&& NODE_ENV=production pm2 restart eshop-backend --update-env \
+&& nginx -t && systemctl reload nginx \
+&& sleep 5 \
+&& curl https://haveanidea.gr/api/ping; echo
+```
+
 # one line deploy
 - για sync main και client:
 ```bash
