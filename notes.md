@@ -80,7 +80,7 @@
 - search transaction by id frontend ✅
 - iris payment ✅
 - iris qr ✅, shipping prices, shipping stripe price id on custom
-- admin user panel see user previous orders
+- admin user panel see user previous orders ✅
 - οταν σβήνετε εμπόρευμα να σβήνονται και οι εικόνες του
 - θα θέλαμε το variant να συνδέετε με συγκεκριμένη εικόνα
 
