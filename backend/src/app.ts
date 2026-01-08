@@ -136,12 +136,12 @@ app.set('trust proxy', 1);
 // });
 
 // global limiter η βιβλιοθήκε αυτή βάζει όριο στο πόσα req θα δεχτεί απο κάθε ip με αποτέλεσμα να εμποδίζει DDOS επιθέσεις
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 3000, 
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// const globalLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000,
+//   max: 3000, 
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// });
 
 app.use(globalLimiter);
 
