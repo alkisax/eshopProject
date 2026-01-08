@@ -7,7 +7,7 @@ import { Suspense } from "react";
 import LatestCommoditiesSkeleton from "../components/skeletons/LatestCommoditiesSkeleton";
 import LastAnnouncementSkeleton from "../components/skeletons/LastAnnouncementSkeleton ";
 import { useSettings } from "../context/SettingsContext";
-import HomeButtons from "../components/homePageComponents/HomeButtons";
+// import HomeButtons from "../components/homePageComponents/HomeButtons";
 import HomeText from "../components/homePageComponents/Hometext";
 
 const Home = () => {
@@ -65,7 +65,7 @@ const Home = () => {
           )}
 
           {/* Buttons */}
-          <HomeButtons />
+          {/* <HomeButtons /> */}
 
           {/* Hero Section */}
           <Paper

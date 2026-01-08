@@ -2,9 +2,11 @@
 
 // src/Layouts/HomeResponsiveWrapper.tsx
 import { useMediaQuery } from "@mui/material";
-import CrossGridLayout from "./deisgnComponents/CrossGridLayout";
+// import CrossGridLayout from "./deisgnComponents/CrossGridLayout";
 import TopCategoryGridHeader from "./deisgnComponents/TopCategoryGridHeader";
 import { useSettings } from "../context/SettingsContext";
+import CrossGridLayoutWithNamedSlots from "./deisgnComponents/CrossGridLayoutWithNamedSlots";
+import HomeButtons from "../components/homePageComponents/HomeButtons";
 
 const HomeResponsiveWrapper = ({ children }: { children: React.ReactNode }) => {
   const isSmUp = useMediaQuery("(min-width:600px)");
@@ -20,15 +22,26 @@ const HomeResponsiveWrapper = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
   }
 
-  // 2️⃣ Theme ENABLED + Desktop
+  // // 2️⃣ Theme ENABLED + Desktop
+  // if (isSmUp) {
+  //   return <CrossGridLayout>{children}</CrossGridLayout>;
+  // }
+  // 2️⃣ Theme ENABLED + Desktop → CROSS GRID + ASIDE
   if (isSmUp) {
-    return <CrossGridLayout>{children}</CrossGridLayout>;
+    return (
+      <CrossGridLayoutWithNamedSlots
+        main={children}
+        aside={<HomeButtons />}
+      />
+    );
   }
+
 
   // 3️⃣ Theme ENABLED + Mobile
   return (
     <>
       <TopCategoryGridHeader />
+      <HomeButtons />
       {children}
     </>
   );
