@@ -57,7 +57,7 @@ const EmailTemplatesSection = ({
             },
           }))
         }
-        helperText="You can use placeholders like {{name}}, {{items}}, {{total}}, {{companyName}} "
+        helperText="You can use placeholders like {{name}}, {{items}}, {{total}}, {{companyName}}, {{transactionId}} "
       />
 
       <Typography variant="h6" sx={{ mt: 3 }}>
