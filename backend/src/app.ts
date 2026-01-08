@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import path from 'path';
 import swaggerSpec from './utils/swagger';
 import swaggerUi from 'swagger-ui-express';
-import rateLimit from 'express-rate-limit';
+// import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
 import authRoutes from './login/routes/auth.routes';
@@ -143,7 +143,7 @@ app.set('trust proxy', 1);
 //   legacyHeaders: false,
 // });
 
-app.use(globalLimiter);
+// app.use(globalLimiter);
 
 app.get('/api/ping', (_req: Request, res: Response) => {
   console.log('someone pinged here');
