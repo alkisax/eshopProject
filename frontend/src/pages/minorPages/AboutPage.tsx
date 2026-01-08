@@ -3,6 +3,7 @@ import { Container } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import ReactMarkdown from "react-markdown";
 import { useSettings } from "../../context/SettingsContext";
+import SeoHeadings from "../../utils/SeoHeadings";
 
 const AboutPage = () => {
   const { settings, loading } = useSettings();
@@ -26,6 +27,10 @@ const AboutPage = () => {
           href={window.location.origin + window.location.pathname}
         />
       </Helmet>
+      <SeoHeadings
+        h1="Σχετικά με το Εργαστήρι Έχω μια Ιδέα"
+        h2="Φιλοσοφία, έμπνευση και χειροποίητο κόσμημα"
+      />
 
       <Container maxWidth="md" sx={{ py: 6 }}>
         {!loading && <ReactMarkdown>{markdown}</ReactMarkdown>}

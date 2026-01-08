@@ -35,6 +35,7 @@ import AboutPage from "./pages/minorPages/AboutPage";
 import { useSettings } from "./context/SettingsContext";
 import Store from "./pages/Store";
 import LoadingSkeleton from "./components/skeletons/LoadingSkeleton";
+import NotFound from "./pages/NotFound";
 // lazy loads  + suspense
 const CommodityPage = lazy(
   () => import("./components/store_components/CommodityPage")
@@ -249,6 +250,8 @@ function App() {
             <Route path="/protected" element={<HomeAppwriteLogin />} />
             <Route path="/profile" element={<ProfileUser />} />
           </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Route>
 
         {/* Admin routes → Navbar only, no Footer */}
