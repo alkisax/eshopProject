@@ -86,6 +86,7 @@ const sendThnxEmail = async (req: Request, res: Response) => {
       items: itemsText,
       total: totalValueText,
       companyName,
+      transactionId: transaction._id.toString(),
     });
 
     const transporter = nodemailer.createTransport({
@@ -173,6 +174,7 @@ const sendShippedEmail = async (req: Request, res: Response) => {
       items: itemsText,
       total: totalValueText,
       companyName: companyName,
+      transactionId: transaction._id.toString(),
     });
 
     const transporter = nodemailer.createTransport({
