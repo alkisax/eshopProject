@@ -1,8 +1,9 @@
 // frontend/src/pages/minorPages/PaymentMethods.tsx
-import { Container } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
-import ReactMarkdown from 'react-markdown';
-import { useSettings } from '../../context/SettingsContext';
+import { Container } from "@mui/material";
+import { Helmet } from "react-helmet-async";
+import ReactMarkdown from "react-markdown";
+import { useSettings } from "../../context/SettingsContext";
+import SeoHeadings from "../../utils/SeoHeadings";
 
 const PaymentMethods = () => {
   const { settings, loading } = useSettings();
@@ -18,16 +19,20 @@ const PaymentMethods = () => {
       <Helmet>
         <title>Τρόποι Πληρωμής | Έχω μια Ιδέα</title>
         <meta
-          name='description'
-          content='Δείτε όλους τους διαθέσιμους τρόπους πληρωμής για τις αγορές σας στο eshop μας.'
+          name="description"
+          content="Δείτε όλους τους διαθέσιμους τρόπους πληρωμής για τις αγορές σας στο eshop μας."
         />
         <link
-          rel='canonical'
+          rel="canonical"
           href={window.location.origin + window.location.pathname}
         />
       </Helmet>
+      <SeoHeadings
+        h1="Τρόποι Πληρωμής"
+        h2="Πιστωτική κάρτα, IRIS, τραπεζική κατάθεση και ασφαλείς πληρωμές"
+      />
 
-      <Container maxWidth='md' sx={{ py: 6 }}>
+      <Container maxWidth="md" sx={{ py: 6 }}>
         {!loading && <ReactMarkdown>{markdown}</ReactMarkdown>}
       </Container>
     </>

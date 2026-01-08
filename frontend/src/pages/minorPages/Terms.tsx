@@ -1,8 +1,9 @@
 // frontend/src/pages/minorPages/Terms.tsx
-import { Container } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
-import ReactMarkdown from 'react-markdown';
-import { useSettings } from '../../context/SettingsContext';
+import { Container } from "@mui/material";
+import { Helmet } from "react-helmet-async";
+import ReactMarkdown from "react-markdown";
+import { useSettings } from "../../context/SettingsContext";
+import SeoHeadings from "../../utils/SeoHeadings";
 
 const Terms = () => {
   const { settings, loading } = useSettings();
@@ -26,6 +27,10 @@ const Terms = () => {
           href={window.location.origin + window.location.pathname}
         />
       </Helmet>
+      <SeoHeadings
+        h1="Όροι Χρήσης"
+        h2="Όροι πώλησης και χρήσης του ηλεκτρονικού καταστήματος"
+      />
 
       <Container maxWidth="md" sx={{ py: 6 }}>
         {!loading && <ReactMarkdown>{markdown}</ReactMarkdown>}

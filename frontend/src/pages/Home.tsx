@@ -9,6 +9,7 @@ import LastAnnouncementSkeleton from "../components/skeletons/LastAnnouncementSk
 import { useSettings } from "../context/SettingsContext";
 // import HomeButtons from "../components/homePageComponents/HomeButtons";
 import HomeText from "../components/homePageComponents/Hometext";
+import SeoHeadings from "../utils/SeoHeadings";
 
 const Home = () => {
   // const navigate = useNavigate();
@@ -19,6 +20,8 @@ const Home = () => {
   const homeText3 = settings?.homeTexts?.homeText3;
   const heroImage = settings?.branding?.heroImage;
   const isHeroImageActive = settings?.branding?.isHeroImageActive;
+  const social = settings?.socialLinks;
+  const company = settings?.companyInfo;
 
   return (
     <>
@@ -31,9 +34,29 @@ const Home = () => {
         <title>Shop | Έχω μια Ιδέα</title>
         <meta
           name="description"
-          content="Ανακαλύψτε μοναδικά χειροποίητα κοσμήματα από το εργαστήρι μας. Δαχτυλίδια, σκουλαρίκια και δημιουργίες που αφηγούνται ιστορίες."
+          content="Ανακαλύψτε μοναδικά χειροποίητα κοσμήματα από το εργαστήρι Έχω μια Ιδέα. Δαχτυλίδια, σκουλαρίκια και δημιουργίες με έμπνευση, ποιότητα και προσωπικό χαρακτήρα."
         />
+        {company?.email && (
+          <meta name="contact:email" content={company.email} />
+        )}
+        {company?.phone && (
+          <meta name="contact:phone_number" content={company.phone} />
+        )}
+
+        {social?.facebook && (
+          <meta property="article:author" content={social.facebook} />
+        )}
+        {social?.instagram && (
+          <meta name="instagram:site" content={social.instagram} />
+        )}
+        {social?.tiktok && <meta name="tiktok:site" content={social.tiktok} />}
       </Helmet>
+
+      {/* αυτα είναι αόρατα και είναι για λόγους SEO */}
+      <SeoHeadings
+        h1="Χειροποίητα κοσμήματα – Έχω μια Ιδέα"
+        h2="Δαχτυλίδια, σκουλαρίκια και μοναδικές χειροποίητες δημιουργίες"
+      />
 
       <Box
         sx={{

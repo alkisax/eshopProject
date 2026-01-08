@@ -170,6 +170,9 @@ curl https://haveanidea.gr/api/ping
 - μετά απο αλλαγές σε .env
 `pm2 restart eshop-backend --update-env`
 
+- για να δώ το nginx
+`cat /etc/nginx/sites-available/eshop`
+
 # one line deploy
 - για sync main και client:
 ```bash

@@ -1,5 +1,13 @@
-import { Container, Typography, Box, List, ListItem, Link } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Box,
+  List,
+  ListItem,
+  Link,
+} from "@mui/material";
 import { Helmet } from "react-helmet-async";
+import SeoHeadings from "../../utils/SeoHeadings";
 
 const CookiesPolicy = () => {
   return (
@@ -10,8 +18,15 @@ const CookiesPolicy = () => {
           name="description"
           content="Μάθετε πώς χρησιμοποιούμε cookies για να βελτιώσουμε την εμπειρία σας στο eshop μας και να σας παρέχουμε προσωποποιημένες υπηρεσίες."
         />
-        <link rel="canonical" href={window.location.origin + window.location.pathname} />
+        <link
+          rel="canonical"
+          href={window.location.origin + window.location.pathname}
+        />
       </Helmet>
+      <SeoHeadings
+        h1="Πολιτική Cookies"
+        h2="Πώς χρησιμοποιούμε cookies στο ηλεκτρονικό μας κατάστημα"
+      />
 
       <Container maxWidth="md" sx={{ py: 6 }}>
         {/* <Typography
@@ -25,8 +40,8 @@ const CookiesPolicy = () => {
         </Typography> */}
 
         <Typography variant="body1" gutterBottom>
-          Όπως τα περισσότερα sites, έτσι κι εμείς χρησιμοποιούμε cookies ώστε να
-          έχουμε πρόσβαση σε ορισμένες πληροφορίες και να σας προσφέρουμε
+          Όπως τα περισσότερα sites, έτσι κι εμείς χρησιμοποιούμε cookies ώστε
+          να έχουμε πρόσβαση σε ορισμένες πληροφορίες και να σας προσφέρουμε
           λειτουργικές υπηρεσίες κάθε φορά που περιηγείστε στο ηλεκτρονικό μας
           κατάστημα.
         </Typography>
@@ -49,22 +64,24 @@ const CookiesPolicy = () => {
             </ListItem>
             <ListItem>
               <Typography>
-                <strong>Cookies Λειτουργικότητας:</strong> Θυμούνται τις επιλογές
-                σας (π.χ. στοιχεία σύνδεσης) και παρέχουν προσωποποιημένες
-                λειτουργίες.
+                <strong>Cookies Λειτουργικότητας:</strong> Θυμούνται τις
+                επιλογές σας (π.χ. στοιχεία σύνδεσης) και παρέχουν
+                προσωποποιημένες λειτουργίες.
               </Typography>
             </ListItem>
             <ListItem>
               <Typography>
-                <strong>Cookies Επιδόσεων / Analytics:</strong> Συλλέγουν ανώνυμες
-                πληροφορίες για τον τρόπο χρήσης του site (σελίδες που βλέπετε
-                συχνότερα, σφάλματα κ.λπ.), ώστε να βελτιώνουμε τις υπηρεσίες μας.
+                <strong>Cookies Επιδόσεων / Analytics:</strong> Συλλέγουν
+                ανώνυμες πληροφορίες για τον τρόπο χρήσης του site (σελίδες που
+                βλέπετε συχνότερα, σφάλματα κ.λπ.), ώστε να βελτιώνουμε τις
+                υπηρεσίες μας.
               </Typography>
             </ListItem>
             <ListItem>
               <Typography>
-                <strong>Cookies Στόχευσης / Διαφήμισης:</strong> Χρησιμοποιούνται
-                για εξατομικευμένο περιεχόμενο και στοχευμένες διαφημίσεις.
+                <strong>Cookies Στόχευσης / Διαφήμισης:</strong>{" "}
+                Χρησιμοποιούνται για εξατομικευμένο περιεχόμενο και στοχευμένες
+                διαφημίσεις.
               </Typography>
             </ListItem>
           </List>
@@ -80,60 +97,64 @@ const CookiesPolicy = () => {
               <Typography>Εμποδίσετε την εγκατάσταση νέων cookies.</Typography>
             </ListItem>
             <ListItem>
-              <Typography>Ενεργοποιήσετε ειδοποίηση πριν την αποθήκευση cookie.</Typography>
+              <Typography>
+                Ενεργοποιήσετε ειδοποίηση πριν την αποθήκευση cookie.
+              </Typography>
             </ListItem>
             <ListItem>
-              <Typography>Διαγράψετε τα ήδη αποθηκευμένα cookies στη συσκευή σας.</Typography>
+              <Typography>
+                Διαγράψετε τα ήδη αποθηκευμένα cookies στη συσκευή σας.
+              </Typography>
             </ListItem>
           </List>
 
           <Typography mt={2}>
-            Για περισσότερες πληροφορίες για το πώς να διαχειριστείτε τα cookies στο browser, 
-            παρακαλώ ανατρέξτε στα ακόλουθα link (οι διευθύνσεις και το περιεχόμενό τους ενδέχεται να τροποποιούνται):
+            Για περισσότερες πληροφορίες για το πώς να διαχειριστείτε τα cookies
+            στο browser, παρακαλώ ανατρέξτε στα ακόλουθα link (οι διευθύνσεις
+            και το περιεχόμενό τους ενδέχεται να τροποποιούνται):
           </Typography>
 
-        <Typography mt={1} color="black">
-          <Link
-            href="https://support.mozilla.org/el/kb/energopoihsh-apenergopoihsh-cookies-parakoloy8hsh-protimhsewn"
-            target="_blank"
-            rel="noopener"
-            color="inherit"
-            underline="hover"
-          >
-            Firefox
-          </Link>{" "}
-          |{" "}
-          <Link
-            href="https://support.google.com/chrome/answer/95647"
-            target="_blank"
-            rel="noopener"
-            color="inherit"
-            underline="hover"
-          >
-            Chrome
-          </Link>{" "}
-          |{" "}
-          <Link
-            href="https://support.apple.com/kb/ph19214?locale=el_GR"
-            target="_blank"
-            rel="noopener"
-            color="inherit"
-            underline="hover"
-          >
-            Safari
-          </Link>{" "}
-          |{" "}
-          <Link
-            href="https://support.microsoft.com/en-us/help/17442/windows-internet-explorer-delete-manage-cookies"
-            target="_blank"
-            rel="noopener"
-            color="inherit"
-            underline="hover"
-          >
-            Internet Explorer / Microsoft Edge
-          </Link>
-        </Typography>
-
+          <Typography mt={1} color="black">
+            <Link
+              href="https://support.mozilla.org/el/kb/energopoihsh-apenergopoihsh-cookies-parakoloy8hsh-protimhsewn"
+              target="_blank"
+              rel="noopener"
+              color="inherit"
+              underline="hover"
+            >
+              Firefox
+            </Link>{" "}
+            |{" "}
+            <Link
+              href="https://support.google.com/chrome/answer/95647"
+              target="_blank"
+              rel="noopener"
+              color="inherit"
+              underline="hover"
+            >
+              Chrome
+            </Link>{" "}
+            |{" "}
+            <Link
+              href="https://support.apple.com/kb/ph19214?locale=el_GR"
+              target="_blank"
+              rel="noopener"
+              color="inherit"
+              underline="hover"
+            >
+              Safari
+            </Link>{" "}
+            |{" "}
+            <Link
+              href="https://support.microsoft.com/en-us/help/17442/windows-internet-explorer-delete-manage-cookies"
+              target="_blank"
+              rel="noopener"
+              color="inherit"
+              underline="hover"
+            >
+              Internet Explorer / Microsoft Edge
+            </Link>
+          </Typography>
         </Box>
         <Box mt={3}>
           <Typography variant="body1">
@@ -141,9 +162,8 @@ const CookiesPolicy = () => {
             λειτουργία του site και να επηρεάσει αρνητικά την εμπειρία σας.
           </Typography>
         </Box>
-      </Container>    
+      </Container>
     </>
-
   );
 };
 
