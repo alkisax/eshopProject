@@ -326,6 +326,13 @@ const AdminTransactionsPanel = () => {
                   );
                 })}
               </List>
+              <Typography
+                variant="subtitle1"
+                sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}
+              >
+                <span>Total Amount (without shipping fee):</span>
+                <strong>{selected.amount} €</strong>
+              </Typography>
 
               <Typography variant="subtitle1" sx={{ mt: 2 }}>
                 Shipping Info:

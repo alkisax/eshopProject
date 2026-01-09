@@ -180,7 +180,7 @@ const CartItemsList = () => {
 
                         {/* 💰 Τιμή + ποσότητα */}
                         <Typography component="span" display="block">
-                          {item.commodity.price} {item.commodity.currency} —
+                          {item.commodity.price} {item.commodity.currency} per item —
                           Qty: {item.quantity}
                         </Typography>
                       </>
@@ -196,6 +196,21 @@ const CartItemsList = () => {
                   >
                     <AddIcon />
                   </IconButton>
+
+                  {/* Qty display */}
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      minWidth: 24,
+                      textAlign: "center",
+                      fontWeight: "bold",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {item.quantity}
+                  </Typography>
 
                   <IconButton
                     color="secondary"

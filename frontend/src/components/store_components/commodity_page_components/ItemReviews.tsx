@@ -1,6 +1,13 @@
 // frontend\src\components\store_components\commodity_page_components\ItemReviews.tsx
-import { Box, Typography, Rating, Button, Pagination, TextField, Paper } from "@mui/material";
-// import type { CommodityType } from "../../../types/commerce.types";
+import {
+  Box,
+  Typography,
+  Rating,
+  Button,
+  Pagination,
+  TextField,
+  Paper,
+} from "@mui/material";
 import type { IUser } from "../../../types/types";
 import type { Types } from "mongoose";
 import type { EditorJsData } from "../../../types/commerce.types";
@@ -39,7 +46,6 @@ const ReviewsSection = ({
   setCommentPage,
   commentsPerPage,
 }: Props) => {
-
   const totalComments = comments.length;
 
   const paginated = comments.slice(
@@ -51,9 +57,10 @@ const ReviewsSection = ({
     .map((c) => c.rating)
     .filter((r): r is number => typeof r === "number");
 
-  const averageRating = ratings.length > 0
-    ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)
-    : null;
+  const averageRating =
+    ratings.length > 0
+      ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)
+      : null;
 
   const getCommentUserLabel = (
     u: string | IUser | Types.ObjectId | undefined
@@ -64,6 +71,17 @@ const ReviewsSection = ({
       return u.username;
     return "Anonymous";
   };
+
+  const hasUserAlreadyCommented = Boolean(
+    user &&
+      comments.some((c) => {
+        if (!c.user) return false;
+        if (typeof c.user === "string") return c.user === user.username;
+        if (typeof c.user === "object" && "username" in c.user)
+          return c.user.username === user.username;
+        return false;
+      })
+  );
 
   return (
     <Paper sx={{ p: 2, mt: 4 }}>
@@ -77,7 +95,7 @@ const ReviewsSection = ({
       )}
 
       {/* === WRITE A REVIEW === */}
-      {user && (
+      {user && !hasUserAlreadyCommented && (
         <Box sx={{ mt: 2 }}>
           <TextField
             id="item-user-review-textfield"

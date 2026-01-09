@@ -11,31 +11,25 @@ import HomeButtons from "../components/homePageComponents/HomeButtons";
 const HomeResponsiveWrapper = ({ children }: { children: React.ReactNode }) => {
   const isSmUp = useMediaQuery("(min-width:600px)");
   const { settings } = useSettings();
-
-  const isThemeEnabled =
-    !settings?.branding?.themeSelector?.includes("FALSE");
-  console.log(' from HomeResponsiveWrapper, isThemeEnabled: ', isThemeEnabled);
-  
+  const themeSelectorValue = settings?.branding?.themeSelector?.[0];
+  const isThemeEnabled = themeSelectorValue === "TRUE";
+  // console.log(" from HomeResponsiveWrapper, isThemeEnabled: ", isThemeEnabled);
 
   // 1️⃣ Theme DISABLED → τίποτα extra
   if (!isThemeEnabled) {
-    return <>{children}</>;
-  }
-
-  // // 2️⃣ Theme ENABLED + Desktop
-  // if (isSmUp) {
-  //   return <CrossGridLayout>{children}</CrossGridLayout>;
-  // }
-  // 2️⃣ Theme ENABLED + Desktop → CROSS GRID + ASIDE
-  if (isSmUp) {
     return (
-      <CrossGridLayoutWithNamedSlots
-        main={children}
-        aside={<HomeButtons />}
-      />
+      <>
+        {children}
+      </>
     );
   }
 
+  // 2️⃣ Theme ENABLED + Desktop → CROSS GRID + ASIDE
+  if (isSmUp) {
+    return (
+      <CrossGridLayoutWithNamedSlots main={children} aside={<HomeButtons />} />
+    );
+  }
 
   // 3️⃣ Theme ENABLED + Mobile
   return (

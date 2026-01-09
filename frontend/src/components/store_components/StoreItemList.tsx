@@ -1,7 +1,16 @@
 // frontend\src\components\store_components\StoreItemList.tsx
 import { useContext } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import { Button, Pagination, Typography, Card, CardActions, CardActionArea, CardContent, CardMedia, } from "@mui/material";
+import {
+  Button,
+  Pagination,
+  Typography,
+  Card,
+  CardActions,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { CartActionsContext } from "../../context/CartActionsContext";
 import type { CommodityType } from "../../types/commerce.types";
@@ -29,11 +38,18 @@ const StoreItemList = () => {
   const { tracker } = useAnalytics() || {}; //GA
   const { primary, secondary } = useThemeColors();
 
-  // επειδή αυτό δεν είναι ένα κανονικό παιδί του layout αλλα μπάινει στο outlet του layout, 
+  // επειδή αυτό δεν είναι ένα κανονικό παιδί του layout αλλα μπάινει στο outlet του layout,
   // τα props έρχονται με την useOutletContext (δες και σχόλια στο layout)
-  const { commodities, pageCount, currentPage, setCurrentPage, fetchCart, selectedCategories } = useOutletContext<ContextType>();
+  const {
+    commodities,
+    pageCount,
+    currentPage,
+    setCurrentPage,
+    fetchCart,
+    selectedCategories,
+  } = useOutletContext<ContextType>();
 
-  // const [loadingItemId] = useState<string | null>(null); 
+  // const [loadingItemId] = useState<string | null>(null);
   // turning off add btn while prossecing to avoid axios spamming
 
   // GA - gogle analitics track if item passes in a list view (δεν το έχει πατήσει απλός πέρασε απο μπροστά του)
@@ -70,7 +86,7 @@ const StoreItemList = () => {
       </Typography>
 
       {selectedCategories.length > 0 && (
-        <Typography 
+        <Typography
           variant="subtitle1"
           component="h2"
           color="text.secondary"
@@ -88,98 +104,116 @@ const StoreItemList = () => {
           No items found. Try changing search or filters.
         </Typography>
       ) : (
-      <Grid
-        id="commodity-list"
-        container
-        spacing={3}
-      >
-        {commodities.map((commodity) => (
-          <Grid
-            size={{ xs: 12, sm: 6, md: 4 }}
-            key={commodity._id.toString()}
-          >
-            <Card
-              sx={{
-                height: "100%", // let the grid control height
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: 3,
-                boxShadow: 3,
-              }}
-            >
-              <CardActionArea
-                component={Link}
-                to={`/commodity/${commodity.slug ?? commodity._id}`}
-                sx={{
-                  flexGrow: 1,              // 👈 take all vertical space
-                  display: "flex",
-                  flexDirection: "column",  // stack image + content
-                  alignItems: "stretch",    // stretch full width
-                }}
+        <Grid id="commodity-list" container spacing={3}>
+          {commodities.map((commodity) => {
+            const hasVariants = !!commodity.variants?.length;
+            const isOutOfStock = commodity.stock <= 0;
+
+            return (
+              <Grid
+                size={{ xs: 12, sm: 6, md: 4 }}
+                key={commodity._id.toString()}
               >
-                <CardMedia
-                  component="img"
-                  height="160"
-                  image={
-                    commodity.images?.[0] || "/placeholder.jpg"
-                  }
-                  alt={commodity.name}
-                  title={commodity.name}
-                  loading="lazy"
-                />
-                <CardContent
+                <Card
                   sx={{
-                    flexGrow: 1,           // 👈 stretch so all cards equalize
+                    height: "100%",
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "flex-start",
+                    borderRadius: 3,
+                    boxShadow: 3,
+                    opacity: isOutOfStock ? 0.5 : 1,
+                    pointerEvents: isOutOfStock ? "none" : "auto",
                   }}
                 >
-                  <Typography variant="h6" gutterBottom>
-                    {commodity.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {commodity.price} {commodity.currency}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
+                  <CardActionArea
+                    component={Link}
+                    to={`/commodity/${commodity.slug ?? commodity._id}`}
+                    sx={{
+                      flexGrow: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "stretch",
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="160"
+                      image={commodity.images?.[0] || "/placeholder.jpg"}
+                      alt={commodity.name}
+                      loading="lazy"
+                    />
 
-              {/* Always pinned bottom */}
-              <CardActions
-                sx={{
-                  justifyContent: "center", // center button horizontally
-                  p: 2,
-                }}
-              >
-                <Button
-                  id="add-one-list-item-btn"
-                  variant="contained"
-                  size="small"
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    if (!confirmRequiresProcessing(commodity)) return;
-                    await addOneToCart(commodity._id);
-                    await fetchCart();
-                  }}
-                  sx={{
-                    backgroundColor: primary,
-                    color: "#fff",
-                    fontWeight: "bold",
-                    "&:hover": {
-                      backgroundColor: secondary,
-                      color: "#4a3f35",
-                    },
-                  }}
-                >
-                  + Add One to cart
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                    <CardContent
+                      sx={{
+                        flexGrow: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography variant="h6" gutterBottom>
+                        {commodity.name}
+                      </Typography>
+
+                      <Typography variant="body2" color="text.secondary">
+                        {commodity.price} {commodity.currency}
+                      </Typography>
+
+                      {isOutOfStock && (
+                        <Typography
+                          variant="caption"
+                          color="error"
+                          sx={{ mt: 1, fontWeight: "bold" }}
+                        >
+                          Out of stock
+                        </Typography>
+                      )}
+                    </CardContent>
+                  </CardActionArea>
+
+                  {/* === BUTTON AREA === */}
+                  <CardActions sx={{ justifyContent: "center", p: 2 }}>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      disabled={isOutOfStock}
+                      onClick={async (e) => {
+                        e.preventDefault();
+
+                        // Αν έχει variants → πήγαινε στο προϊόν
+                        if (hasVariants) {
+                          window.location.href = `/commodity/${
+                            commodity.slug ?? commodity._id
+                          }`;
+                          return;
+                        }
+
+                        if (!confirmRequiresProcessing(commodity)) return;
+                        await addOneToCart(commodity._id);
+                        await fetchCart();
+                      }}
+                      sx={{
+                        backgroundColor: primary,
+                        color: "#fff",
+                        fontWeight: "bold",
+                        "&:hover": {
+                          backgroundColor: secondary,
+                          color: "#4a3f35",
+                        },
+                      }}
+                    >
+                      {isOutOfStock
+                        ? "Out of stock"
+                        : hasVariants
+                        ? "Choose options"
+                        : "+ Add to cart"}
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            );
+          })}
+        </Grid>
       )}
-
 
       {!isLoading && pageCount > 1 && (
         <Pagination

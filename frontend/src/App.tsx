@@ -32,7 +32,6 @@ import { CartActionsContext } from "./context/CartActionsContext";
 import HomeResponsiveWrapper from "./Layouts/HomeResponsiveWrapper";
 import CrossGridLayout from "./Layouts/deisgnComponents/CrossGridLayout";
 import AboutPage from "./pages/minorPages/AboutPage";
-import { useSettings } from "./context/SettingsContext";
 import Store from "./pages/Store";
 import LoadingSkeleton from "./components/skeletons/LoadingSkeleton";
 import NotFound from "./pages/NotFound";
@@ -54,12 +53,6 @@ const CookiePolicy = lazy(() => import("./pages/minorPages/CookiePolicy"));
 // δεν θέλουμε να φορτώνουν οι σελίδες του admin σε όλους για λόγους οικονομίας. Και για αυτό κάναμε όλα τα σχετιά components lazy load και εδώ προσθέσσαμε Suspense. Tο suspense είναι μέσα στο admin private route μεα αποτέλεσμα να μην φορτώνετε καθόλου αν δεν είναι dmin
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const AdminLayout = lazy(() => import("./Layouts/AdminLayout"));
-const AdminAddNewCommodity = lazy(
-  () =>
-    import(
-      "./components/store_components/adminPannelCommodity/AdminAddNewCommodity"
-    )
-);
 
 function App() {
   const { user } = useContext(UserAuthContext);
@@ -78,11 +71,6 @@ function App() {
     setCartCount
   );
 
-  const { settings } = useSettings();
-  const isThemeDisabled =
-    settings?.branding?.themeSelector?.includes("FALSE") ?? false;
-  const isThemeEnabled = !isThemeDisabled;
-
   return (
     <>
       {/* Google analytics initializer */}
@@ -90,17 +78,12 @@ function App() {
 
       <Routes>
         <Route element={<LayoutWithNavbarAndFooter />}>
-          {/* <Route path="/" element={<Home />} /> */}
           <Route
             path="/"
             element={
-              isThemeEnabled ? (
-                <HomeResponsiveWrapper>
-                  <Home />
-                </HomeResponsiveWrapper>
-              ) : (
+              <HomeResponsiveWrapper>
                 <Home />
-              )
+              </HomeResponsiveWrapper>
             }
           />
 
@@ -264,14 +247,6 @@ function App() {
                 element={
                   <Suspense fallback={<LoadingSkeleton />}>
                     <AdminPanel />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/admin-panel/commodity/new"
-                element={
-                  <Suspense fallback={<LoadingSkeleton />}>
-                    <AdminAddNewCommodity />
                   </Suspense>
                 }
               />
