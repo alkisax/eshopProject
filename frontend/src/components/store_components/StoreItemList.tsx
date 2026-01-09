@@ -173,6 +173,7 @@ const StoreItemList = () => {
                   {/* === BUTTON AREA === */}
                   <CardActions sx={{ justifyContent: "center", p: 2 }}>
                     <Button
+                      id="add-one-list-item-btn"
                       variant="contained"
                       size="small"
                       disabled={isOutOfStock}
