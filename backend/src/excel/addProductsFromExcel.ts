@@ -58,9 +58,6 @@ export const addProductsFromExcel = async (products: CommodityExcelRow[]) => {
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      // const message = err instanceof Error ? err.message : JSON.stringify(err);
-      // console.error('❌ CREATE ERROR for', p.name, '→', message); //todo remove
-
       results.errors.push(`Error for ${p.name}: ${message}`);
     }
   }
