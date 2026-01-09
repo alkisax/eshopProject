@@ -35,6 +35,9 @@ import AboutPage from "./pages/minorPages/AboutPage";
 import Store from "./pages/Store";
 import LoadingSkeleton from "./components/skeletons/LoadingSkeleton";
 import NotFound from "./pages/NotFound";
+import AlternativeLanding from "../themeB/landing_page/Landing";
+import AlternativeLayoutWithNavbarAndFooter from "../themeB/AlternativeLayoutWithNavbarAndFooter";
+
 // lazy loads  + suspense
 const CommodityPage = lazy(
   () => import("./components/store_components/CommodityPage")
@@ -77,6 +80,11 @@ function App() {
       <GAAnalyticsTracker />
 
       <Routes>
+        {/* TODO Εχω βάλει δύο προσορινα endpoints που αργότερα θα πρέπει να αφαιρεθούν */}
+        <Route element={<AlternativeLayoutWithNavbarAndFooter />}>
+          <Route path="/alternative-header" element={<AlternativeLanding />} />
+        </Route>
+
         <Route element={<LayoutWithNavbarAndFooter />}>
           <Route
             path="/"
@@ -86,6 +94,9 @@ function App() {
               </HomeResponsiveWrapper>
             }
           />
+
+          {/* TODO Εχω βάλει δύο προσορινα endpoints που αργότερα θα πρέπει να αφαιρεθούν */}
+          <Route path="/alternative" element={<AlternativeLanding />} />
 
           {/* STORE */}
           {/* used layout as origin of logic for store because its the component that encapsulates al the components. but this propably is not right because thats not the "layout" function. but will leave it as is */}
