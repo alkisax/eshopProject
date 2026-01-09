@@ -23,11 +23,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
 import type { CommodityType } from "../../../types/commerce.types";
-import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import React from "react";
 import AdminCommodityFooter from "./AdminCommodityFooter";
 import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
+import AdminAddNewCommodity from "./AdminAddNewCommodity";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -39,12 +39,13 @@ const AdminCommoditiesPanel = () => {
   const [pageCount, setPageCount] = useState(1);
   const [expanded, setExpanded] = useState<string | null>("");
   const [search, setSearch] = useState(""); // 🔍 added search state
+  const [showCreate, setShowCreate] = useState(false);
 
   // 📍 React Router hook that gives info about the current URL (path, query, state).
   // Here we use it to detect { state: { refresh: true } } when navigating back from "Add Commodity"
   // so we know to re-fetch the commodity list.
   const location = useLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // αυτό ήταν το παλιο που έκανε client size pagination αφού έφερνε πρωτα ολα τα εμπορεύματα. Που είναι λάθος αρχιτεκτονική
   // const fetchCommodities = useCallback(async () => {
@@ -180,7 +181,8 @@ const AdminCommoditiesPanel = () => {
   };
 
   const handleAdd = () => {
-    navigate(`/admin-panel/commodity/new`);
+    // navigate(`/admin-panel/commodity/new`);
+    setShowCreate(true);
   };
 
   const handleVectorizeCommodity = async (id: string) => {
@@ -202,29 +204,6 @@ const AdminCommoditiesPanel = () => {
   };
 
   // edit logic in footer
-
-  // client side pagination removed but kept commented out for history
-  // 🔍 client-side filter for small datasets (<100)
-  // const filtered = commodities.filter((c) => {
-  //   const lower = search.toLowerCase();
-  //   return (
-  //     c.name?.toLowerCase().includes(lower) ||
-  //     c.description?.toLowerCase().includes(lower) ||
-  //     (Array.isArray(c.category) &&
-  //       c.category.some(
-  //         (cat) => typeof cat === "string" && cat.toLowerCase().includes(lower)
-  //       ))
-  //   );
-  // });
-
-  // client side pagination removed but kept commented out for history
-  // const dynamicPageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-
-  // // pagination slice
-  // const paginated = filtered.slice(
-  //   (currentPage - 1) * ITEMS_PER_PAGE,
-  //   currentPage * ITEMS_PER_PAGE
-  // );
 
   return (
     <div>
@@ -256,6 +235,18 @@ const AdminCommoditiesPanel = () => {
       >
         Add Commodity
       </Button>
+
+      {showCreate && (
+        <Paper sx={{ p: 2, mb: 3 }}>
+          <AdminAddNewCommodity
+            onClose={() => setShowCreate(false)}
+            onCreated={() => {
+              setShowCreate(false);
+              fetchPaginatedCommodities();
+            }}
+          />
+        </Paper>
+      )}
 
       {isLoading && <p>Loading...</p>}
       {!isLoading && commodities.length === 0 && <p>No commodities found.</p>}
@@ -458,3 +449,27 @@ const AdminCommoditiesPanel = () => {
 };
 
 export default AdminCommoditiesPanel;
+
+
+  // client side pagination removed but kept commented out for history
+  // 🔍 client-side filter for small datasets (<100)
+  // const filtered = commodities.filter((c) => {
+  //   const lower = search.toLowerCase();
+  //   return (
+  //     c.name?.toLowerCase().includes(lower) ||
+  //     c.description?.toLowerCase().includes(lower) ||
+  //     (Array.isArray(c.category) &&
+  //       c.category.some(
+  //         (cat) => typeof cat === "string" && cat.toLowerCase().includes(lower)
+  //       ))
+  //   );
+  // });
+
+  // client side pagination removed but kept commented out for history
+  // const dynamicPageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+
+  // // pagination slice
+  // const paginated = filtered.slice(
+  //   (currentPage - 1) * ITEMS_PER_PAGE,
+  //   currentPage * ITEMS_PER_PAGE
+  // );

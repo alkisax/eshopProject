@@ -4,15 +4,10 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { Typography, Box } from "@mui/material";
 import { useMediaQuery, useTheme } from "@mui/material";
-// import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-// import FavoriteIcon from "@mui/icons-material/Favorite";
-// import { TextField, Rating, Pagination } from "@mui/material";
 import { UserAuthContext } from "../../context/UserAuthContext";
 import type { CommodityType } from "../../types/commerce.types";
 import { VariablesContext } from "../../context/VariablesContext";
 import { CartActionsContext } from "../../context/CartActionsContext";
-// import type { IUser } from "../../types/types";
-// import type { Types } from "mongoose";
 import { Helmet } from "react-helmet-async";
 import { AiModerationContext } from "../../context/AiModerationContext";
 import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA

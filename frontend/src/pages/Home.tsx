@@ -7,7 +7,7 @@ import { Suspense } from "react";
 import LatestCommoditiesSkeleton from "../components/skeletons/LatestCommoditiesSkeleton";
 import LastAnnouncementSkeleton from "../components/skeletons/LastAnnouncementSkeleton ";
 import { useSettings } from "../context/SettingsContext";
-// import HomeButtons from "../components/homePageComponents/HomeButtons";
+import HomeButtons from "../components/homePageComponents/HomeButtons";
 import HomeText from "../components/homePageComponents/Hometext";
 import SeoHeadings from "../utils/SeoHeadings";
 
@@ -22,6 +22,10 @@ const Home = () => {
   const isHeroImageActive = settings?.branding?.isHeroImageActive;
   const social = settings?.socialLinks;
   const company = settings?.companyInfo;
+
+  const themeSelectorValue = settings?.branding?.themeSelector?.[0];
+  const isThemeEnabled = themeSelectorValue === "TRUE";
+  console.log(" from HomeResponsiveWrapper, isThemeEnabled: ", isThemeEnabled);
 
   return (
     <>
@@ -88,6 +92,7 @@ const Home = () => {
           )}
 
           {/* Buttons */}
+          {!isThemeEnabled && <HomeButtons />}
           {/* <HomeButtons /> */}
 
           {/* Hero Section */}

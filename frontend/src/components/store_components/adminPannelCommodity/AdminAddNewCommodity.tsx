@@ -14,7 +14,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { VariablesContext } from "../../../context/VariablesContext";
 import { UserAuthContext } from "../../../context/UserAuthContext";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useAppwriteUploader } from "../../../hooks/useAppwriteUploader";
 import { slugify } from "../../../utils/slugify";
 import AdminVariantsEditor from "./AdminCommodityFooterComponents/AdminVariantsEditor";
@@ -22,10 +21,15 @@ import type { EditableVariant } from "./AdminCommodityFooterComponents/AdminVari
 import type { CommodityType } from "../../../types/commerce.types";
 import AdminRequiresProcessingRow from "./AdminCommodityFooterComponents/RequiresProcessingRow";
 
-const AdminAddNewCommodity = () => {
+
+interface Props {
+  onClose: () => void;
+  onCreated: () => void;
+}
+
+const AdminAddNewCommodity = ({ onClose, onCreated }: Props) => {
   const { url, categories, refreshCategories } = useContext(VariablesContext);
   const { setIsLoading } = useContext(UserAuthContext);
-  const navigate = useNavigate();
 
   // αποθηκεύουμε την φόρμα μας προσορινά σε ένα state
   const [form, setForm] = useState({
@@ -152,7 +156,8 @@ const AdminAddNewCommodity = () => {
 
       console.log("Commodity created:", res.data.data);
       // χρειαζόμαστε κάτι να κάνει refresh στο AdminCommoditiesPanel. Χρησιμοποιούμε useLocation
-      navigate("/admin-panel", { state: { refresh: true } });
+      // navigate("/admin-panel", { state: { refresh: true } });
+      onCreated();
     } catch (err) {
       console.error("Error creating commodity:", err);
     } finally {
@@ -393,7 +398,7 @@ const AdminAddNewCommodity = () => {
           <Button
             variant="outlined"
             color="secondary"
-            onClick={() => navigate(-1)}
+            onClick={onClose}
           >
             Cancel
           </Button>

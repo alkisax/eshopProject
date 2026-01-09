@@ -57,11 +57,11 @@ const ItemDescription = ({ commodity }: Props) => {
       )}
 
       {/* === Stock === */}
-      <Typography id="item-stock" variant="body2">
+      {/* <Typography id="item-stock" variant="body2">
         {commodity.stock > 0
           ? `In stock (${commodity.stock} available)`
           : "Out of stock"}
-      </Typography>
+      </Typography> */}
     </>
   );
 };
