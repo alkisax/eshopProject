@@ -35,6 +35,7 @@ export interface TransactionType extends Document {
   cancelled?: boolean;
   sessionId?: string;
   shipping?: ShippingInfoType;
+  publicTrackingToken?: string; // (αλλαγές για delivery) public token για status polling (αντί για sessionId)
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -60,6 +61,7 @@ export interface CommodityType extends Document {
   processingTimeDays?: number;
   comments?: CommentType[];
   variants?: CommodityVariantType[];
+  isInstantDeliveryItem?: boolean; // (αλλαγές για delivery)
   vector?: number[]; // για προσθήκη vector embedings
   createdAt?: Date;
   updatedAt?: Date;

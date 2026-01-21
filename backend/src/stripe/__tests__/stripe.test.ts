@@ -1,6 +1,7 @@
 process.env.APPWRITE_ENDPOINT = 'http://dummy';
 process.env.APPWRITE_PROJECT_ID = 'dummy';
 process.env.APPWRITE_API_KEY = 'dummy';
+process.env.JWT_SECRET = 'test_secret';
 // Mock appwrite (to avoid env crashes)
 jest.mock('../../utils/appwrite.ts', () => ({
   account: {},

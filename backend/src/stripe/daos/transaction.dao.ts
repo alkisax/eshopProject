@@ -1,3 +1,4 @@
+// backend\src\stripe\daos\transaction.dao.ts
 // TODO transfer bussines logic out of dao. spageti code
 /* eslint-disable no-console */
 import mongoose from 'mongoose';
@@ -35,7 +36,7 @@ const findIrisTransactions = async () => {
 const createTransaction = async (
   participantId: string | Types.ObjectId,
   sessionId: string,
-  shipping?: ShippingInfoType
+  shipping?: ShippingInfoType,
 ): Promise<TransactionType> => {
   /*
    σε αυτή τη συνάρτηση καλούσα πολλές φορές την βάση για να κάνω διάφορα. Να βρω τον participant, να βρώ το cart του, να σώσω την συναλλαγή του, να ενημερώσω τον participant για την νεα συναλαγή και να αδειάσω το crt. Αν κάτι χαλάσει στην μέση θα έχει κάνει κάποια και θα έχει αφήσει άλλα. Για αυτό η mongoose μου δίνει τα session που τα κάνει όλα bundle και αν δεν πετύχει κάποιο κάνει roll back
@@ -69,12 +70,11 @@ const createTransaction = async (
     console.log('➡️ sessionId:', sessionId);
 
     // 1️⃣ Get participant
-    const participant = await Participant.findById(participantId).session(
-      session
-    );
+    const participant =
+      await Participant.findById(participantId).session(session);
     console.log(
       '👤 Participant loaded:',
-      participant ? participant._id : 'NOT FOUND'
+      participant ? participant._id : 'NOT FOUND',
     );
     if (!participant) {
       throw new NotFoundError('Participant not found');
@@ -131,9 +131,12 @@ const createTransaction = async (
     // βρήσκω το συνολο της τιμής προϊόν * ποσοτητα για κάθε προϊόν
     const amount = items.reduce(
       (sum, item) => sum + item.priceAtPurchase * item.quantity,
-      0
+      0,
     );
     console.log('💶 Total amount:', amount);
+
+    // (αλλαγές για delivery) public token για status polling (αντί για sessionId)
+    const publicTrackingToken = new Types.ObjectId().toString();
 
     // 5️⃣ εδώ είναι η κατασκευή της τελικής συναλαγής μου που θα στείλω στο stripe. Eχει id πελάτη, αντικείμενα (με προϊόντα, ποσότητα, τιμή αγοράς), συνολική αξία, και αν έχει επεξεργαστεί. έχει ακόμα το id που χρησιμοποιήθηκε απο το stripe
     console.log('🧱 Saving new Transaction document...');
@@ -143,6 +146,7 @@ const createTransaction = async (
       amount,
       shipping: shipping || {},
       sessionId,
+      publicTrackingToken,
       status: 'pending',
       processed: false,
     });
@@ -161,7 +165,7 @@ const createTransaction = async (
       await commodityDAO.sellCommodityById(
         item.commodity,
         item.quantity,
-        session
+        session,
       ); // <-- update stock
     }
 
@@ -170,7 +174,7 @@ const createTransaction = async (
     await Participant.findByIdAndUpdate(
       participantId,
       { $push: { transactions: result._id } },
-      { session }
+      { session },
     );
 
     // Clear cart after successful checkout
@@ -214,7 +218,7 @@ const findAllTransactions = async (): Promise<TransactionType[]> => {
 
 // Find transaction by ID
 const findTransactionById = async (
-  transactionId: string | Types.ObjectId
+  transactionId: string | Types.ObjectId,
 ): Promise<TransactionType & { participant: ParticipantType }> => {
   const response = await Transaction.findById(transactionId)
     .populate<{ participant: ParticipantType }>('participant')
@@ -234,7 +238,7 @@ const findByParticipantId = async (participantId: string | Types.ObjectId) => {
 
 // αυτο είναι για το session του stripe. δεν έχει ακόμα endpoint. ισως πρέπει να φτιαχτει
 const findBySessionId = async (
-  sessionId: string
+  sessionId: string,
 ): Promise<TransactionType | null> => {
   const response = await Transaction.findOne({ sessionId })
     .populate('participant')
@@ -243,7 +247,7 @@ const findBySessionId = async (
 };
 
 const findTransactionsByProcessed = async (
-  isProcessed: boolean
+  isProcessed: boolean,
 ): Promise<TransactionType[]> => {
   const response = await Transaction.find({ processed: isProcessed })
     .populate<{ participant: ParticipantType }>('participant')
@@ -251,8 +255,21 @@ const findTransactionsByProcessed = async (
   return response;
 };
 
+const findByPublicTrackingToken = async (
+  publicTrackingToken: string,
+): Promise<TransactionType | null> => {
+  const response = await Transaction.findOne({ publicTrackingToken })
+    .populate('participant')
+    .populate({
+      path: 'items.commodity',
+      select: '-vector',
+    });
+
+  return response;
+};
+
 const markTransactionConfirmed = async (
-  transactionId: string
+  transactionId: string,
 ): Promise<TransactionType> => {
   const transaction = await Transaction.findById(transactionId);
   if (!transaction) {
@@ -261,7 +278,7 @@ const markTransactionConfirmed = async (
 
   if (transaction.status !== 'pending') {
     throw new ValidationError(
-      `Cannot confirm transaction in status ${transaction.status}`
+      `Cannot confirm transaction in status ${transaction.status}`,
     );
   }
 
@@ -310,13 +327,13 @@ const markShipped = async (transactionId: string): Promise<TransactionType> => {
 // Update a transaction (επιτρέπετε μόνο το toggle του processed γιατι είναι απόδειξη αγοράς)
 const updateTransactionById = async (
   transactionId: string | Types.ObjectId,
-  updateData: Partial<TransactionType>
+  updateData: Partial<TransactionType>,
 ): Promise<TransactionType> => {
   try {
     // ✅ only "processed" is allowed
     if (Object.keys(updateData).length !== 1 || !('processed' in updateData)) {
       throw new ValidationError(
-        'Transactions are immutable and cannot be updated (only processed can be toggled)'
+        'Transactions are immutable and cannot be updated (only processed can be toggled)',
       );
     }
 
@@ -361,7 +378,7 @@ const updateTransactionById = async (
 
 const addTransactionToParticipant = async (
   participantId: string | Types.ObjectId,
-  transactionId: string | Types.ObjectId
+  transactionId: string | Types.ObjectId,
 ): Promise<ParticipantType> => {
   try {
     const existingParticipant = await Participant.findById(participantId);
@@ -373,7 +390,7 @@ const addTransactionToParticipant = async (
     const response = await Participant.findByIdAndUpdate(
       participantId,
       { $push: { transactions: transactionId } },
-      { new: true }
+      { new: true },
     );
 
     if (!response) {
@@ -394,7 +411,7 @@ const addTransactionToParticipant = async (
 
 // Delete a transaction by ID
 const deleteTransactionById = async (
-  transactionId: string | Types.ObjectId
+  transactionId: string | Types.ObjectId,
 ): Promise<TransactionType> => {
   const existing = await Transaction.findById(transactionId);
   if (!existing) {
@@ -405,7 +422,7 @@ const deleteTransactionById = async (
     const response = await Transaction.findByIdAndUpdate(
       transactionId,
       { $set: { cancelled: true } },
-      { new: true }
+      { new: true },
     )
       .populate('participant')
       .populate('items.commodity');
@@ -442,11 +459,12 @@ export const transactionDAO = {
   createTransaction,
   deleteTransactionById,
   deleteOldProcessedTransactions,
-  markTransactionConfirmed,
-  markShipped,
-  updateTransactionById,
   findTransactionsByProcessed,
   findByParticipantId,
   findBySessionId,
+  findByPublicTrackingToken,
+  markTransactionConfirmed,
+  markShipped,
+  updateTransactionById,
   addTransactionToParticipant,
 };

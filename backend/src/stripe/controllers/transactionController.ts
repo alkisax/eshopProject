@@ -30,15 +30,15 @@ const create = async (req: Request, res: Response) => {
     const newTransaction = await transactionDAO.createTransaction(
       participantId,
       sessionId,
-      shipping
+      shipping,
     );
 
     const notificationPromise = emailController.sendAdminSaleNotification(
-      newTransaction._id.toString()
+      newTransaction._id.toString(),
     );
     if (notificationPromise) {
       notificationPromise.catch((err) =>
-        console.error('Admin sale notification failed', err)
+        console.error('Admin sale notification failed', err),
       );
     }
 
@@ -55,9 +55,7 @@ const findById = async (req: Request, res: Response) => {
   try {
     const transactionId = req.params.id;
 
-    const transaction = await transactionDAO.findTransactionById(
-      transactionId
-    );
+    const transaction = await transactionDAO.findTransactionById(transactionId);
 
     return res.status(200).json({
       status: true,
@@ -107,9 +105,8 @@ const findByParticipant = async (req: Request, res: Response) => {
   }
 
   try {
-    const transactions = await transactionDAO.findByParticipantId(
-      participantId
-    );
+    const transactions =
+      await transactionDAO.findByParticipantId(participantId);
     return res.status(200).json({ status: true, data: transactions });
   } catch (error) {
     return handleControllerError(res, error);
@@ -134,7 +131,7 @@ const findMyTransactions = async (req: AuthRequest, res: Response) => {
 
     // 2. βρίσκουμε transactions
     const transactions = await transactionDAO.findByParticipantId(
-      participant._id
+      participant._id,
     );
 
     return res.status(200).json({ status: true, data: transactions });
@@ -146,6 +143,40 @@ const findMyTransactions = async (req: AuthRequest, res: Response) => {
 const getIrisTransactions = async (_req: Request, res: Response) => {
   const transactions = await transactionDAO.findIrisTransactions();
   return res.json({ status: true, data: transactions });
+};
+
+const getStatusByTrackingToken = async (req: Request, res: Response) => {
+  const { token } = req.params;
+
+  if (!token) {
+    return res.status(400).json({
+      status: false,
+      message: 'tracking token is required',
+    });
+  }
+
+  try {
+    const transaction = await transactionDAO.findByPublicTrackingToken(token);
+
+    if (!transaction) {
+      return res.status(404).json({
+        status: false,
+        message: 'transaction not found',
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: {
+        status: transaction.status,
+        cancelled: transaction.cancelled,
+        createdAt: transaction.createdAt,
+        updatedAt: transaction.updatedAt,
+      },
+    });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
 };
 
 // έχει αλλάξει η λογική μας και πια δεν έχουμε μόνο state processed true/false αλλά pending/confirmed/shipped=processed. Εδώ την αφήνουμε οπως είναι γιατί θα την χρησιμοποιούμε όσο είμαστε σε dev διαδικασία για να μπορέσουμε να γυρίσουμε στην αρχική μας κατάσταση processed: false, status: pending
@@ -168,7 +199,7 @@ const toggleProcessed = async (req: Request, res: Response) => {
 
     const updatedTransaction = await transactionDAO.updateTransactionById(
       transactionId,
-      updatedData
+      updatedData,
     );
 
     // εδώ στέλνουμε το email
@@ -196,9 +227,8 @@ const markConfirmed = async (req: Request, res: Response) => {
   }
 
   try {
-    const updatedTransaction = await transactionDAO.markTransactionConfirmed(
-      transactionId
-    );
+    const updatedTransaction =
+      await transactionDAO.markTransactionConfirmed(transactionId);
 
     // 📧 Email: ORDER CONFIRMED
     axios
@@ -255,9 +285,8 @@ const deleteById = async (req: Request, res: Response) => {
   }
 
   try {
-    const deletedTransaction = await transactionDAO.deleteTransactionById(
-      transactionId
-    );
+    const deletedTransaction =
+      await transactionDAO.deleteTransactionById(transactionId);
 
     if (!deletedTransaction) {
       return res.status(404).json({
@@ -275,7 +304,7 @@ const deleteById = async (req: Request, res: Response) => {
 
 const deleteOldProcessedTransactions = async (
   _req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     const deletedCount = await transactionDAO.deleteOldProcessedTransactions(5);
@@ -296,6 +325,7 @@ export const transactionController = {
   findByParticipant,
   findMyTransactions,
   getIrisTransactions,
+  getStatusByTrackingToken,
   toggleProcessed,
   markConfirmed,
   markShipped,
