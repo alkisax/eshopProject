@@ -20,6 +20,7 @@ import { VariablesContext } from "../context/VariablesContext";
 import IrisDialog from "../components/store_components/ShippingInfoComponents/IrisDialog";
 import { useRef } from "react";
 import ShippingSummaryPanel from "../components/store_components/ShippingInfoComponents/ShippingSummaryPanel";
+import OsmAddressCheck from "../components/store_components/ShippingInfoComponents/OsmAddressCheck";
 
 // import BoxNowWidget from "../components/store_components/BoxNowWidget";
 
@@ -80,7 +81,7 @@ const ShippingInfo = () => {
 
   const subtotal = cart.items.reduce(
     (sum, item) => sum + item.commodity.price * item.quantity,
-    0
+    0,
   );
 
   const method =
@@ -100,6 +101,22 @@ const ShippingInfo = () => {
       return;
     }
     setOpenIris(true);
+  };
+
+  const handleCashOnDelivery = async () => {
+    if (!formRef.current) return;
+    if (!formRef.current.checkValidity()) {
+      formRef.current.reportValidity();
+      return;
+    }
+
+    // 1) εδώ ΔΕΝ θες Stripe.
+    // 2) για τώρα: θα το χειριστούμε όπως IRIS: "δημιουργία παραγγελίας" + redirect σε waiting page
+    // 3) το ακριβές API call θα το κάνουμε στο επόμενο βήμα (με hook)
+    console.log("COD selected", form);
+
+    // προσωρινό: redirect σε waiting page (θα τη φτιάξουμε αμέσως μετά)
+    // navigate('/order-waiting');  <-- μόλις φτιάξουμε route
   };
 
   return (
@@ -132,6 +149,14 @@ const ShippingInfo = () => {
       >
         {/* 🟢 RIGHT column — FIRST on mobile */}
         <Box sx={{ order: { xs: 0, sm: 1 }, flex: 1 }}>
+          <OsmAddressCheck
+            addressLine1={form.addressLine1}
+            addressLine2={form.addressLine2}
+            city={form.city}
+            postalCode={form.postalCode}
+            country={form.country}
+          />
+
           <ShippingSummaryPanel
             cart={cart}
             subtotal={subtotal}
@@ -141,7 +166,7 @@ const ShippingInfo = () => {
             onChange={(v) => handleChange("shippingMethod", v)}
           />
         </Box>
-        
+
         {/* 🟢 Left column: address fields */}
         <Stack spacing={2} flex={1}>
           <TextField
@@ -231,6 +256,26 @@ const ShippingInfo = () => {
                 (εκτέλεση μετά από επιβεβαίωση πληρωμής)
               </Typography>
             </Button>
+
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={handleCashOnDelivery}
+            >
+              Πληρωμή κατά την παραλαβή
+              <br />
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: "0.65rem",
+                  color: "text.disabled",
+                  display: "block",
+                  lineHeight: 1.2,
+                }}
+              >
+                (η παραγγελία στέλνεται για έγκριση)
+              </Typography>
+            </Button>
           </Stack>
         </Stack>
 
@@ -290,7 +335,7 @@ const ShippingInfo = () => {
             />
           </RadioGroup>
         </Paper>*/}
-      </Box> 
+      </Box>
 
       <IrisDialog
         open={openIris}
