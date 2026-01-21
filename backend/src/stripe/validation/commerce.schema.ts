@@ -111,6 +111,7 @@ export const createCommoditySchema = z
     variants: z.array(commodityVariantSchema).optional(),
     requiresProcessing: z.boolean().optional().default(false),
     processingTimeDays: z.number().int().min(0).optional(),
+    isInstantDeliveryItem: z.boolean().optional().default(false),
   })
 
   .refine(

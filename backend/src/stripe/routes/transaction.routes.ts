@@ -44,6 +44,9 @@ router.get(
   transactionController.findMyTransactions
 );
 
+// ✅ (αλλαγές για delivery) status polling by public tracking token (PUBLIC)
+router.get('/status/:token', transactionController.getStatusByTrackingToken);
+
 router.get(
   '/:id',
   middleware.verifyToken,

@@ -24,7 +24,7 @@ const transactionItemSchema = new Schema(
       required: true,
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const shippingSchema = new Schema(
@@ -38,7 +38,7 @@ const shippingSchema = new Schema(
     phone: String,
     notes: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const transactionSchema = new Schema(
@@ -74,14 +74,21 @@ const transactionSchema = new Schema(
     sessionId: {
       type: String,
     },
+    // (αλλαγές για delivery) public token για status polling (αντί για sessionId)
+    publicTrackingToken: {
+      type: String,
+      unique: true,
+      sparse: true, // unique (για να το κάνεις lookup χωρίς collisions) αλλά να μην σπάει υπάρχοντα docs
+      index: true,
+    },
   },
   {
     collection: 'Transactions',
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.model<TransactionType>(
   'Transaction',
-  transactionSchema
+  transactionSchema,
 );

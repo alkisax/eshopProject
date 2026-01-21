@@ -32,7 +32,7 @@ const commentSchema = new Schema(
   {
     _id: true,
     timestamps: true,
-  }
+  },
 );
 
 const variantSchema = new Schema(
@@ -57,7 +57,7 @@ const variantSchema = new Schema(
   {
     _id: true,
     timestamps: false,
-  }
+  },
 );
 
 const commoditySchema = new Schema(
@@ -137,6 +137,11 @@ const commoditySchema = new Schema(
       type: Number,
       min: 0,
     },
+    // (αλλαγές για delivery) flag για "instant delivery" εμπορεύματα
+    isInstantDeliveryItem: {
+      type: Boolean,
+      default: false,
+    },
     vector: {
       // θα προσθέσουμε vector embedings για cosine similarity αναζήτηση. Θα είναι vectorised το όνομα και η περιγραφή
       type: [Number], // array of floats (1536 long when populated)
@@ -146,7 +151,7 @@ const commoditySchema = new Schema(
   {
     timestamps: true,
     collection: 'commodities',
-  }
+  },
 );
 
 // Στο Mongoose υπάρχει η έννοια των middleware hooks. Είναι functions που τρέχουν πριν ή μετά από κάποια ενέργεια.

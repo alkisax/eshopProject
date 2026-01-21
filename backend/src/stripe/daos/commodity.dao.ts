@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // backend\src\stripe\daos\commodity.dao.ts
 import Commodity from '../models/commodity.models';
 import mongoose from 'mongoose';
@@ -77,6 +78,7 @@ const createCommodity = async (
       throw new ValidationError(err.message);
     }
 
+    //TODO remove as any
     // Πράγματι θέλουμε να ξέρουμε το mongo duplicate key error:
     if (err instanceof Error && (err as any).code === 11000) {
       console.error('"❌ [DAO] Duplicate key:"', (err as any).keyValue);

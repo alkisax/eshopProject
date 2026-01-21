@@ -148,6 +148,50 @@ paths:
         '401':
           description: Unauthorized
 
+  /api/transaction/status/{token}:
+    get:
+      summary: Get public transaction status by tracking token (public)
+      description: >
+        Public endpoint for order status polling using a tracking token.
+        Returns only minimal fields (status, cancelled, createdAt, updatedAt).
+      tags: [Transactions]
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+          description: Public tracking token
+      responses:
+        '200':
+          description: Status payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        enum: [pending, confirmed, shipped]
+                      cancelled:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        '400':
+          description: Missing token
+        '404':
+          description: Transaction not found
+
   /api/transaction/participant/{participantId}:
     get:
       summary: Get all transactions for a participant (admin only)
@@ -262,6 +306,78 @@ paths:
       responses:
         '200':
           description: Transaction updated successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '404':
+          description: Transaction not found
+
+  /api/transaction/confirm/{id}:
+    post:
+      summary: Mark transaction confirmed (admin only)
+      description: >
+        Moves status from pending to confirmed and triggers the "order confirmed" email.
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: objectId
+      responses:
+        '200':
+          description: Transaction confirmed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Missing id
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '404':
+          description: Transaction not found
+
+  /api/transaction/ship/{id}:
+    post:
+      summary: Mark transaction shipped (admin only)
+      description: >
+        Moves status from confirmed to shipped and triggers the "order shipped" email.
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: objectId
+      responses:
+        '200':
+          description: Transaction shipped
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Missing id
         '401':
           description: Unauthorized
         '403':
