@@ -27,6 +27,7 @@ import { CloudUpload } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import SsidChartIcon from "@mui/icons-material/SsidChart";
 import BrushIcon from "@mui/icons-material/Brush";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 
 interface AdminSidebarProps {
   onSelect: (panel: string) => void;
@@ -64,6 +65,18 @@ const AdminSidebar = ({ onSelect }: AdminSidebarProps) => {
               <GroupIcon />
             </ListItemIcon>
             <ListItemText primary="Participants" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton
+            id="admin-sidebar-delivery"
+            onClick={() => onSelect("delivery")}
+          >
+            <ListItemIcon>
+              <LocalShippingIcon />
+            </ListItemIcon>
+            <ListItemText primary="Delivery" />
           </ListItemButton>
         </ListItem>
 

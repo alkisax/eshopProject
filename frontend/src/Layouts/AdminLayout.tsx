@@ -17,6 +17,7 @@ import AdminAnalyticsPanel from "../components/store_components/adminPannelCommo
 import AdminExcelPanel from "../components/store_components/adminPannelCommodity/AdminExcelPanel";
 import AdminPanelInstructions from "../components/store_components/AdminPanelInstructions";
 import AdminCustomizationPanel from "../components/AdminCustomizationPanel"
+import AdminDeliveryPanel from "../components/AdminDeliveryPanel";
 
 const AdminLayout = () => {
   const [activePanel, setActivePanel] = useState<string | null>(null);
@@ -28,6 +29,7 @@ const AdminLayout = () => {
       <main style={{ flexGrow: 1, padding: "16px" }}>
         {activePanel === "users" && <AdminUsersPanel />}
         {activePanel === "participants" && <AdminParticipantsPanel />}
+        {activePanel === "delivery" && <AdminDeliveryPanel />}
         {activePanel === "transactions" && <AdminTransactionsPanel />}
         {activePanel === "commodities" && <AdminCommoditiesPanel />}
         {activePanel === "cloudUploads" && <AdminCloudUploadsPanel />}
