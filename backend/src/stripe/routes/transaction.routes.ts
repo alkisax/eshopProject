@@ -29,6 +29,14 @@ router.get(
   transactionController.getIrisTransactions
 );
 
+// get all COD transactions
+router.get(
+  '/cod',
+  middleware.verifyToken,
+  middleware.checkRole('ADMIN'),
+  transactionController.getCodTransactions
+);
+
 // get all transactions by participant id. to create an "previous pirchaces" - needs login or else can acces other people transactions
 // αυτή σχετίζετε με την /my παρακάτω και ποιο πριν ήταν μια που έσπασε σε δύο. Το πρόβλημα είναι οτι τα transaction πρέπει να τα βλέπει ο admin αλλά πρέπει να τα βλέπει και ο user (τα δικά του) για να μπορέι να δεί τις παλιές αγορές του. Το πρόβλημα ήταν πως ένας user θα βλέπει τα δικά του και όχι άλλων
 router.get(

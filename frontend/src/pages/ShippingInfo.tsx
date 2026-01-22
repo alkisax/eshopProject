@@ -21,6 +21,8 @@ import IrisDialog from "../components/store_components/ShippingInfoComponents/Ir
 import { useRef } from "react";
 import ShippingSummaryPanel from "../components/store_components/ShippingInfoComponents/ShippingSummaryPanel";
 import OsmAddressCheck from "../components/store_components/ShippingInfoComponents/OsmAddressCheck";
+import { useCashOnDeliveryCheckout } from "../hooks/useCashOnDeliveryCheckout";
+import { useNavigate } from "react-router-dom";
 
 // import BoxNowWidget from "../components/store_components/BoxNowWidget";
 
@@ -40,6 +42,9 @@ const ShippingInfo = () => {
   const [openIris, setOpenIris] = useState<boolean>(false);
 
   const { handleCheckout } = useCheckout();
+  const { handleCashOnDeliveryCheckout } = useCashOnDeliveryCheckout();
+
+  const navigate = useNavigate();
 
   // το checkout του stripe είναι submit και έτσι δεν πατιόταν αν δεν είχαμε συμπληρώσει την φορμα. αλλα του iris δεν είναι submit και θα πρέπει να το εμποδισουμε να εμφανίζετε χωρίς συμπληρωμένη φόρμα αλλιώς
   // φτιάχνουμε ένα ref και το βάζουμε στο κουμπί της φορμας με ref={formRef}
@@ -110,13 +115,19 @@ const ShippingInfo = () => {
       return;
     }
 
-    // 1) εδώ ΔΕΝ θες Stripe.
-    // 2) για τώρα: θα το χειριστούμε όπως IRIS: "δημιουργία παραγγελίας" + redirect σε waiting page
-    // 3) το ακριβές API call θα το κάνουμε στο επόμενο βήμα (με hook)
-    console.log("COD selected", form);
+    try {
+      const result = await handleCashOnDeliveryCheckout(form);
 
-    // προσωρινό: redirect σε waiting page (θα τη φτιάξουμε αμέσως μετά)
-    // navigate('/order-waiting');  <-- μόλις φτιάξουμε route
+      const token = result?.data?.publicTrackingToken;
+
+      if (!token) {
+        throw new Error("No tracking token returned from backend");
+      }
+
+      navigate(`/order-waiting/${token}`);
+    } catch (err) {
+      console.error("COD checkout failed", err);
+    }
   };
 
   return (
@@ -232,11 +243,14 @@ const ShippingInfo = () => {
             rows={4}
           />
 
+          {/* buttons */}
           <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+            {/* stripe */}
             <Button variant="contained" color="primary" type="submit">
               Συνέχεια στο Checkout
             </Button>
 
+            {/* iris */}
             <Button
               variant="outlined"
               color="secondary"
@@ -257,6 +271,7 @@ const ShippingInfo = () => {
               </Typography>
             </Button>
 
+            {/* cash on delivery */}
             <Button
               variant="outlined"
               color="info"

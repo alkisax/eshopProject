@@ -37,6 +37,7 @@ import LoadingSkeleton from "./components/skeletons/LoadingSkeleton";
 import NotFound from "./pages/NotFound";
 import AlternativeLanding from "../themeB/landing_page/Landing";
 import AlternativeLayoutWithNavbarAndFooter from "../themeB/AlternativeLayoutWithNavbarAndFooter";
+import OrderWaiting from "./pages/OrderWaiting";
 
 // lazy loads  + suspense
 const CommodityPage = lazy(
@@ -138,6 +139,7 @@ function App() {
               </Suspense>
             }
           />
+
           {/* Static / Minor Pages — all wrapped in CrossGridLayout */}
           <Route
             path="/contact"
@@ -238,6 +240,7 @@ function App() {
           <Route path="/google-success" element={<GoogleSuccess />} />
           <Route path="/github-success" element={<GithubSuccess />} />
           <Route path="/checkout-success" element={<CheckoutSuccess />} />
+          <Route path="/order-waiting/:token" element={<OrderWaiting />} />
           <Route path="/cancel" element={<Cart />} />
 
           <Route element={<PrivateRoute />}>

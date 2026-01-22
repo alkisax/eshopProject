@@ -120,6 +120,36 @@ paths:
         '403':
           description: Forbidden (admin only)
 
+  /api/transaction/cod:
+    get:
+      summary: Get all Cash On Delivery transactions (admin only)
+      description: >
+        Returns all transactions created via Cash On Delivery (COD).
+        COD transactions are identified by sessionId starting with `COD_`.
+        These orders require manual approval by the admin before execution.
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of COD transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+
   /api/transaction/my:
     get:
       summary: Get my transactions (logged-in user)

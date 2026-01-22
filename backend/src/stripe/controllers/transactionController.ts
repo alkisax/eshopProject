@@ -145,6 +145,11 @@ const getIrisTransactions = async (_req: Request, res: Response) => {
   return res.json({ status: true, data: transactions });
 };
 
+const getCodTransactions = async (_req: Request, res: Response) => {
+  const transactions = await transactionDAO.findCodTransactions();
+  return res.json({ status: true, data: transactions });
+};
+
 const getStatusByTrackingToken = async (req: Request, res: Response) => {
   const { token } = req.params;
 
@@ -325,6 +330,7 @@ export const transactionController = {
   findByParticipant,
   findMyTransactions,
   getIrisTransactions,
+  getCodTransactions,
   getStatusByTrackingToken,
   toggleProcessed,
   markConfirmed,

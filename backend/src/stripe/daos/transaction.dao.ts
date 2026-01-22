@@ -33,6 +33,18 @@ const findIrisTransactions = async () => {
     });
 };
 
+const findCodTransactions = async () => {
+  return await Transaction.find({
+    sessionId: { $regex: '^COD_' },
+  })
+    .sort({ createdAt: -1 })
+    .populate('participant')
+    .populate({
+      path: 'items.commodity',
+      select: '-vector',
+    });
+};
+
 const createTransaction = async (
   participantId: string | Types.ObjectId,
   sessionId: string,
@@ -456,6 +468,7 @@ export const transactionDAO = {
   findAllTransactions,
   findTransactionById,
   findIrisTransactions,
+  findCodTransactions,
   createTransaction,
   deleteTransactionById,
   deleteOldProcessedTransactions,

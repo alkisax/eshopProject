@@ -1,0 +1,1 @@
+is store open πριν απο shipping info
