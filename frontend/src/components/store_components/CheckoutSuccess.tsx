@@ -52,10 +52,19 @@ const CheckoutSuccess = () => {
           globalParticipant._id
         );
 
+        const endpoint = token
+          ? `${url}/api/transaction/my`
+          : null;
+
+        if (!endpoint) {
+          setTransactions([]);
+          return;
+        }
+
         const res = await axios.get<{
           status: boolean;
           data: TransactionType[];
-        }>(`${url}/api/transaction/participant/${globalParticipant._id}`, {
+        }>(endpoint, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -75,7 +84,7 @@ const CheckoutSuccess = () => {
           sorted[0].items.forEach((item, idx) => {
             console.log(`🧩 ITEM ${idx}:`, item);
             console.log("👉 commodity:", item.commodity);
-            console.log("👉 images:", item.commodity?.images);
+            // console.log("👉 images:", item.commodity?.images);
           });
         }
 
