@@ -464,6 +464,18 @@ const deleteOldProcessedTransactions = async (years = 5): Promise<number> => {
   return result.deletedCount ?? 0;
 };
 
+
+const cancelById = async (id: string) => {
+  // προστέθηκε στην λειτουργία delivery για την front waiting aproval page πριν το checkout success
+  // κρατάμε status όπως είναι και γυρνάμε cancelled=true
+  // γιατί στο /status/:token ήδη κοιτά cancelled για redirect
+  return await Transaction.findByIdAndUpdate(
+    id,
+    { cancelled: true },
+    { new: true } // επιστρέφει το ενημερωμένο document, όχι το παλιό
+  );
+};
+
 export const transactionDAO = {
   findAllTransactions,
   findTransactionById,
@@ -480,4 +492,5 @@ export const transactionDAO = {
   markShipped,
   updateTransactionById,
   addTransactionToParticipant,
+  cancelById,
 };

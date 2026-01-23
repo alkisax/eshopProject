@@ -1,13 +1,9 @@
 // frontend\src\pages\OrderWaiting.tsx
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  Paper,
-} from "@mui/material";
+import { Box, Typography, CircularProgress, Paper } from "@mui/material";
+import { VariablesContext } from "../context/VariablesContext";
 
 const OrderWaiting = () => {
   // το url μας έχει ένα τοκεν που είναι ένα τυχαίο string που έρχετε απο το Back και το χρησιμοποιούμε για να ταυτοποιήσουμε την συναλάγή που είναι να εγγρηθεί
@@ -16,6 +12,8 @@ const OrderWaiting = () => {
 
   const [status, setStatus] = useState<string>("pending");
   const [loading, setLoading] = useState(true);
+
+  const { url } = useContext(VariablesContext);
 
   //Σε React ΔΕΝ χρησιμοποιούμε let interval στο body. Χρησιμοποιούμε useRef, γιατί: δεν προκαλεί re-render
   const intervalRef = useRef<number | null>(null);
@@ -26,9 +24,7 @@ const OrderWaiting = () => {
     const fetchStatus = async () => {
       try {
         // μου επιστρέφει το status του transaction pending/canceled/confirmed TODO να ελέξω αν το canceled flow είναι οκ
-        const res = await axios.get(
-          `/api/transaction/status/${token}`
-        );
+        const res = await axios.get(`${url}/api/transaction/status/${token}`);
 
         // κρατάω μόνο το status ή το cancelled που είναι Boolean
         const { status, cancelled } = res.data.data;
@@ -59,7 +55,7 @@ const OrderWaiting = () => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [token, navigate]);
+  }, [token, navigate, url]);
 
   // ⏳ loading UI
   if (loading) {
@@ -92,4 +88,3 @@ const OrderWaiting = () => {
 };
 
 export default OrderWaiting;
-

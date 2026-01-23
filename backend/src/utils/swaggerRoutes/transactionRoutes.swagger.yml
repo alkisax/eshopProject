@@ -27,11 +27,13 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden (admin only)
+        '500':
+          description: Server error
 
     post:
       summary: Create a new transaction (internal / checkout flow)
       description: >
-        Creates a transaction after a successful Stripe or IRIS checkout.
+        Creates a transaction after a successful Stripe, IRIS or COD checkout.
         This endpoint is used internally by the checkout flow.
       tags: [Transactions]
       requestBody:
@@ -47,10 +49,8 @@ paths:
                 participant:
                   type: string
                   format: objectId
-                  example: "68ad7e285d9e6a24a76b249e"
                 sessionId:
                   type: string
-                  example: "cs_test_a1b2c3d4e5"
       responses:
         '201':
           description: Transaction created successfully
@@ -65,6 +65,8 @@ paths:
                     $ref: '#/components/schemas/Transaction'
         '400':
           description: Invalid input
+        '500':
+          description: Server error
 
   /api/transaction/unprocessed:
     get:
@@ -90,13 +92,12 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden (admin only)
+        '500':
+          description: Server error
 
   /api/transaction/iris:
     get:
       summary: Get all IRIS transactions (admin only)
-      description: >
-        Returns all transactions created via IRIS manual payment.
-        IRIS transactions are identified by sessionId starting with `IRIS_`.
       tags: [Transactions]
       security:
         - bearerAuth: []
@@ -110,7 +111,6 @@ paths:
                 properties:
                   status:
                     type: boolean
-                    example: true
                   data:
                     type: array
                     items:
@@ -119,14 +119,14 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden (admin only)
+        '500':
+          description: Server error
 
   /api/transaction/cod:
     get:
       summary: Get all Cash On Delivery transactions (admin only)
       description: >
-        Returns all transactions created via Cash On Delivery (COD).
-        COD transactions are identified by sessionId starting with `COD_`.
-        These orders require manual approval by the admin before execution.
+        COD transactions require manual approval.
       tags: [Transactions]
       security:
         - bearerAuth: []
@@ -140,7 +140,6 @@ paths:
                 properties:
                   status:
                     type: boolean
-                    example: true
                   data:
                     type: array
                     items:
@@ -149,20 +148,18 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden (admin only)
+        '500':
+          description: Server error
 
   /api/transaction/my:
     get:
       summary: Get my transactions (logged-in user)
-      description: >
-        Returns all transactions belonging to the currently authenticated user.
-        The backend resolves the participant internally from the JWT user id.
-        Returns an empty array if the user has no transactions yet.
       tags: [Transactions]
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: List of user transactions
+          description: User transactions
           content:
             application/json:
               schema:
@@ -170,20 +167,18 @@ paths:
                 properties:
                   status:
                     type: boolean
-                    example: true
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Transaction'
         '401':
           description: Unauthorized
+        '500':
+          description: Server error
 
   /api/transaction/status/{token}:
     get:
-      summary: Get public transaction status by tracking token (public)
-      description: >
-        Public endpoint for order status polling using a tracking token.
-        Returns only minimal fields (status, cancelled, createdAt, updatedAt).
+      summary: Get public transaction status by tracking token
       tags: [Transactions]
       parameters:
         - in: path
@@ -191,10 +186,9 @@ paths:
           required: true
           schema:
             type: string
-          description: Public tracking token
       responses:
         '200':
-          description: Status payload
+          description: Transaction status
           content:
             application/json:
               schema:
@@ -202,7 +196,6 @@ paths:
                 properties:
                   status:
                     type: boolean
-                    example: true
                   data:
                     type: object
                     properties:
@@ -211,23 +204,16 @@ paths:
                         enum: [pending, confirmed, shipped]
                       cancelled:
                         type: boolean
-                      createdAt:
-                        type: string
-                        format: date-time
-                      updatedAt:
-                        type: string
-                        format: date-time
         '400':
           description: Missing token
         '404':
           description: Transaction not found
+        '500':
+          description: Server error
 
   /api/transaction/participant/{participantId}:
     get:
-      summary: Get all transactions for a participant (admin only)
-      description: >
-        Returns all transactions for a specific participant.
-        Admin access only.
+      summary: Get transactions by participant (admin only)
       tags: [Transactions]
       security:
         - bearerAuth: []
@@ -238,10 +224,9 @@ paths:
           schema:
             type: string
             format: objectId
-          description: Participant ID
       responses:
         '200':
-          description: List of participant transactions
+          description: Participant transactions
           content:
             application/json:
               schema:
@@ -253,14 +238,14 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Transaction'
-        '400':
-          description: Missing participantId
         '401':
           description: Unauthorized
         '403':
           description: Forbidden (admin only)
         '404':
           description: Participant not found
+        '500':
+          description: Server error
 
   /api/transaction/{id}:
     get:
@@ -293,12 +278,14 @@ paths:
           description: Forbidden (admin only)
         '404':
           description: Transaction not found
+        '500':
+          description: Server error
 
     delete:
-      summary: Cancel a transaction (admin only)
+      summary: Delete transaction permanently (admin only)
       description: >
-        Marks a transaction as cancelled.
-        Transactions are not hard-deleted.
+        Permanently deletes a transaction.
+        This action is irreversible.
       tags: [Transactions]
       security:
         - bearerAuth: []
@@ -308,22 +295,22 @@ paths:
           required: true
           schema:
             type: string
+            format: objectId
       responses:
         '200':
-          description: Transaction cancelled successfully
+          description: Transaction deleted successfully
         '401':
           description: Unauthorized
         '403':
           description: Forbidden (admin only)
         '404':
           description: Transaction not found
+        '500':
+          description: Server error
 
   /api/transaction/toggle/{id}:
     put:
-      summary: Toggle the processed status of a transaction (admin only)
-      description: >
-        Flips the `processed` flag for a transaction
-        and triggers a thank-you email.
+      summary: Toggle processed status (admin only)
       tags: [Transactions]
       security:
         - bearerAuth: []
@@ -335,19 +322,19 @@ paths:
             type: string
       responses:
         '200':
-          description: Transaction updated successfully
+          description: Transaction updated
         '401':
           description: Unauthorized
         '403':
           description: Forbidden (admin only)
         '404':
           description: Transaction not found
+        '500':
+          description: Server error
 
   /api/transaction/confirm/{id}:
     post:
-      summary: Mark transaction confirmed (admin only)
-      description: >
-        Moves status from pending to confirmed and triggers the "order confirmed" email.
+      summary: Confirm transaction (admin only)
       tags: [Transactions]
       security:
         - bearerAuth: []
@@ -357,33 +344,47 @@ paths:
           required: true
           schema:
             type: string
-            format: objectId
       responses:
         '200':
           description: Transaction confirmed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/Transaction'
-        '400':
-          description: Missing id
         '401':
           description: Unauthorized
         '403':
           description: Forbidden (admin only)
         '404':
           description: Transaction not found
+        '500':
+          description: Server error
 
   /api/transaction/ship/{id}:
     post:
-      summary: Mark transaction shipped (admin only)
+      summary: Ship transaction (admin only)
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction shipped
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '404':
+          description: Transaction not found
+        '500':
+          description: Server error
+
+  /api/transaction/cancel/{id}:
+    post:
+      summary: Cancel transaction (admin only)
       description: >
-        Moves status from confirmed to shipped and triggers the "order shipped" email.
+        Marks a transaction as cancelled (soft cancel).
       tags: [Transactions]
       security:
         - bearerAuth: []
@@ -396,7 +397,7 @@ paths:
             format: objectId
       responses:
         '200':
-          description: Transaction shipped
+          description: Transaction cancelled
           content:
             application/json:
               schema:
@@ -406,37 +407,24 @@ paths:
                     type: boolean
                   data:
                     $ref: '#/components/schemas/Transaction'
-        '400':
-          description: Missing id
         '401':
           description: Unauthorized
         '403':
           description: Forbidden (admin only)
         '404':
           description: Transaction not found
+        '500':
+          description: Server error
 
   /api/transaction/clear/old:
     delete:
       summary: Delete old processed transactions (admin only)
-      description: >
-        Permanently deletes transactions marked as processed
-        and older than 5 days.
       tags: [Transactions]
       security:
         - bearerAuth: []
       responses:
         '200':
           description: Old transactions deleted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
         '401':
           description: Unauthorized
         '403':

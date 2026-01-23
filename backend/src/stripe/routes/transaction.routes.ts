@@ -90,6 +90,14 @@ router.post(
   transactionController.markShipped
 );
 
+// ❌ CANCEL (pending → cancelled)
+router.post(
+  '/cancel/:id',
+  middleware.verifyToken,
+  middleware.checkRole('ADMIN'),
+  transactionController.cancelTransaction
+);
+
 // DELETE a transaction by ID (admin only)
 router.delete(
   '/:id',

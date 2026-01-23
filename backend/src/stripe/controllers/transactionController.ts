@@ -53,7 +53,7 @@ const create = async (req: Request, res: Response) => {
       status: newTransaction.status,
       sessionId: newTransaction.sessionId,
       createdAt: newTransaction.createdAt,
-      
+      publicTrackingToken: newTransaction.publicTrackingToken,
     });
 
     const notificationPromise = emailController.sendAdminSaleNotification(
@@ -303,6 +303,21 @@ const markShipped = async (req: Request, res: Response) => {
   }
 };
 
+const cancelTransaction = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const updated = await transactionDAO.cancelById(id);
+
+    return res.status(200).json({
+      status: true,
+      data: updated,
+    });
+  } catch (error) {
+    return handleControllerError(res, error);
+  }
+};
+
 const deleteById = async (req: Request, res: Response) => {
   const transactionId = req.params.id;
   if (!transactionId) {
@@ -358,6 +373,7 @@ export const transactionController = {
   toggleProcessed,
   markConfirmed,
   markShipped,
+  cancelTransaction,
   deleteById,
   deleteOldProcessedTransactions,
 };
