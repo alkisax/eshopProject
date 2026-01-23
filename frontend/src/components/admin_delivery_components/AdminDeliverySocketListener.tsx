@@ -1,3 +1,10 @@
+/*
+⚠️ αυτό το αρχείο δεν χρησιμοποιήτε πια. η λογική του μεταφέρθηκε στα
+frontend\src\context\AdminSocketContext.ts
+frontend\src\components\AdminSocketProvider.tsx
+frontend\src\Layouts\AdminLayout.tsx
+*/
+
 // frontend\src\components\admin_delivery_components\AdminDeliverySocketListener.tsx
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";

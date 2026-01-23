@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { VariablesContext } from "../context/VariablesContext";
 import type { TransactionType, ParticipantType } from "../types/commerce.types";
-import AdminDeliverySocketListener from "./admin_delivery_components/AdminDeliverySocketListener";
+// import AdminDeliverySocketListener from "./admin_delivery_components/AdminDeliverySocketListener";
 import TransactionDetailsDialog from "./store_components/adminPannelCommodity/AdminTransactionPanelComponents/TransactionDetailsDialog";
 import TransactionRowActions from "./store_components/adminPannelCommodity/AdminTransactionPanelComponents/TransactionRowActions";
 
@@ -49,13 +49,14 @@ const AdminDeliveryPanel = () => {
     fetchDeliveryTransactions();
   }, [fetchDeliveryTransactions]);
 
-  // socket debug logger
-  useEffect(() => {
-    console.log("🟡 AdminDeliverySocketListener MOUNT");
-    return () => {
-      console.log("🔴 AdminDeliverySocketListener UNMOUNT");
-    };
-  }, []);
+  // // socket debug logger
+  // useEffect(() => {
+  //   console.log("🟡 AdminDeliverySocketListener MOUNT");
+  //   return () => {
+  //     console.log("🔴 AdminDeliverySocketListener UNMOUNT");
+  //   };
+  // }, []);
+
   // για να αλλάζειτο χρώμα της κάθε σειρας
   const getRowBgColor = (t: TransactionType) => {
     if (t.cancelled) return "rgba(244, 67, 54, 0.08)"; // light red
@@ -99,9 +100,9 @@ const AdminDeliveryPanel = () => {
   return (
     <>
       <Paper sx={{ p: 3 }}>
-        <AdminDeliverySocketListener
+        {/* <AdminDeliverySocketListener
           onNewDelivery={fetchDeliveryTransactions}
-        />
+        /> */}
 
         <Typography variant="h4" gutterBottom>
           🚚 Delivery (COD)

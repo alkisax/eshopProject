@@ -1,2 +1,5 @@
-is store open πριν απο shipping info
-να μπορώ να δώ χάρτη
+- is store open πριν απο shipping info
+- να μπορώ να δώ χάρτη✅
+- να πάει το socket πιο πάνω για να είναι πάντα connected ✅ - δημιουργήθηκε context και provider
+- cancel page
+- συνδεση iris και QR με waiting confirmation page

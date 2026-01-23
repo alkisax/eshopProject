@@ -256,6 +256,7 @@ function App() {
         {/* δεν θέλουμε να φορτώνουν οι σελίδες του admin σε όλους για λόγους οικονομίας. Και για αυτό κάναμε όλα τα σχετιά components lazy load και εδώ προσθέσσαμε Suspense */}
         <Route element={<AdminPrivateRoute />}>
           <Route element={<LayoutWithNavbar />}>
+            {/* μεσα στο layout καλείτε και η διαχείρηση του socket */}
             <Route element={<AdminLayout />}>
               <Route
                 path="/admin-panel"
