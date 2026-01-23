@@ -6,19 +6,11 @@ import {
   CircularProgress,
   Box,
   Paper,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Stack,
-  Alert,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { VariablesContext } from "../../context/VariablesContext";
 import type { CartItemType, TransactionType } from "../../types/commerce.types";
+import LastTransactionSummary from "./checkout_components/LastTransactionSummary";
+import PreviousTransactionsAccordion from "./checkout_components/PreviousTransactionsAccordion";
 
 const CheckoutSuccess = () => {
   const { url, globalParticipant, setGlobalParticipant } =
@@ -49,12 +41,10 @@ const CheckoutSuccess = () => {
 
         console.log(
           "📡 Fetching transactions for participant:",
-          globalParticipant._id
+          globalParticipant._id,
         );
 
-        const endpoint = token
-          ? `${url}/api/transaction/my`
-          : null;
+        const endpoint = token ? `${url}/api/transaction/my` : null;
 
         if (!endpoint) {
           setTransactions([]);
@@ -72,7 +62,7 @@ const CheckoutSuccess = () => {
 
         const sorted = res.data.data.sort(
           (a, b) =>
-            new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+            new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime(),
         );
 
         console.log("🔥 SORTED TRANSACTIONS:", sorted);
@@ -170,119 +160,16 @@ const CheckoutSuccess = () => {
         </Typography>
 
         {lastTransaction && (
-          <>
-            <Divider sx={{ my: 3 }} />
-            <Typography variant="h5" gutterBottom>
-              🛍️ Τελευταία αγορά
-            </Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-              {new Date(lastTransaction.createdAt!).toLocaleString()}
-            </Typography>
-
-            <List dense>
-              {lastTransaction.items.map((item, idx) => (
-                <ListItem key={idx} sx={{ borderBottom: "1px dashed #ddd" }}>
-                  {item.commodity.images &&
-                    item.commodity.images?.length > 0 && (
-                      <Box
-                        component="img"
-                        src={item.commodity.images[0]}
-                        alt={item.commodity?.name}
-                        sx={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: 2,
-                          mr: 2,
-                          objectFit: "cover",
-                        }}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "/placeholder.jpg";
-                        }}
-                      />
-                    )}
-
-                  <ListItemText
-                    primary={`${item.commodity.name} × ${item.quantity}`}
-                    secondary={`${item.priceAtPurchase}€ / τεμ.`}
-                  />
-                  <ListItemText
-                    secondary={
-                      <>
-                        {getVariantLabel(item) && (
-                          <>
-                            <br />
-                            <span>Variant: {getVariantLabel(item)}</span>
-                          </>
-                        )}
-                      </>
-                    }
-                  />
-                </ListItem>
-              ))}
-            </List>
-
-            <Typography variant="h6" sx={{ mt: 2, textAlign: "right" }}>
-              Σύνολο: {lastTransaction.amount}€
-            </Typography>
-
-            <Alert severity="success" sx={{ mt: 3, fontWeight: "bold" }}>
-              📧 Θα λάβετε σύντομα επιβεβαίωση με email
-            </Alert>
-          </>
+          <LastTransactionSummary
+            lastTransaction={lastTransaction}
+            getVariantLabel={getVariantLabel}
+          />
         )}
 
-        {transactions.length > 1 && (
-          <>
-            <Divider sx={{ my: 3 }} />
-            <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="h6">📜 Προηγούμενες Αγορές</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <List dense>
-                  {transactions.slice(1).map((t) => (
-                    <ListItem key={t._id?.toString()}>
-                      <Stack>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                          {new Date(t.createdAt!).toLocaleString()}
-                        </Typography>
-
-                        {t.items.map((item, idx) => {
-                          const variantLabel = getVariantLabel(item);
-
-                          return (
-                            <Typography key={idx} variant="body2">
-                              {item.commodity.name} × {item.quantity} —{" "}
-                              {item.priceAtPurchase}€
-                              {variantLabel && (
-                                <>
-                                  <br />
-                                  <span
-                                    style={{
-                                      color: "#666",
-                                      fontSize: "0.85em",
-                                    }}
-                                  >
-                                    Variant: {variantLabel}
-                                  </span>
-                                </>
-                              )}
-                            </Typography>
-                          );
-                        })}
-
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                          <strong>Σύνολο:</strong> {t.amount}€
-                        </Typography>
-                      </Stack>
-                    </ListItem>
-                  ))}
-                </List>
-              </AccordionDetails>
-            </Accordion>
-          </>
-        )}
+        <PreviousTransactionsAccordion
+          transactions={transactions}
+          getVariantLabel={getVariantLabel}
+        />
       </Paper>
     </Box>
   );
