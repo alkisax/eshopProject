@@ -78,16 +78,16 @@ const createTransaction = async (
   session.startTransaction();
   try {
     console.log('✨ [TX] START createTransaction');
-    console.log('➡️ participantId:', participantId);
-    console.log('➡️ sessionId:', sessionId);
+    // console.log('➡️ participantId:', participantId);
+    // console.log('➡️ sessionId:', sessionId);
 
     // 1️⃣ Get participant
     const participant =
       await Participant.findById(participantId).session(session);
-    console.log(
-      '👤 Participant loaded:',
-      participant ? participant._id : 'NOT FOUND',
-    );
+    // console.log(
+    //   '👤 Participant loaded:',
+    //   participant ? participant._id : 'NOT FOUND',
+    // );
     if (!participant) {
       throw new NotFoundError('Participant not found');
     }
@@ -102,7 +102,7 @@ const createTransaction = async (
     if (cart) {
       cart.items.forEach((it, idx) => {
         console.log(`   ➤ CART ITEM ${idx}`);
-        console.log('      commodity raw:', it.commodity);
+        // console.log('      commodity raw:', it.commodity);
         console.log('      commodity ID:', it.commodity?._id);
         console.log('      quantity:', it.quantity);
         console.log('      priceAtPurchase:', it.priceAtPurchase);
@@ -126,9 +126,9 @@ const createTransaction = async (
     console.log('🧾 Creating items snapshot...');
     const items = cart.items.map((item, idx) => {
       console.log(`   ➤ SNAPSHOT ITEM ${idx}`);
-      console.log('      item.commodity:', item.commodity);
-      console.log('      item.commodity?._id:', item.commodity?._id);
-      console.log('      item.variantId:', item.variantId);
+      // console.log('      item.commodity:', item.commodity);
+      // console.log('      item.commodity?._id:', item.commodity?._id);
+      // console.log('      item.variantId:', item.variantId);
 
       return {
         commodity: item.commodity?._id, // <— here it may be null

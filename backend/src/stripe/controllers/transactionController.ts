@@ -10,6 +10,7 @@ import { Types } from 'mongoose';
 import { emailController } from './email.controller';
 import { ShippingInfoType } from '../types/stripe.types';
 import { AuthRequest } from '../../login/types/user.types';
+import { getIO } from '../../socket/socket';
 // const sendThnxEmail = require('../controllers/email.controller') // !!!
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
@@ -32,6 +33,28 @@ const create = async (req: Request, res: Response) => {
       sessionId,
       shipping,
     );
+
+    // 🔔 SOCKET EVENT — ΓΙΑ ΟΛΕΣ ΤΙΣ ΔΗΜΙΟΥΡΓΙΕΣ
+    const io = getIO();
+    console.log('📣 [SOCKET] Emitting transaction:created');
+    console.log('📣 [SOCKET] sessionId:', newTransaction.sessionId);
+    console.log(
+      '📣 [SOCKET] rooms:',
+      Array.from(io.sockets.adapter.rooms.keys()),
+    );
+    console.log(
+      '📣 [SOCKET] admins count:',
+      io.sockets.adapter.rooms.get('admins')?.size ?? 0,
+    );
+
+    io.to('admins').emit('transaction:created', {
+    // io.emit('transaction:created', {
+      transactionId: newTransaction._id.toString(),
+      status: newTransaction.status,
+      sessionId: newTransaction.sessionId,
+      createdAt: newTransaction.createdAt,
+      
+    });
 
     const notificationPromise = emailController.sendAdminSaleNotification(
       newTransaction._id.toString(),

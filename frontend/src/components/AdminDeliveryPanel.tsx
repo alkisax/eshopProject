@@ -1,3 +1,4 @@
+// frontend\src\components\AdminDeliveryPanel.tsx
 import { useEffect, useState, useContext, useCallback } from "react";
 import axios from "axios";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@mui/material";
 import { VariablesContext } from "../context/VariablesContext";
 import type { TransactionType, ParticipantType } from "../types/commerce.types";
+import AdminDeliverySocketListener from "./admin_delivery_components/AdminDeliverySocketListener";
 
 const AdminDeliveryPanel = () => {
   const { url } = useContext(VariablesContext);
@@ -43,8 +45,17 @@ const AdminDeliveryPanel = () => {
     fetchDeliveryTransactions();
   }, [fetchDeliveryTransactions]);
 
+  useEffect(() => {
+    console.log("🟡 AdminDeliverySocketListener MOUNT");
+    return () => {
+      console.log("🔴 AdminDeliverySocketListener UNMOUNT");
+    };
+  }, []);
+
   return (
     <Paper sx={{ p: 3 }}>
+      <AdminDeliverySocketListener onNewDelivery={fetchDeliveryTransactions} />
+
       <Typography variant="h4" gutterBottom>
         🚚 Delivery (COD)
       </Typography>

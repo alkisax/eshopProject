@@ -1,9 +1,12 @@
+// backend\src\server.ts
 /* eslint-disable no-console */
 import dotenv from 'dotenv';
 dotenv.config();
 
 import mongoose from 'mongoose';
-import app from './app'; 
+import app from './app';
+import http from 'http';
+import { initSocket } from './socket/socket';
 
 const PORT = process.env.BACK_END_PORT || 3001;
 
@@ -13,12 +16,18 @@ if (!process.env.MONGODB_URI) {
 
 mongoose.set('strictQuery', false);
 // συνδεση με την MongoDB
-mongoose.connect(process.env.MONGODB_URI)
+mongoose
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('connected to MongoDB');
     console.log('Routes setup complete. Starting server...');
+
+    // socket
+    const server = http.createServer(app);
+    initSocket(server);
+
     // εδώ είναι το βασικό listen PORT μου
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server running on port http://localhost:${PORT}`);
       console.log(`Visit swagger at http://localhost:${PORT}/api-docs`);
     });
