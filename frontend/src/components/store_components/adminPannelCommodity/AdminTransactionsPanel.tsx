@@ -375,6 +375,7 @@ const AdminTransactionsPanel = () => {
           <Button onClick={handleClose}>Close</Button>
         </DialogActions>
       </Dialog>
+      
       {/* ADMIN TRANSACTIONS PANEL – INSTRUCTIONS */}
       <Paper
         sx={{ p: 2, mt: 4, backgroundColor: "#f7f7f7" }}
