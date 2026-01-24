@@ -67,11 +67,26 @@ const AdminSocketProvider = ({ children }: Props) => {
     ενημερώνει state (lastDelivery)
     και έτσι ενεργοποιείται το global admin alert.
     */
+    socket.on("transaction:created", (payload) => {
+      console.log("🔥 RAW SOCKET PAYLOAD:", payload);
+    });
+
+    // socket.on("transaction:created", (payload: TxCreatedPayload) => {
+    //   const sid = payload.sessionId || "";
+
+    //   const needsApproval =
+    //     sid.startsWith("COD_") ||
+    //     sid.startsWith("IRIS_") ||
+    //     sid.startsWith("STRIPE_");
+
+    //   if (!needsApproval) return;
+
+    //   console.log("🛎️ New order needs approval (GLOBAL):", payload);
+    //   setLastDelivery(payload);
+    // });
     socket.on("transaction:created", (payload: TxCreatedPayload) => {
-      if (payload.sessionId?.startsWith("COD_")) {
-        console.log("🚚 New COD delivery (GLOBAL):", payload);
-        setLastDelivery(payload);
-      }
+      console.log("🛎️ New order created (GLOBAL):", payload);
+      setLastDelivery(payload);
     });
 
     return () => {
@@ -116,8 +131,6 @@ const AdminSocketProvider = ({ children }: Props) => {
         clearLastDelivery: () => setLastDelivery(null),
       }}
     >
-      {children}
-
       {/* 🔔 GLOBAL ADMIN DELIVERY ALERT */}
       <AdminDeliveryAlert
         open={!!lastDelivery}
@@ -125,6 +138,8 @@ const AdminSocketProvider = ({ children }: Props) => {
         onCancel={cancel}
         onClose={() => setLastDelivery(null)}
       />
+
+      {children}
     </AdminSocketContext.Provider>
   );
 };

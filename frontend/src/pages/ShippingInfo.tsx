@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useCheckout } from "../hooks/useCheckout";
+// import { useCheckout } from "../hooks/useCheckout";
 import type { CartType, ShippingInfoType } from "../types/commerce.types";
 // import ShippingInfoCart from "../components/store_components/ShippingInfoComponents/ShippingInfoCart";
 import axios from "axios";
@@ -23,6 +23,7 @@ import ShippingSummaryPanel from "../components/store_components/ShippingInfoCom
 import OsmAddressCheck from "../components/store_components/ShippingInfoComponents/OsmAddressCheck";
 import { useCashOnDeliveryCheckout } from "../hooks/useCashOnDeliveryCheckout";
 import { useNavigate } from "react-router-dom";
+import { appendShippingMethodToNotes } from "../utils/shippingNotes";
 
 // import BoxNowWidget from "../components/store_components/BoxNowWidget";
 
@@ -41,7 +42,7 @@ const ShippingInfo = () => {
   });
   const [openIris, setOpenIris] = useState<boolean>(false);
 
-  const { handleCheckout } = useCheckout();
+  // const { handleCheckout } = useCheckout();
   const { handleCashOnDeliveryCheckout } = useCashOnDeliveryCheckout();
 
   const navigate = useNavigate();
@@ -54,10 +55,33 @@ const ShippingInfo = () => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // αλλαγή για να περνα απο wait for aproval page
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   console.log("🚀 Checkout form submitted", form);
+  //   handleCheckout(form);
+  // };
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("🚀 Checkout form submitted", form);
-    handleCheckout(form);
+
+    if (!globalParticipant?._id) return;
+
+    const sessionId = `STRIPE_${crypto.randomUUID()}`;
+
+    const shippingWithNotes = appendShippingMethodToNotes(form);
+
+    await axios.post(`${url}/api/transaction`, {
+      participant: globalParticipant._id,
+      sessionId,
+      shipping: shippingWithNotes,
+    });
+
+    navigate("/order-waiting", {
+      state: {
+        mode: "stripe",
+        shippingInfo: form,
+      },
+    });
   };
 
   // μεταφέραμε εδώ την λογική γιατί χρειάζετε και στα δύο child components
@@ -256,19 +280,21 @@ const ShippingInfo = () => {
               color="secondary"
               onClick={handleOpenIris}
             >
-              Πληρωμή με IRIS / Τραπεζικό QR
-              <br />
-              <Typography
-                variant="caption"
-                sx={{
-                  fontSize: "0.65rem",
-                  color: "text.disabled",
-                  display: "block",
-                  lineHeight: 1.2,
-                }}
-              >
-                (εκτέλεση μετά από επιβεβαίωση πληρωμής)
-              </Typography>
+              <Stack spacing={0.5} alignItems="center">
+                <Typography variant="body2">
+                  Πληρωμή με IRIS / Τραπεζικό QR
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontSize: "0.65rem",
+                    color: "text.disabled",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  (εκτέλεση μετά από επιβεβαίωση πληρωμής)
+                </Typography>
+              </Stack>
             </Button>
 
             {/* cash on delivery */}
@@ -293,63 +319,6 @@ const ShippingInfo = () => {
             </Button>
           </Stack>
         </Stack>
-
-        {/* 🟢 Right column: shipping methods */}
-        {/* <Paper
-          sx={{
-            flex: 1,
-            p: 2,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-          }}
-        >
-          {cart && (
-            <ShippingInfoCart
-              cart={cart}
-              subtotal={subtotal}
-              shippingCost={shippingCost}
-              total={total}
-            />
-          )}
-          <Typography variant="h6" gutterBottom sx={{ pt: 6 }}>
-            Τρόπος Αποστολής
-          </Typography>
-          <RadioGroup
-            value={form.shippingMethod}
-            onChange={(e) => handleChange("shippingMethod", e.target.value)}
-          >
-            <FormControlLabel
-              id="shipping-courier-option"
-              value="courier"
-              control={<Radio />}
-              label="Αποστολή με Courier: 3,25 €"
-            />
-            <FormControlLabel
-              id="shipping-boxnow-option"
-              value="boxnow"
-              control={<Radio />}
-              label={
-                <Box>
-                  <Typography variant="body1">
-                    BOX NOW Lockers | Γρήγορη παράδοση, 24/7: 3,25 €
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Ωσπου να ολοκληρωθεί η συνδεσή μας με το box now θα
-                    αποστέλουμε το δέμα στην κοντινότερη στην διευθυνσή σας
-                    θυρίδα
-                  </Typography>
-                </Box>
-              }
-            />
-            <FormControlLabel
-              id="shipping-pickup-option"
-              value="pickup"
-              control={<Radio />}
-              label="Παραλαβή από το κατάστημα: 0 €"
-            />
-          </RadioGroup>
-        </Paper>*/}
       </Box>
 
       <IrisDialog

@@ -35,9 +35,16 @@ const IrisDialog = ({
 
   const handleIrisComplete = async () => {
     try {
-      await handleIrisCheckout(shippingInfo);
+      const result = await handleIrisCheckout(shippingInfo);
+
+      const token = result?.data?.publicTrackingToken;
+
+      if (!token) {
+        throw new Error("No tracking token returned from backend");
+      }
+
       onClose();
-      navigate("/checkout-success");
+      navigate(`/order-waiting/${token}`);
     } catch (err) {
       console.error("IRIS checkout failed", err);
     }

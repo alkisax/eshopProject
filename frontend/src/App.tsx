@@ -39,10 +39,11 @@ import NotFound from "./pages/NotFound";
 import AlternativeLanding from "../themeB/landing_page/Landing";
 import AlternativeLayoutWithNavbarAndFooter from "../themeB/AlternativeLayoutWithNavbarAndFooter";
 import OrderWaiting from "./pages/OrderWaiting";
+import OrderCancelled from "./pages/OrderCancelled";
 
 // lazy loads  + suspense
 const CommodityPage = lazy(
-  () => import("./components/store_components/CommodityPage")
+  () => import("./components/store_components/CommodityPage"),
 );
 const BlogPost = lazy(() => import("./blog/blogPages/BlogPost"));
 const News = lazy(() => import("./blog/blogPages/News"));
@@ -51,7 +52,7 @@ const Terms = lazy(() => import("./pages/minorPages/Terms"));
 const PrivacyPolicy = lazy(() => import("./pages/minorPages/PrivacyPolicy"));
 const PaymentMethods = lazy(() => import("./pages/minorPages/PaymentMethods"));
 const ShippingMethods = lazy(
-  () => import("./pages/minorPages/ShippingMethods")
+  () => import("./pages/minorPages/ShippingMethods"),
 );
 const ReturnPolicy = lazy(() => import("./pages/minorPages/ReturnPolicy"));
 const CookiePolicy = lazy(() => import("./pages/minorPages/CookiePolicy"));
@@ -73,7 +74,7 @@ function App() {
     setHasCart,
     setHasFavorites,
     setGlobalParticipant,
-    setCartCount
+    setCartCount,
   );
 
   return (
@@ -241,7 +242,10 @@ function App() {
           <Route path="/google-success" element={<GoogleSuccess />} />
           <Route path="/github-success" element={<GithubSuccess />} />
           <Route path="/checkout-success" element={<CheckoutSuccess />} />
+          {/* δείχνουν στο ίδιο component γιατι το stripe δεν έχει τοκεν */}
           <Route path="/order-waiting/:token" element={<OrderWaiting />} />
+          <Route path="/order-waiting" element={<OrderWaiting />} />
+          <Route path="/order-cancelled" element={<OrderCancelled />} />
           <Route path="/cancel" element={<Cart />} />
 
           <Route element={<PrivateRoute />}>

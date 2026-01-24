@@ -4,6 +4,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Box, Typography, CircularProgress, Paper } from "@mui/material";
 import { VariablesContext } from "../context/VariablesContext";
+import { useLocation } from "react-router-dom";
+import { useCheckout } from "../hooks/useCheckout";
+import type { ShippingInfoType } from "../types/commerce.types";
 
 const OrderWaiting = () => {
   // το url μας έχει ένα τοκεν που είναι ένα τυχαίο string που έρχετε απο το Back και το χρησιμοποιούμε για να ταυτοποιήσουμε την συναλάγή που είναι να εγγρηθεί
@@ -15,10 +18,25 @@ const OrderWaiting = () => {
 
   const { url } = useContext(VariablesContext);
 
+  const location = useLocation();
+  const stripeState = location.state as
+    | { mode: "stripe"; shippingInfo: ShippingInfoType }
+    | undefined;
+
+  const { handleCheckout } = useCheckout();
+
   //Σε React ΔΕΝ χρησιμοποιούμε let interval στο body. Χρησιμοποιούμε useRef, γιατί: δεν προκαλεί re-render
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // 🟢 STRIPE MODE (χωρίς token)
+    if (stripeState?.mode === "stripe") {
+      setLoading(false);
+      setStatus("pending");
+      return;
+    }
+
+    // 🟢 IRIS / COD MODE (με token)
     if (!token) return;
 
     const fetchStatus = async () => {
@@ -29,16 +47,18 @@ const OrderWaiting = () => {
         // κρατάω μόνο το status ή το cancelled που είναι Boolean
         const { status, cancelled } = res.data.data;
 
-        setStatus(status);
-        setLoading(false);
-
         if (cancelled) {
-          navigate("/cancel"); // TODO
+          navigate("/order-cancelled");
+          return;
         }
 
         if (status === "confirmed") {
           navigate("/checkout-success");
+          return;
         }
+
+        setStatus(status);
+        setLoading(false);
       } catch (err) {
         console.error("Polling failed", err);
       }
@@ -55,7 +75,14 @@ const OrderWaiting = () => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [token, navigate, url]);
+  }, [token, navigate, url, stripeState]);
+
+  //trigger Stripe μετά το admin approve
+  useEffect(() => {
+    if (stripeState?.mode === "stripe" && status === "confirmed") {
+      handleCheckout(stripeState.shippingInfo);
+    }
+  }, [status, stripeState, handleCheckout]);
 
   // ⏳ loading UI
   if (loading) {

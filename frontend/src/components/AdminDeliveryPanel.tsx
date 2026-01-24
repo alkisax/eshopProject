@@ -1,5 +1,5 @@
 // frontend\src\components\AdminDeliveryPanel.tsx
-import { useEffect, useState, useContext, useCallback } from "react";
+import { useEffect, useState, useContext, useCallback, Fragment } from "react";
 import axios from "axios";
 import {
   Table,
@@ -33,7 +33,7 @@ const AdminDeliveryPanel = () => {
       const res = await axios.get<{
         status: boolean;
         data: TransactionType[];
-      }>(`${url}/api/transaction/cod`, {
+      }>(`${url}/api/transaction`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -97,6 +97,19 @@ const AdminDeliveryPanel = () => {
     fetchDeliveryTransactions();
   };
 
+  // για να τις διαχωρίζουμε ημερολογιακά (safe)
+  const grouped = transactions.reduce<Record<string, TransactionType[]>>(
+    (acc, t) => {
+      if (!t.createdAt) return acc; // 👈 TS + runtime safe
+
+      const day = new Date(t.createdAt).toISOString().slice(0, 10);
+      acc[day] = acc[day] || [];
+      acc[day].push(t);
+      return acc;
+    },
+    {},
+  );
+
   return (
     <>
       <Paper sx={{ p: 3 }}>
@@ -133,49 +146,72 @@ const AdminDeliveryPanel = () => {
               </TableHead>
 
               <TableBody>
-                {transactions.map((t) => {
-                  const participant = t.participant as ParticipantType;
-
-                  return (
-                    <TableRow
-                      key={t._id?.toString()}
-                      hover
-                      sx={{
-                        cursor: "pointer",
-                        backgroundColor: getRowBgColor(t),
-                      }}
-                      onClick={() => handleOpen(t)}
-                    >
-                      <TableCell>
-                        {participant?.name || "—"} {participant?.surname || ""}
-                      </TableCell>
-
-                      <TableCell>{participant?.email || "—"}</TableCell>
-
-                      <TableCell>{t.amount} €</TableCell>
-
-                      <TableCell>
-                        {t.status}
-                        {t.cancelled && " (cancelled)"}
-                      </TableCell>
-
-                      <TableCell>
-                        {t.createdAt
-                          ? new Date(t.createdAt).toLocaleString()
-                          : "—"}
-                      </TableCell>
-
-                      {/* stopPropagation εδώ  αλλιώς θα άνοιγε dialog σε κάθε click κουμπιού */}
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <TransactionRowActions
-                          transaction={t}
-                          onConfirm={markConfirmed}
-                          onShip={markShipped}
-                        />
+                {Object.entries(grouped).map(([day, txs]) => (
+                  <Fragment key={day}>
+                    {/* ημερολογιακό divider */}
+                    <TableRow>
+                      <TableCell
+                        colSpan={6}
+                        sx={{
+                          bgcolor: "grey.100",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {new Date(day).toLocaleDateString("el-GR", {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
                       </TableCell>
                     </TableRow>
-                  );
-                })}
+
+                    {/* transactions της ημέρας */}
+                    {txs.map((t) => {
+                      const participant = t.participant as ParticipantType;
+
+                      return (
+                        <TableRow
+                          key={t._id?.toString()}
+                          hover
+                          sx={{
+                            cursor: "pointer",
+                            backgroundColor: getRowBgColor(t),
+                          }}
+                          onClick={() => handleOpen(t)}
+                        >
+                          <TableCell>
+                            {participant?.name || "—"}{" "}
+                            {participant?.surname || ""}
+                          </TableCell>
+
+                          <TableCell>{participant?.email || "—"}</TableCell>
+
+                          <TableCell>{t.amount} €</TableCell>
+
+                          <TableCell>
+                            {t.status}
+                            {t.cancelled && " (cancelled)"}
+                          </TableCell>
+
+                          <TableCell>
+                            {t.createdAt
+                              ? new Date(t.createdAt).toLocaleString()
+                              : "—"}
+                          </TableCell>
+
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <TransactionRowActions
+                              transaction={t}
+                              onConfirm={markConfirmed}
+                              onShip={markShipped}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </Fragment>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
