@@ -63,7 +63,7 @@ router.get(
 );
 
 // POST create a new transaction (no auth yet)
-router.post('/', limiter(15, 5), transactionController.create);
+router.post('/', limiter(1000, 60), transactionController.create);
 
 // αυτο είναι σημαντικό γιατι στέλνει το αυτόματο ημαιλ
 // πλέων έχει αντικατασταθεί απο τις επόμενες δύο αλλα μένει για legasy/backward compatability και γιατι χρειάζετε στο dev για reverse

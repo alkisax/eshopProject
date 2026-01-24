@@ -70,13 +70,15 @@ const ShippingInfo = () => {
 
     const shippingWithNotes = appendShippingMethodToNotes(form);
 
-    await axios.post(`${url}/api/transaction`, {
+    const res = await axios.post(`${url}/api/transaction`, {
       participant: globalParticipant._id,
       sessionId,
       shipping: shippingWithNotes,
     });
 
-    navigate("/order-waiting", {
+    const token = res.data.data.publicTrackingToken;
+
+    navigate(`/order-waiting/${token}`, {
       state: {
         mode: "stripe",
         shippingInfo: form,

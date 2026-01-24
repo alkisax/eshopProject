@@ -29,21 +29,12 @@ const OrderWaiting = () => {
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // 🟢 STRIPE MODE (χωρίς token)
-    if (stripeState?.mode === "stripe") {
-      setLoading(false);
-      setStatus("pending");
-      return;
-    }
-
-    // 🟢 IRIS / COD MODE (με token)
     if (!token) return;
 
     const fetchStatus = async () => {
       try {
         // μου επιστρέφει το status του transaction pending/canceled/confirmed TODO να ελέξω αν το canceled flow είναι οκ
         const res = await axios.get(`${url}/api/transaction/status/${token}`);
-
         // κρατάω μόνο το status ή το cancelled που είναι Boolean
         const { status, cancelled } = res.data.data;
 
@@ -53,6 +44,13 @@ const OrderWaiting = () => {
         }
 
         if (status === "confirmed") {
+          // Stripe → checkout
+          if (stripeState?.mode === "stripe") {
+            handleCheckout(stripeState.shippingInfo);
+            return;
+          }
+
+          // COD / IRIS
           navigate("/checkout-success");
           return;
         }
@@ -66,16 +64,13 @@ const OrderWaiting = () => {
 
     // πρώτη κλήση άμεσα
     fetchStatus();
-
     // polling ανα 3 δευτερολεπτα
     intervalRef.current = window.setInterval(fetchStatus, 3000);
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [token, navigate, url, stripeState]);
+  }, [token, stripeState, navigate, url, handleCheckout]);
 
   //trigger Stripe μετά το admin approve
   useEffect(() => {

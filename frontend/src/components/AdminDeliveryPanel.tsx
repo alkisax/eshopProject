@@ -10,10 +10,10 @@ import {
   TableRow,
   Paper,
   Typography,
-  Box,
 } from "@mui/material";
 import { VariablesContext } from "../context/VariablesContext";
 import type { TransactionType, ParticipantType } from "../types/commerce.types";
+import { AdminSocketContext } from "../context/AdminSocketContext";
 // import AdminDeliverySocketListener from "./admin_delivery_components/AdminDeliverySocketListener";
 import TransactionDetailsDialog from "./store_components/adminPannelCommodity/AdminTransactionPanelComponents/TransactionDetailsDialog";
 import TransactionRowActions from "./store_components/adminPannelCommodity/AdminTransactionPanelComponents/TransactionRowActions";
@@ -24,6 +24,8 @@ const AdminDeliveryPanel = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<TransactionType | null>(null);
+
+  const adminSocket = useContext(AdminSocketContext);
 
   const fetchDeliveryTransactions = useCallback(async () => {
     try {
@@ -49,13 +51,11 @@ const AdminDeliveryPanel = () => {
     fetchDeliveryTransactions();
   }, [fetchDeliveryTransactions]);
 
-  // // socket debug logger
-  // useEffect(() => {
-  //   console.log("🟡 AdminDeliverySocketListener MOUNT");
-  //   return () => {
-  //     console.log("🔴 AdminDeliverySocketListener UNMOUNT");
-  //   };
-  // }, []);
+  // το socket μου προκαλεί και refetch των transactions
+  useEffect(() => {
+    if (!adminSocket?.lastDelivery) return;
+    fetchDeliveryTransactions();
+  }, [adminSocket?.lastDelivery, fetchDeliveryTransactions]);
 
   // για να αλλάζειτο χρώμα της κάθε σειρας
   const getRowBgColor = (t: TransactionType) => {
@@ -118,11 +118,7 @@ const AdminDeliveryPanel = () => {
         /> */}
 
         <Typography variant="h4" gutterBottom>
-          🚚 Delivery (COD)
-        </Typography>
-
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Παραγγελίες με πληρωμή κατά την παραλαβή που απαιτούν έγκριση.
+          🚚 Delivery
         </Typography>
 
         {loading && <Typography>Loading…</Typography>}
@@ -216,12 +212,6 @@ const AdminDeliveryPanel = () => {
             </Table>
           </TableContainer>
         )}
-
-        <Box sx={{ mt: 3, color: "text.secondary" }}>
-          <Typography variant="caption">
-            ⏭️ Επόμενο βήμα: approve / reject + user waiting page sync
-          </Typography>
-        </Box>
       </Paper>
 
       <TransactionDetailsDialog
