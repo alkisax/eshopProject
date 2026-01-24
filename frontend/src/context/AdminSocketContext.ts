@@ -31,6 +31,11 @@ React Context για admin-level socket events.
 subscribe σε socket events χωρίς να ανοίγουν
 δικό τους socket.
  */
+//  Η createContext(...) επιστρέφει ένα object που περιέχει: AdminSocketContext.Provider και επιτρέπει useContext(AdminSocketContext)
 export const AdminSocketContext = createContext<AdminSocketContextType | null>(
   null,
 );
+
+// τι είναι το μόνο που μας ενδιαφέρει απο εδώ; το μόνο που εξάγει είναι η δημιουργεία ενώς socket με δύο μεταβλητές που είναι κενές για να α. είναι μονο μία και εννιαία σε όλη την εφαρμογή και β. γεμίζουν απο το κάθε component
+// lastDelivery        // το τελευταίο socket event που μας νοιάζει
+// clearLastDelivery  // τρόπος να το καθαρίσουμε
