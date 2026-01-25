@@ -1,0 +1,17 @@
+[{
+  "_id": {
+    "$oid": "693d31dfcd919188974dea8e"
+  },
+  "key": "global",
+  "adminNotifications": {
+    "salesNotificationsEnabled": true,
+    "adminEmail": "alkisax@gmail.com"
+  },
+  "createdAt": {
+    "$date": "2025-12-13T09:29:03.823Z"
+  },
+  "updatedAt": {
+    "$date": "2025-12-16T08:58:55.609Z"
+  },
+  "__v": 0
+}]
