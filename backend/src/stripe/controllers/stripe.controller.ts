@@ -12,6 +12,7 @@ import { fetchCart } from '../daos/stripe.dao';
 import { CartType } from '../types/stripe.types';
 import { cartDAO } from '../daos/cart.dao';
 import { checkoutSessionSchema } from '../validation/commerce.schema';
+import { getIO } from '../../socket/socket';
 // import { emailController } from './email.controller';
 // import { updateUserPurchaseHistory } from '../services/updateUserPurchaseHistory';
 
@@ -197,6 +198,14 @@ const handleWebhook = async (req: Request, res: Response) => {
       );
       console.log(newTransaction);
 
+      // αυτό είναι για να προκαλέσει το socket emit που θα κάνει το refetch στην front σελίδα admin delivery panel
+      getIO().to('admins').emit('transaction:confirmed', {
+        transactionId: newTransaction._id.toString(),
+        status: newTransaction.status,
+        sessionId: newTransaction.sessionId,
+        createdAt: newTransaction.createdAt,
+      });
+
       // await transactionDAO.markTransactionConfirmed(newTransaction.id);
 
       // emailController
@@ -232,10 +241,6 @@ const handleWebhook = async (req: Request, res: Response) => {
         }
       }
     }
-    // TODO
-    // getIO().to('admins').emit('transaction:confirmed', {
-    //   transactionId: newTransaction._id.toString(),
-    // });
 
     // ✨ Webhook endpoints must return 200 quickly, no redirects
     return res.json({ received: true });

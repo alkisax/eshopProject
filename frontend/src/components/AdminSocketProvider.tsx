@@ -76,6 +76,11 @@ const AdminSocketProvider = ({ children }: Props) => {
       setLastDelivery(payload);
     });
 
+    socket.on("transaction:confirmed", (payload) => {
+      console.log("✅ Stripe transaction confirmed:", payload);
+      setLastDelivery(payload);
+    });
+
     return () => {
       console.log("🔴 AdminSocketProvider UNMOUNT");
       socket.disconnect();
