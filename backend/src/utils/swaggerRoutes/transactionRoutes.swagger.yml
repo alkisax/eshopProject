@@ -460,3 +460,34 @@ paths:
         '500':
           description: Server error
 
+  /api/transaction/cleanup/stripe-placeholders:
+    delete:
+      summary: Delete Stripe placeholder transactions (admin only)
+      description: >
+        Permanently deletes all temporary Stripe placeholder transactions.
+        These are transactions created during the Stripe approval flow
+        with sessionId starting with "STRIPE_" and containing the
+        [STRIPE_PLACEHOLDER] marker.
+        Intended for manual or periodic cleanup.
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Stripe placeholder transactions deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  deletedCount:
+                    type: number
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '500':
+          description: Server error
+

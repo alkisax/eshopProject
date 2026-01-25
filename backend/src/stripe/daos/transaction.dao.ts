@@ -580,6 +580,15 @@ const hardDeleteTransactionById = async (
   }
 };
 
+const deleteStripePlaceholders = async (): Promise<number> => {
+  const res = await Transaction.deleteMany({
+    sessionId: { $regex: '^STRIPE_' },
+    status: 'confirmed', // ⚠️ σβήνουμε μόνο confirmed placeholders
+  });
+
+  return res.deletedCount || 0;
+};
+
 export const transactionDAO = {
   findAllTransactions,
   findTransactionById,
@@ -599,4 +608,5 @@ export const transactionDAO = {
   addTransactionToParticipant,
   cancelById,
   hardDeleteTransactionById,
+  deleteStripePlaceholders,
 };

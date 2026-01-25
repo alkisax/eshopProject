@@ -366,6 +366,15 @@ const hardDeleteById = async (req: Request, res: Response) => {
   return res.status(204).send();
 };
 
+const cleanupStripePlaceholders = async (_req: Request, res: Response) => {
+  const deleted = await transactionDAO.deleteStripePlaceholders();
+
+  return res.status(200).json({
+    status: true,
+    deleted,
+  });
+};
+
 export const transactionController = {
   create,
   findById,
@@ -383,4 +392,5 @@ export const transactionController = {
   deleteById,
   deleteOldProcessedTransactions,
   hardDeleteById,
+  cleanupStripePlaceholders,
 };

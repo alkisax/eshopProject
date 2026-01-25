@@ -10,6 +10,8 @@ import {
   TableRow,
   Paper,
   Typography,
+  Stack,
+  Button,
 } from "@mui/material";
 import { VariablesContext } from "../context/VariablesContext";
 import type { TransactionType, ParticipantType } from "../types/commerce.types";
@@ -147,6 +149,26 @@ const AdminDeliveryPanel = () => {
     {},
   );
 
+  // το flow της αγορας μέσο stripe μου δημιουργεί ενα μεταβατικό transction. Aυτό μετα την εγκριση είναι σκουπίδι και πρέπει να καθαριστεί
+  const cleanupStripePlaceholders = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await axios.delete(
+        `${url}/api/transaction/cleanup/stripe-placeholders`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      console.log("🧹 Stripe placeholders deleted:", res.data.deleted);
+      fetchDeliveryTransactions();
+    } catch (err) {
+      console.error("Cleanup failed", err);
+    }
+  };
+
   return (
     <>
       <Paper sx={{ p: 3 }}>
@@ -163,6 +185,16 @@ const AdminDeliveryPanel = () => {
         {!loading && transactions.length === 0 && (
           <Typography>Δεν υπάρχουν παραγγελίες delivery.</Typography>
         )}
+
+        <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
+          <Button
+            variant="outlined"
+            color="warning"
+            onClick={cleanupStripePlaceholders}
+          >
+            🧹 Καθαρισμός Stripe προσωρινών
+          </Button>
+        </Stack>
 
         {!loading && transactions.length > 0 && (
           <TableContainer component={Paper} variant="outlined">
