@@ -1,17 +1,17 @@
 // frontend\src\hooks\useCheckout.tsx
-import axios from 'axios' 
-import { loadStripe } from '@stripe/stripe-js'
+import axios from "axios";
+import { loadStripe } from "@stripe/stripe-js";
 import { useContext } from "react";
 // import { UserAuthContext } from "../../context/UserAuthContext";
 import { VariablesContext } from "../context/VariablesContext";
-import type { ShippingInfoType } from '../types/commerce.types';
-import { appendShippingMethodToNotes } from '../utils/shippingNotes';
+import type { ShippingInfoType } from "../types/commerce.types";
+import { appendShippingMethodToNotes } from "../utils/shippingNotes";
 
-const PUBLIC_STRIPE_KEY = import.meta.env.VITE_PUBLIC_STRIPE_KEY
+const PUBLIC_STRIPE_KEY = import.meta.env.VITE_PUBLIC_STRIPE_KEY;
 
-const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
+const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`);
 
- export const useCheckout = () => {
+export const useCheckout = () => {
   const { url, globalParticipant } = useContext(VariablesContext);
 
   const handleCheckout = async (form: ShippingInfoType) => {
@@ -19,42 +19,45 @@ const stripePromise = loadStripe(`${PUBLIC_STRIPE_KEY}`)
       console.error("No participant found");
       return;
     }
-      
+
     console.log("👉 globalParticipant before checkout:", globalParticipant);
 
-    const participantInfo = { 
+    const participantInfo = {
       _id: globalParticipant._id,
       name: form.fullName,
-      surname: form.fullName,  
+      surname: form.fullName,
       email: globalParticipant.email,
     };
-    
-    console.log("👉 participantInfo being sent to backend:", participantInfo);
-    console.log(">>> button clicked, participant_id =", globalParticipant._id)
 
-    const shippingWithNotes = appendShippingMethodToNotes(form);
+    console.log("👉 participantInfo being sent to backend:", participantInfo);
+    console.log(">>> button clicked, participant_id =", globalParticipant._id);
+
+    const shippingWithNotes = appendShippingMethodToNotes({
+      ...form,
+      notes: form.notes, // περιέχει ήδη ORDER_GROUP
+    });
 
     try {
       // added participant info to be sent to back via url params
       // added shipping inf to be sent to back in body
       const response = await axios.post(`${url}/api/stripe/checkout/cart`, {
-        participantId: globalParticipant._id, 
+        participantId: globalParticipant._id,
         participantInfo,
-        shippingInfo: shippingWithNotes
-      })
+        shippingInfo: shippingWithNotes,
+      });
 
       const { data } = response.data;
 
-      const stripe = await stripePromise
+      const stripe = await stripePromise;
       if (!stripe) {
         throw new Error("Stripe failed to initialize");
       }
       console.log("👉 Stripe session returned:", response.data);
-      await stripe.redirectToCheckout({ sessionId: data.id })
+      await stripe.redirectToCheckout({ sessionId: data.id });
     } catch (error) {
-      console.error("Error during checkout:", error)
+      console.error("Error during checkout:", error);
     }
-  }
+  };
 
   return { handleCheckout };
-}
+};

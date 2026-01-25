@@ -67,13 +67,24 @@ const ShippingInfo = () => {
     if (!globalParticipant?._id) return;
 
     const sessionId = `STRIPE_${crypto.randomUUID()}`;
-
+    const orderGroupId = crypto.randomUUID();
     const shippingWithNotes = appendShippingMethodToNotes(form);
+
+    const shippingWithStripePlaceholder: ShippingInfoType = {
+      ...shippingWithNotes,
+      notes: [
+        shippingWithNotes.notes,
+        "[STRIPE_PLACEHOLDER]",
+        `[ORDER_GROUP:${orderGroupId}]`,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    };
 
     const res = await axios.post(`${url}/api/transaction`, {
       participant: globalParticipant._id,
       sessionId,
-      shipping: shippingWithNotes,
+      shipping: shippingWithStripePlaceholder,
     });
 
     const token = res.data.data.publicTrackingToken;
@@ -81,7 +92,7 @@ const ShippingInfo = () => {
     navigate(`/order-waiting/${token}`, {
       state: {
         mode: "stripe",
-        shippingInfo: form,
+        shippingInfo: shippingWithStripePlaceholder,
       },
     });
   };

@@ -282,10 +282,9 @@ paths:
           description: Server error
 
     delete:
-      summary: Delete transaction permanently (admin only)
+      summary: Delete transaction softly (admin only)
       description: >
-        Permanently deletes a transaction.
-        This action is irreversible.
+        Softly deletes a transaction.
       tags: [Transactions]
       security:
         - bearerAuth: []
@@ -431,3 +430,33 @@ paths:
           description: Forbidden (admin only)
         '500':
           description: Server error
+
+  /api/transaction/hard/{id}:
+    delete:
+      summary: Hard delete transaction (admin only)
+      description: >
+        Permanently deletes a transaction from the database.
+        Intended for internal cleanup (e.g. Stripe placeholder transactions).
+        This action is irreversible.
+      tags: [Transactions]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: objectId
+      responses:
+        '204':
+          description: Transaction permanently deleted
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (admin only)
+        '404':
+          description: Transaction not found
+        '500':
+          description: Server error
+

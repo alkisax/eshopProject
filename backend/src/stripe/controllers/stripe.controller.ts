@@ -12,7 +12,7 @@ import { fetchCart } from '../daos/stripe.dao';
 import { CartType } from '../types/stripe.types';
 import { cartDAO } from '../daos/cart.dao';
 import { checkoutSessionSchema } from '../validation/commerce.schema';
-import { emailController } from './email.controller';
+// import { emailController } from './email.controller';
 // import { updateUserPurchaseHistory } from '../services/updateUserPurchaseHistory';
 
 const createCheckoutSession = async (req: Request, res: Response) => {
@@ -26,7 +26,7 @@ const createCheckoutSession = async (req: Request, res: Response) => {
     const session = await stripeService.createCheckoutSession(
       cart,
       participantInfo,
-      shippinginfo
+      shippinginfo,
     );
     return res.status(200).json({ status: true, data: session });
   } catch (error) {
@@ -83,7 +83,7 @@ const handleWebhook = async (req: Request, res: Response) => {
       event = stripe.webhooks.constructEvent(
         req.body, // ⚠️ raw body, not parsed JSON - εδώ βρίσκετε πια το Payload μου με το shipping info και particippant info
         sig,
-        process.env.STRIPE_WEBHOOK_SECRET as string
+        process.env.STRIPE_WEBHOOK_SECRET as string,
       );
     } catch (err) {
       console.error('⚠️ Webhook signature verification failed:', err);
@@ -113,9 +113,9 @@ const handleWebhook = async (req: Request, res: Response) => {
       const sessionId = session.id;
 
       // prevent duplicate transactions
-      const existingTransaction = await transactionDAO.findBySessionId(
-        sessionId
-      );
+      console.error('🧪 WEBHOOK reached, sessionId =', sessionId);
+      const existingTransaction =
+        await transactionDAO.findBySessionId(sessionId);
       if (existingTransaction) {
         // ✨ In webhook we just ack and return 200 (no redirect)
         return res.json({
@@ -123,6 +123,7 @@ const handleWebhook = async (req: Request, res: Response) => {
           message: 'Transaction already recorded',
         });
       }
+      console.error('🧪 existingTransaction =', !!existingTransaction);
 
       const email = session.metadata?.email || '';
       const shipping = {
@@ -179,24 +180,28 @@ const handleWebhook = async (req: Request, res: Response) => {
         return res.json({ received: true, error: 'missingParticipantId' });
       }
 
-      const participant = await participantDao.findParticipantById(
-        participantId
-      );
+      const participant =
+        await participantDao.findParticipantById(participantId);
       if (!participant) {
         throw new Error(`Participant ${participantId} not found`);
       }
 
       // δημιουργία transaction
-      const newTransaction = await transactionDAO.createTransaction(
+      // const newTransaction = await transactionDAO.createTransaction(
+      // προσοχή εδώ έγινε createConfirmedTransaction για το delivery flow
+      console.error('🔥🔥🔥 CREATE CONFIRMED TRANSACTION CALLED 🔥🔥🔥');
+      const newTransaction = await transactionDAO.createConfirmedTransaction(
         participant._id as Types.ObjectId,
         sessionId,
-        shipping
+        shipping,
       );
       console.log(newTransaction);
-      
-      emailController
-        .sendAdminSaleNotification(newTransaction._id.toString())
-        .catch((err) => logger.error('Admin sale mail failed', err));
+
+      // await transactionDAO.markTransactionConfirmed(newTransaction.id);
+
+      // emailController
+      //   .sendAdminSaleNotification(newTransaction._id.toString())
+      //   .catch((err) => logger.error('Admin sale mail failed', err));
 
       // μεταφέρθεικε σε helper γιατί ήδη είναι τεράστια ⚠️⚠️⚠️⚠️
       // await updateUserPurchaseHistory(participant, newTransaction);
@@ -227,6 +232,10 @@ const handleWebhook = async (req: Request, res: Response) => {
         }
       }
     }
+    // TODO
+    // getIO().to('admins').emit('transaction:confirmed', {
+    //   transactionId: newTransaction._id.toString(),
+    // });
 
     // ✨ Webhook endpoints must return 200 quickly, no redirects
     return res.json({ received: true });

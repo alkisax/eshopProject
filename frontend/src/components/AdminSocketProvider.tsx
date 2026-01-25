@@ -71,19 +71,6 @@ const AdminSocketProvider = ({ children }: Props) => {
       console.log("🔥 RAW SOCKET PAYLOAD:", payload);
     });
 
-    // socket.on("transaction:created", (payload: TxCreatedPayload) => {
-    //   const sid = payload.sessionId || "";
-
-    //   const needsApproval =
-    //     sid.startsWith("COD_") ||
-    //     sid.startsWith("IRIS_") ||
-    //     sid.startsWith("STRIPE_");
-
-    //   if (!needsApproval) return;
-
-    //   console.log("🛎️ New order needs approval (GLOBAL):", payload);
-    //   setLastDelivery(payload);
-    // });
     socket.on("transaction:created", (payload: TxCreatedPayload) => {
       console.log("🛎️ New order created (GLOBAL):", payload);
       setLastDelivery(payload);
@@ -101,6 +88,7 @@ const AdminSocketProvider = ({ children }: Props) => {
     if (!lastDelivery) return;
     const token = localStorage.getItem("token");
 
+    // 1️⃣ confirm (όπως τώρα)
     await axios.post(
       `${url}/api/transaction/confirm/${lastDelivery.transactionId}`,
       {},

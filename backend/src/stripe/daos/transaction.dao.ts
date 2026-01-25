@@ -74,6 +74,8 @@ const createTransaction = async (
     First confirm the payment success with Stripe (via webhook).
     Then call your createTransaction with session.
   */
+  console.error('💀💀💀 CREATE *PENDING* TRANSACTION CALLED 💀💀💀');
+
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -218,6 +220,100 @@ const createTransaction = async (
       throw new ValidationError(err.message);
     }
     throw new DatabaseError('Error saving transaction');
+  }
+};
+
+// στην λογική του delivery πριν γίνει η πληρωμή έχει κάνει ήδη ο admin approve την συναλαγή οπότε το transaction θα πρέπει να δημιουργήτε ως confirmed και οχι ως pending. αυτή είναι ένα ακριβές αντίγραφο της απο πάνω μονο που δημιουργεί ως confirmed για να χρησιμοποιηθέι στο stripe webhook
+const createConfirmedTransaction = async (
+  participantId: string | Types.ObjectId,
+  sessionId: string,
+  shipping?: ShippingInfoType,
+): Promise<TransactionType> => {
+  console.error('🔥🔥🔥 CREATE CONFIRMED TRANSACTION CALLED 🔥🔥🔥');
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // 1️⃣ participant
+    const participant =
+      await Participant.findById(participantId).session(session);
+    if (!participant) {
+      throw new NotFoundError('Participant not found');
+    }
+
+    // 2️⃣ cart
+    const cart = await Cart.findOne({ participant: participantId })
+      .populate<{ items: PopulatedCartItem[] }>('items.commodity')
+      .session(session);
+
+    if (!cart || cart.items.length === 0) {
+      throw new ValidationError('Cart is empty or not found');
+    }
+
+    // 3️⃣ prevent duplicate Stripe session
+    const existingTransaction = await Transaction.findOne({
+      sessionId,
+    }).session(session);
+
+    if (existingTransaction) {
+      throw new ValidationError('Transaction already exists for this session');
+    }
+
+    // 4️⃣ snapshot items
+    const items = cart.items.map((item) => ({
+      commodity: item.commodity?._id,
+      variantId: item.variantId ?? undefined,
+      quantity: item.quantity,
+      priceAtPurchase: item.priceAtPurchase,
+    }));
+
+    const amount = items.reduce(
+      (sum, item) => sum + item.priceAtPurchase * item.quantity,
+      0,
+    );
+
+    const publicTrackingToken = new Types.ObjectId().toString();
+
+    // 5️⃣ ⬅️ ⚠️⚠️
+    const transaction = new Transaction({
+      participant: participantId,
+      items,
+      amount,
+      shipping: shipping || {},
+      sessionId,
+      publicTrackingToken,
+      status: 'confirmed', // ⬅️ ΤΕΛΙΚΟ STATUS
+      processed: false,
+    });
+
+    const result = await transaction.save({ session });
+    await result.populate('items.commodity');
+
+    // 6️⃣ update stock
+    for (const item of items) {
+      await commodityDAO.sellCommodityById(
+        item.commodity,
+        item.quantity,
+        session,
+      );
+    }
+
+    // 7️⃣ link στον participant
+    await Participant.findByIdAndUpdate(
+      participantId,
+      { $push: { transactions: result._id } },
+      { session },
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return result;
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    throw err;
   }
 };
 
@@ -464,7 +560,6 @@ const deleteOldProcessedTransactions = async (years = 5): Promise<number> => {
   return result.deletedCount ?? 0;
 };
 
-
 const cancelById = async (id: string) => {
   // προστέθηκε στην λειτουργία delivery για την front waiting aproval page πριν το checkout success
   // κρατάμε status όπως είναι και γυρνάμε cancelled=true
@@ -472,8 +567,17 @@ const cancelById = async (id: string) => {
   return await Transaction.findByIdAndUpdate(
     id,
     { cancelled: true },
-    { new: true } // επιστρέφει το ενημερωμένο document, όχι το παλιό
+    { new: true }, // επιστρέφει το ενημερωμένο document, όχι το παλιό
   );
+};
+
+const hardDeleteTransactionById = async (
+  transactionId: string | Types.ObjectId,
+): Promise<void> => {
+  const res = await Transaction.findByIdAndDelete(transactionId);
+  if (!res) {
+    throw new NotFoundError('transaction 404');
+  }
 };
 
 export const transactionDAO = {
@@ -482,6 +586,7 @@ export const transactionDAO = {
   findIrisTransactions,
   findCodTransactions,
   createTransaction,
+  createConfirmedTransaction,
   deleteTransactionById,
   deleteOldProcessedTransactions,
   findTransactionsByProcessed,
@@ -493,4 +598,5 @@ export const transactionDAO = {
   updateTransactionById,
   addTransactionToParticipant,
   cancelById,
+  hardDeleteTransactionById,
 };

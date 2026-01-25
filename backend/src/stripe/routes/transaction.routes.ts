@@ -98,7 +98,7 @@ router.post(
   transactionController.cancelTransaction
 );
 
-// DELETE a transaction by ID (admin only)
+// soft delete a transaction by ID (admin only)
 router.delete(
   '/:id',
   middleware.verifyToken,
@@ -111,6 +111,13 @@ router.delete(
   middleware.verifyToken,
   middleware.checkRole('ADMIN'),
   transactionController.deleteOldProcessedTransactions
+);
+
+router.delete(
+  '/hard/:id',
+  middleware.verifyToken,
+  middleware.checkRole('ADMIN'),
+  transactionController.hardDeleteById
 );
 
 export default router;

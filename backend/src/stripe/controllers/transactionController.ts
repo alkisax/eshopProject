@@ -360,6 +360,12 @@ const deleteOldProcessedTransactions = async (
   }
 };
 
+const hardDeleteById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await transactionDAO.hardDeleteTransactionById(id);
+  return res.status(204).send();
+};
+
 export const transactionController = {
   create,
   findById,
@@ -376,4 +382,5 @@ export const transactionController = {
   cancelTransaction,
   deleteById,
   deleteOldProcessedTransactions,
+  hardDeleteById,
 };

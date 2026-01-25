@@ -97,8 +97,45 @@ const AdminDeliveryPanel = () => {
     fetchDeliveryTransactions();
   };
 
+  // χρειαζόμαστε ένα transaction για το stripe πριν ξεκινήσει η επισημη συναλαγή. Αλλα στο τέλος της συναλαγής καταλήγουμε με ένα δευτερο stripe transaction. Αυτο που κάνουμε είναι να βάζουμε στο notes του προσορινού ένα [STRIPE_PLACEHOLDER] και ένα orderGroupId και κοιτάζουμα α. αν έχουμε ένα  προσορινό transaction με orderGroupId και β. αν έχουμε και ένα τελικό με το ιδιο id και αν έχουμε κρύβουμε το προσορινό
+
+  const hasStripePlaceholder = (t: TransactionType) =>
+    t.shipping?.notes?.includes("[STRIPE_PLACEHOLDER]");
+
+  const getOrderGroupId = (t: TransactionType) =>
+    t.shipping?.notes?.match(/\[ORDER_GROUP:(.+?)\]/)?.[1];
+
+  const isFinalStripeTx = (t: TransactionType) =>
+    t.sessionId?.startsWith("cs_");
+
+  const getParticipantId = (t: TransactionType) =>
+    typeof t.participant === "string"
+      ? t.participant
+      : t.participant?._id?.toString();
+
+  const visibleTransactions = transactions.filter((t) => {
+    // αν ΔΕΝ είναι placeholder → φαίνεται πάντα
+    if (!hasStripePlaceholder(t)) return true;
+
+    const groupId = getOrderGroupId(t);
+    if (!groupId) return true;
+
+    const hasFinalStripeTx = transactions.some((other) => {
+      if (other === t) return false;
+
+      return (
+        isFinalStripeTx(other) &&
+        getOrderGroupId(other) === groupId &&
+        getParticipantId(other) === getParticipantId(t)
+      );
+    });
+
+    // αν υπάρχει τελικό → κρύψε το placeholder
+    return !hasFinalStripeTx;
+  });
+
   // για να τις διαχωρίζουμε ημερολογιακά (safe)
-  const grouped = transactions.reduce<Record<string, TransactionType[]>>(
+  const grouped = visibleTransactions.reduce<Record<string, TransactionType[]>>(
     (acc, t) => {
       if (!t.createdAt) return acc; // 👈 TS + runtime safe
 
