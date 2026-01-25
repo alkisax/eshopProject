@@ -14,7 +14,7 @@ import { useAnalytics } from "@keiko-app/react-google-analytics"; // GA
 import CommodityPageSkeleton from "../skeletons/CommodityPageSkeleton";
 import { Suspense, lazy } from "react";
 import GalleryCommodityPageSkeleton from "../skeletons/GalleryCommodityPageSkeleton";
-import TopCategoryGridHeader from "../../Layouts/deisgnComponents/TopCategoryGridHeader";
+// import TopCategoryGridHeader from "../../Layouts/deisgnComponents/TopCategoryGridHeader";
 import ItemDescription from "./commodity_page_components/ItemDescription";
 import ItemTitlePrice from "./commodity_page_components/ItemTitlePrice";
 import ItemActionsBtns from "./commodity_page_components/ItemActionsBtns";
@@ -390,7 +390,7 @@ const CommodityPage = () => {
         />
       </Helmet>
 
-      <TopCategoryGridHeader />
+      {/* <TopCategoryGridHeader /> */}
 
       {/* === OUTER WRAPPER (CrossGrid style) === */}
       <Box sx={{ px: "40px", mx: "40px", py: 0, position: "relative" }}>
