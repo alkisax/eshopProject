@@ -17,6 +17,7 @@ const AdminSocketProvider = ({ children }: Props) => {
   // το ref δεν προκαλεί rerender οπως το useState. το αρχικοποιούμε εδώ και παρακάτω του δίνουμε τιμή με πχ socketRef.current = socket;
   const socketRef = useRef<Socket | null>(null);
 
+  const [lastSyncEvent, setLastSyncEvent] = useState<number>(0); // αυτό είναι ένα hack που κάναμε για να μην ανοιγει το dialog οταν θέλει silent refetch το admin delivery pannel
   const [lastDelivery, setLastDelivery] = useState<TxCreatedPayload | null>(
     null,
   );
@@ -77,8 +78,8 @@ const AdminSocketProvider = ({ children }: Props) => {
     });
 
     socket.on("transaction:confirmed", (payload) => {
-      console.log("✅ Stripe transaction confirmed:", payload);
-      setLastDelivery(payload);
+      console.log("🔄 Stripe confirmed → silent sync", payload);
+      setLastSyncEvent(Date.now()); // απλό signal
     });
 
     return () => {
@@ -121,6 +122,7 @@ const AdminSocketProvider = ({ children }: Props) => {
     <AdminSocketContext.Provider
       value={{
         lastDelivery,
+        lastSyncEvent,
         clearLastDelivery: () => setLastDelivery(null),
       }}
     >

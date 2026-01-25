@@ -20,6 +20,7 @@ export type TxCreatedPayload = {
  */
 export type AdminSocketContextType = {
   lastDelivery: TxCreatedPayload | null;
+  lastSyncEvent: number; //προστεθηκε
   clearLastDelivery: () => void;
 };
 

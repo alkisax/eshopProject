@@ -53,6 +53,12 @@ const AdminDeliveryPanel = () => {
     fetchDeliveryTransactions();
   }, [fetchDeliveryTransactions]);
 
+  // refetch οταν ολοκληρωθεί το stripe webhook
+  useEffect(() => {
+    if (!adminSocket?.lastSyncEvent) return;
+    fetchDeliveryTransactions();
+  }, [adminSocket?.lastSyncEvent, fetchDeliveryTransactions]);
+
   // το socket μου προκαλεί και refetch των transactions
   useEffect(() => {
     if (!adminSocket?.lastDelivery) return;
