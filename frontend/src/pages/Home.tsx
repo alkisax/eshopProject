@@ -72,7 +72,6 @@ const Home = () => {
           py: { xs: 4, md: 1 }, // padding top/bottom
         }}
       >
-        τεστ
         <Container maxWidth="md">
           {heroImage && isHeroImageActive && (
             <Paper
