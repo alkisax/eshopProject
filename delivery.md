@@ -1,5 +1,5 @@
-- is store open πριν απο shipping info
+- is store open πριν απο shipping info ✅
 - να μπορώ να δώ χάρτη✅
 - να πάει το socket πιο πάνω για να είναι πάντα connected ✅ - δημιουργήθηκε context και provider
-- cancel page (να βλέπει αν έχουν κατατεθεί χρήματα και να λεει οτι θα τα επιστρέψει)
-- συνδεση iris και QR με waiting confirmation page
+- cancel page (να βλέπει αν έχουν κατατεθεί χρήματα και να λεει οτι θα τα επιστρέψει) ✅
+- συνδεση iris και QR με waiting confirmation page ✅

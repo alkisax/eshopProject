@@ -24,6 +24,7 @@ import OsmAddressCheck from "../components/store_components/ShippingInfoComponen
 import { useCashOnDeliveryCheckout } from "../hooks/useCashOnDeliveryCheckout";
 import { useNavigate } from "react-router-dom";
 import { appendShippingMethodToNotes } from "../utils/shippingNotes";
+import { useSettings } from "../context/SettingsContext";
 
 // import BoxNowWidget from "../components/store_components/BoxNowWidget";
 
@@ -47,6 +48,9 @@ const ShippingInfo = () => {
 
   const navigate = useNavigate();
 
+  const { settings } = useSettings();
+  const isShopOpen = settings?.shopOptions?.isOpen !== false; // default true αν δεν υπάρχει
+
   // το checkout του stripe είναι submit και έτσι δεν πατιόταν αν δεν είχαμε συμπληρώσει την φορμα. αλλα του iris δεν είναι submit και θα πρέπει να το εμποδισουμε να εμφανίζετε χωρίς συμπληρωμένη φόρμα αλλιώς
   // φτιάχνουμε ένα ref και το βάζουμε στο κουμπί της φορμας με ref={formRef}
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -64,6 +68,7 @@ const ShippingInfo = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!isShopOpen) return; // ⛔ shop closed
     if (!globalParticipant?._id) return;
 
     const sessionId = `STRIPE_${crypto.randomUUID()}`;
@@ -137,6 +142,7 @@ const ShippingInfo = () => {
   const total = subtotal + shippingCost;
 
   const handleOpenIris = () => {
+    if (!isShopOpen) return; // ⛔ shop closed
     if (!formRef.current) return;
     if (!formRef.current.checkValidity()) {
       formRef.current.reportValidity(); // δείχνει native errors
@@ -146,6 +152,7 @@ const ShippingInfo = () => {
   };
 
   const handleCashOnDelivery = async () => {
+    if (!isShopOpen) return; // ⛔ shop closed
     if (!formRef.current) return;
     if (!formRef.current.checkValidity()) {
       formRef.current.reportValidity();
@@ -283,7 +290,12 @@ const ShippingInfo = () => {
           {/* buttons */}
           <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
             {/* stripe */}
-            <Button variant="contained" color="primary" type="submit">
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              disabled={!isShopOpen}
+            >
               Συνέχεια στο Checkout
             </Button>
 
@@ -292,6 +304,7 @@ const ShippingInfo = () => {
               variant="outlined"
               color="secondary"
               onClick={handleOpenIris}
+              disabled={!isShopOpen}
             >
               <Stack spacing={0.5} alignItems="center">
                 <Typography variant="body2">
@@ -315,6 +328,7 @@ const ShippingInfo = () => {
               variant="outlined"
               color="info"
               onClick={handleCashOnDelivery}
+              disabled={!isShopOpen}
             >
               Πληρωμή κατά την παραλαβή
               <br />
@@ -340,6 +354,25 @@ const ShippingInfo = () => {
         totalAmount={total}
         shippingInfo={form}
       />
+
+      {!isShopOpen && (
+        <Box
+          sx={{
+            mt: 2,
+            p: 2,
+            borderRadius: 2,
+            bgcolor: "warning.light",
+            color: "warning.contrastText",
+          }}
+        >
+          <Typography variant="body2" fontWeight="bold">
+            ⚠️ Το κατάστημα είναι προσωρινά κλειστό.
+          </Typography>
+          <Typography variant="caption">
+            Οι παραγγελίες δεν μπορούν να ολοκληρωθούν αυτή τη στιγμή.
+          </Typography>
+        </Box>
+      )}
 
       {/* {form.shippingMethod === "boxnow" && (
         <BoxNowWidget

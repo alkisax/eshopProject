@@ -12,6 +12,7 @@ import {
   Typography,
   Stack,
   Button,
+  Switch,
 } from "@mui/material";
 import { VariablesContext } from "../context/VariablesContext";
 import type { TransactionType, ParticipantType } from "../types/commerce.types";
@@ -19,6 +20,7 @@ import { AdminSocketContext } from "../context/AdminSocketContext";
 // import AdminDeliverySocketListener from "./admin_delivery_components/AdminDeliverySocketListener";
 import TransactionDetailsDialog from "./store_components/adminPannelCommodity/AdminTransactionPanelComponents/TransactionDetailsDialog";
 import TransactionRowActions from "./store_components/adminPannelCommodity/AdminTransactionPanelComponents/TransactionRowActions";
+import { useSettings } from "../context/SettingsContext";
 
 const AdminDeliveryPanel = () => {
   const { url } = useContext(VariablesContext);
@@ -28,6 +30,9 @@ const AdminDeliveryPanel = () => {
   const [selected, setSelected] = useState<TransactionType | null>(null);
 
   const adminSocket = useContext(AdminSocketContext);
+
+  const { settings, refreshSettings } = useSettings();
+  const isShopOpen = settings?.shopOptions?.isOpen ?? true;
 
   const fetchDeliveryTransactions = useCallback(async () => {
     try {
@@ -106,7 +111,6 @@ const AdminDeliveryPanel = () => {
   };
 
   // χρειαζόμαστε ένα transaction για το stripe πριν ξεκινήσει η επισημη συναλαγή. Αλλα στο τέλος της συναλαγής καταλήγουμε με ένα δευτερο stripe transaction. Αυτο που κάνουμε είναι να βάζουμε στο notes του προσορινού ένα [STRIPE_PLACEHOLDER] και ένα orderGroupId και κοιτάζουμα α. αν έχουμε ένα  προσορινό transaction με orderGroupId και β. αν έχουμε και ένα τελικό με το ιδιο id και αν έχουμε κρύβουμε το προσορινό
-
   const hasStripePlaceholder = (t: TransactionType) =>
     t.shipping?.notes?.includes("[STRIPE_PLACEHOLDER]");
 
@@ -175,6 +179,35 @@ const AdminDeliveryPanel = () => {
     }
   };
 
+  // ανοιγμα/κλήσιμο του καταστήματος με αλλαγή στα settings και καθάρισμα stripe placeholder transactions
+  const toggleShopOpen = async (checked: boolean) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      // 1️⃣ update settings
+      await axios.patch(
+        `${url}/api/settings`,
+        {
+          shopOptions: {
+            isOpen: checked,
+          },
+        },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      // 2️⃣ αν μόλις ΑΝΟΙΞΕ → cleanup stripe placeholders
+      if (checked) {
+        await cleanupStripePlaceholders();
+      }
+
+      // 3️⃣ refresh settings context
+      await refreshSettings();
+    } catch (err) {
+      console.error("Failed to toggle shop open", err);
+    }
+  };
+
   return (
     <>
       <Paper sx={{ p: 3 }}>
@@ -200,6 +233,30 @@ const AdminDeliveryPanel = () => {
           >
             🧹 Καθαρισμός Stripe προσωρινών
           </Button>
+        </Stack>
+
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <Typography variant="subtitle1">🏪 Κατάσταση καταστήματος</Typography>
+
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Typography
+              variant="body2"
+              color={isShopOpen ? "success.main" : "error.main"}
+            >
+              {isShopOpen ? "Ανοιχτό" : "Κλειστό"}
+            </Typography>
+
+            <Switch
+              checked={isShopOpen}
+              onChange={(e) => toggleShopOpen(e.target.checked)}
+              color="success"
+            />
+          </Stack>
         </Stack>
 
         {!loading && transactions.length > 0 && (
