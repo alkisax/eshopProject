@@ -1,3 +1,4 @@
+// frontend\src\blog\blogPages\BlogHome.tsx
 /*
  1️⃣.
  entry point για την λειτουργεία blog με rich text. Ξεκινάμε απο εδώ
@@ -7,6 +8,7 @@
 
 import { Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useSettings } from "../../context/SettingsContext";
 // import {  useState, useRef } from "react";
 // import type EditorJS from "@editorjs/editorjs";
 
@@ -21,6 +23,10 @@ const BlogHome = () => {
   // const [editorJsData, setEditorJsData] = useState<EditorJsContent | null>(null);
 
   const navigate = useNavigate();
+  const { settings } = useSettings();
+
+  const newsBtnBg = settings?.theme?.btnImage2;
+  const announcementsBtnBg = settings?.theme?.btnImage3;
 
   return (
     <>
@@ -45,7 +51,7 @@ const BlogHome = () => {
             color: "white",
             width: "100%",
             maxWidth: 280,
-            backgroundImage: `url("https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c9572500153c4aa090/view?project=6898d8be0020602b146e")`,
+            backgroundImage: `url("${newsBtnBg}")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             boxShadow: "0 6px 12px rgba(0,0,0,0.25)",
@@ -73,7 +79,7 @@ const BlogHome = () => {
             color: "white",
             width: "100%",
             maxWidth: 280,
-            backgroundImage: `url("https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c9572b002dab2a4856/view?project=6898d8be0020602b146e")`,
+            backgroundImage: `url("${announcementsBtnBg}")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             boxShadow: "0 6px 12px rgba(0,0,0,0.25)",
@@ -94,7 +100,7 @@ const BlogHome = () => {
         editorRef={editorRef}
       /> */}
     </>
-  )
-}
+  );
+};
 
-export default BlogHome
+export default BlogHome;

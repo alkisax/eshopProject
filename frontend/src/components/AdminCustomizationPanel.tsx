@@ -8,10 +8,11 @@ import SettingsSection from "./settings_components/admin_settings_components/Set
 import BrandingSection from "./settings_components/admin_settings_components/BrandingSection";
 import CompanyInfoSection from "./settings_components/admin_settings_components/CompanyInfoSection";
 import SocialLinksSection from "./settings_components/admin_settings_components/SocialLinksSection";
-import ThemeColorsSection from "./settings_components/admin_settings_components/ThemeColorsSection";
 import HomeTextsSection from "./settings_components/admin_settings_components/HomeTextsSection";
 import StaticPagesSection from "./settings_components/admin_settings_components/StaticPagesSection";
 import EmailTemplatesSection from "./settings_components/admin_settings_components/EmailTemplatesSection";
+import ThemeSection from "./settings_components/admin_settings_components/ThemeSection";
+import ShopOptionsSection from "./settings_components/admin_settings_components/ShopOptionsSection";
 
 const AdminCustomizationPanel = () => {
   const { url } = useContext(VariablesContext);
@@ -19,17 +20,22 @@ const AdminCustomizationPanel = () => {
   const { ready, uploadFile, listFiles, getFileUrl } = useAppwriteUploader();
 
   const [themeLogo, setThemeLogo] = useState(
-    settings?.branding?.themeLogo || ""
+    settings?.branding?.themeLogo || "",
   );
   const [headerFooterLogo, setHeaderFooterLogo] = useState(
-    settings?.branding?.headerFooterLogo || ""
+    settings?.branding?.headerFooterLogo || "",
   );
   const [heroImage, setHeroImage] = useState(
-    settings?.branding?.heroImage || ""
+    settings?.branding?.heroImage || "",
   );
   const [isHeroImageActive, setIsHeroImageActive] = useState(
-    settings?.branding?.isHeroImageActive || false
+    settings?.branding?.isHeroImageActive || false,
   );
+  const [shopOptions, setShopOptions] = useState({
+    isOpen: settings?.shopOptions?.isOpen ?? true,
+    isAiProfanity: settings?.shopOptions?.isAiProfanity ?? false,
+  });
+
   const [recentFiles, setRecentFiles] = useState<string[]>([]);
   const [homeTexts, setHomeTexts] = useState({
     homeText1: settings?.homeTexts?.homeText1 || "",
@@ -50,14 +56,35 @@ const AdminCustomizationPanel = () => {
     etsy: settings?.socialLinks?.etsy || "",
     tiktok: settings?.socialLinks?.tiktok || "",
   });
-  const [themeColors, setThemeColors] = useState({
+  const [theme, setTheme] = useState({
     primaryColor: settings?.theme?.primaryColor || "#48C4Cf",
     secondaryColor: settings?.theme?.secondaryColor || "#FFD500",
+    themeColor3: settings?.theme?.themeColor3 || "#933fff",
+    themeColor4: settings?.theme?.themeColor4 || "#3f6cff",
+    themeColor5: settings?.theme?.themeColor5 || "#34bf62",
+
+    menuItems: settings?.theme?.menuItems || [],
+
+    btnImage1: settings?.theme?.btnImage1 || "",
+    btnImage2: settings?.theme?.btnImage2 || "",
+    btnImage3: settings?.theme?.btnImage3 || "",
   });
-  const [primaryDraft, setPrimaryDraft] = useState(themeColors.primaryColor);
-  const [secondaryDraft, setSecondaryDraft] = useState(
-    themeColors.secondaryColor
+  const [primaryDraft, setPrimaryDraft] = useState(
+    settings?.theme?.primaryColor || "#48C4Cf",
   );
+  const [secondaryDraft, setSecondaryDraft] = useState(
+    settings?.theme?.secondaryColor || "#FFD500",
+  );
+  const [theme3Draft, setTheme3Draft] = useState(
+    settings?.theme?.themeColor3 || "#933fff",
+  );
+  const [theme4Draft, setTheme4Draft] = useState(
+    settings?.theme?.themeColor4 || "#3f6cff",
+  );
+  const [theme5Draft, setTheme5Draft] = useState(
+    settings?.theme?.themeColor5 || "#34bf62",
+  );
+
   const [staticPages, setStaticPages] = useState({
     aboutUs: "",
     returnPolicy: "",
@@ -77,7 +104,7 @@ const AdminCustomizationPanel = () => {
     },
   });
   const [themeSelector, setThemeSelector] = useState<("TRUE" | "FALSE")[]>(
-    settings?.branding?.themeSelector || []
+    settings?.branding?.themeSelector || [],
   );
 
   // sync όταν αλλάξουν τα settings
@@ -88,6 +115,26 @@ const AdminCustomizationPanel = () => {
     setHeroImage(settings.branding?.heroImage || "");
     setIsHeroImageActive(settings.branding?.isHeroImageActive || false);
     setThemeSelector(settings.branding?.themeSelector || []);
+    setShopOptions({
+      isOpen: settings.shopOptions?.isOpen ?? true,
+      isAiProfanity: settings.shopOptions?.isAiProfanity ?? false,
+    });
+    setTheme({
+      primaryColor: settings.theme?.primaryColor || "#48C4Cf",
+      secondaryColor: settings.theme?.secondaryColor || "#FFD500",
+      themeColor3: settings.theme?.themeColor3 || "#933fff",
+      themeColor4: settings.theme?.themeColor4 || "#3f6cff",
+      themeColor5: settings.theme?.themeColor5 || "#34bf62",
+      menuItems: settings.theme?.menuItems || [],
+      btnImage1: settings.theme?.btnImage1 || "",
+      btnImage2: settings.theme?.btnImage2 || "",
+      btnImage3: settings.theme?.btnImage3 || "",
+    });
+    setPrimaryDraft(settings.theme?.primaryColor || "#48C4Cf");
+    setSecondaryDraft(settings.theme?.secondaryColor || "#FFD500");
+    setTheme3Draft(settings.theme?.themeColor3 || "#933fff");
+    setTheme4Draft(settings.theme?.themeColor4 || "#3f6cff");
+    setTheme5Draft(settings.theme?.themeColor5 || "#34bf62");
     setHomeTexts({
       homeText1: settings.homeTexts?.homeText1 || "",
       homeText2: settings.homeTexts?.homeText2 || "",
@@ -107,12 +154,6 @@ const AdminCustomizationPanel = () => {
       etsy: settings.socialLinks?.etsy || "",
       tiktok: settings.socialLinks?.tiktok || "",
     });
-    setThemeColors({
-      primaryColor: settings.theme?.primaryColor || "#48C4Cf",
-      secondaryColor: settings.theme?.secondaryColor || "#FFD500",
-    });
-    setPrimaryDraft(settings?.theme?.primaryColor || "#48C4Cf");
-    setSecondaryDraft(settings?.theme?.secondaryColor || "#FFD500");
     setStaticPages({
       aboutUs: settings.staticPages?.aboutUs || "",
       returnPolicy: settings.staticPages?.returnPolicy || "",
@@ -160,9 +201,18 @@ const AdminCustomizationPanel = () => {
           themeSelector,
         },
       },
-      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } },
     );
 
+    await refreshSettings();
+  };
+
+  const handleSaveShopOptions = async () => {
+    await axios.patch(
+      `${url}/api/settings`,
+      { shopOptions },
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } },
+    );
     await refreshSettings();
   };
 
@@ -174,7 +224,7 @@ const AdminCustomizationPanel = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      }
+      },
     );
 
     await refreshSettings();
@@ -188,7 +238,7 @@ const AdminCustomizationPanel = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      }
+      },
     );
     await refreshSettings();
   };
@@ -196,8 +246,8 @@ const AdminCustomizationPanel = () => {
   const handleSaveSocialLinks = async () => {
     const cleanedSocialLinks = Object.fromEntries(
       Object.entries(socialLinks).filter(
-        ([, value]) => value && value.trim() !== ""
-      )
+        ([, value]) => value && value.trim() !== "",
+      ),
     );
 
     await axios.patch(
@@ -207,21 +257,23 @@ const AdminCustomizationPanel = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      }
+      },
     );
 
     await refreshSettings();
   };
 
-  const handleSaveThemeColors = async () => {
+  const handleSaveTheme = async () => {
     await axios.patch(
       `${url}/api/settings`,
-      { theme: themeColors },
+      {
+        theme,
+      },
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      }
+      },
     );
 
     await refreshSettings();
@@ -235,7 +287,7 @@ const AdminCustomizationPanel = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      }
+      },
     );
     await refreshSettings();
   };
@@ -248,11 +300,23 @@ const AdminCustomizationPanel = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      }
+      },
     );
 
     await refreshSettings();
   };
+
+  // βάλε μου ένα inline σχολιο εδώ τι γίνετε και που πάει
+  const setThemeImage =
+    (key: "btnImage1" | "btnImage2" | "btnImage3") => (url: string) => {
+      setTheme((p) => ({ ...p, [key]: url }));
+    };
+  const handleUploadBtnImage1 = (file: File) =>
+    uploadAndSet(file, setThemeImage("btnImage1"));
+  const handleUploadBtnImage2 = (file: File) =>
+    uploadAndSet(file, setThemeImage("btnImage2"));
+  const handleUploadBtnImage3 = (file: File) =>
+    uploadAndSet(file, setThemeImage("btnImage3"));
 
   return (
     <>
@@ -279,6 +343,14 @@ const AdminCustomizationPanel = () => {
         />
       </SettingsSection>
 
+      <SettingsSection title="Shop Options">
+        <ShopOptionsSection
+          shopOptions={shopOptions}
+          setShopOptions={setShopOptions}
+          onSave={handleSaveShopOptions}
+        />
+      </SettingsSection>
+
       <SettingsSection title="Company Info">
         <CompanyInfoSection
           companyInfo={companyInfo}
@@ -288,7 +360,7 @@ const AdminCustomizationPanel = () => {
           ready={ready}
           onUploadIrisQR={(file) =>
             uploadAndSet(file, (url) =>
-              setCompanyInfo((p) => ({ ...p, irisBankQR: url }))
+              setCompanyInfo((p) => ({ ...p, irisBankQR: url })),
             )
           }
         />
@@ -302,15 +374,26 @@ const AdminCustomizationPanel = () => {
         />
       </SettingsSection>
 
-      <SettingsSection title="Theme Colors">
-        <ThemeColorsSection
-          themeColors={themeColors}
+      <SettingsSection title="Theme">
+        <ThemeSection
+          theme={theme}
+          setTheme={setTheme}
           primaryDraft={primaryDraft}
           secondaryDraft={secondaryDraft}
-          setThemeColors={setThemeColors}
+          theme3Draft={theme3Draft}
+          theme4Draft={theme4Draft}
+          theme5Draft={theme5Draft}
           setPrimaryDraft={setPrimaryDraft}
           setSecondaryDraft={setSecondaryDraft}
-          onSave={handleSaveThemeColors}
+          setTheme3Draft={setTheme3Draft}
+          setTheme4Draft={setTheme4Draft}
+          setTheme5Draft={setTheme5Draft}
+          ready={ready}
+          recentFiles={recentFiles}
+          onUploadBtnImage1={handleUploadBtnImage1}
+          onUploadBtnImage2={handleUploadBtnImage2}
+          onUploadBtnImage3={handleUploadBtnImage3}
+          onSave={handleSaveTheme}
         />
       </SettingsSection>
 

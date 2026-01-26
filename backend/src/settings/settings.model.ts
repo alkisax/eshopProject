@@ -14,7 +14,7 @@ const adminNotificationsSchema = new Schema(
       type: String,
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const brandingSchema = new Schema(
@@ -29,7 +29,7 @@ const brandingSchema = new Schema(
       default: ['FALSE'],
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const homeTextsSchema = new Schema(
@@ -38,7 +38,7 @@ const homeTextsSchema = new Schema(
     homeText2: { type: String },
     homeText3: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const companyInfoSchema = new Schema(
@@ -50,7 +50,7 @@ const companyInfoSchema = new Schema(
     email: { type: String },
     irisBankQR: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const socialLinksSchema = new Schema(
@@ -60,7 +60,7 @@ const socialLinksSchema = new Schema(
     etsy: { type: String },
     tiktok: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const staticPagesSchema = new Schema(
@@ -72,15 +72,35 @@ const staticPagesSchema = new Schema(
     privacyPolicy: { type: String },
     termsOfUse: { type: String },
   },
-  { _id: false }
+  { _id: false },
+);
+
+const menuItemSchema = new Schema(
+  {
+    label: { type: String, required: true },
+    url: { type: String, required: true },
+  },
+  { _id: false },
 );
 
 const themeSchema = new Schema(
   {
     primaryColor: { type: String },
     secondaryColor: { type: String },
+    themeColor3: { type: String },
+    themeColor4: { type: String },
+    themeColor5: { type: String },
+
+    menuItems: {
+      type: [menuItemSchema],
+      default: undefined,
+    },
+
+    btnImage1: { type: String },
+    btnImage2: { type: String },
+    btnImage3: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const emailTemplateSchema = new Schema(
@@ -88,7 +108,7 @@ const emailTemplateSchema = new Schema(
     subject: { type: String },
     body: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const emailTemplatesSchema = new Schema(
@@ -96,7 +116,21 @@ const emailTemplatesSchema = new Schema(
     orderConfirmed: { type: emailTemplateSchema, default: {} },
     orderShipped: { type: emailTemplateSchema, default: {} },
   },
-  { _id: false }
+  { _id: false },
+);
+
+const shopOptionsSchema = new Schema(
+  {
+    isOpen: {
+      type: Boolean,
+      default: true,
+    },
+    isAiProfanity: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { _id: false },
 );
 
 const settingsSchema = new Schema(
@@ -113,6 +147,11 @@ const settingsSchema = new Schema(
     },
     branding: {
       type: brandingSchema,
+      default: {},
+    },
+
+    shopOptions: {
+      type: shopOptionsSchema,
       default: {},
     },
 
@@ -149,7 +188,7 @@ const settingsSchema = new Schema(
   {
     collection: 'Settings',
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.model<SettingsType>('Settings', settingsSchema);

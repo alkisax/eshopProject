@@ -50,6 +50,23 @@ export interface StaticPagesSettings {
 export interface ThemeSettings {
   primaryColor?: string; // π.χ. '#008482'
   secondaryColor?: string; // π.χ. '#a6ddd8'
+  themeColor3?: string;
+  themeColor4?: string;
+  themeColor5?: string;
+
+  menuItems?: {
+    label: string;
+    url: string;
+  }[];
+
+  btnImage1?: string;
+  btnImage2?: string;
+  btnImage3?: string;
+}
+
+export interface ShopOptionsSettings {
+  isOpen?: boolean;
+  isAiProfanity?: boolean;
 }
 
 export interface EmailTemplate {
@@ -71,6 +88,7 @@ export interface SettingsType extends Document {
   socialLinks: SocialLinksSettings;
   staticPages: StaticPagesSettings;
   theme: ThemeSettings;
+  shopOptions?: ShopOptionsSettings;
   emailTemplates?: EmailTemplatesSettings;
   createdAt?: Date;
   updatedAt?: Date;
@@ -84,5 +102,6 @@ export type SettingsUpdateInput = {
   socialLinks?: Partial<SocialLinksSettings>;
   staticPages?: Partial<StaticPagesSettings>;
   theme?: Partial<ThemeSettings>;
+  shopOptions?: Partial<ShopOptionsSettings>;
   emailTemplates?: Partial<EmailTemplatesSettings>;
 };
