@@ -1,4 +1,9 @@
 // frontend\src\types\settings.types.ts
+export type MenuItem = {
+  label: string;
+  url: string;
+};
+
 export type Settings = {
   branding?: {
     themeLogo?: string;
@@ -6,6 +11,10 @@ export type Settings = {
     heroImage?: string;
     isHeroImageActive?: boolean;
     themeSelector?: ("TRUE" | "FALSE")[];
+  };
+  shopOptions?: {
+    isOpen?: boolean;
+    isAiProfanity?: boolean;
   };
   homeTexts?: {
     homeText1?: string;
@@ -18,7 +27,7 @@ export type Settings = {
     address?: string;
     phone?: string;
     email?: string;
-    irisBankQR?: string; 
+    irisBankQR?: string;
   };
   socialLinks?: {
     facebook?: string;
@@ -37,6 +46,13 @@ export type Settings = {
   theme?: {
     primaryColor?: string;
     secondaryColor?: string;
+    themeColor3?: string;
+    themeColor4?: string;
+    themeColor5?: string;
+    menuItems?: MenuItem[];
+    btnImage1?: string;
+    btnImage2?: string;
+    btnImage3?: string;
   };
   emailTemplates?: {
     orderConfirmed?: {

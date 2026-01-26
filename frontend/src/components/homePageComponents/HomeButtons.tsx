@@ -2,10 +2,13 @@
 import { Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import BlogHome from "../../blog/blogPages/BlogHome";
+import { useSettings } from "../../context/SettingsContext";
 
 const HomeButtons = () => {
   const navigate = useNavigate();
 
+  const { settings } = useSettings();
+  const storeBtnBg = settings?.theme?.btnImage1;
   return (
     <>
       <Stack
@@ -13,7 +16,7 @@ const HomeButtons = () => {
         spacing={3}
         justifyContent="center"
         alignItems="center"
-        sx = {{mt:4, mb:4}}
+        sx={{ mt: 4, mb: 4 }}
       >
         <Button
           id="store-btn"
@@ -30,8 +33,8 @@ const HomeButtons = () => {
             textShadow: "1px 1px 3px rgba(0,0,0,0.6)",
             width: "100%",
             maxWidth: 280,
-            backgroundImage:
-              'url("https://cloud.appwrite.io/v1/storage/buckets/68a01b0400291ae356ca/files/68c958130031815f8bce/view?project=6898d8be0020602b146e")',
+            backgroundImage: `url("${storeBtnBg}")`,
+
             backgroundSize: "cover",
             backgroundPosition: "center",
             boxShadow: "0 6px 12px rgba(0,0,0,0.25)",

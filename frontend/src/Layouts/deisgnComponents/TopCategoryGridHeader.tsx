@@ -5,10 +5,17 @@ import SiteLogo from "../../components/settings_components/SiteLogo";
 import { useThemeColors } from "../../hooks/useThemeColors";
 import { shade, shiftHue, shiftSaturation } from "../../utils/colorUtils";
 
+// 🔧 NEW: settings context για menu items
+import { useSettings } from "../../context/SettingsContext";
+
 // const lineColor = "#008482";
 
 const TopCategoryGridHeader = () => {
   const { primary } = useThemeColors();
+
+  // 🔧 NEW: παίρνουμε menuItems απο settings
+  const { settings } = useSettings();
+  const menuItems = settings?.theme?.menuItems || [];
 
   // χρησιμοποιούσαμε χρώμματα απο τον designer που δεν ήταν ίδια με το primary μας για αυτό φτιάξαμε τρεις συναρτήσεις (gpt) που μετατρέπουν το έαν χρώμα στο αλλο. Δεν είναι ιδανική λύση γιατί σε άλλα χρώμματα μπορεί να μην δουλεύει αλλα θα το αφήσουμε προς το παρόν TODO
   const baseHue = shiftHue(primary, -12);
@@ -186,90 +193,23 @@ const TopCategoryGridHeader = () => {
               minWidth: "260px",
             }}
           >
-            {/* row 1 */}
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-              <Link to="/store?cat=Κολιέ" style={{ textDecoration: "none" }}>
-                <Typography
-                  fontWeight="bold"
-                  textAlign="center"
-                  sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
-                >
-                  ΚΟΛΙΕ
-                </Typography>
-              </Link>
-            </Box>
-
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-              <Link to="/store?cat=Βραχιόλι" style={{ textDecoration: "none" }}>
-                <Typography
-                  fontWeight="bold"
-                  textAlign="center"
-                  sx={{
-                    color: lineColor,
-                    fontSize: "0.9rem",
-                    lineHeight: 1.1,
-                  }}
-                >
-                  ΒΡΑΧΙΟΛΙΑ
-                </Typography>
-              </Link>
-            </Box>
-
-            {/* row 2 */}
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-              <Link
-                to="/store?cat=Σκουλαρίκια"
-                style={{ textDecoration: "none" }}
+            {/* 🔧 REFACTORED: menu items απο settings */}
+            {menuItems.slice(0, 6).map((item, i) => (
+              <Box
+                key={`${item.label}-${i}`}
+                sx={{ display: "flex", justifyContent: "center", mb: i >= 4 ? 1 : 0 }}
               >
-                <Typography
-                  fontWeight="bold"
-                  textAlign="center"
-                  sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
-                >
-                  ΣΚΟΥΛΑΡΙΚΙΑ
-                </Typography>
-              </Link>
-            </Box>
-
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-              <Link
-                to="/store?cat=Δαχτυλίδι"
-                style={{ textDecoration: "none" }}
-              >
-                <Typography
-                  fontWeight="bold"
-                  textAlign="center"
-                  sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
-                >
-                  ΔΑΧΤΥΛΙΔΙΑ
-                </Typography>
-              </Link>
-            </Box>
-
-            {/* row 3 */}
-            <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
-              <Link to="/about" style={{ textDecoration: "none" }}>
-                <Typography
-                  fontWeight="bold"
-                  textAlign="center"
-                  sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
-                >
-                  ΓΙΑ ΕΜΑΣ
-                </Typography>
-              </Link>
-            </Box>
-
-            <Box sx={{ display: "flex", justifyContent: "center", mb: 1 }}>
-              <Link to="/contact" style={{ textDecoration: "none" }}>
-                <Typography
-                  fontWeight="bold"
-                  textAlign="center"
-                  sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
-                >
-                  ΕΠΙΚΟΙΝΩΝΙΑ
-                </Typography>
-              </Link>
-            </Box>
+                <Link to={item.url} style={{ textDecoration: "none" }}>
+                  <Typography
+                    fontWeight="bold"
+                    textAlign="center"
+                    sx={{ color: lineColor, fontSize: "0.9rem", lineHeight: 1.1 }}
+                  >
+                    {item.label}
+                  </Typography>
+                </Link>
+              </Box>
+            ))}
           </Box>
         </Box>
 
