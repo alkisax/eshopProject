@@ -14,6 +14,11 @@ export const brandingSchema = z.object({
   themeSelector: z.array(z.enum(['TRUE', 'FALSE'])).optional(),
 });
 
+export const shopOptionsSchema = z.object({
+  isOpen: z.boolean().optional(),
+  isAiProfanity: z.boolean().optional(),
+});
+
 export const homeTextsSchema = z.object({
   homeText1: z.string().optional(),
   homeText2: z.string().optional(),
@@ -45,9 +50,23 @@ export const staticPagesSchema = z.object({
   termsOfUse: z.string().optional(),
 });
 
+const menuItemSchema = z.object({
+  label: z.string().min(1),
+  url: z.string().min(1),
+});
+
 export const themeSchema = z.object({
   primaryColor: z.string().optional(),
   secondaryColor: z.string().optional(),
+  themeColor3: z.string().optional(),
+  themeColor4: z.string().optional(),
+  themeColor5: z.string().optional(),
+
+  menuItems: z.array(menuItemSchema).optional(),
+
+  btnImage1: z.string().optional(),
+  btnImage2: z.string().optional(),
+  btnImage3: z.string().optional(),
 });
 
 export const emailTemplateSchema = z.object({
@@ -68,6 +87,7 @@ export const updateSettingsSchema = z.object({
   socialLinks: socialLinksSchema.optional(),
   staticPages: staticPagesSchema.optional(),
   theme: themeSchema.optional(),
+  shopOptions: shopOptionsSchema.optional(),
   emailTemplates: emailTemplatesSchema.optional(),
 });
 
@@ -79,5 +99,6 @@ export const createSettingsSchema = z.object({
   socialLinks: socialLinksSchema.optional(),
   staticPages: staticPagesSchema.optional(),
   theme: themeSchema.optional(),
+  shopOptions: shopOptionsSchema.optional(),
   emailTemplates: emailTemplatesSchema.optional(),
 });
