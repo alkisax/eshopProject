@@ -77,13 +77,13 @@ const StoreItemList = () => {
 
   return (
     <>
-      <Typography
+      {/* <Typography
         variant="h4"
         component="h1" // seo reads h1 renders h4
         gutterBottom
       >
         Χειροποίητα Κοσμήματα
-      </Typography>
+      </Typography> */}
 
       {selectedCategories.length > 0 && (
         <Typography
