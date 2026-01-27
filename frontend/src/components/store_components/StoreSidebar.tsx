@@ -1,7 +1,9 @@
 // frontend\src\components\store_components\StoreSidebar.tsx
+//https://ui.mantine.dev/#main
 // TODO → done
 // Είχαμε ένα σοβαρό πρόβλημα και για αυτό αφαιρέθηκε το search bar. Εκάνε search μονο στα paginated αντικείμενα. για να μην γίνετε αυτό θα πρέπει το Pagination να οργανωθεί στο backend ή το front end να έχει τα πάντα στην μνήμη του. θα ακολουθήσω αυτό το δεύτερο αλλά αυτό είναι ΛΑΘΟΣ και πρέπει να αλλαχθει αργότερα γιατι αν τα εμπορεύματα είναι πολλά θα κολάει
 
+import { RangeSlider } from "@mantine/core";
 import { useState } from "react";
 import {
   Drawer,
@@ -16,6 +18,7 @@ import {
   IconButton,
   useMediaQuery,
   Button,
+  Stack,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useTheme } from "@mui/material/styles";
@@ -28,11 +31,14 @@ interface StoreSidebarProps {
   search: string;
   allCategories: CategoryType[];
   selectedCategories: string[];
+  priceRange: [number, number] | null;
+  maxPrice: number;
   onSearch: (query: string) => void;
   onToggleCategory: (category: string, checked: boolean) => void;
   onApplyFilters: () => void;
   onClearFilters: () => void;
   onSemanticSearch: (query: string) => void;
+  onPriceChange: (range: [number, number] | null) => void;
 }
 
 const StoreSidebar = ({
@@ -44,6 +50,9 @@ const StoreSidebar = ({
   onApplyFilters,
   onClearFilters,
   onSemanticSearch,
+  priceRange,
+  onPriceChange,
+  maxPrice,
 }: StoreSidebarProps) => {
   // Είναι React hook από το Material-UI (@mui/material/styles). Σου δίνει πρόσβαση στο theme Το theme είναι κάτι σαν "παγκόσμιο config" για styling. Το ορίζει το ThemeProvider που συνήθως βάζεις γύρω από όλη την app σου. και επειδή εδώ δεν έχουμε είναι default
   const theme = useTheme();
@@ -138,6 +147,62 @@ const StoreSidebar = ({
           ))}
         </FormGroup>
       </List>
+
+      <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>
+        Price range
+      </Typography>
+      <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+        <TextField
+          label="Min"
+          type="number"
+          size="small"
+          value={priceRange ? priceRange[0] : 0}
+          slotProps={{
+            htmlInput: {
+              min: 0,
+              max: maxPrice,
+            },
+          }}
+          onChange={(e) => {
+            const min = Number(e.target.value);
+            const max = priceRange ? priceRange[1] : maxPrice;
+            onPriceChange([Math.min(min, max), max]);
+          }}
+        />
+
+        <TextField
+          label="Max"
+          type="number"
+          size="small"
+          value={priceRange ? priceRange[1] : maxPrice}
+          slotProps={{
+            htmlInput: {
+              min: 0,
+              max: maxPrice,
+            },
+          }}
+          onChange={(e) => {
+            const max = Number(e.target.value);
+            const min = priceRange ? priceRange[0] : 0;
+            onPriceChange([min, Math.max(max, min)]);
+          }}
+        />
+      </Stack>
+      <RangeSlider
+        min={0}
+        max={maxPrice}
+        value={priceRange ?? [0, maxPrice]}
+        onChangeEnd={(value) => {
+          onPriceChange(value);
+          onApplyFilters();
+        }}
+        styles={{
+          root: { marginTop: 24 },
+          track: { backgroundColor: primary },
+          bar: { backgroundColor: primary },
+          thumb: { borderColor: primary },
+        }}
+      />
     </>
   );
 

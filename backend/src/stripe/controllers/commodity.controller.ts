@@ -83,9 +83,13 @@ const search = async (req: Request, res: Response) => {
     // pagination params
     let page: number = 1;
     let limit: number = 12;
+    let priceMin: number | undefined;
+    let priceMax: number | undefined;
 
     const pageParam = req.query.page;
     const limitParam = req.query.limit;
+    const priceMinParam = req.query.priceMin;
+    const priceMaxParam = req.query.priceMax;
 
     // το πρόβλημα που είχαμε είναι οτι θέλουμε να μην φαίνονται τα inactive στο κατάστημα αλλά θέλουμε να φαίνονται τα inactive στο admin panel, οπότε το αλλάζουμε ωστε να παίρνει και αυτή την παράμετρο που θα έρχετε απο το front (η αλλάγή αφορά και το dao και το πως το καλούμε)
     const includeInactive = req.query.includeInactive === 'true';
@@ -102,6 +106,20 @@ const search = async (req: Request, res: Response) => {
       const parsed = Number(limitParam);
       if (!Number.isNaN(parsed) && parsed > 0) {
         limit = parsed;
+      }
+    }
+
+    if (typeof priceMinParam === 'string') {
+      const parsed = Number(priceMinParam);
+      if (!Number.isNaN(parsed)) {
+        priceMin = parsed;
+      }
+    }
+
+    if (typeof priceMaxParam === 'string') {
+      const parsed = Number(priceMaxParam);
+      if (!Number.isNaN(parsed)) {
+        priceMax = parsed;
       }
     }
 
@@ -133,6 +151,8 @@ const search = async (req: Request, res: Response) => {
       search,
       categories,
       includeInactive,
+      priceMin,
+      priceMax,
     });
 
     // --- response ---
@@ -209,7 +229,7 @@ const updateById = async (req: Request, res: Response) => {
     const updateData = parsed;
     const updatedCommodity = await commodityDAO.updateCommodityById(
       id,
-      updateData
+      updateData,
     );
 
     console.log(`Updated commodity ${id}`);
@@ -317,7 +337,7 @@ const updateComment = async (req: Request, res: Response) => {
     const updated = await commodityDAO.updateCommentInCommodity(
       commodityId,
       commentId,
-      { isApproved }
+      { isApproved },
     );
     return res.status(200).json({ status: true, data: updated });
   } catch (error) {
@@ -358,7 +378,7 @@ const deleteComment = async (req: Request, res: Response) => {
   try {
     const updated = await commodityDAO.deleteCommentFromCommoditybyCommentId(
       id,
-      commentId
+      commentId,
     );
     return res.status(200).json({ status: true, data: updated });
   } catch (error) {

@@ -12,7 +12,7 @@ import { Types } from 'mongoose';
 
 // Create
 const createCommodity = async (
-  data: Partial<CommodityType>
+  data: Partial<CommodityType>,
 ): Promise<CommodityType> => {
   try {
     // 🔵 LOG: Τι προσπαθούμε να δημιουργήσουμε
@@ -31,7 +31,7 @@ const createCommodity = async (
 
       if (existing) {
         throw new ValidationError(
-          'Commodity with this stripePriceId already exists'
+          'Commodity with this stripePriceId already exists',
         );
       }
     }
@@ -83,7 +83,7 @@ const createCommodity = async (
     if (err instanceof Error && (err as any).code === 11000) {
       console.error('"❌ [DAO] Duplicate key:"', (err as any).keyValue);
       throw new ValidationError(
-        '"Duplicate key: "' + JSON.stringify((err as any).keyValue)
+        '"Duplicate key: "' + JSON.stringify((err as any).keyValue),
       );
     }
 
@@ -101,7 +101,7 @@ const findAllCommodities = async (): Promise<CommodityType[]> => {
 // in: Ποια σελίδα θα δούμε, ποσα ανα σελίδα. out: λίστα με αντικείμενα, συνολικό πλήθος Products, σε πια σελίδα είμαστε, πόσες σελίδες υπάρχουν
 const findAllCommoditiesPaginated = async (
   page: number,
-  limit: number // πόσα προϊόντα δείχνουμε ανά σελίδα
+  limit: number, // πόσα προϊόντα δείχνουμε ανά σελίδα
 ): Promise<{
   items: CommodityType[];
   total: number;
@@ -135,11 +135,11 @@ const findAllCommoditiesPaginated = async (
 
 // Read by ID
 const findCommodityById = async (
-  id: string | Types.ObjectId
+  id: string | Types.ObjectId,
 ): Promise<CommodityType> => {
   const commodity = await Commodity.findById(id).populate(
     'comments.user',
-    'username'
+    'username',
   );
   if (!commodity) {
     throw new NotFoundError('Commodity not found');
@@ -148,19 +148,19 @@ const findCommodityById = async (
 };
 
 const findCommodityByStripePriceId = async (
-  stripePriceId: string
+  stripePriceId: string,
 ): Promise<CommodityType | null> => {
   return await Commodity.findOne({ stripePriceId });
 };
 
 const findCommodityByUUID = async (
-  uuid: string
+  uuid: string,
 ): Promise<CommodityType | null> => {
   return await Commodity.findOne({ uuid });
 };
 
 const findCommodityBySlug = async (
-  slug: string
+  slug: string,
 ): Promise<CommodityType | null> => {
   return await Commodity.findOne({ slug });
 };
@@ -173,17 +173,22 @@ const searchCommodities = async ({
   search,
   categories,
   includeInactive,
+  priceMin,
+  priceMax,
 }: {
   page: number;
   limit: number;
   search?: string;
   categories?: string[];
   includeInactive?: boolean;
+  priceMin?: number;
+  priceMax?: number;
 }): Promise<{
   items: CommodityType[];
   total: number;
   page: number;
   pageCount: number;
+  maxPrice?: number;
 }> => {
   // επειδή δεν ξέρουμε αν θα είναι search bar, category filter ή και τα δύο, φτιάχνουμε την μεταβλητή filter που αργότερα θα μπεί μέσα στην αναζήτηση στην εντολή της mongo. Ειναι type unknown γιατι θα είναι παραμέτροι query της mongo
   //  Αν υπάρχουν ΚΑΙ categories ΚΑΙ search, το filter γίνεται: { category: { $in: ["Silver", "Gold"] }, name: { $regex: "ring", $options: "i" } }
@@ -206,6 +211,25 @@ const searchCommodities = async ({
     filter.name = { $regex: search, $options: 'i' };
   }
 
+  // min-max search
+  // - Φτιάχνουμε ένα άδειο object price - Αν υπάρχει priceMin → βάζουμε $gte - Αν υπάρχει priceMax → βάζουμε $lte - Το κολλάμε στο filter.price
+  if (priceMin !== undefined || priceMax !== undefined) {
+    const price: { $gte?: number; $lte?: number } = {};
+    if (priceMin !== undefined) {
+      price.$gte = priceMin;
+    }
+    if (priceMax !== undefined) {
+      price.$lte = priceMax;
+    }
+    filter.price = price;
+  }
+
+  const maxPriceAgg = await Commodity.aggregate([
+    { $match: { active: true } },
+    { $group: { _id: null, max: { $max: '$price' } } },
+  ]);
+  const maxPrice = maxPriceAgg[0]?.max ?? 100;
+
   // pagination func δες παραπάνω
   const safePage = page > 0 ? page : 1;
   const safeLimit = limit > 0 ? limit : 10;
@@ -226,6 +250,7 @@ const searchCommodities = async ({
     total,
     page: safePage,
     pageCount: Math.ceil(total / safeLimit) || 1,
+    maxPrice,
   };
 };
 
@@ -242,7 +267,7 @@ const getAllCategories = async (): Promise<string[]> => {
 // Update
 const updateCommodityById = async (
   id: string | Types.ObjectId,
-  updateData: Partial<CommodityType>
+  updateData: Partial<CommodityType>,
 ): Promise<CommodityType> => {
   try {
     // TEMP: allow price edits even when variants exist
@@ -280,7 +305,7 @@ const updateCommodityById = async (
 
 const updateCommodityByUUID = async (
   uuid: string,
-  updateData: Partial<CommodityType>
+  updateData: Partial<CommodityType>,
 ): Promise<CommodityType> => {
   try {
     // ❗ Guard μόνο αν πάμε σε variant-level pricing (future)
@@ -321,7 +346,7 @@ const updateCommodityByUUID = async (
 const sellCommodityById = async (
   id: string | Types.ObjectId,
   quantity: number,
-  session?: mongoose.ClientSession //session
+  session?: mongoose.ClientSession, //session
 ): Promise<CommodityType> => {
   if (quantity <= 0) {
     throw new ValidationError('Quantity must be at least 1');
@@ -351,7 +376,7 @@ const sellCommodityById = async (
       new: true, // Return the *updated* document (not the old one)
       runValidators: true,
       session, //session
-    }
+    },
   );
 
   if (!updated) {
@@ -364,13 +389,13 @@ const sellCommodityById = async (
 // προστέθηκε όταν βάλαμε την λειτουργία να κανει update με excel. το κάνει ελέγχοντας ποια εμπορεύματα έχουν stripe id και ποια όχι, οπότε δημιουργεί όσα δεν έχουν το stripe id που έρχετε απο το excel και κάνει update τα άλλα. για αυτό χρειαζόμασταν ένα dao που να κάνει update με βάση το stripeId
 const updateCommodityByStripePriceId = async (
   stripePriceId: string,
-  updateData: Partial<CommodityType>
+  updateData: Partial<CommodityType>,
 ): Promise<CommodityType | null> => {
   try {
     const updated = await Commodity.findOneAndUpdate(
       { stripePriceId },
       updateData,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     return updated;
@@ -387,7 +412,7 @@ const updateCommodityByStripePriceId = async (
 
 // Delete
 const deleteCommodityById = async (
-  id: string | Types.ObjectId
+  id: string | Types.ObjectId,
 ): Promise<CommodityType> => {
   const deleted = await Commodity.findByIdAndDelete(id);
   if (!deleted) {
@@ -399,12 +424,12 @@ const deleteCommodityById = async (
 // ➕ Add comment
 const addCommentToCommodity = async (
   commodityId: string | Types.ObjectId,
-  comment: CommentType
+  comment: CommentType,
 ): Promise<CommodityType> => {
   const updated = await Commodity.findByIdAndUpdate(
     commodityId,
     { $push: { comments: comment } },
-    { new: true }
+    { new: true },
   );
   if (!updated) {
     throw new NotFoundError('Commodity not found');
@@ -415,12 +440,12 @@ const addCommentToCommodity = async (
 const updateCommentInCommodity = async (
   commodityId: string | Types.ObjectId,
   commentId: string | Types.ObjectId,
-  updates: Partial<CommentType>
+  updates: Partial<CommentType>,
 ): Promise<CommodityType> => {
   const updated = await Commodity.findOneAndUpdate(
     { _id: commodityId, 'comments._id': commentId },
     { $set: { 'comments.$.isApproved': updates.isApproved } }, // 👈 only update that field
-    { new: true }
+    { new: true },
   );
 
   if (!updated) {
@@ -431,12 +456,12 @@ const updateCommentInCommodity = async (
 
 // ❌ Remove all comments (since comments don’t have IDs in your schema)
 const clearCommentsFromCommodity = async (
-  commodityId: string | Types.ObjectId
+  commodityId: string | Types.ObjectId,
 ): Promise<CommodityType> => {
   const updated = await Commodity.findByIdAndUpdate(
     commodityId,
     { $set: { comments: [] } },
-    { new: true }
+    { new: true },
   );
   if (!updated) {
     throw new NotFoundError('Commodity not found');
@@ -446,12 +471,12 @@ const clearCommentsFromCommodity = async (
 
 const deleteCommentFromCommoditybyCommentId = async (
   commodityId: string | Types.ObjectId,
-  commentId: string | Types.ObjectId
+  commentId: string | Types.ObjectId,
 ): Promise<CommodityType> => {
   const updated = await Commodity.findByIdAndUpdate(
     commodityId,
     { $pull: { comments: { _id: commentId } } },
-    { new: true }
+    { new: true },
   );
 
   if (!updated) {
@@ -463,7 +488,7 @@ const deleteCommentFromCommoditybyCommentId = async (
 
 // ⏳ cron autodelete dao action
 export const deleteOldUnapprovedComments = async (
-  days = 5
+  days = 5,
 ): Promise<number> => {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
@@ -484,7 +509,7 @@ export const deleteOldUnapprovedComments = async (
 
     commodity.comments = commodity.comments.filter(
       (c: CommentType) =>
-        !(c.isApproved === false && c.updatedAt && c.updatedAt < cutoff)
+        !(c.isApproved === false && c.updatedAt && c.updatedAt < cutoff),
     );
 
     const after = commodity.comments.length;
@@ -553,7 +578,7 @@ const getCommentsByUser = async (userId: string | Types.ObjectId) => {
 const deleteAllCommentsByUser = async (userId: string | Types.ObjectId) => {
   const result = await Commodity.updateMany(
     {},
-    { $pull: { comments: { user: userId } } }
+    { $pull: { comments: { user: userId } } },
   );
   return result.modifiedCount;
 };

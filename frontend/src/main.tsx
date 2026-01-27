@@ -13,6 +13,8 @@ import AppWithConsent from "./AppWithConsent.tsx";
 import { ThemeProvider } from "@emotion/react";
 import theme from "./theme/theme";
 import { SettingsProvider } from "./context/SettingsContext.tsx";
+import "@mantine/core/styles.css";
+import { MantineProvider } from "@mantine/core";
 
 createRoot(document.getElementById("root")!).render(
   // <StrictMode>
@@ -25,9 +27,11 @@ createRoot(document.getElementById("root")!).render(
             <CartActionsProvider>
               <AiModerationProvider>
                 <ThemeProvider theme={theme}>
-                  <ConsentProvider>
-                    <AppWithConsent />
-                  </ConsentProvider>
+                  <MantineProvider>
+                    <ConsentProvider>
+                      <AppWithConsent />
+                    </ConsentProvider>
+                  </MantineProvider>
                 </ThemeProvider>
               </AiModerationProvider>
             </CartActionsProvider>
@@ -35,7 +39,7 @@ createRoot(document.getElementById("root")!).render(
         </VariablesProvider>
       </UserProvider>
     </HelmetProvider>
-  </BrowserRouter>
+  </BrowserRouter>,
 
   // </StrictMode>,
 );

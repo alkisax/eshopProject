@@ -24,6 +24,8 @@ const StoreLayout = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   const [semanticResults, setSemanticResults] = useState<CommodityType[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
+  const [maxPrice, setMaxPrice] = useState(100);
 
   const [pageCount, setPageCount] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,7 +44,7 @@ const StoreLayout = () => {
 
   useEffect(() => {
     // επιστρέφει κατι σαν '?page=4&cat=Δαχτυλίδια'
-    // η μορφή του location είναι σαν 
+    // η μορφή του location είναι σαν
     // location = { pathname: '/store', search: '?page=4&cat=Δαχτυλίδια', hash: '', state: null, key: 'abc123' }
     const params = new URLSearchParams(location.search);
     // Τα query params στο URL είναι πάντα strings
@@ -83,6 +85,8 @@ const StoreLayout = () => {
           search: search || undefined,
           categories:
             selectedCategories.length > 0 ? selectedCategories : undefined,
+          priceMin: priceRange ? priceRange[0] : undefined,
+          priceMax: priceRange ? priceRange[1] : undefined,
         },
         paramsSerializer: (params) => {
           const searchParams = new URLSearchParams();
@@ -103,6 +107,7 @@ const StoreLayout = () => {
 
       const data = res.data.data;
 
+      setMaxPrice(data.maxPrice ?? 100);
       setCommodities(data.items);
       setPageCount(data.pageCount);
     } catch (err) {
@@ -110,14 +115,7 @@ const StoreLayout = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [
-    url,
-    currentPage,
-    ITEMS_PER_PAGE,
-    selectedCategories,
-    search,
-    setIsLoading,
-  ]); // To fetchPaginatedCommodities ξαναδημιουργείται μόνο όταν αλλάξει κάποια από αυτές όταν αλλάζουν categories → νέο fetch - όταν αλλάζει search → νέο fetch ⚠️ οχι απλός ένα dependancy αλλα μέρος της λειτουργείας του search και categories
+  }, [setIsLoading, url, currentPage, search, selectedCategories, priceRange]); // To fetchPaginatedCommodities ξαναδημιουργείται μόνο όταν αλλάξει κάποια από αυτές όταν αλλάζουν categories → νέο fetch - όταν αλλάζει search → νέο fetch ⚠️ οχι απλός ένα dependancy αλλα μέρος της λειτουργείας του search και categories
 
   useEffect(() => {
     fetchPaginatedCommodities();
@@ -159,6 +157,7 @@ const StoreLayout = () => {
     setSelectedCategories([]);
     setFiltersApplied((prev) => !prev);
     setCurrentPage(1);
+    setPriceRange(null);
   };
 
   const handleSearch = (query: string) => {
@@ -231,11 +230,14 @@ const StoreLayout = () => {
             search={search}
             allCategories={parentCategories}
             selectedCategories={selectedCategories}
+            priceRange={priceRange}
+            maxPrice={maxPrice}
             onSearch={handleSearch}
             onToggleCategory={handleToggleCategory}
             onApplyFilters={handleApplyFilters}
             onClearFilters={handleClearFilters}
             onSemanticSearch={handleSemanticSearch}
+            onPriceChange={setPriceRange}
           />
           <main
             style={{
