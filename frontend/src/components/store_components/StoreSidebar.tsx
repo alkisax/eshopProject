@@ -1,5 +1,6 @@
 // frontend\src\components\store_components\StoreSidebar.tsx
-//https://ui.mantine.dev/#main
+// https://ui.mantine.dev/#main
+// https://chakra-ui.com/docs/components/concepts/overview
 // TODO → done
 // Είχαμε ένα σοβαρό πρόβλημα και για αυτό αφαιρέθηκε το search bar. Εκάνε search μονο στα paginated αντικείμενα. για να μην γίνετε αυτό θα πρέπει το Pagination να οργανωθεί στο backend ή το front end να έχει τα πάντα στην μνήμη του. θα ακολουθήσω αυτό το δεύτερο αλλά αυτό είναι ΛΑΘΟΣ και πρέπει να αλλαχθει αργότερα γιατι αν τα εμπορεύματα είναι πολλά θα κολάει
 
