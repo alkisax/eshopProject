@@ -142,3 +142,100 @@ crontab -e
 30 9 * * 4 /var/www/eshopProject/backend/scripts/atlas-backup-hetzner.sh >> /var/backups/eshopProject/cron.log 2>&1
 ```
 
+ls -lh /var/backups/eshopProject
+
+# nginx backup
+sudo mkdir -p /var/backups/nginx
+```sh
+#!/bin/bash
+
+BACKUP_DIR="/var/backups/nginx"
+DATE=$(date +"%Y-%m-%d_%H-%M")
+
+mkdir -p "$BACKUP_DIR"
+
+tar -czf "$BACKUP_DIR/nginx_backup_$DATE.tar.gz" \
+  /etc/nginx/nginx.conf \
+  /etc/nginx/sites-available \
+  /etc/nginx/sites-enabled
+
+# Retention: κρατάμε μόνο το πιο πρόσφατο
+BACKUP_FILES=$(ls -t "$BACKUP_DIR"/nginx_backup_*.tar.gz 2>/dev/null)
+FILE_COUNT=$(echo "$BACKUP_FILES" | wc -l)
+
+if [ "$FILE_COUNT" -gt 1 ]; then
+  FILES_TO_DELETE=$(echo "$BACKUP_FILES" | tail -n +2)
+  for FILE in $FILES_TO_DELETE; do
+    echo "Deleting old nginx backup: $FILE"
+    rm "$FILE"
+  done
+fi  
+
+echo "Nginx backup completed at $DATE"
+```
+sudo chmod +x
+./nginx-backup.sh
+ls -lh /var/backups/nginx
+
+# .env
+nano env-backup.sh
+```sh
+#!/bin/bash
+
+BACKUP_DIR="/var/backups/eshopProject"
+BACKEND_ENV="/var/www/eshopProject/backend/.env"
+FRONTEND_ENV="/var/www/eshopProject/frontend/.env"
+
+DATE=$(date +"%Y-%m-%d_%H-%M")
+
+mkdir -p "$BACKUP_DIR"
+
+# Backup backend .env
+if [ -f "$BACKEND_ENV" ]; then
+  cp "$BACKEND_ENV" "$BACKUP_DIR/backend_env_$DATE"
+else
+  echo "Backend .env not found!"
+fi
+
+# Backup frontend .env
+if [ -f "$FRONTEND_ENV" ]; then
+  cp "$FRONTEND_ENV" "$BACKUP_DIR/frontend_env_$DATE"
+else
+  echo "Frontend .env not found!"
+fi
+
+# Retention: κρατάμε μόνο το πιο πρόσφατο backend env
+BACKEND_FILES=$(ls -t "$BACKUP_DIR"/backend_env_* 2>/dev/null)
+if [ "$(echo "$BACKEND_FILES" | wc -l)" -gt 1 ]; then
+  echo "$BACKEND_FILES" | tail -n +2 | xargs rm -f
+fi
+
+# Retention: κρατάμε μόνο το πιο πρόσφατο frontend env
+FRONTEND_FILES=$(ls -t "$BACKUP_DIR"/frontend_env_* 2>/dev/null)
+if [ "$(echo "$FRONTEND_FILES" | wc -l)" -gt 1 ]; then
+  echo "$FRONTEND_FILES" | tail -n +2 | xargs rm -f
+fi
+
+echo ".env backup completed at $DATE"
+```
+chmod +x env-backup.sh
+./env-backup.sh
+ls -lh /var/backups/eshopProject
+
+```
+55 9 * * 4 /var/www/eshopProject/backend/scripts/env-backup.sh >> /var/backups/eshopProject/cron.log 2>&1
+```
+
+- τα αλλάξαμε σε ↓ για να μην γεμίζει το log μου ('>' αντι για '>>')
+```
+15 10 * * 4 /var/www/eshopProject/backend/scripts/atlas-backup-hetzner.sh > /var/backups/eshopProject/mongo.log 2>&1
+17 10 * * 4 /var/www/eshopProject/backend/scripts/nginx-backup.sh > /var/backups/nginx/nginx.log 2>&1
+19 10 * * 4 /var/www/eshopProject/backend/scripts/env-backup.sh > /var/backups/eshopProject/env.log 2>&1
+```
+
+# αποθήκευση στον σκληρό
+απο powershell
+```bash
+mkdir D:\hetzner-backups
+scp -r root@49.12.76.128:/var/backups D:\hetzner-backups\
+```
